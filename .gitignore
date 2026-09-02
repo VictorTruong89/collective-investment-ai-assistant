@@ -1,0 +1,13 @@
+# OS / editor cruft
+.DS_Store
+*.swp
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example

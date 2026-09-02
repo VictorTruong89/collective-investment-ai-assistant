@@ -1,0 +1,73 @@
+# Specs — source of truth (lean SDD)
+
+> **This folder is authoritative.** Production code is built from the files here, not
+> from brainstorm docs. For the tiers and the release-close procedure see
+> [`../README.md`](../README.md).
+
+## What lives where
+
+| Path | Role | Authority |
+|---|---|---|
+| [`vision.md`](vision.md) | **WHAT we are building** — dual purpose, the nine seats, capabilities `C1`–`C9`, the two scalability axes, the spec registry | **Highest, alongside the constitution** |
+| [`constitution.md`](constitution.md) | **HOW we build** — `PG-1`…`PG-9`, inherited rules, test tiers, change process | **Highest** — a spec may add constraints, never contradict it |
+| `F<n>_<slug>/spec.md` | One feature = one spec. **★ **ALL 11 specs exist (🟡 draft)** — `F1` `F2` `F3` `F4` `F5` `F6a` `F6b` `F7a` `F7b` `F8` `F9`** — IDs are claimed in `vision.md` §4.1 | Authoritative once created |
+| [`ownership.yaml`](ownership.yaml) | spec → code globs. The `PreToolUse` gate reads this; a spec with no globs is unenforced. ★ **Live since 2026-09-01** — 9 governed globs across 11 drafted specs | Authoritative (machine-read) |
+| [`_templates/spec.md`](_templates/spec.md) | Skeleton for new specs — copy it to start a feature | — |
+| `../design/rel<N>_brainstorm.md` | Brainstorm / rationale / decision log. Ideas live here until they graduate into a spec | **Non-authoritative** |
+| `../design/releases/` | One-page close-out per release (+ its template) | Non-authoritative, historical |
+| [`../archive/`](../archive/README.md) | Superseded specs, frozen as-is | Historical |
+
+**Nothing in this folder is release-scoped.** A spec describes code that is *running
+now*, so it is amended in place and retired only when its code is deleted.
+
+## The SDD loop
+
+1. **Diverge** — brainstorm freely in `../design/rel1_brainstorm.md`.
+2. **Converge** — record the decision in that log's Decisions section.
+3. **Graduate** — copy [`_templates/spec.md`](_templates/spec.md) → `F<n>_<slug>/spec.md`
+   and fill it in. A feature is ready to graduate only when its acceptance criteria
+   can be written.
+4. **Approve** — review the spec (status 🟡 draft → 🟢 approved). The ACs are now the
+   definition of done.
+5. **Implement** — write code and tests where each test satisfies a specific `AC-n.k`,
+   filling the spec's traceability table.
+
+## Test tiers (constitution §4 — every AC maps to one)
+
+data-contract · invariant/property · golden/characterization · API-contract ·
+metric-gate · unit · integration.
+
+## Spec index
+
+> IDs are claimed in [`vision.md`](vision.md) §4 and **never renumbered**.
+> ⚠ **`PG-1` blocks implementation** until the inherited pipeline completes a verified
+> end-to-end run. It does **not** block writing these specs.
+
+| Spec-ID | Feature | Status | Acceptance criteria | Tests exist? |
+|---|---|---|---|---|
+| **F1** | [Module protocol & registry (SPI)](F1_module_registry/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 2 blocked (Q1, Q4) | AC-1.1 … AC-1.12 | ⛔ none — `PG-1` blocks code |
+| **F2** | [Execution trace & replay](F2_trace_replay/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 3 blocked (Q3, Q4, Q5) | AC-2.1 … AC-2.12 | ⛔ none — `PG-1` blocks code |
+| **F3** | [Corporate-action resolution agent](F3_corporate_actions/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 1 blocked (Q1) | AC-3.1 … AC-3.12 | ⛔ none — `PG-1` |
+| **F4** | [Explainability contract](F4_explainability/spec.md) | 🟡 **draft** — 13 ACs, ⚠ 3 blocked (Q1, Q4, Q5) | AC-4.1 … AC-4.13 | ⛔ `PG-1` |
+| **F5** | [Evaluation harness](F5_evaluation_harness/spec.md) | 🟡 **draft** — 14 ACs, ⚠ 4 blocked (Q2, Q3, Q5) | AC-5.1 … AC-5.14 | ⛔ none — `PG-1` |
+| **F6a** | [Config-influence routing](F6a_config_routing/spec.md) | 🟡 **draft** — 11 ACs | AC-6a.1 … AC-6a.11 | ⛔ `PG-1` |
+| **F6b** | [Inter-agent messaging & deliberation](F6b_deliberation/spec.md) | 🟡 **draft** — 12 ACs; ✅ gate satisfied, ⚠ deployment mode set by `F7a` | AC-6b.1 … AC-6b.12 | ⛔ `PG-1` |
+| **F7a** | [Deliberation process tests (Tier A)](F7a_deliberation_process_tests/spec.md) — **gates F6b** | 🟡 **draft** — 12 ACs; ✅ blocker resolved | AC-7a.1 … AC-7a.12 | ⛔ `PG-1` |
+| **F7b** | [Deliberation outcome study (Tier B)](F7b_deliberation_outcome_study/spec.md) — never gates | 🟡 **draft** — 9 ACs, ⚠ 2 blocked (Q1, Q2) | AC-7b.1 … AC-7b.9 | ⛔ `PG-1` |
+| **F8** | [Human control surface](F8_control_surface/spec.md) | 🟡 **draft** — 20 ACs incl. directives; ⏳ vocabulary at E2E | AC-8.1 … AC-8.20 | ⛔ `PG-1` |
+| **F9** | [Thesis source port](F9_thesis_source_port/spec.md) | 🟡 **draft** — 10 ACs, ⚠ 2 blocked (Q1) | AC-9.1 … AC-9.10 | ⛔ `PG-1` |
+
+★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if
+nothing after it landed.
+
+## Adding a new spec (checklist)
+
+1. Claim the next free `F<n>` — never renumber an existing spec.
+2. `cp _templates/spec.md F<n>_<slug>/spec.md`
+3. Fill in the sections; give every behaviour an `AC-n.k` tagged with a test tier.
+4. **Add its globs to [`ownership.yaml`](ownership.yaml) in the same change** — a
+   spec with no globs is unenforced.
+5. Add a row to the Spec index above.
+6. On approval, set status 🟢 and begin implementation; keep the traceability table
+   current as tests land.
+7. Breaking a constitution rule? Amend `constitution.md` first, in its own change.

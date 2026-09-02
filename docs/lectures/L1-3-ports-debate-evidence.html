@@ -1,0 +1,1548 @@
+<title>Ports, Debate, and Evidence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#F6F7F9;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F5;
+  --code-bg:#EDF0F4;
+  --ink:#141A24;
+  --ink-soft:#57616F;
+  --ink-faint:#828C9A;
+  --accent:#1F4E8C;
+  --accent-soft:#E3EBF6;
+  --verd:#0E7C6B;
+  --verd-soft:#DEEFEB;
+  --oxide:#A33A1E;
+  --oxide-soft:#F7E4DE;
+  --rule:#DCE1E8;
+  --rule-soft:#E9ECF1;
+
+  --fs-xs:.76rem; --fs-sm:.875rem; --fs-base:1.0625rem;
+  --fs-lg:1.22rem; --fs-xl:1.55rem; --fs-2xl:2.05rem; --fs-3xl:2.75rem;
+  --measure:68ch;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+    --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+    --accent:#77ADEB; --accent-soft:#17293F;
+    --verd:#3ECBB2; --verd-soft:#0F2C29;
+    --oxide:#E58A6D; --oxide-soft:#331E17;
+    --rule:#26313F; --rule-soft:#1D2531;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+  --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+  --accent:#77ADEB; --accent-soft:#17293F;
+  --verd:#3ECBB2; --verd-soft:#0F2C29;
+  --oxide:#E58A6D; --oxide-soft:#331E17;
+  --rule:#26313F; --rule-soft:#1D2531;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--body); font-size:var(--fs-base); line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.col{max-width:var(--measure)}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface)}
+.masthead .wrap{padding-top:clamp(2.5rem,7vw,4.5rem);padding-bottom:clamp(2rem,5vw,3rem)}
+.eyebrow{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 1.1rem
+}
+h1{
+  font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5.5vw,var(--fs-3xl));
+  line-height:1.08;letter-spacing:-.015em;margin:0 0 1rem;text-wrap:balance
+}
+.standfirst{font-size:var(--fs-lg);color:var(--ink-soft);margin:0;max-width:60ch;text-wrap:pretty}
+.meta{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;margin-top:1.8rem;
+  font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);
+  letter-spacing:.04em
+}
+
+/* ---------- nav ---------- */
+.tocbar{
+  position:sticky;top:0;z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--rule)
+}
+.tocbar .wrap{display:flex;gap:.4rem;overflow-x:auto;padding-top:.5rem;padding-bottom:.5rem}
+.tocbar a{
+  flex:0 0 auto;display:flex;align-items:baseline;gap:.5rem;
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;
+  text-transform:uppercase;text-decoration:none;color:var(--ink-soft);
+  padding:.45rem .7rem;border-radius:3px;white-space:nowrap
+}
+.tocbar a:hover{background:var(--surface-2);color:var(--ink)}
+.tocbar a b{font-weight:700}
+.tocbar a.l1 b{color:var(--accent)} .tocbar a.l2 b{color:var(--verd)} .tocbar a.l3 b{color:var(--oxide)}
+
+/* ---------- lecture ---------- */
+.lecture{padding:clamp(3rem,8vw,6rem) 0 clamp(2rem,5vw,4rem);border-bottom:1px solid var(--rule)}
+.lechead{display:flex;gap:clamp(1rem,3vw,2rem);align-items:flex-start;margin-bottom:2.5rem}
+.lecnum{
+  flex:0 0 auto;font-family:var(--mono);font-weight:700;font-size:var(--fs-sm);
+  letter-spacing:.1em;padding:.35rem .6rem;border-radius:3px;line-height:1.2
+}
+.l1 .lecnum{background:var(--accent-soft);color:var(--accent)}
+.l2 .lecnum{background:var(--verd-soft);color:var(--verd)}
+.l3 .lecnum{background:var(--oxide-soft);color:var(--oxide)}
+.lechead h2{
+  font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4vw,var(--fs-2xl));
+  line-height:1.15;letter-spacing:-.01em;margin:0 0 .6rem;text-wrap:balance
+}
+.lechead p{margin:0;color:var(--ink-soft);max-width:58ch}
+
+h3{
+  font-family:var(--display);font-weight:600;font-size:var(--fs-xl);
+  line-height:1.25;margin:3.2rem 0 1rem;text-wrap:balance;
+  padding-top:1.2rem;border-top:1px solid var(--rule-soft)
+}
+h3 .sn{font-family:var(--mono);font-size:var(--fs-sm);color:var(--ink-faint);margin-right:.6rem;font-weight:500}
+h4{font-family:var(--display);font-weight:600;font-size:var(--fs-lg);margin:2rem 0 .6rem;line-height:1.3}
+p{margin:0 0 1.1rem;max-width:var(--measure);text-wrap:pretty}
+ul,ol{margin:0 0 1.2rem;padding-left:1.3rem;max-width:var(--measure)}
+li{margin-bottom:.5rem}
+li::marker{color:var(--ink-faint)}
+strong{font-weight:700}
+em{font-style:italic}
+a{color:var(--accent)}
+
+code{
+  font-family:var(--mono);font-size:.86em;background:var(--code-bg);
+  padding:.1em .35em;border-radius:3px;color:var(--ink)
+}
+pre{
+  font-family:var(--mono);font-size:var(--fs-sm);line-height:1.62;
+  background:var(--code-bg);border:1px solid var(--rule);border-radius:5px;
+  padding:1.1rem 1.25rem;overflow-x:auto;margin:0 0 1.4rem
+}
+pre code{background:none;padding:0;font-size:inherit}
+.cm{color:var(--ink-faint)}
+.kw{color:var(--accent);font-weight:500}
+.st{color:var(--verd)}
+
+/* ---------- devices ---------- */
+.callout{
+  border-left:3px solid var(--accent);background:var(--surface);
+  padding:1.1rem 1.3rem;margin:0 0 1.5rem;max-width:var(--measure);border-radius:0 4px 4px 0
+}
+.callout.warn{border-left-color:var(--oxide)}
+.callout.key{border-left-color:var(--verd)}
+.callout p:last-child{margin-bottom:0}
+.callout .lbl{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:.5rem;font-weight:700
+}
+.callout.warn .lbl{color:var(--oxide)}
+.callout.key .lbl{color:var(--verd)}
+
+.tablewrap{overflow-x:auto;margin:0 0 1.6rem;border:1px solid var(--rule);border-radius:5px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:var(--fs-sm);min-width:34rem}
+th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:700;background:var(--surface-2);white-space:nowrap
+}
+tr:last-child td{border-bottom:none}
+td code{font-size:.82em}
+
+figure{margin:0 0 1.8rem}
+figure svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--rule);border-radius:5px}
+figcaption{
+  font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);
+  margin-top:.6rem;letter-spacing:.02em;line-height:1.55;max-width:var(--measure)
+}
+.svg-ink{fill:var(--ink)} .svg-soft{fill:var(--ink-soft)} .svg-faint{fill:var(--ink-faint)}
+.svg-box{fill:var(--surface-2);stroke:var(--rule)}
+.svg-line{stroke:var(--ink-faint);fill:none}
+text{font-family:var(--mono);font-size:11px}
+
+.exercises{background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:1.4rem 1.6rem;margin-top:2.5rem;max-width:var(--measure)}
+.exercises h4{margin-top:0}
+.exercises ol{margin-bottom:0}
+
+.pill{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.05em;
+  padding:.12em .45em;border-radius:3px;background:var(--surface-2);color:var(--ink-soft);
+  white-space:nowrap
+}
+.pill.ok{background:var(--verd-soft);color:var(--verd)}
+.pill.no{background:var(--oxide-soft);color:var(--oxide)}
+
+footer{padding:clamp(2.5rem,6vw,4rem) 0 5rem;color:var(--ink-soft)}
+footer .col{font-size:var(--fs-sm)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+html{scroll-behavior:smooth;scroll-padding-top:4rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Platform Foundations · Lecture Notes</p>
+    <h1>Ports, Debate, and Evidence</h1>
+    <p class="standfirst">Three independent lectures on the mechanisms behind a pluggable, interactive, explainable investment platform — what each one actually is, how it fails, and how you prove it works.</p>
+    <div class="meta">
+      <span>Three lectures</span>
+      <span>Prereq: Python, basic ML, basic probability</span>
+      <span>Companion to <code>sdd/specs/vision.md</code> §4</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar" aria-label="Lectures">
+  <div class="wrap">
+    <a class="l1" href="#lecture-1"><b>01</b> Plugin Architecture</a>
+    <a class="l2" href="#lecture-2"><b>02</b> Interactive Agents</a>
+    <a class="l3" href="#lecture-3"><b>03</b> Explainable AI</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════ LECTURE 1 ══════════════════════════ -->
+<section class="lecture l1" id="lecture-1">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">01</span>
+    <div>
+      <h2>Plugin Architecture: Ports, Adapters, and the Substitution Contract</h2>
+      <p>How to make one module replaceable by another without the rest of the system noticing — and why the interface is the easy half.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p>You want to write <code>registry.resolve("data_source", "fmp")</code> instead of <code>EdgarClient()</code>, and have everything downstream keep working. This lecture is about what has to be true for that to be safe.</p>
+
+  <p>The naive view is that this is an <em>interface</em> problem: define the methods, make both classes implement them, done. That view is wrong in a specific and expensive way, and most of this lecture is about the gap it leaves.</p>
+  </div>
+
+  <h3><span class="sn">1.1</span> What this is actually called</h3>
+
+  <div class="col">
+  <p>"Pluggable" is the word everyone reaches for and nobody writes in a paper. It is serviceable in conversation, but it names a <em>property</em> rather than a mechanism, and if you use it in an interview you will sound like you learned this from a blog post. The concept decomposes into several established terms, each naming a different part of the machinery.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Term</th><th>Origin</th><th>What it actually names</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Strategy pattern</strong></td><td>Gamma et al., <em>Design Patterns</em>, 1994</td><td>The classic OO pattern for interchangeable algorithms behind one interface. The closest single name for what you are building.</td></tr>
+      <tr><td><strong>Dependency Inversion Principle</strong></td><td>Martin, SOLID (the "D")</td><td>The <em>rule</em>: depend on abstractions, not concretions. High-level policy must not import low-level detail.</td></tr>
+      <tr><td><strong>Inversion of Control</strong> / <strong>Dependency Injection</strong></td><td>Fowler, 2004</td><td>The <em>mechanism</em> for supplying the concrete implementation from outside rather than constructing it inside.</td></tr>
+      <tr><td><strong>Ports and Adapters</strong> (Hexagonal Architecture)</td><td>Cockburn, 2005</td><td>The <em>architecture</em>: domain at the centre, ports on the boundary, adapters outside. This is the term your project already uses.</td></tr>
+      <tr><td><strong>Service Provider Interface (SPI)</strong></td><td>Java platform; also .NET, Python <code>entry_points</code></td><td>Interface + discovery + registration. The closest term for a <em>registry-driven</em> plugin system specifically.</td></tr>
+      <tr><td><strong>Plugin / plug-in architecture</strong></td><td>Common industry usage</td><td>Legitimate term of art. What most engineers will say out loud.</td></tr>
+      <tr><td><strong>Variability management</strong>: variation points &amp; variants</td><td>Software Product Lines — Pohl, Böckle &amp; van der Linden, 2005; Jacobson et al., 1997</td><td>★ <strong>The academic framing.</strong> A <em>variation point</em> is where behaviour may differ; a <em>variant</em> is one bound choice. Binding time (compile / load / run) is the central design axis.</td></tr>
+      <tr><td><strong>Component-Based Software Engineering</strong></td><td>Szyperski, <em>Component Software</em>, 1997</td><td>The broader academic field: composition, contracts, substitutability.</td></tr>
+      <tr><td><strong>Open/Closed Principle</strong></td><td>Meyer, 1988</td><td>Open for extension, closed for modification — the motivation for all of the above.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">Which term to use, and when</span>
+    <p><strong>Writing the spec:</strong> "ports and adapters" and "registry" — precise, and already your project's vocabulary.<br>
+    <strong>Talking to an interviewer:</strong> "hexagonal architecture with a service-provider registry; dependency inversion at every domain boundary." Concrete and checkable.<br>
+    <strong>Reading the literature:</strong> search <em>variability management</em> and <em>variation point binding time</em>. That is where the analysis of <em>when</em> a variant is bound — compile time, load time, run time — is worked out properly, and it is precisely the axis on which your Layer 3 and Layer 4 differ.</p>
+  </div>
+
+  <div class="col">
+  <p>That last row is worth dwelling on, because it dissolves a question you already ran into. "Swap an implementation by config" and "the orchestrator picks a variant per ticker" are not two features — they are <strong>one variation point with two binding times</strong>: load time and run time. Naming it that way makes the relationship obvious and tells you they share a mechanism.</p>
+  </div>
+
+  <h3><span class="sn">1.2</span> The interface is not the contract</h3>
+
+  <div class="col">
+  <p>An interface is a <strong>syntactic</strong> promise: these method names, these argument types, this return type. A contract is a <strong>semantic</strong> promise: what the method actually guarantees about the values it returns.</p>
+
+  <p>Barbara Liskov's substitution principle (1987) states the requirement precisely. If <code>S</code> is a subtype of <code>T</code>, then objects of type <code>T</code> may be replaced by objects of type <code>S</code> <em>without altering the correctness of the program</em>. Unpacked into rules a substitute must obey:</p>
+
+  <ul>
+    <li><strong>Preconditions may not be strengthened.</strong> The substitute cannot demand more of its caller than the original did.</li>
+    <li><strong>Postconditions may not be weakened.</strong> The substitute must guarantee at least as much about its output.</li>
+    <li><strong>Invariants must be preserved.</strong> Anything true of the type before must stay true.</li>
+  </ul>
+
+  <p>A type checker verifies none of these. It verifies the signature. This is why "it type-checks" and "it is substitutable" are different claims.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The worked example from your own pipeline</span>
+    <p>Two adapters satisfy <code>DataSourcePort</code>: <code>EdgarAdapter</code> and <code>FmpAdapter</code>. Both return financial line items. Both type-check. But EDGAR's facts carry an explicit period <em>start</em> and <em>end</em>, so a discrete quarter can be distinguished from a cumulative year-to-date figure <em>by arithmetic</em>. FMP exposes only the period end, so it must guess — and on <code>MU</code> it guessed wrong by <strong>71%</strong>.</p>
+    <p>That is a postcondition the port never wrote down. <code>EdgarAdapter</code> guarantees "the returned value is a discrete-period figure"; <code>FmpAdapter</code> guarantees "the returned value is probably a discrete-period figure." <strong>Weakened postcondition — an LSP violation hiding behind a satisfied type signature.</strong> The bug is not in either adapter. It is in the port, for failing to state the guarantee.</p>
+  </div>
+
+  <div class="col">
+  <p>The lesson generalises: <strong>when you define a port, you are not choosing method names. You are deciding what every future implementation will be obliged to guarantee.</strong> Write the guarantees down, in the port's docstring, as testable statements.</p>
+  </div>
+
+  <h3><span class="sn">1.3</span> Ports and adapters</h3>
+
+  <div class="col">
+  <p>The structural pattern is <em>hexagonal architecture</em>, also called ports and adapters. The rule is a dependency direction:</p>
+
+  <ul>
+    <li>The <strong>port</strong> is an abstract declaration owned by the <em>inside</em> — your domain logic.</li>
+    <li>The <strong>adapter</strong> implements it and lives at the <em>edge</em>, where the vendor SDK, the HTTP call, or the file format lives.</li>
+    <li><strong>Dependencies point inward.</strong> Domain code imports the port. It never imports the adapter.</li>
+  </ul>
+
+  <p>The payoff is that your domain logic has no idea whether prices came from EDGAR, FMP, or a fixture file. That is what makes it testable, and it is the same property that makes it pluggable — testability and pluggability are the same property viewed from two angles.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Diagram: domain code depends on a port; three adapters implement it; a single contract test suite runs against all three">
+      <rect class="svg-box" x="20" y="110" width="150" height="70" rx="4"/>
+      <text class="svg-ink" x="95" y="140" text-anchor="middle" font-weight="700">domain logic</text>
+      <text class="svg-faint" x="95" y="158" text-anchor="middle">src/quant/</text>
+
+      <line class="svg-line" x1="170" y1="145" x2="252" y2="145" stroke-width="1.5" marker-end="url(#ar)"/>
+      <text class="svg-faint" x="211" y="136" text-anchor="middle">imports</text>
+
+      <rect x="255" y="100" width="140" height="90" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="325" y="128" text-anchor="middle" font-weight="700" fill="var(--accent)">PricePort</text>
+      <text class="svg-soft" x="325" y="148" text-anchor="middle">the contract</text>
+      <text class="svg-faint" x="325" y="166" text-anchor="middle">Protocol, pure typing</text>
+
+      <line class="svg-line" x1="470" y1="55" x2="398" y2="132" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line class="svg-line" x1="470" y1="145" x2="398" y2="145" stroke-width="1.5" marker-end="url(#ar)"/>
+      <line class="svg-line" x1="470" y1="235" x2="398" y2="158" stroke-width="1.5" marker-end="url(#ar)"/>
+
+      <rect class="svg-box" x="472" y="32" width="150" height="46" rx="4"/>
+      <text class="svg-ink" x="547" y="60" text-anchor="middle">EdgarAdapter</text>
+      <rect class="svg-box" x="472" y="122" width="150" height="46" rx="4"/>
+      <text class="svg-ink" x="547" y="150" text-anchor="middle">FmpAdapter</text>
+      <rect class="svg-box" x="472" y="212" width="150" height="46" rx="4"/>
+      <text class="svg-ink" x="547" y="240" text-anchor="middle">FixtureAdapter</text>
+
+      <rect x="645" y="32" width="52" height="226" rx="4" fill="var(--verd-soft)" stroke="var(--verd)" stroke-width="1.5"/>
+      <text x="671" y="132" text-anchor="middle" fill="var(--verd)" font-weight="700" transform="rotate(90 671 145)">contract test</text>
+
+      <text class="svg-faint" x="547" y="288" text-anchor="middle">implementations — swapped by the registry</text>
+      <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink-faint)"/></marker></defs>
+    </svg>
+    <figcaption>The contract test is the load-bearing piece. One suite, written once against the port, executed against every adapter — including the fixture. An adapter that has never been run through it is not known to be substitutable.</figcaption>
+  </figure>
+
+  <h3><span class="sn">1.4</span> Protocol or ABC?</h3>
+
+  <div class="col">
+  <p>Python gives you two mechanisms, and they differ in <em>when</em> and <em>how</em> conformance is decided.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>&nbsp;</th><th><code>typing.Protocol</code></th><th><code>abc.ABC</code></th></tr></thead>
+    <tbody>
+      <tr><td>Typing discipline</td><td>Structural — "shaped like"</td><td>Nominal — "declared as"</td></tr>
+      <tr><td>Adapter must inherit?</td><td>No</td><td>Yes (or <code>.register()</code>)</td></tr>
+      <tr><td>Checked by</td><td>mypy / pyright, statically</td><td>Python, at instantiation</td></tr>
+      <tr><td>Can adapt third-party classes</td><td><span class="pill ok">yes</span></td><td><span class="pill no">no</span></td></tr>
+      <tr><td>Missing method found</td><td>At type-check time</td><td>At construction time</td></tr>
+      <tr><td>Can ship shared behaviour</td><td><span class="pill no">no</span></td><td><span class="pill ok">yes</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <p>Default to <code>Protocol</code>. It keeps the port a pure declaration with no implementation, which means the port file imports nothing and can be depended on freely. Reach for <code>ABC</code> only when adapters genuinely share behaviour worth inheriting.</p>
+  </div>
+
+  <pre><code><span class="cm"># src/shared/ports/prices.py — pure typing, zero implementation</span>
+<span class="kw">from</span> typing <span class="kw">import</span> Protocol, runtime_checkable
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+
+<span class="kw">class</span> PricePort(Protocol):
+    <span class="st">"""Daily price history for one symbol.
+
+    CONTRACT — every implementation must guarantee:
+      C1  index is a timezone-naive DatetimeIndex, sorted ascending, unique
+      C2  no row has a date &gt; as_of                  (no look-ahead, INV-1)
+      C3  columns ⊇ {open, high, low, close, adj_close, volume}
+      C4  close is never NaN; a gap is an ABSENT ROW, never a filled one
+      C5  raises SymbolUnknown, never returns empty, for an unknown symbol
+    """</span>
+
+    <span class="kw">def</span> history(self, symbol: str, start: pd.Timestamp,
+                as_of: pd.Timestamp) -&gt; pd.DataFrame: ...</code></pre>
+
+  <div class="callout">
+    <span class="lbl">Note the shape of C1–C5</span>
+    <p>Every one is a statement that can be turned mechanically into an assertion. That is the test of whether you have written a contract or merely a wish. "Returns clean data" is a wish. "<code>close</code> is never NaN; a gap is an absent row" is a contract.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Trap</span>
+    <p><code>@runtime_checkable</code> makes <code>isinstance(x, PricePort)</code> legal, but it only checks that the <em>method names exist</em>. It does not check signatures, types, or anything semantic. An object with a <code>history</code> attribute set to <code>None</code> passes. Never use it as your validation gate.</p>
+  </div>
+
+  <h3><span class="sn">1.5</span> The registry</h3>
+
+  <div class="col">
+  <p>A registry is a map from a key to a way of building an implementation. That is all it is. The design decisions are in the details.</p>
+  </div>
+
+  <pre><code><span class="cm"># src/shared/registry/registry.py</span>
+<span class="kw">from</span> dataclasses <span class="kw">import</span> dataclass
+<span class="kw">from</span> typing <span class="kw">import</span> Callable, Any
+
+<span class="kw">@dataclass</span>(frozen=<span class="kw">True</span>)
+<span class="kw">class</span> Key:
+    port: str        <span class="cm"># "price", "ranking_model", "agent.fundamental"</span>
+    variant: str     <span class="cm"># "edgar", "lightgbm", "scorecard"</span>
+
+<span class="kw">@dataclass</span>(frozen=<span class="kw">True</span>)
+<span class="kw">class</span> Entry:
+    factory: Callable[..., Any]   <span class="cm"># build it, don't BE it</span>
+    version: str                  <span class="cm"># semver of the IMPLEMENTATION</span>
+    experimental: bool = <span class="kw">False</span>
+
+<span class="kw">class</span> Registry:
+    <span class="kw">def</span> __init__(self) -&gt; <span class="kw">None</span>:
+        self._entries: dict[Key, Entry] = {}
+
+    <span class="kw">def</span> register(self, port, variant, factory, version, experimental=<span class="kw">False</span>):
+        key = Key(port, variant)
+        <span class="kw">if</span> key <span class="kw">in</span> self._entries:                <span class="cm"># fail loud (P5)</span>
+            <span class="kw">raise</span> DuplicateRegistration(key)
+        self._entries[key] = Entry(factory, version, experimental)
+
+    <span class="kw">def</span> resolve(self, port, variant, **kwargs):
+        <span class="kw">try</span>:
+            entry = self._entries[Key(port, variant)]
+        <span class="kw">except</span> KeyError:
+            available = sorted(k.variant <span class="kw">for</span> k <span class="kw">in</span> self._entries <span class="kw">if</span> k.port == port)
+            <span class="kw">raise</span> UnknownVariant(port, variant, available) <span class="kw">from</span> <span class="kw">None</span>
+        <span class="kw">return</span> entry.factory(**kwargs)
+
+    <span class="kw">def</span> validate_coverage(self, required: list[str]) -&gt; <span class="kw">None</span>:
+        <span class="st">"""Called ONCE at startup. Turns a 3am KeyError into a boot failure."""</span>
+        missing = [p <span class="kw">for</span> p <span class="kw">in</span> required
+                   <span class="kw">if</span> <span class="kw">not</span> any(k.port == p <span class="kw">for</span> k <span class="kw">in</span> self._entries)]
+        <span class="kw">if</span> missing:
+            <span class="kw">raise</span> IncompleteRegistry(missing)</code></pre>
+
+  <div class="col">
+  <h4>Four decisions worth making deliberately</h4>
+  <ul>
+    <li><strong>Store factories, not instances.</strong> Registering a live object forces construction at import time, couples registration order to configuration, and makes every consumer share mutable state.</li>
+    <li><strong>Fail loudly on duplicate registration.</strong> Silent overwrite means the last import wins, and import order is not something you want load-bearing.</li>
+    <li><strong>Put the available variants in the error.</strong> <code>UnknownVariant("price", "fpm", ["edgar","fmp","fixture"])</code> diagnoses the typo. A bare <code>KeyError</code> does not.</li>
+    <li><strong>Validate coverage at startup.</strong> This is the single highest-value line in the class — see below.</li>
+  </ul>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The registry's real cost: it is a Service Locator</span>
+    <p>Dependency injection makes a module's needs <em>visible in its signature</em>: <code>def __init__(self, prices: PricePort)</code>. A registry hides them behind a lookup: <code>registry.resolve("price", cfg.variant)</code>. You have traded a <strong>compile-time</strong> error for a <strong>runtime</strong> one, and made dependencies invisible to the reader.</p>
+    <p>Two mitigations, and you want both: (1) <code>validate_coverage()</code> at startup, so failures land at boot rather than mid-run; (2) resolve at the <strong>composition root</strong> only — one wiring module — and inject the resolved object downward. Domain code should receive a <code>PricePort</code>, never reach for the registry itself.</p>
+  </div>
+
+  <h3><span class="sn">1.6</span> Contract tests: the technique that makes substitution safe</h3>
+
+  <div class="col">
+  <p>Here is the core idea of the lecture. <strong>You write one test suite against the port, and run it against every implementation.</strong> The suite is the executable form of C1–C5.</p>
+  </div>
+
+  <pre><code><span class="cm"># tests/contracts/test_price_port.py</span>
+<span class="kw">import</span> pytest
+
+<span class="cm"># Every registered variant gets pulled in automatically. A new adapter</span>
+<span class="cm"># that forgets to add itself here is the bug this parametrisation catches.</span>
+<span class="kw">@pytest</span>.fixture(params=["edgar", "fmp", "fixture"])
+<span class="kw">def</span> port(request, registry):
+    <span class="kw">return</span> registry.resolve("price", request.param)
+
+<span class="kw">def</span> test_c2_no_lookahead(port):
+    <span class="st">"""C2 · INV-1 — no row may postdate as_of, for ANY implementation."""</span>
+    as_of = pd.Timestamp("2026-06-30")
+    df = port.history("AAPL", pd.Timestamp("2026-01-01"), as_of)
+    <span class="kw">assert</span> df.index.max() &lt;= as_of
+
+<span class="kw">def</span> test_c4_gaps_are_absent_not_filled(port):
+    <span class="st">"""C4 — a missing day is a missing ROW. A forward-filled close is a
+    fabricated observation, and no downstream feature can detect it."""</span>
+    df = port.history("AAPL", pd.Timestamp("2026-01-01"), pd.Timestamp("2026-06-30"))
+    <span class="kw">assert</span> df["close"].notna().all()
+
+<span class="kw">def</span> test_c5_unknown_symbol_raises(port):
+    <span class="st">"""C5 · P5 — fail loud. An empty frame is indistinguishable from a
+    real halt, and downstream will treat it as data."""</span>
+    <span class="kw">with</span> pytest.raises(SymbolUnknown):
+        port.history("NOTATICKER", ...)</code></pre>
+
+  <div class="callout key">
+    <span class="lbl">Why this matters more than the registry</span>
+    <p>The registry lets you swap implementations. The contract test is what makes the swap <em>safe</em>. Without it, "pluggable" means "the program still starts" — and the MU-71% class of bug ships silently, because the type signature was never the thing that was wrong.</p>
+    <p>It also has a pleasant side effect: it forces the contract to be honest. If <code>FmpAdapter</code> cannot pass <code>test_c2</code>, you have learned something true about your data source, and you learned it in CI rather than in a backtest six months later.</p>
+  </div>
+
+  <h3><span class="sn">1.7</span> When <em>not</em> to build a port</h3>
+
+  <div class="col">
+  <p>Abstraction has a price: indirection, a second file to read, and a boundary that constrains future change. The discipline that keeps it worth paying is a rule your project already states as <strong>CA-5</strong>:</p>
+
+  <p><strong>Create a port only where a second implementation actually exists, or is contractually promised.</strong></p>
+
+  <p>A port with a single implementation is a guess about the future written in code. It is also the most common form of over-engineering in codebases that have just discovered hexagonal architecture. Two honest exceptions:</p>
+
+  <ul>
+    <li>A real implementation plus a <strong>test double</strong> is genuinely two — the fixture adapter is not a fake requirement.</li>
+    <li>A boundary to a system you do not control (a vendor API) earns a port on <em>risk</em> grounds even at one implementation, because the second one arrives when the vendor changes, not when you choose.</li>
+  </ul>
+  </div>
+
+  <h3><span class="sn">1.8</span> Anti-patterns</h3>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Anti-pattern</th><th>What it looks like</th><th>Why it hurts</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Leaky port</strong></td><td><code>def fetch(self, fmp_params: dict)</code></td><td>Vendor concepts in the port. The second adapter cannot implement it without pretending to be the first.</td></tr>
+      <tr><td><strong>God interface</strong></td><td>One port with 19 methods</td><td>Every adapter must implement all 19; most raise <code>NotImplementedError</code>. Split by capability instead.</td></tr>
+      <tr><td><strong>Registry as global</strong></td><td>Module-level singleton mutated on import</td><td>Import order becomes semantics; tests leak into each other. Pass the registry explicitly.</td></tr>
+      <tr><td><strong>Stringly-typed config</strong></td><td><code>variant: "lightbgm"</code></td><td>Typo surfaces at runtime, deep in a pipeline. Validate against the registry at startup.</td></tr>
+      <tr><td><strong>Version-free variants</strong></td><td>Registry has no version field</td><td>You cannot answer "which implementation produced this recommendation?" six months later.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Write the contract (C1–Cn) for <code>RankingModelPort</code> — a model that scores a cross-section of symbols on one date. Which guarantee makes LightGBM and a linear model genuinely substitutable, and which one would <em>fail</em> if you added a model that needs the whole panel?</li>
+      <li>Your registry resolves <code>("agent.fundamental", "growth")</code> and <code>("agent.fundamental", "value")</code>. These are the same code with different config. Should they be two registry entries, or one entry plus a config argument? Argue both, then pick — and state what your choice makes <em>hard</em>.</li>
+      <li>Take the MU-71% incident. Write the single contract assertion that would have caught it, and say which adapter it fails on. Then answer the harder question: should a port be allowed to have an implementation that cannot satisfy it?</li>
+      <li>Using the product-line vocabulary from §1.1: name the <em>variation point</em>, the <em>variants</em>, and the <em>binding time</em> for (a) choosing EDGAR vs FMP at startup, and (b) the orchestrator choosing a model horizon per ticker. What single mechanism serves both, and what must differ?</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════ LECTURE 2 ══════════════════════════ -->
+<section class="lecture l2" id="lecture-2">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">02</span>
+    <div>
+      <h2>Interactive Agents: Configuration Influence and Structured Argument</h2>
+      <p>Two different mechanisms that get called "agents talking to each other" — with different failure modes, different tests, and only one of them non-deterministic.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p>You want two things. First: one agent's output should influence another's configuration — the fundamental analyst notices high volatility, so the quant model runs at a one-week horizon rather than one month. Second: two agents should be able to <em>argue</em> before concluding.</p>
+
+  <p>These sound like one feature. They are not, and conflating them is the most common design error in multi-agent systems.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>&nbsp;</th><th>A · Configuration influence</th><th>B · Argumentation</th></tr></thead>
+    <tbody>
+      <tr><td>What flows</td><td>A <em>variant name</em> — control</td><td>A <em>claim</em> — content</td></tr>
+      <tr><td>Mechanism</td><td>Routing function</td><td>Message state machine</td></tr>
+      <tr><td>Determinism</td><td><span class="pill ok">deterministic, replayable</span></td><td><span class="pill no">LLM in the loop</span></td></tr>
+      <tr><td>Primary hazard</td><td>Cycles; loss of independence</td><td>Sycophancy; correlated errors</td></tr>
+      <tr><td>Cost to test</td><td>Low — it is a pure function</td><td>High — needs a measured study</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <p>Because their failure modes are disjoint, they belong in separate specs — <strong>F6a</strong> and <strong>F6b</strong>. Part A is cheap, deterministic and useful on its own. Part B is expensive and needs evidence before you believe it.</p>
+  </div>
+
+  <h3><span class="sn">2.1</span> What an "agent" actually is</h3>
+
+  <div class="col">
+  <p>Strip the marketing. An agent is a component that (i) <em>perceives</em> some state, (ii) <em>decides</em> on an action, possibly using a model, (iii) <em>acts</em> through tools that change the world or gather more information, and (iv) carries <em>state</em> across steps.</p>
+
+  <p>An LLM call is not an agent. A function that calls an LLM once and returns a string is a function. What makes something agentic is the <strong>loop</strong> — it can decide it needs more information and go get it.</p>
+
+  <p>This matters for your project because it gives you a sharp test for whether a component deserves to be an agent at all, which your constitution states as <strong>PG-3</strong>: an agent is justified only where the task requires open-ended, tool-using interaction with an unbounded external world. Resolving whether a ticker was delisted or renamed qualifies — the answer is on the internet and you do not know in advance which query finds it. Computing portfolio concentration does not — it is a sum.</p>
+  </div>
+
+  <h3><span class="sn">2.2</span> "Orchestrator" means three different things</h3>
+
+  <div class="col">
+  <p>This word is badly overloaded, and the ambiguity hides a real architectural decision. When someone says "the orchestrator", they may mean any of three things:</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>&nbsp;</th><th>What it is</th><th>Who wrote it</th><th>Intelligence</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>① The framework</strong></td>
+        <td>A library — LangGraph, CrewAI, AutoGen. Provides graph definition, state passing, checkpointing, retries.</td>
+        <td>A vendor</td>
+        <td><span class="pill">none</span> Pure infrastructure. Knows nothing about investing.</td>
+      </tr>
+      <tr>
+        <td><strong>② The orchestration component</strong> <em>(D-08)</em></td>
+        <td>★ <strong>Your code.</strong> The graph topology, the routing functions, turn budgets, retry policy, run manifest.</td>
+        <td>You</td>
+        <td><span class="pill ok">deterministic</span> Carries <em>policy</em>, not judgement. Plain functions.</td>
+      </tr>
+      <tr>
+        <td><strong>③ An orchestrator agent</strong></td>
+        <td>An LLM that decides at runtime which agent to call next — the "supervisor" or "planner" pattern.</td>
+        <td>A model</td>
+        <td><span class="pill no">non-deterministic</span> Judgement in the control plane.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <p><strong>In Lecture 2, "orchestrator" always means ② — and ② is deterministic.</strong> Your L0 states it directly: D-08 <em>"invokes; never computes."</em> Every routing function in this lecture is a pure function you can exhaustively unit-test. LangGraph, if you adopt it, is ① — the library that ② is <em>written in</em>. They are not alternatives to each other; one implements the other.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Should the orchestrator carry intelligence? Almost certainly not — here</span>
+    <p>Option ③ is fashionable and is the default in a lot of tutorial content: let an LLM supervisor decide the plan. For an open-ended assistant that is reasonable. For your system it is the wrong trade, for three reasons.</p>
+    <p><strong>It breaks auditability.</strong> "Why did this run use the 1-week model?" must have an answer. With ②, the answer is a recorded predicate: <code>realised_vol_60d &gt; 0.45</code>. With ③, the answer is "the model felt it should", which is exactly the class of unfalsifiable output your constitution exists to prevent.</p>
+    <p><strong>It violates AP-5.</strong> Routing on volatility is a definable computation. Handing a definable computation to an LLM is the capability-creep failure mode.</p>
+    <p><strong>It makes replay meaningless.</strong> If control flow itself is stochastic, two runs on identical data can take different paths, and you lose the ability to attribute an outcome difference to anything.</p>
+    <p>★ Keep judgement in the <em>agents</em>, where it is bounded and its output is checkable. Keep the <em>control plane</em> deterministic. That division is the interesting architectural claim in your design, and it is defensible in a way "I used a supervisor agent" is not.</p>
+    <p>→ <strong>§2.8 treats option ③ properly</strong>: how you would build one, the non-LLM alternatives most discussions omit, where it genuinely belongs in industry, the four reasons it fails here, and what would have to change for that to reverse.</p>
+  </div>
+
+  <h3><span class="sn">2.3</span> Orchestration frameworks: what they give you, and where they belong</h3>
+
+  <div class="col">
+  <p>Orchestration frameworks show up constantly in job descriptions, so it is worth knowing the landscape precisely rather than by reputation. First, a distinction that trips people up: there are <strong>two unrelated families</strong> of tool both called "orchestration".</p>
+
+  <ul>
+    <li><strong>Workflow / data orchestration</strong> — Airflow, Prefect, Dagster, Temporal. Schedule jobs, manage DAGs of tasks, retry, backfill. Temporal adds durable execution: a workflow survives process death and resumes. These are about <em>reliability over long time horizons</em>.</li>
+    <li><strong>Agent orchestration</strong> — LangGraph, CrewAI, AutoGen, Semantic Kernel, LlamaIndex Workflows. Manage a graph of LLM-bearing steps with shared state, tool calls, and human interrupts. These are about <em>control flow around non-deterministic components</em>.</li>
+  </ul>
+
+  <p>Your D-08 needs a little of both, and they are not competitors — a daily run could be scheduled by cron or Temporal and internally structured by LangGraph.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Framework</th><th>Model of computation</th><th>Strength</th><th>Cost / caveat</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LangGraph</strong></td><td>Explicit state machine: <code>StateGraph</code> of nodes and edges, conditional edges, typed shared state</td><td>Checkpointing, time-travel replay, native human-in-the-loop <code>interrupt()</code>, streaming, topology you define</td><td>LangChain dependency surface; abstractions can obscure a clean domain layer</td></tr>
+      <tr><td><strong>CrewAI</strong></td><td>Role-playing crew: agents with roles, goals, backstories; sequential or hierarchical process</td><td>Very fast to a working demo; maps intuitively onto a "team"</td><td>Topology is largely framework-chosen; conditional routing is hard to express; weaker introspection</td></tr>
+      <tr><td><strong>AutoGen</strong></td><td>Conversational: agents exchange messages in a group chat, optional code execution</td><td>Strongest native model of multi-agent <em>conversation</em>; good for debate patterns</td><td>Conversation-centric means control flow is emergent, which is the opposite of what you want in the control plane</td></tr>
+      <tr><td><strong>Semantic Kernel</strong></td><td>Plugins + planners, enterprise-oriented</td><td>Strong .NET/Azure story, typed plugin model</td><td>Ecosystem gravity toward Microsoft; less common in the roles you are targeting</td></tr>
+      <tr><td><strong>None</strong> — plain Python</td><td>Functions and a dict of state</td><td>Zero dependencies, total clarity, trivially testable</td><td>You reimplement checkpointing and replay — which is real work, and is <code>F2</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <h4>What a framework actually buys you</h4>
+  <p>Strip the marketing and there are five capabilities. Ask of each whether you would otherwise build it:</p>
+  <ol>
+    <li><strong>Graph definition</strong> — nodes, edges, conditional transitions. <em>You would write this anyway; it is ~200 lines.</em></li>
+    <li><strong>State management</strong> — a typed object threaded through nodes with merge semantics. <em>Also modest.</em></li>
+    <li><strong>Checkpointing &amp; replay</strong> — persist state after every node; resume or rewind. <em>★ This is the one with real depth, and it is exactly what F2 needs.</em></li>
+    <li><strong>Human-in-the-loop interrupts</strong> — pause the graph, surface to a person, resume with their input. <em>★ Maps directly onto your Seat 1.</em></li>
+    <li><strong>Streaming &amp; observability</strong> — token and step streaming, tracing hooks. <em>Useful for a demo.</em></li>
+  </ol>
+  <p>Items 3 and 4 are the honest case for adopting one. Items 1, 2 and 5 you could write in a week.</p>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The recommendation, stated with its trade-off</span>
+    <p><strong>Use LangGraph, confine it to D-08, and be able to explain why.</strong> The explicit-state-machine model matches a system where you want to <em>define</em> the topology rather than have a framework infer it — and your topology is already fixed by the analyst firewall, which is a graph constraint (an absent edge). Checkpointing gives you F2's replay substrate. <code>interrupt()</code> gives you Seat 1 as a first-class node rather than a bolt-on.</p>
+    <p><strong>The confinement rule matters more than the choice.</strong> LangGraph is imported by <code>src/orchestration/graph/</code> and by nothing else — enforceable as a CI grep, exactly like <code>ST-5</code> does for the LLM gateway. Agents stay plain Python classes behind <code>AgentPort</code>. If LangGraph is abandoned in 2028, you rewrite one directory.</p>
+    <p>★ <strong>And be honest about the weight.</strong> LangGraph is roughly a week to learn. It is a keyword on a CV, not an architecture. The defensible claim in an interview is not "I used LangGraph" — it is "I kept my domain logic independent of it, and here is the grep that proves it."</p>
+  </div>
+
+  <h3><span class="sn">2.4</span> Part A — the control plane</h3>
+
+  <div class="col">
+  <p>Borrow the framing from networking. The <strong>data plane</strong> carries the payload: features, scores, theses. The <strong>control plane</strong> decides how the data plane is configured: which model, which horizon, which LLM tier, which prompt variant.</p>
+
+  <p>Configuration influence is a control-plane feature. Its implementation is unglamorous and that is the point:</p>
+  </div>
+
+  <pre><code><span class="cm"># src/orchestration/graph/routing.py</span>
+
+<span class="kw">def</span> select_quant_variant(features: FeatureRow,
+                         peer: FundamentalView | <span class="kw">None</span>) -&gt; Routing:
+    <span class="st">"""Pure function. Same inputs → same variant, always.
+
+    Note what it returns: a NAME and a REASON, not a model. Routing decides
+    WHICH; the registry decides HOW to build it. Keeping those separate is
+    what lets you unit-test routing without constructing a single model.
+    """</span>
+    <span class="kw">if</span> features.realised_vol_60d &gt; VOL_HIGH:
+        <span class="kw">return</span> Routing(variant=<span class="st">"horizon_1w"</span>,
+                       reason=<span class="st">"realised_vol_60d &gt; 0.45"</span>,
+                       influenced_by=<span class="kw">None</span>)
+
+    <span class="kw">if</span> peer <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span> <span class="kw">and</span> peer.thesis_horizon == <span class="st">"short"</span>:
+        <span class="kw">return</span> Routing(variant=<span class="st">"horizon_1w"</span>,
+                       reason=<span class="st">"fundamental thesis is short-horizon"</span>,
+                       influenced_by=<span class="st">"seat_2"</span>)   <span class="cm"># ← PG-7: RECORD IT</span>
+
+    <span class="kw">return</span> Routing(variant=<span class="st">"horizon_1m"</span>, reason=<span class="st">"default"</span>, influenced_by=<span class="kw">None</span>)</code></pre>
+
+  <div class="col">
+  <p>Three properties make this good engineering rather than plumbing:</p>
+  <ul>
+    <li><strong>It is a pure function.</strong> You can exhaustively unit-test routing without instantiating a model, calling an LLM, or touching the network.</li>
+    <li><strong>It returns a reason.</strong> When you later ask "why did this name get the one-week model?", the answer is in the trace, not in someone's memory.</li>
+    <li><strong>It records <code>influenced_by</code>.</strong> This field is the whole subject of the next section.</li>
+  </ul>
+  </div>
+
+  <h4>Why influence must be mediated by the orchestrator</h4>
+
+  <div class="col">
+  <p>The tempting design is for the fundamental agent to call the quant agent directly. Resist it, for four reasons:</p>
+
+  <ul>
+    <li><strong>Coupling.</strong> Direct calls make <em>n</em> agents into <em>n²</em> potential dependencies.</li>
+    <li><strong>Your import fence.</strong> <code>ST-9</code> forbids <code>src/fundamental/</code> and <code>src/quant/</code> importing each other. Direct calls violate it structurally; mediation preserves it, because both agents import only the orchestrator's message types.</li>
+    <li><strong>One place to enforce policy.</strong> Turn budgets, cycle detection and logging all need a chokepoint.</li>
+    <li><strong>Replay.</strong> If influence flows through the orchestrator, the trace has every routing decision. If it flows peer-to-peer, reconstructing a run means reconstructing every agent's internal state.</li>
+  </ul>
+  </div>
+
+  <h4>What the orchestrator does <em>not</em> own: the decision</h4>
+
+  <div class="col">
+  <p>A natural question: does the orchestrator subsume D-12, the Decision domain? <strong>No — and keeping them apart is load-bearing.</strong> They answer different questions and fail in different ways.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>&nbsp;</th><th>D-08 Orchestration</th><th>D-12 Decision</th></tr></thead>
+    <tbody>
+      <tr><td>Question it answers</td><td><em>Who runs, when, with what config?</em></td><td><em>Given these views, what is the verdict?</em></td></tr>
+      <tr><td>Vocabulary</td><td>nodes, edges, retries, budgets, variants</td><td>BUY / HOLD / SELL, gates, conviction</td></tr>
+      <tr><td>Your L0's phrasing</td><td>"invokes; never computes"</td><td>"composes; originates nothing"</td></tr>
+      <tr><td>Knows what a verdict <em>means</em>?</td><td><span class="pill no">no</span></td><td><span class="pill ok">yes — it is the only thing it knows</span></td></tr>
+      <tr><td>In the graph</td><td>★ <strong>is the graph</strong></td><td>★ <strong>is a node in it</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <p>The orchestrator routes a message <em>to</em> D-12 the same way it routes to any other node. It does not peek inside the payload and reason about whether BUY is warranted; it cannot, because it has no vocabulary for verdicts. D-12 in turn has no idea it was invoked by a graph — hand it the same views from a test harness and it returns the same verdict.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Why the separation is worth defending</span>
+    <p>The tempting shortcut, once you have a graph, is to put a little decision logic in a conditional edge: <em>"if risk flagged concentration, route to HOLD."</em> That single line has moved a verdict rule out of D-12 — where it is unit-tested, governed by the meet-semilattice, and provably unable to upgrade a verdict — into control flow, where none of those guarantees apply.</p>
+    <p>Do it three more times and your decision logic is scattered across routing predicates, <code>PG-6</code>'s structural guarantee is void, and nobody can answer "what are all the ways this system can produce a BUY?" ★ <strong>A conditional edge may branch on <em>which node runs next</em>. It may never compute <em>what the answer is</em>.</strong></p>
+  </div>
+
+  <div class="col">
+  <p>One case makes the line vivid. During deliberation, two different "when do we stop" questions arise, and they belong on opposite sides:</p>
+  <ul>
+    <li><em>"The turn budget is spent — stop arguing."</em> → <strong>orchestrator.</strong> A protocol decision about control flow.</li>
+    <li><em>"The agents disagree; what is the combined verdict?"</em> → <strong>D-12.</strong> A semantic decision about content.</li>
+  </ul>
+  <p>The orchestrator ends the conversation. D-12 says what the conversation amounted to. If the orchestrator ever answers the second question, you have put judgement in the control plane by the back door — the same failure as option ③ in §2.2, arriving one conditional edge at a time.</p>
+  </div>
+
+  <h4>Hazard 1: cycles</h4>
+
+  <figure>
+    <svg viewBox="0 0 720 210" role="img" aria-label="Diagram contrasting a safe one-directional influence phase with an unsafe mutual influence cycle">
+      <text class="svg-soft" x="20" y="26" font-weight="700">SAFE — phase-ordered, acyclic</text>
+      <rect class="svg-box" x="20" y="46" width="112" height="44" rx="4"/>
+      <text class="svg-ink" x="76" y="73" text-anchor="middle">fundamental</text>
+      <line class="svg-line" x1="132" y1="68" x2="182" y2="68" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <rect x="184" y="46" width="96" height="44" rx="4" fill="var(--verd-soft)" stroke="var(--verd)" stroke-width="1.5"/>
+      <text x="232" y="73" text-anchor="middle" fill="var(--verd)" font-weight="700">routing</text>
+      <line class="svg-line" x1="280" y1="68" x2="330" y2="68" stroke-width="1.5" marker-end="url(#ar2)"/>
+      <rect class="svg-box" x="332" y="46" width="112" height="44" rx="4"/>
+      <text class="svg-ink" x="388" y="73" text-anchor="middle">quant</text>
+      <text class="svg-faint" x="470" y="73">one pass · terminates</text>
+
+      <text class="svg-soft" x="20" y="140" font-weight="700">UNSAFE — mutual influence</text>
+      <rect class="svg-box" x="20" y="158" width="112" height="40" rx="4"/>
+      <text class="svg-ink" x="76" y="183" text-anchor="middle">fundamental</text>
+      <rect class="svg-box" x="332" y="158" width="112" height="40" rx="4"/>
+      <text class="svg-ink" x="388" y="183" text-anchor="middle">quant</text>
+      <path class="svg-line" d="M132,170 C220,146 262,146 330,170" stroke="var(--oxide)" stroke-width="1.5" marker-end="url(#ar3)"/>
+      <path class="svg-line" d="M330,190 C262,214 220,214 132,190" stroke="var(--oxide)" stroke-width="1.5" marker-end="url(#ar3)"/>
+      <text x="470" y="183" fill="var(--oxide)">may not terminate</text>
+      <defs>
+        <marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink-faint)"/></marker>
+        <marker id="ar3" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--oxide)"/></marker>
+      </defs>
+    </svg>
+    <figcaption>Mutual configuration influence is a fixed-point computation, and fixed-point iterations do not terminate for free. Phase ordering makes termination structural rather than something you hope for.</figcaption>
+  </figure>
+
+  <div class="col">
+  <p>If A can reconfigure B and B can reconfigure A, you are computing a fixed point. Three ways to guarantee it halts, in descending order of how much I would trust them:</p>
+
+  <ol>
+    <li><strong>Make the influence graph a DAG.</strong> Phase-order the agents; influence flows one way only. Termination is structural. <em>Start here.</em></li>
+    <li><strong>Bound the iterations.</strong> Allow mutual influence but cap total rounds and define what happens at the cap — which must not be "use whatever we had."</li>
+    <li><strong>Prove monotonicity.</strong> Show each round moves a well-founded measure strictly downward. Elegant, and rarely true of anything involving an LLM.</li>
+  </ol>
+  </div>
+
+  <h4>Hazard 2 — the deep one: influence destroys independence</h4>
+
+  <div class="callout warn">
+    <span class="lbl">This is the part that is easy to get wrong and expensive to discover</span>
+    <p>Your architecture firewalls the fundamental and quantitative seats so their views are <strong>independent</strong>. The value of independence is statistical: when two independent estimators agree, that agreement is <em>evidence</em>. Informally, two independent looks at the same question, both landing on BUY, is meaningfully stronger than one.</p>
+    <p>Now condition B's configuration on A's output. B's view is no longer independent of A's given the data — you have introduced a path from A into B. <strong>Their agreement stops being evidence and becomes partly an echo.</strong> The system will still print "both seats agree", and that sentence will now mean something weaker than it did, with nothing on the screen to indicate the change.</p>
+  </div>
+
+  <div class="col">
+  <p>The failure is silent, which is what makes it dangerous. Nothing crashes. A number that used to carry information quietly stops carrying it. This is exactly why <strong>PG-7</strong> requires three things:</p>
+
+  <ol>
+    <li>Every cross-configuration request is <strong>recorded</strong> on the nomination (<code>influenced_by</code>).</li>
+    <li>Decisions where one seat configured the other are <strong>bucketed separately</strong> in evaluation.</li>
+    <li>The combined verdict <strong>may never claim "two independent views agree"</strong> when one configured the other.</li>
+  </ol>
+
+  <p>Rule 2 is the one that turns this from a caveat into a measurement: you can compare the hit rate of influenced versus uninfluenced decisions and find out empirically what the influence cost you.</p>
+  </div>
+
+  <h3><span class="sn">2.5</span> Part B — argumentation as a state machine</h3>
+
+  <div class="col">
+  <p>"Two agents argue" must become a protocol with typed messages and a guaranteed termination condition, or it becomes an unbounded chat that sometimes stops.</p>
+
+  <p>Model it as a finite state machine. Each message type is a transition, not a flavour of text.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 720 250" role="img" aria-label="State machine for a deliberation protocol with states proposed, challenged, revised, settled, escalated">
+      <ellipse cx="80" cy="60" rx="56" ry="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+      <text class="svg-ink" x="80" y="64" text-anchor="middle">PROPOSED</text>
+
+      <ellipse cx="280" cy="60" rx="60" ry="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+      <text class="svg-ink" x="280" y="64" text-anchor="middle">CHALLENGED</text>
+
+      <ellipse cx="280" cy="170" rx="56" ry="26" fill="var(--surface-2)" stroke="var(--rule)"/>
+      <text class="svg-ink" x="280" y="174" text-anchor="middle">REVISED</text>
+
+      <ellipse cx="530" cy="60" rx="54" ry="26" fill="var(--verd-soft)" stroke="var(--verd)" stroke-width="1.5"/>
+      <text x="530" y="64" text-anchor="middle" fill="var(--verd)" font-weight="700">SETTLED</text>
+
+      <ellipse cx="530" cy="170" rx="60" ry="26" fill="var(--oxide-soft)" stroke="var(--oxide)" stroke-width="1.5"/>
+      <text x="530" y="174" text-anchor="middle" fill="var(--oxide)" font-weight="700">ESCALATED</text>
+
+      <line class="svg-line" x1="136" y1="60" x2="218" y2="60" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="177" y="50" text-anchor="middle">CHALLENGE</text>
+
+      <line class="svg-line" x1="340" y1="60" x2="474" y2="60" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="407" y="50" text-anchor="middle">ACKNOWLEDGE</text>
+
+      <line class="svg-line" x1="280" y1="86" x2="280" y2="142" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="292" y="118">REVISION</text>
+
+      <line class="svg-line" x1="336" y1="170" x2="468" y2="170" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="402" y="160" text-anchor="middle">turn budget spent</text>
+
+      <path class="svg-line" d="M300,146 C340,110 420,92 480,74" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="420" y="130" text-anchor="middle">accepted</text>
+
+      <path class="svg-line" d="M244,152 C200,120 200,96 232,74" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <text class="svg-faint" x="176" y="112" text-anchor="middle">re-challenge</text>
+      <text class="svg-faint" x="176" y="128" text-anchor="middle">(counts against budget)</text>
+      <defs><marker id="ar4" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink-faint)"/></marker></defs>
+    </svg>
+    <figcaption>Every path reaches SETTLED or ESCALATED. The re-challenge loop is the only cycle and it decrements a budget, so the machine halts by construction. ESCALATED is not a failure state — it is the human-in-the-loop exit, and a system that never escalates is one that has learned to paper over disagreement.</figcaption>
+  </figure>
+
+  <div class="col">
+  <p>Two design points that are easy to miss:</p>
+  <ul>
+    <li><strong>Messages carry structured payloads, not prose.</strong> A <code>CHALLENGE</code> should name the field it disputes and the value it expected. If the payload is a paragraph, the only thing that can consume it is another LLM, and you have lost the ability to branch on it deterministically.</li>
+    <li><strong>Escalation is a first-class outcome.</strong> The alternative — forcing convergence — means the system silently averages a genuine disagreement, which is precisely the information you most wanted to see.</li>
+  </ul>
+  </div>
+
+  <h3><span class="sn">2.6</span> Why LLM debate often fails</h3>
+
+  <div class="col">
+  <p>This is the section to remember. Multi-agent debate is widely demonstrated and much less widely <em>measured</em>. There are three well-established reasons it can produce motion without information.</p>
+  </div>
+
+  <h4>1 · Sycophancy</h4>
+
+  <div class="col">
+  <p>Language models tend to defer to pushback from a user or another model, adjusting their answer toward the challenger regardless of whether the challenge is correct. Anthropic's own work on the phenomenon (Sharma et al., 2023) found sycophantic behaviour across several production assistants, and it is a direct consequence of preference-based training: agreeable responses were rewarded.</p>
+
+  <p>In a debate protocol this is fatal. If the challenged agent revises whenever challenged, the "deliberation" measures who spoke last, not who was right.</p>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The cheapest experiment in this entire lecture</span>
+    <p>Run your deliberation twice over the same set of decisions. Once with <strong>valid</strong> challenges from the risk agent, once with challenges that are <strong>deliberately wrong</strong> — cite a concentration figure that is false, an exposure that does not exist.</p>
+    <p>Then measure the <strong>capitulation rate</strong> in each arm. If the fundamental agent revises just as often against bogus challenges as against valid ones, your deliberation layer is transferring social pressure, not evidence — and you have discovered that with a few hundred lines and no new infrastructure.</p>
+    <p>Report that number either way. A measured capitulation rate is a stronger portfolio artifact than a transcript that looks impressive.</p>
+  </div>
+
+  <h4>2 · Correlated errors</h4>
+
+  <div class="col">
+  <p>Ensembles gain from <em>diverse</em> errors. Two instances of the same base model, given the same context, share training data, biases and blind spots — their errors are highly correlated, so the second opinion adds far less than its cost implies. Worse, it can add <em>confidence</em> without adding accuracy: two agreeing agents feel like corroboration.</p>
+  </div>
+
+  <h4>3 · Position and anchoring effects</h4>
+
+  <div class="col">
+  <p>Whichever agent speaks first frames the exchange; the second reacts to that frame rather than assessing independently. If you must have debate, randomise speaking order across runs and check whether outcomes depend on it. If they do, you are measuring the protocol, not the question.</p>
+  </div>
+
+  <h4>When debate genuinely helps</h4>
+
+  <div class="col">
+  <p>The condition is <strong>asymmetry</strong>. Debate adds information when the participants are not interchangeable:</p>
+  <ul>
+    <li><strong>Asymmetric information</strong> — the risk agent can see the book; the fundamental agent cannot. The challenge carries facts the other side genuinely lacked.</li>
+    <li><strong>Asymmetric tools</strong> — one can query filings, the other can run a simulation. The exchange moves real evidence.</li>
+    <li><strong>Verifiable claims</strong> — the challenge cites a number that can be <em>checked deterministically</em>, so the revision is forced by arithmetic rather than by tone.</li>
+  </ul>
+  <p>Note that all three describe your risk-versus-fundamental pairing well, and none of them describes two general-purpose LLMs discussing a thesis. That is the design brief: give the agents different information and different tools, and make every challenge cite something checkable.</p>
+  </div>
+
+  <h3><span class="sn">2.7</span> Determinism, tracing, replay</h3>
+
+  <div class="col">
+  <p>You cannot debug what you cannot reproduce, and an LLM-bearing pipeline is not reproducible by default. Sources of non-determinism, in rough order of how much trouble they cause:</p>
+
+  <ul>
+    <li><strong>Sampling.</strong> <code>temperature=0</code> reduces variance but does not guarantee identical output across model versions or backends.</li>
+    <li><strong>Model version drift.</strong> A provider alias can move under you. Pin exact model identifiers and record them in the trace.</li>
+    <li><strong>Tool results.</strong> A web search returns different results tomorrow. This is the big one for your corporate-action agent.</li>
+    <li><strong>Concurrency.</strong> If agents run in parallel, message interleaving varies.</li>
+  </ul>
+
+  <p>The practical resolution is not to chase bit-for-bit determinism. It is to <strong>record enough that a run can be replayed from its trace</strong>: every message, every tool call <em>and its response</em>, every routing decision with its reason, model ids, prompt versions, and a hash of the input snapshot. Replay then re-executes the graph against recorded tool responses instead of live ones.</p>
+
+  <p>This is why <strong>F2 (trace and replay) is a prerequisite for both halves of Feature 2</strong>, not a nice-to-have that follows them. Build the trace first; it is the substrate that makes everything else auditable — and it is the same substrate Lecture 3 needs.</p>
+  </div>
+
+  <h3><span class="sn">2.8</span> The road not taken: the AI orchestrator agent</h3>
+
+  <div class="col">
+  <p>§2.2 introduced option ③ — an orchestrator whose control decisions are made by a model rather than by a program — and set it aside in three sentences. It deserves more, because it is the default in a great deal of current writing, because it is genuinely right for some systems, and because knowing precisely <em>why</em> it is wrong here is more valuable than not having considered it.</p>
+  </div>
+
+  <h4>Definition</h4>
+
+  <div class="callout">
+    <span class="lbl">What makes an orchestrator "AI-powered"</span>
+    <p>An orchestrator is AI-powered when the <strong>policy</strong> — the function mapping <em>current state</em> to <em>next action</em> — is <strong>learned or inferred</strong> rather than written. The distinction is not whether the system contains a model; your deterministic orchestrator invokes models constantly. It is whether a model decides <em>what happens next</em>.</p>
+  </div>
+
+  <div class="col">
+  <p>Every such orchestrator, regardless of technique, has the same five parts. Designing one means making five decisions:</p>
+
+  <ol>
+    <li><strong>State representation</strong> — what the policy can see. The most consequential choice. A raw transcript is easy and unbounded; a typed state object is disciplined and requires you to know in advance what matters.</li>
+    <li><strong>Action space</strong> — the set of legal next moves, which must be <em>enumerable and validated</em>. Naive implementations let the policy emit free text and hope it names a real tool. Every proposed action must be checked against the registry before execution.</li>
+    <li><strong>Policy</strong> — state → action. This is the "AI" part, and it has more implementations than people assume (below).</li>
+    <li><strong>Termination</strong> — a halting guarantee. Step budget, cost budget, or a proven terminal condition. Never "the model decides it is done", alone.</li>
+    <li><strong>Guardrails</strong> — validation, budget enforcement, and a deterministic fallback for when the policy proposes something illegal or the budget expires.</li>
+  </ol>
+
+  <p>For LLM policies specifically, the recurring architectures are <strong>ReAct</strong> (Yao et al., 2022 — interleaved reasoning and action), <strong>Plan-and-Execute</strong> (plan up front, then run — cheaper, less adaptive), <strong>supervisor/hierarchical</strong> (a router delegates to workers and collects results), <strong>Reflexion</strong> (Shinn et al., 2023 — self-critique between attempts), and <strong>Tree of Thoughts</strong> (Yao et al., 2023 — search over reasoning paths).</p>
+  </div>
+
+  <h4>Non-LLM policies — the part most discussions skip</h4>
+
+  <div class="col">
+  <p>"AI orchestrator" has become shorthand for "LLM planner", but the LLM is the newest and often the weakest option. The field is older and richer than that, and several alternatives are better suited to bounded problems:</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Policy type</th><th>How it decides</th><th>Reference / production use</th><th>Auditable?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Contextual bandits</strong></td><td>Choose among K actions given context; learn from observed reward. LinUCB, Thompson sampling</td><td>Li et al. 2010 — news recommendation. Ubiquitous in ad serving and routing</td><td><span class="pill ok">yes</span> policy is inspectable</td></tr>
+      <tr><td><strong>Reinforcement learning</strong></td><td>Learn a policy maximising cumulative reward over a trajectory</td><td>Sutton &amp; Barto. Mirhoseini et al. 2017 — device placement; Trofin et al. 2021 — MLGO compiler inlining in LLVM</td><td><span class="pill no">weakly</span></td></tr>
+      <tr><td><strong>Classical planning</strong> (STRIPS/PDDL, HTN)</td><td>Symbolic search over actions with preconditions and effects; returns a provable plan</td><td>Fikes &amp; Nilsson 1971; Erol et al. 1994; NASA Remote Agent (Muscettola et al. 1998)</td><td><span class="pill ok">★ fully</span> the plan is a proof</td></tr>
+      <tr><td><strong>Constraint / MIP solvers</strong></td><td>Optimise an objective subject to constraints (CP-SAT, OR-Tools)</td><td>Crew scheduling, logistics, cluster allocation</td><td><span class="pill ok">★ fully</span> optimal + certificate</td></tr>
+      <tr><td><strong>MDP / POMDP</strong></td><td>Optimal policy under an explicit transition and reward model</td><td>Decision-theoretic control</td><td><span class="pill ok">yes</span> if the model is stated</td></tr>
+      <tr><td><strong>Learned cascades / routers</strong></td><td>A small classifier decides which model handles a request; escalate on low confidence</td><td>Chen et al. 2023 (FrugalGPT); Ong et al. 2024 (RouteLLM)</td><td><span class="pill ok">yes</span></td></tr>
+      <tr><td><strong>MoE gating networks</strong></td><td>A learned gate routes each input to experts</td><td>Shazeer et al. 2017</td><td><span class="pill no">no</span></td></tr>
+      <tr><td><strong>Bayesian optimisation / active learning</strong></td><td>Choose the next experiment to maximise expected information or improvement</td><td>Snoek et al. 2012</td><td><span class="pill ok">yes</span></td></tr>
+      <tr><td>★ <strong>Rule induction from logs</strong></td><td>Learn routing rules from historical traces, then <strong>ship the learned rules as deterministic code</strong></td><td>Decision-tree / rule-list induction</td><td><span class="pill ok">★★ fully</span> — see below</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The last row is the one to remember</span>
+    <p><strong>Rule induction gives you machine-discovered policy with hand-written-code auditability.</strong> ML finds the routing rule from your logged traces; what ships is a readable predicate you can review, test, and version. The learning happens offline, at design time; the runtime stays deterministic.</p>
+    <p>★ For a system whose entire thesis is explicability, this is almost certainly the right shape of "AI orchestration" — and it is a design most teams never consider, because the framing "should I use an LLM planner?" excludes it by construction.</p>
+  </div>
+
+  <h4>Where an AI orchestrator genuinely earns its place</h4>
+
+  <div class="col">
+  <p>Look past the individual industries and there is one recurring profile. A learned or reasoning controller pays off when <strong>all four</strong> of these hold:</p>
+
+  <ol>
+    <li><strong>The action space is large or open-ended</strong>, so a flowchart cannot be enumerated at design time.</li>
+    <li><strong>Decision volume is high</strong>, so a policy has data to learn from and small per-decision gains compound.</li>
+    <li><strong>Individual errors are cheap</strong> and recoverable, so exploration is affordable.</li>
+    <li>★ <strong>A fast, clean reward signal exists</strong> — you find out quickly, and unambiguously, whether the decision was good.</li>
+  </ol>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Industry use case</th><th>Why the profile fits</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Customer-support and coding agents</strong></td><td>Task space genuinely unbounded — you cannot enumerate every user request. High volume, cheap retries, immediate feedback (resolved / not, tests pass / fail)</td></tr>
+      <tr><td><strong>Support-ticket triage, document processing</strong></td><td>Long-tail routing where hand-written rules would number in the thousands and go stale weekly</td></tr>
+      <tr><td><strong>LLM cost/latency routing</strong></td><td>Millions of requests; reward (cost, latency, quality proxy) is observable in <em>seconds</em>. FrugalGPT-style cascades</td></tr>
+      <tr><td><strong>Cluster scheduling, ad serving, recommendation</strong></td><td>Enormous volume, continuous feedback, individually trivial errors — the canonical bandit/RL setting</td></tr>
+      <tr><td><strong>Compiler and database optimisation</strong></td><td>Huge configuration space, objective measurable directly (runtime), unlimited synthetic episodes. MLGO, learned query planners, learned index structures (Kraska et al. 2018)</td></tr>
+      <tr><td><strong>Robotics and embodied agents</strong></td><td>The physical world is not enumerable; classical planning and RL both live here</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>⚠ Why it is wrong for <em>this</em> project</h4>
+
+  <div class="col">
+  <p>Test the four preconditions against your system. It fails all four, and two of the failures are structural rather than matters of taste.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Precondition</th><th>This project</th></tr></thead>
+    <tbody>
+      <tr><td>Large / open-ended action space</td><td><span class="pill no">fails</span> ~13 domains, a fixed daily sequence, a handful of variants. The whole flowchart fits on one page. An LLM planner would be rediscovering, stochastically, a graph you can simply write down</td></tr>
+      <tr><td>High decision volume</td><td><span class="pill no">fails badly</span> <strong>One run per day — roughly 250 routing decisions a year.</strong> A contextual bandit needs thousands of pulls to beat a sensible prior. You will not reach statistical power in the lifetime of the project</td></tr>
+      <tr><td>Cheap individual errors</td><td><span class="pill no">fails</span> A bad routing decision produces a recommendation someone trades on with real capital (<code>PG-2</code>). This is not an ad impression</td></tr>
+      <tr><td>★ Fast clean reward</td><td><span class="pill no">fails structurally</span> see below</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The reward-signal problem is the deepest objection</span>
+    <p>Any learned policy needs to know whether its decision was good. Here the only ground truth is investment outcome, which is <strong>delayed</strong> by weeks to months, <strong>confounded</strong> by market movement, and <strong>swamped by noise</strong>.</p>
+    <p>Quantify it with your own numbers. The underlying signal sits at walk-forward IC 0.0203 with <em>t</em> = 1.42 — <em>the signal itself is not yet distinguishable from noise</em>. A control policy learning from that reward channel is trying to extract a second-order effect from a first-order effect that has not been established. Credit assignment is hopeless: was this run good because routing chose the one-week model, or because the market moved?</p>
+    <p>★ <strong>This is not "we lack data yet." It is a statement about signal-to-noise that more time does not fix</strong> — the noise grows with the sample too.</p>
+  </div>
+
+  <div class="col">
+  <p>Three further objections, each independently sufficient:</p>
+
+  <ul>
+    <li><strong>It contradicts the project's thesis.</strong> Vision §1.1 promises that every recommendation can be explained and defended. A stochastic control plane means <em>"why did this run use the one-week model?"</em> has no better answer than <em>"the model chose it."</em> You would be undermining the differentiator to add a commodity feature.</li>
+    <li><strong>It violates <code>AP-5</code> and <code>PG-3</code>.</strong> Routing on realised volatility is a definable computation. Handing a definable computation to an LLM is precisely the capability-creep failure those rules name.</li>
+    <li>★ <strong>It breaks <code>F7</code>.</strong> If the control plane is stochastic, two runs on identical data take different paths — so the deliberation A/B study cannot attribute an outcome difference to deliberation, because routing varied too. <strong>A non-deterministic orchestrator would destroy the measurement that half your portfolio thesis rests on.</strong></li>
+  </ul>
+  </div>
+
+  <h4>When would this change? Four scenarios</h4>
+
+  <div class="col">
+  <p>The honest way to hold a rejected design is to state what would reverse it. Each scenario below flips at least one precondition.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Scenario</th><th>What flips</th><th>Right policy type</th><th>Likelihood</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>A · Combinatorial routing</strong><br>5,000 names × 20 variants × 6 horizons × asset classes</td>
+        <td>Action space becomes unenumerable; hand-tuned predicates exceed what one person can keep correct (say &gt;50 interacting rules)</td>
+        <td>★ Rule induction, or constrained optimisation</td>
+        <td><span class="pill">low</span> single-machine, single-mandate by design</td>
+      </tr>
+      <tr>
+        <td>★★ <strong>B · Open-ended research (D-10)</strong><br>"Find a new alpha factor"</td>
+        <td>Genuinely unbounded search space. <strong>And the reward is fast and clean</strong> — a backtest result arrives in minutes, not months</td>
+        <td>Bayesian optimisation / active learning first; an LLM hypothesis-proposer on top</td>
+        <td><span class="pill ok">★ highest</span> and it is already sanctioned ground</td>
+      </tr>
+      <tr>
+        <td><strong>C · Event-driven operation</strong><br>react to filings/news as they arrive</td>
+        <td>Volume rises by orders of magnitude; arrivals unpredictable; prioritisation under a compute budget becomes real scheduling</td>
+        <td>Contextual bandits, or a scheduler</td>
+        <td><span class="pill">medium</span></td>
+      </tr>
+      <tr>
+        <td>★ <strong>D · Cost-driven model routing</strong><br>thousands of names under an LLM budget</td>
+        <td><strong>The reward changes identity.</strong> Objective becomes cost and quality — both observable in seconds, neither confounded by markets</td>
+        <td>Learned cascade / router (FrugalGPT shape)</td>
+        <td><span class="pill ok">★ high if the universe grows</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The pattern across all four</span>
+    <p>Scenarios B and D are the plausible ones, and they share a property the current system lacks: <strong>a reward signal that is fast, cheap and unconfounded.</strong> A backtest result and an API bill are both known immediately and mean exactly what they say. P&amp;L is none of those things.</p>
+    <p>★ <strong>So the rule is not "never use a learned orchestrator." It is: a learned policy becomes viable exactly when you are optimising something other than investment return.</strong> That single sentence tells you which future proposals to take seriously.</p>
+  </div>
+
+  <h4>What it costs to prepare — and it is close to nothing</h4>
+
+  <div class="col">
+  <p>The reassuring finding: <strong>the preparation is indistinguishable from engineering you are already doing for other reasons.</strong> You do not prepare for a learned policy by building AI. You prepare by making the decision boundary explicit and logging it honestly.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Preparation</th><th>Cost today</th><th>Cost if deferred</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>1 · Make the policy a port.</strong> <code>RoutingPolicyPort</code> with <code>DeterministicPolicy</code> as the only implementation</td>
+        <td><span class="pill ok">one Protocol</span> ~20 lines. It is Lecture 1 applied to the control plane</td>
+        <td>Low — refactorable later</td>
+      </tr>
+      <tr>
+        <td>★★ <strong>2 · Log the state the policy saw</strong>, not merely the decision it made</td>
+        <td><span class="pill ok">a few fields in F2</span> which you are building anyway</td>
+        <td><span class="pill no">★ impossible</span> unlogged history cannot be reconstructed</td>
+      </tr>
+      <tr>
+        <td>★ <strong>3 · Record propensity</strong> — the probability the policy assigned to the action taken (<code>1.0</code> for a deterministic policy)</td>
+        <td><span class="pill ok">one float</span></td>
+        <td><span class="pill no">★ blocks off-policy evaluation entirely</span></td>
+      </tr>
+      <tr>
+        <td><strong>4 · Stable decision IDs linking to realised outcomes</strong></td>
+        <td><span class="pill ok">a UUID</span></td>
+        <td><span class="pill no">actions with no rewards</span> — an unusable dataset</td>
+      </tr>
+      <tr>
+        <td><strong>5 · Keep the deterministic policy as champion</strong>, forever</td>
+        <td><span class="pill ok">free</span> it already exists</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="col">
+  <p>Item 3 deserves a note because it is non-obvious and almost free. <strong>Off-policy evaluation</strong> — estimating how a <em>different</em> policy would have performed, using only logged data from the policy you actually ran — requires knowing the probability with which each logged action was chosen (Li et al., 2011; Dudík et al., 2011, doubly-robust estimation). Log a constant <code>1.0</code> today and the field exists; omit it and you can never evaluate a candidate policy without deploying it live against real capital.</p>
+
+  <p>If you ever want to go further, occasional deliberate randomisation — routing a small fraction of runs to a non-preferred variant — turns the log into a genuine experiment. ⚠ That is <em>not</em> free: it means knowingly using a second-choice model on live decisions, which is a <code>PG-2</code> question and Victor's call, not an engineering one. Do not do it silently.</p>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">The summary worth keeping</span>
+    <p><strong>The best preparation for a learned policy is a thoroughly instrumented deterministic one.</strong> Every field the future policy needs — state, action, propensity, outcome — is a field that makes today's system more auditable. The preparation and the product point in the same direction.</p>
+    <p>★ And if the deterministic policy keeps winning against every challenger you test, you never needed the learned one — which is itself a result worth publishing, and a much better interview answer than an LLM planner nobody measured.</p>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Design the payload for a <code>CHALLENGE</code> message such that the receiving agent can branch on it <em>without</em> an LLM call. What fields does it need? What does that constrain about which challenges can be expressed at all — and is that constraint a cost or a feature?</li>
+      <li>Your routing function lets the fundamental view select the quant horizon. Write the evaluation design that measures what this costs you: what are the two buckets, what is the outcome metric, and how many decisions do you need before the comparison means anything?</li>
+      <li>Sketch the sycophancy experiment concretely: how do you generate a bogus-but-plausible challenge, and what exactly do you count as capitulation? Then state, in advance, the result that would make you delete the deliberation layer.</li>
+      <li>Your corporate-action agent uses live web search, so replay cannot re-run the searches. Design the trace record that makes a past decision auditable anyway. What must it capture beyond the final answer?</li>
+      <li>Write the CI grep that enforces "LangGraph is imported only by <code>src/orchestration/graph/</code>". Then state what it cannot catch, and what a determined developer would have to do to defeat it.</li>
+      <li>Someone proposes replacing your routing functions with an LLM supervisor that picks the next agent (option ③ in §2.2). Write the strongest case <em>for</em> it, then the case against. Under what change to your requirements would the answer flip?</li>
+      <li>Take §2.8's four preconditions and score the <strong>D-10 experiment orchestrator</strong> (scenario B) against each. Which precondition is it closest to failing, and what would you measure to find out?</li>
+      <li>Write the <code>TraceRecord</code> fields needed so that, in three years, a logged history can train and evaluate a routing policy off-policy. Which single field, if omitted today, makes the whole dataset useless — and why can it not be backfilled?</li>
+      <li>Rule induction (§2.8) learns a policy offline and ships deterministic predicates. Design the review gate a machine-discovered routing rule must pass before it goes live. Would you accept a rule that works but that you cannot explain?</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════ LECTURE 3 ══════════════════════════ -->
+<section class="lecture l3" id="lecture-3">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">03</span>
+    <div>
+      <h2>Explainable AI: Attribution, Evidence, and Calibrated Doubt</h2>
+      <p>Why a convincing explanation and a true one are different objects — and what to build when the thing you must explain is a recommendation someone will trade on.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p>Your system produces a ranked list and a thesis. A portfolio manager who must own the P&amp;L cannot act on either without knowing <em>why</em>. This lecture is about producing that "why" in a form that is actually true.</p>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The whole lecture in six claims</span>
+    <p><strong>1 · A convincing explanation and a true one are different objects.</strong> An explanation that is plausible but does not describe the actual computation is worse than none, because it manufactures confidence. Everything below follows from taking this seriously.</p>
+    <p><strong>2 · You have two things to explain and they need opposite techniques.</strong> The ML ranker is numeric and can be attributed to its inputs. The LLM thesis cannot be introspected at all. Treating them with one method fails on both.</p>
+    <p><strong>3 · For the ranker — attribute, but first ask whether you need to.</strong> SHAP is the principled default. The stronger move, for a high-stakes decision with a marginal signal, may be to use a model that is interpretable by construction and skip post-hoc explanation entirely.</p>
+    <p><strong>4 · For the LLM — do not ask it why.</strong> Self-reported reasoning is demonstrably unfaithful. Replace introspection with verification: bind every factual claim to a source span and check it deterministically.</p>
+    <p><strong>5 · An explanation without calibration is half a product.</strong> "Why" is useless without "how much should I trust this", and confidence that nobody has measured against outcomes is decoration.</p>
+    <p><strong>6 · Explanations are outputs, so they get tested.</strong> Faithfulness, stability, and whether they actually changed a decision correctly. Untested explanations drift toward whatever is most persuasive.</p>
+  </div>
+
+  <div class="col">
+  <p>Sections 3.1–3.2 establish claims 1 and 2; 3.3–3.5 work through the techniques for each half; 3.6–3.7 cover calibration and testing. If you read one section, read <strong>3.4</strong>.</p>
+  </div>
+
+  <h3><span class="sn">3.1</span> The distinction everything else depends on</h3>
+
+  <div class="callout warn">
+    <span class="lbl">Faithfulness vs plausibility</span>
+    <p><strong>Plausible:</strong> the explanation is coherent, readable, and satisfying to a human.<br>
+    <strong>Faithful:</strong> the explanation accurately describes the computation the system actually performed.</p>
+    <p>These are independent. An explanation can be highly plausible and completely unfaithful, and that combination is <em>worse than no explanation at all</em> — because it manufactures confidence while conveying nothing about the mechanism. A system optimised only for explanations users like will drift toward exactly this failure.</p>
+  </div>
+
+  <div class="col">
+  <p>Keep a second distinction alongside it. <strong>Explanation</strong> answers "what did the model do?" <strong>Justification</strong> answers "is this a good decision?" Attribution methods answer the first. They are silent on the second, and treating them as if they answered it is a category error you will see constantly in practice.</p>
+
+  <p>Standard taxonomy, briefly:</p>
+  <ul>
+    <li><strong>Intrinsic</strong> (a linear model, a shallow tree, a GAM — the model <em>is</em> the explanation) vs <strong>post-hoc</strong> (explain a black box after the fact).</li>
+    <li><strong>Global</strong> (how does the model behave overall?) vs <strong>local</strong> (why <em>this</em> prediction?).</li>
+    <li><strong>Model-specific</strong> (TreeSHAP) vs <strong>model-agnostic</strong> (LIME, permutation).</li>
+  </ul>
+  <p>Your recommendation surface needs <strong>local</strong> explanations. "Momentum matters in general" does not help someone decide about one name today.</p>
+  </div>
+
+  <h3><span class="sn">3.2</span> Attribution for the ranker</h3>
+
+  <h4>Built-in importance — global, and misleading</h4>
+
+  <div class="col">
+  <p>Gradient-boosted trees expose <code>gain</code> or <code>split_count</code> importance. Both are global, and both are biased toward high-cardinality continuous features simply because such features offer more places to split. Useful for a rough sanity check; not an explanation of any individual prediction.</p>
+  </div>
+
+  <h4>Permutation importance — and its correlated-feature trap</h4>
+
+  <div class="col">
+  <p>Shuffle one feature's column, measure how much performance drops. Intuitive and model-agnostic. Two serious caveats:</p>
+  <ul>
+    <li><strong>Correlated features hide each other.</strong> If <code>momentum_60d</code> and <code>momentum_90d</code> are 0.95 correlated, permuting either alone barely hurts — the model leans on the survivor. Both look unimportant; together they may be the entire signal.</li>
+    <li><strong>It evaluates off-manifold.</strong> Shuffling creates rows that could not exist (a micro-cap's volume on a mega-cap's spread), so you are measuring model behaviour in a region it was never trained on.</li>
+  </ul>
+  </div>
+
+  <h4>SHAP — additive attribution with axioms behind it</h4>
+
+  <div class="col">
+  <p>SHAP (Lundberg &amp; Lee, 2017) applies Shapley values from cooperative game theory (Shapley, 1953) to feature attribution. The prediction is the "payout"; features are "players"; a feature's attribution is its average marginal contribution across all orderings in which players join the coalition.</p>
+
+  <p>What you buy with that machinery is three properties:</p>
+  <ul>
+    <li><strong>Local accuracy (efficiency)</strong> — attributions sum exactly to the prediction minus a baseline. Nothing unexplained, nothing double-counted.</li>
+    <li><strong>Missingness</strong> — a feature absent from the model gets zero attribution.</li>
+    <li><strong>Consistency</strong> — if a model changes so a feature contributes more, its attribution cannot go down. Gain importance violates this; that is the concrete reason to prefer SHAP.</li>
+  </ul>
+
+  <p>Exact Shapley values are exponential in the number of features. <strong>TreeSHAP</strong> computes them in polynomial time for tree ensembles, which is why SHAP is practical for your LightGBM ranker specifically.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Three things SHAP does not give you</span>
+    <p><strong>It is not causal.</strong> SHAP explains the model's dependence on inputs, not the world's. "Margin drove the score" does not mean margin drives returns.</p>
+    <p><strong>Correlation still bites.</strong> Interventional and conditional (observational) SHAP disagree under correlated features, and they answer different questions. Know which one your library computes and why you wanted that one.</p>
+    <p><strong>Explaining a wrong model faithfully is still wrong.</strong> With walk-forward IC at 0.0203 and <em>t</em> = 1.42, an explanation of your current ranker is a faithful account of a signal not yet distinguishable from noise. Say so on the page. An explanation attached to an unpromoted model must carry that status, or it lends borrowed authority.</p>
+  </div>
+
+  <h4>The ranking subtlety</h4>
+
+  <div class="col">
+  <p>Here is a wrinkle specific to your system that generic tutorials will not cover. Your model produces a <strong>ranking</strong> over a cross-section, and your decision uses the rank. But SHAP explains the <em>pointwise score</em>. These are different questions:</p>
+
+  <ul>
+    <li><em>"Why is AAPL's score 0.71?"</em> — pointwise. SHAP answers this directly.</li>
+    <li><em>"Why is AAPL ranked 3rd?"</em> — relational. It depends on the other 497 names that day. AAPL's rank can change with its own score unchanged.</li>
+  </ul>
+
+  <p>Answer both, separately and honestly: report the score attribution, then explain the rank via the cross-sectional score distribution on that date ("0.71 sits at the 99th percentile of today's cross-section; the 90th percentile is 0.55"). Presenting a score attribution as if it explained the rank is a small dishonesty that will eventually mislead someone — most likely you, in six months.</p>
+  </div>
+
+  <h4>Attribution stability as a diagnostic</h4>
+
+  <div class="col">
+  <p>Re-run attributions under small input perturbations, different seeds, or adjacent dates. If the top drivers churn wildly while the prediction barely moves, the explanation is describing noise rather than a stable property of the model.</p>
+
+  <p>Treat that as a <strong>finding about the model</strong>, not a display bug — it is evidence that the model's decision surface is unstable in that region. This is one of the highest-value diagnostics available to you and almost nobody computes it.</p>
+  </div>
+
+  <h3><span class="sn">3.3</span> The wider landscape — and the case for not needing it</h3>
+
+  <div class="col">
+  <p>SHAP is the default, not the only option, and for your problem it may not be the best one. Here is the field, organised by what question each method answers.</p>
+  </div>
+
+  <h4>Local post-hoc — "why <em>this</em> prediction?"</h4>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Method</th><th>Reference</th><th>What it gives</th><th>Fit for your ranker</th></tr></thead>
+    <tbody>
+      <tr><td><strong>SHAP</strong> (TreeSHAP)</td><td>Lundberg &amp; Lee 2017</td><td>Additive attributions with efficiency, missingness, consistency axioms</td><td><span class="pill ok">strong</span> Fast on GBDTs; the principled default</td></tr>
+      <tr><td><strong>LIME</strong></td><td>Ribeiro et al. 2016</td><td>Local linear surrogate fit on perturbed samples</td><td><span class="pill">weak here</span> Cheaper but unstable — repeat runs give different explanations; SHAP dominates it for trees</td></tr>
+      <tr><td><strong>Anchors</strong></td><td>Ribeiro et al. 2018</td><td>★ IF-THEN rules with a precision guarantee: <em>"IF momentum &gt; 0.8 AND margin &gt; 40% THEN top-decile, 95% of the time"</em></td><td><span class="pill ok">underrated</span> Rules read far better to a PM than signed feature weights</td></tr>
+      <tr><td><strong>Counterfactuals / DiCE</strong></td><td>Wachter et al. 2017; Mothilal et al. 2020</td><td>Minimal change that flips the outcome</td><td><span class="pill ok">strong</span> ★ Most actionable output you can give — see §3.5</td></tr>
+      <tr><td><strong>Integrated Gradients</strong></td><td>Sundararajan et al. 2017</td><td>Path-integral attribution for differentiable models</td><td><span class="pill">conditional</span> Relevant only to your PyTorch models, not the GBDTs</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>Global post-hoc — "how does the model behave overall?"</h4>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Method</th><th>Reference</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Partial Dependence Plots</strong></td><td>Friedman 2001</td><td>Average marginal effect of a feature. ⚠ Assumes independence — misleading under the correlation your factors certainly have</td></tr>
+      <tr><td><strong>ALE plots</strong></td><td>Apley &amp; Zhu 2020</td><td>★ <strong>Accumulated Local Effects — fixes exactly PDP's correlation flaw</strong> by using conditional local differences. Should be your default global plot; almost nobody uses it</td></tr>
+      <tr><td><strong>ICE curves</strong></td><td>Goldstein et al. 2015</td><td>One line per instance instead of the average. Reveals heterogeneity a PDP hides — e.g. momentum helping large caps and hurting small ones, netting to "no effect"</td></tr>
+      <tr><td><strong>Global surrogate</strong></td><td>—</td><td>Fit an interpretable model to the black box's predictions. Useful sanity check; fidelity must be reported or it is theatre</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>★★ Intrinsic interpretability — the option that removes the problem</h4>
+
+  <div class="callout warn">
+    <span class="lbl">Rudin's argument, and why it lands hard on your project</span>
+    <p>Cynthia Rudin's <em>"Stop Explaining Black Box Machine Learning Models for High-Stakes Decisions and Use Interpretable Models Instead"</em> (Nature Machine Intelligence, 2019) makes a claim worth taking seriously: for consequential decisions, post-hoc explanation of a black box is a <strong>second model of the first model</strong>, and it can be wrong. If an interpretable model performs comparably, explaining a black box is strictly worse — you have added a component that can lie.</p>
+    <p>The usual objection is an accuracy/interpretability trade-off. Rudin's empirical claim is that on <strong>structured tabular data</strong> the trade-off is frequently negligible or nonexistent. Your ranker is structured tabular data with 58 effective features, and its walk-forward IC is <strong>0.0203 at <em>t</em> = 1.42</strong>.</p>
+    <p>★ <strong>At that effect size, the accuracy you would be defending is not yet distinguishable from zero.</strong> That makes the trade-off cheap to test and the interpretable option unusually attractive — this is the strongest case for glass-box modelling I can construct from your own numbers.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Approach</th><th>Reference</th><th>What you get</th></tr></thead>
+    <tbody>
+      <tr><td><strong>EBM</strong> — Explainable Boosting Machine</td><td>Nori et al. 2019 (InterpretML); Lou et al. 2013 GA²M</td><td>★ Generalised additive model with pairwise interactions, boosted. Often near-GBDT accuracy on tabular data, and <strong>exactly</strong> decomposable — each feature's shape function is directly plottable and reportable. No approximation layer at all</td></tr>
+      <tr><td><strong>Monotonic constraints</strong></td><td>Built into LightGBM / XGBoost</td><td>★★ <strong>Cheapest interpretability win available to you.</strong> Force the score to be non-decreasing in a feature. "Higher gross margin can never lower the score" becomes a <em>structural guarantee</em>, not a hoped-for pattern — and it encodes genuine financial priors while regularising the fit</td></tr>
+      <tr><td><strong>RuleFit</strong></td><td>Friedman &amp; Popescu 2008</td><td>Sparse linear model over rules extracted from an ensemble. Readable and reasonably strong</td></tr>
+      <tr><td><strong>Sparse linear / factor model</strong></td><td>Classical</td><td>The finance-native baseline. If a 6-factor linear model matches your GBDT out of sample, that is a finding, not a defeat</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">Concrete recommendation for this system</span>
+    <p><strong>1 · Add monotonic constraints now.</strong> A config change on your existing model. It buys a structural guarantee, a regularisation benefit, and a sentence a PM can verify by inspection.</p>
+    <p><strong>2 · Run an EBM as a challenger, not a replacement.</strong> Same walk-forward protocol, same gates. If it matches the GBDT within noise — likely at IC 0.02 — you can ship a fully interpretable model and retire the explanation layer for the ranker entirely. If it loses materially, you have <em>earned</em> the black box and can say so with evidence.</p>
+    <p><strong>3 · Keep SHAP regardless</strong>, as a diagnostic for whichever model wins, plus ALE for global shape.</p>
+    <p>★ Note what this does for the portfolio story: "I tested whether I needed a black box, and here is the measurement" is a stronger claim than either "I used SHAP" or "I used a simple model."</p>
+  </div>
+
+  <h4>⚠ Two things that are not explanations</h4>
+
+  <div class="col">
+  <ul>
+    <li><strong>Attention weights.</strong> Widely presented as explanations of transformer behaviour. Jain &amp; Wallace (2019), <em>Attention is not Explanation</em>, showed attention distributions can be substantially altered without changing predictions — so they do not identify what the model relied on.</li>
+    <li><strong>A model's own narration of its reasoning.</strong> The subject of the next section, and the reason it gets its own section.</li>
+  </ul>
+  </div>
+
+  <h3><span class="sn">3.4</span> Explaining the LLM half — do not ask it</h3>
+
+  <div class="callout warn">
+    <span class="lbl">Chain-of-thought is not an account of the computation</span>
+    <p>Turpin et al. (2023), <em>Language Models Don't Always Say What They Think</em>, showed that models' stated reasoning can be systematically unfaithful: introduce a biasing feature into the prompt — for instance, reordering multiple-choice options so the answer is always (A) — and models' answers shift toward the bias while their chain-of-thought <em>never mentions it</em>, instead constructing plausible support for the biased answer.</p>
+    <p>So a self-reported rationale is <strong>not evidence</strong> about why the model produced its output. It is another generated artifact, subject to the same failure modes as the output.</p>
+  </div>
+
+  <div class="col">
+  <p>This has a sharp architectural consequence. Since you cannot obtain a faithful explanation of an LLM's internal process by asking, <strong>stop trying to explain the reasoning and instead constrain and verify the claims</strong>.</p>
+
+  <p>That is what evidence binding does, and it is the design your project already specifies as <code>RA-6</code> and <code>RA-9</code>:</p>
+  </div>
+
+  <pre><code><span class="cm"># The check is DETERMINISTIC. This is the entire point.</span>
+<span class="cm"># Verifying an LLM's output with a second LLM call inherits the first</span>
+<span class="cm"># model's blind spots and gives you a correlated judge, not a check.</span>
+
+<span class="kw">def</span> verify(claim: Claim, span: EvidenceSpan) -&gt; VerificationResult:
+    <span class="st">"""RA-6 — a claimed value must be PRESENT IN, or ARITHMETICALLY
+    DERIVABLE FROM, the cited span. No model is consulted."""</span>
+    <span class="kw">if</span> claim.value <span class="kw">in</span> parse_numerics(span.text):
+        <span class="kw">return</span> VerificationResult.VERIFIED
+    <span class="kw">if</span> derivable(claim.value, parse_numerics(span.text), claim.operation):
+        <span class="kw">return</span> VerificationResult.DERIVED
+    <span class="kw">return</span> VerificationResult.UNVERIFIED      <span class="cm"># → the thesis fails loud (P5)</span></code></pre>
+
+  <div class="col">
+  <p>Your as-built register records that half of this runs and half does not: extraction is checked against its source, but <code>Thesis.claims</code> is empty on every authored thesis, so <strong>the judgement narrative is unverified</strong> (<code>AB-2</code>). If the model writes <em>"NAND margins expanded on HBM demand"</em>, nothing currently checks it against the filing.</p>
+
+  <p>That gap is the single highest-value item in your explainability lane, for a reason worth stating plainly: <strong>a reader who sees a thesis pass every test will reasonably conclude its prose was verified.</strong> Today only its falsifiers were. Closing <code>AB-2</code> converts a plausible narrative into a checked one.</p>
+
+  <p>Metrics that follow naturally, and that you should track as gates rather than dashboards: <strong>grounding rate</strong> (fraction of factual claims bound to a verified span), <strong>unbound-claim count</strong> (must be zero for an actionable report), and <strong>span precision</strong> (does the cited span actually contain the claim, sampled and human-checked).</p>
+  </div>
+
+  <h3><span class="sn">3.5</span> Counterfactual explanation</h3>
+
+  <div class="col">
+  <p>Formally (Wachter et al., 2017): given input <em>x</em> with outcome <em>f(x)</em>, find <em>x′</em> minimising a distance <em>d(x, x′)</em> subject to <em>f(x′)</em> equalling some desired outcome. In words: <strong>the smallest change that would flip the answer.</strong></p>
+
+  <p>For a decision-support system this is often more useful than attribution, because it is <em>actionable</em>. "Margin contributed −0.08 to the score" is a fact about the model. "This becomes a BUY if gross margin holds above 42% for two more quarters" is something a portfolio manager can monitor, and it doubles as a falsification condition.</p>
+
+  <p>Four desiderata, and they trade off against each other:</p>
+  <ul>
+    <li><strong>Validity</strong> — the counterfactual really does flip the model's output.</li>
+    <li><strong>Proximity</strong> — it is close to the actual input. A counterfactual requiring ten simultaneous changes explains nothing.</li>
+    <li><strong>Sparsity</strong> — few features change. Humans reason well about one or two moving parts.</li>
+    <li><strong>Plausibility / actionability</strong> — it stays on the data manifold and changes only things that <em>can</em> change. "If this company were founded in 1990" is not an explanation.</li>
+  </ul>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">Express counterfactuals in observables, never in features</span>
+    <p><code>f_gross_margin_z</code> increasing by 0.4σ is uninterpretable and unmonitorable. "Gross margin holds above 42% for two more quarters" is both. The counterfactual search happens in feature space; the <em>presentation</em> must be translated back into the observable quantities the manager can actually watch — which means your feature contract needs an inverse mapping to named, human-scale quantities.</p>
+    <p>Same wrinkle as before: for a <em>rank</em>, a counterfactual is conditional on the peer set. Entering the top decile requires passing other names, so state it as of a date and universe, not as an absolute.</p>
+  </div>
+
+  <h3><span class="sn">3.6</span> Calibration — the honest confidence</h3>
+
+  <div class="col">
+  <p>An explanation says why. Calibration says <em>how much to trust it</em>. A model is calibrated when, among all predictions made with confidence <em>p</em>, the outcome occurs about a <em>p</em> fraction of the time. Confidence of 0.8 should be right 80% of the time — no more, no less.</p>
+
+  <p>Modern high-capacity models are typically <strong>overconfident</strong> — Guo et al. (2017) documented this systematically for neural networks, and the same tendency shows up in LLM verbalised confidence.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 720 300" role="img" aria-label="Reliability diagram showing an overconfident model bowing below the diagonal of perfect calibration">
+      <line class="svg-line" x1="90" y1="250" x2="640" y2="250" stroke="var(--rule)" stroke-width="1"/>
+      <line class="svg-line" x1="90" y1="40" x2="90" y2="250" stroke="var(--rule)" stroke-width="1"/>
+
+      <line x1="90" y1="250" x2="600" y2="40" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text class="svg-faint" x="470" y="86" transform="rotate(-22 470 86)">perfectly calibrated</text>
+
+      <polyline points="90,250 192,232 294,204 396,170 498,124 600,66"
+                fill="none" stroke="var(--oxide)" stroke-width="2.5"/>
+      <circle cx="192" cy="232" r="4" fill="var(--oxide)"/>
+      <circle cx="294" cy="204" r="4" fill="var(--oxide)"/>
+      <circle cx="396" cy="170" r="4" fill="var(--oxide)"/>
+      <circle cx="498" cy="124" r="4" fill="var(--oxide)"/>
+      <circle cx="600" cy="66" r="4" fill="var(--oxide)"/>
+      <text x="612" y="60" fill="var(--oxide)" font-weight="700">observed</text>
+
+      <path d="M396,170 L396,128" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="404" y="150" fill="var(--accent)">gap = overconfidence</text>
+
+      <text class="svg-faint" x="90" y="270" text-anchor="middle">0.0</text>
+      <text class="svg-faint" x="345" y="270" text-anchor="middle">0.5</text>
+      <text class="svg-faint" x="600" y="270" text-anchor="middle">1.0</text>
+      <text class="svg-soft" x="345" y="290" text-anchor="middle">stated confidence</text>
+      <text class="svg-soft" x="30" y="145" text-anchor="middle" transform="rotate(-90 30 145)">observed frequency</text>
+    </svg>
+    <figcaption>A reliability diagram. Bin predictions by stated confidence; plot observed frequency against stated confidence in each bin. Bowing below the diagonal means the model claims more certainty than it earns. Expected Calibration Error is the bin-count-weighted average vertical gap.</figcaption>
+  </figure>
+
+  <div class="col">
+  <p>Two measures worth knowing:</p>
+  <ul>
+    <li><strong>ECE</strong> — Expected Calibration Error. Bin predictions, take the weighted mean absolute gap between confidence and accuracy. Simple and readable; sensitive to binning choices.</li>
+    <li><strong>Brier score</strong> — mean squared error of the probabilistic forecast. It decomposes into <em>reliability</em> (calibration), <em>resolution</em> (how much predictions vary usefully) and <em>uncertainty</em> (irreducible). The decomposition is the useful part: it separates "your probabilities are miscalibrated" from "your probabilities are all 0.5 and say nothing."</li>
+  </ul>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Coverage is not calibration — and your register conflates them</span>
+    <p><code>AB-1</code> defines <code>confidence := evidence_coverage</code>: the fraction of rubric items that found real evidence. That is a genuinely good measure of <em>how much the system looked at</em>. It is not a measure of <em>how often the system is right</em>.</p>
+    <p>A thesis can have 100% evidence coverage and be wrong; it can have 60% coverage and be right. <strong>You need both numbers, and they should not share a field name.</strong> Coverage is an input-completeness metric available immediately; calibration is an outcome metric that requires waiting for resolution.</p>
+    <p>The current state is at least honest: the field reads <code>{"value": null, "basis": "not_measured"}</code> rather than a fabricated zero. Keep that property when you wire coverage in — and note the trap already recorded: once coverage becomes a real number, the <code>CONFIDENCE_FLOOR</code> at 0.3 becomes <em>reachable</em> and will start forcing <code>INSUFFICIENT_DATA</code>. That will look like a regression on the first run that hits it. It is the mechanism working.</p>
+  </div>
+
+  <h3><span class="sn">3.7</span> How to evaluate an explanation</h3>
+
+  <div class="col">
+  <p>Explanations are outputs, so they need tests. Three families:</p>
+
+  <ul>
+    <li><strong>Faithfulness — deletion / insertion curves.</strong> Remove the top-<em>k</em> attributed features and measure how fast performance degrades; then add them back to an empty input. A faithful attribution degrades the model fast on deletion and recovers fast on insertion. If removing the "most important" features changes nothing, the attribution is not describing the model.</li>
+    <li><strong>Stability.</strong> Perturb inputs slightly; attributions should move slightly. Quantify it rather than eyeballing it.</li>
+    <li><strong>Human utility.</strong> The one that actually matters and the one most often skipped: does the explanation change a decision, <em>correctly</em>? You are the user here, which makes this cheap to run — log the cases where an explanation changed your action, and revisit them at resolution.</li>
+  </ul>
+
+  <p>All three belong in the evaluation harness (<strong>F5</strong>), not in the explanation module. An explanation module that grades its own explanations is the same structural mistake as an LLM judging its own output.</p>
+  </div>
+
+  <h3><span class="sn">3.8</span> Why this is worth eight months of anyone's attention</h3>
+
+  <div class="col">
+  <p>Two reasons beyond the engineering.</p>
+
+  <p><strong>It is the harder skill.</strong> Orchestration frameworks are learnable in a week and the supply of people who have done a tutorial is large. Building a system that can say <em>why</em>, and prove the <em>why</em> is faithful, requires understanding the model, the statistics and the failure modes — and far fewer people have done it.</p>
+
+  <p><strong>Finance is where it is mandatory.</strong> Model risk management practice (the Federal Reserve's SR 11-7 guidance is the canonical reference) requires that models used for material decisions be documented, validated and explainable. The EU AI Act pushes in the same direction for high-risk applications, and credit and investment decisions sit squarely in scope. "I built explainability into a financial recommendation system, and measured its faithfulness" maps onto real, funded job descriptions in a way that "I built a multi-agent demo" does not.</p>
+  </div>
+
+  <h3><span class="sn">3.9</span> What to build, in order</h3>
+
+  <div class="col">
+  <p>Collapsing the whole lecture into a build sequence:</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>#</th><th>Build</th><th>Why it is in this position</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Monotonic constraints</strong> on the ranker</td><td>A config change. Buys a structural guarantee today and costs nothing.</td></tr>
+      <tr><td>2</td><td><strong>Close <code>AB-2</code></strong> — claim→span binding on the narrative</td><td>★ The machinery is already built, tested and exported, and simply never called. Highest value per unit of work in the entire lane.</td></tr>
+      <tr><td>3</td><td><strong>SHAP + ALE</strong> on the ranker, with a stability check</td><td>The attribution baseline, and stability is the diagnostic nobody computes.</td></tr>
+      <tr><td>4</td><td><strong>Counterfactuals in observables</strong></td><td>The most useful output for a PM, and it doubles as a falsification condition.</td></tr>
+      <tr><td>5</td><td><strong>EBM challenger</strong> under the same gates</td><td>Answers whether you need the black box at all. Cannot be done before you trust the evaluation protocol.</td></tr>
+      <tr><td>6</td><td><strong>Calibration tracking</strong> — separate from coverage</td><td>Requires resolved outcomes, so it starts accumulating now and pays later.</td></tr>
+      <tr><td>7</td><td><strong>Faithfulness tests</strong> in <code>F5</code></td><td>Last, because it tests everything above.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The one-sentence version</span>
+    <p><strong>Explain the ranker with attribution — or better, make it interpretable so you do not have to; verify the LLM instead of interrogating it; and attach a calibrated confidence to both, or the explanation is decoration.</strong></p>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Your ranker uses <code>momentum_60d</code> and <code>momentum_90d</code>, correlated at 0.95. Predict what permutation importance reports for each, and what SHAP reports. Explain the difference — then say which one you would show a portfolio manager, and why.</li>
+      <li>Design the deletion-curve experiment for your ranker. What is on each axis, what is the null baseline, and what shape of curve would tell you the attributions are worthless?</li>
+      <li>Write the counterfactual for a HOLD verdict in observable terms, obeying sparsity and actionability. Then state why it must be dated and universe-scoped.</li>
+      <li>You have 200 resolved theses with stated confidences. Compute ECE by hand for 5 bins. Now answer the harder question: what does ECE fail to tell you that the Brier decomposition would — and could a model with perfect ECE still be useless?</li>
+      <li>Argue the case <em>against</em> shipping SHAP values to the report, given walk-forward IC of 0.0203 at <em>t</em> = 1.42. What must the page say alongside them for the explanation to be honest?</li>
+      <li>Design the EBM-challenger experiment from §3.3. What is the decision rule, stated <em>before</em> you run it, that would make you replace the GBDT? What result would make you keep the black box, and would you believe it at <em>t</em> = 1.42?</li>
+      <li>Pick three features in your model and state the monotonic constraint you would impose on each, with the financial reasoning. Then find one feature where you <em>cannot</em> justify a constraint — and say what that tells you about the feature.</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<footer>
+  <div class="wrap col">
+    <p><strong>Where these land in the specs.</strong> Lecture 1 → <code>F1</code> module protocol &amp; registry. Lecture 2 → <code>F6a</code> config-influence routing, <code>F6b</code> deliberation, <code>F7</code> the efficacy study, all standing on <code>F2</code> trace &amp; replay. Lecture 3 → <code>F4</code> explainability contract, measured by <code>F5</code> the evaluation harness.</p>
+
+    <h4 style="margin-top:2rem">References</h4>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 1 — architecture.</strong> Liskov &amp; Wing, <em>A Behavioral Notion of Subtyping</em> (1994; principle stated 1987) · Gamma, Helm, Johnson &amp; Vlissides, <em>Design Patterns</em> (1994) — Strategy · Meyer, <em>Object-Oriented Software Construction</em> (1988) — Open/Closed · Cockburn, <em>Hexagonal Architecture</em> (2005) · Fowler, <em>Inversion of Control Containers and the Dependency Injection Pattern</em> (2004) · Martin, <em>Agile Software Development: Principles, Patterns, and Practices</em> (2002) — SOLID · Szyperski, <em>Component Software</em> (1997) · Pohl, Böckle &amp; van der Linden, <em>Software Product Line Engineering</em> (2005) — variation points and binding time · PEP 544 (2017) — structural subtyping.</p>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 2 — agents, orchestration and debate.</strong> Wooldridge, <em>An Introduction to MultiAgent Systems</em> (2009) · Sharma et al., <em>Towards Understanding Sycophancy in Language Models</em> (Anthropic, 2023) · Du et al., <em>Improving Factuality and Reasoning in Language Models through Multiagent Debate</em> (2023) · Irving, Christiano &amp; Amodei, <em>AI Safety via Debate</em> (2018) · LangGraph, CrewAI, AutoGen (Wu et al., 2023) documentation.</p>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 2 §2.8 — AI orchestration policies.</strong> Yao et al., <em>ReAct: Synergizing Reasoning and Acting in Language Models</em> (2022) · Shinn et al., <em>Reflexion</em> (NeurIPS 2023) · Yao et al., <em>Tree of Thoughts</em> (NeurIPS 2023) · Sutton &amp; Barto, <em>Reinforcement Learning: An Introduction</em> (2018) · Li, Chu, Langford &amp; Schapire, <em>A Contextual-Bandit Approach to Personalized News Article Recommendation</em> (WWW 2010) · Li, Chu, Langford &amp; Wang, <em>Unbiased Offline Evaluation of Contextual-Bandit-Based News Article Recommendation Algorithms</em> (WSDM 2011) · Dudík, Langford &amp; Li, <em>Doubly Robust Policy Evaluation and Learning</em> (ICML 2011) · Mirhoseini et al., <em>Device Placement Optimization with Reinforcement Learning</em> (ICML 2017) · Trofin et al., <em>MLGO: a Machine Learning Guided Compiler Optimizations Framework</em> (2021) · Shazeer et al., <em>Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</em> (ICLR 2017) · Chen, Zaharia &amp; Zou, <em>FrugalGPT</em> (2023) · Ong et al., <em>RouteLLM</em> (2024) · Kraska et al., <em>The Case for Learned Index Structures</em> (SIGMOD 2018) · Snoek, Larochelle &amp; Adams, <em>Practical Bayesian Optimization of Machine Learning Algorithms</em> (NeurIPS 2012) · Fikes &amp; Nilsson, <em>STRIPS</em> (1971) · Erol, Hendler &amp; Nau, <em>HTN Planning</em> (AAAI 1994) · Muscettola et al., <em>Remote Agent: To Boldly Go Where No AI System Has Gone Before</em> (1998).</p>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 3 — explainability.</strong> Shapley, <em>A Value for n-Person Games</em> (1953) · Lundberg &amp; Lee, <em>A Unified Approach to Interpreting Model Predictions</em> (NeurIPS 2017) — SHAP · Ribeiro, Singh &amp; Guestrin, <em>"Why Should I Trust You?"</em> (KDD 2016) — LIME; <em>Anchors</em> (AAAI 2018) · Wachter, Mittelstadt &amp; Russell, <em>Counterfactual Explanations without Opening the Black Box</em> (2017) · Mothilal, Sharma &amp; Tan, <em>DiCE</em> (FAT* 2020) · Sundararajan, Taly &amp; Yan, <em>Axiomatic Attribution for Deep Networks</em> (ICML 2017) · Friedman, <em>Greedy Function Approximation</em> (2001) — PDP; Friedman &amp; Popescu, <em>Predictive Learning via Rule Ensembles</em> (2008) — RuleFit · Apley &amp; Zhu, <em>Visualizing the Effects of Predictor Variables in Black Box Supervised Learning Models</em> (JRSS-B 2020) — ALE · Goldstein et al., <em>Peeking Inside the Black Box</em> (2015) — ICE · Lou et al., <em>Accurate Intelligible Models with Pairwise Interactions</em> (KDD 2013) — GA²M; Nori et al., <em>InterpretML</em> (2019) — EBM · Rudin, <em>Stop Explaining Black Box Machine Learning Models for High-Stakes Decisions</em> (Nature Machine Intelligence, 2019) · Jain &amp; Wallace, <em>Attention is not Explanation</em> (NAACL 2019) · Turpin et al., <em>Language Models Don't Always Say What They Think</em> (NeurIPS 2023) · Guo et al., <em>On Calibration of Modern Neural Networks</em> (ICML 2017) · Brier (1950) · Molnar, <em>Interpretable Machine Learning</em> (2022) — the standard survey · Federal Reserve SR 11-7, <em>Guidance on Model Risk Management</em> (2011).</p>
+  </div>
+</footer>

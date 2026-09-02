@@ -1,0 +1,121 @@
+# Spec ownership — which spec governs which code path.
+#
+# Read by .claude/hooks/sdd_gate.py, which BLOCKS Edit/Write to a governed path
+# until the governing spec has been read in the current session.
+#
+# When you add a spec, add its globs here in the same change (constitution §5
+# item 2) — an unmapped path falls back to `always` only.
+#
+# ⚠ ST-8 (inherited): a glob that matches NOTHING makes the gate fail OPEN,
+# silently. When code moves, its glob moves in the SAME commit.
+
+# Required before editing ANY governed source file, no exceptions.
+always:
+  - sdd/specs/constitution.md
+
+# First matching entry wins; globs are fnmatch-style against the repo-relative path.
+map:
+  - globs:
+      - "src/shared/registry/**"
+      - "src/shared/agents/**"
+    spec: sdd/specs/F1_module_registry/spec.md
+    why: >
+      F1 — the (port, variant) registry and the port protocols. Closed variant set
+      (QR-7), module-scoped not agent-scoped (QR-8), provenance on every resolution.
+      AgentPort is one registered port among several.
+
+  - globs:
+      - "src/orchestration/trace/**"
+    spec: sdd/specs/F2_trace_replay/spec.md
+    why: >
+      F2 — step-level trace and replay. EXTENDS the existing RunManifest/RunOutcome
+      (OR-13, immutable) downward to decision granularity; never duplicates it.
+      Carries PG-9's propensity and PG-5.2's pre/post arms — both impossible to
+      backfill, so they are designed in from record #1.
+
+  - globs:
+      - "src/data_engine/corporate_actions/**"
+    spec: sdd/specs/F3_corporate_actions/spec.md
+    why: >
+      F3 — corporate-action CLASSIFICATION only. Detection stays with the existing
+      symbology/detect.py ("no vendor, no search"); F3 supplies the cause, which is
+      not in the data. Search precedes classification, always (PG-3).
+
+  - globs:
+      - "src/evaluation/**"
+    spec: sdd/specs/F5_evaluation_harness/spec.md
+    why: >
+      F5 — the shared measurement harness (PG-4). Spec-governed by QR-13: D-14
+      inherits D-10's one-way import rule (ST-2) but NOT its spec exemption, because
+      an unverified instrument is wrong in both portfolio lanes at once.
+
+  - globs:
+      - "src/orchestration/policy/routing.py"
+    spec: sdd/specs/F6a_config_routing/spec.md
+    why: >
+      F6a — the routing function. Pure, deterministic, returns a reason and
+      influenced_by (PG-9, PG-7). Lands beside the existing policy/{budget,retry}.py;
+      does NOT create a parallel policy layer.
+
+  - globs:
+      - "src/orchestration/control/**"
+    spec: sdd/specs/F8_control_surface/spec.md
+    why: >
+      F8 — the inbound human channel: full-depth drill-down (QR-16), designation,
+      suspend/resume. ⚠ PARTIAL — the directives half is carved out and BLOCKED
+      pending Victor's statement of intent (spec §2.1).
+
+  - globs:
+      - "src/fundamental/source/**"
+    spec: sdd/specs/F9_thesis_source_port/spec.md
+    why: >
+      F9 — ThesisSourcePort with ApiAdapter (default, QR-20) and RelayAdapter.
+      ⚠ The relay adapter WRAPS src/fundamental/relay/ (compose/ingest/confidence_of);
+      it reimplements none of it, and verification must propagate unsoftened.
+
+  - globs:
+      - "src/explain/**"
+    spec: sdd/specs/F4_explainability/spec.md
+    why: >
+      F4 — D-13 cross-view explanation ONLY (QR-10). Per-domain attribution stays in
+      each analytical domain's own output contract; D-13 composes published outputs
+      and must not import D-01 or D-03 internals (INV-014/ST-9).
+
+  - globs:
+      - "src/orchestration/graph/**"
+    spec: sdd/specs/F6b_deliberation/spec.md
+    why: >
+      F6b — the deliberation state machine, and the ONLY directory permitted to import
+      an orchestration framework (QR-14, F2 AC-2.10). ⚠ Graduation gate satisfied by
+      F7a; DEPLOYMENT mode is set by F7a's band verdict (spec §2.1).
+
+  # ⚠ F7a and F7b land inside src/evaluation/** which F5 already governs — no separate
+  # glob. First matching entry wins, so F5's entry covers them.
+  # First matching entry wins, so F5's entry covers it; F7a is cited from F5's ACs.
+
+  # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
+  # D-07 code, changes upstream (vision §2) until the M8 absorption.
+
+  # ⚠ src/orchestration/{contracts,state,jobs,policy,schedule}/** stay UNGOVERNED
+  # here — they are inherited D-08 code and change upstream (vision §2) until the
+  # M8 absorption, when their globs arrive pointing at the upstream L-specs.
+
+  # Future entries land here as each spec graduates. Inherited domains
+  # (src/fundamental/**, src/quant/**, ...) arrive with the M8 absorption,
+  # repointed at their upstream L-specs.
+
+# Paths deliberately NOT spec-governed. Never blocked.
+exempt:
+  - "*.md"                 # CLAUDE.md, README.md — project docs
+  - "LICENSE"
+  - ".gitignore"
+  - "pyproject.toml"
+  - "sdd/**"               # the SDD tier itself
+  - "docs/**"              # study material — lectures, notes. Governs nothing.
+  - ".claude/**"
+  - "config/**"
+  - "tests/**"             # tests encode ACs; they are the OUTPUT of reading a spec
+  - "tests_src/**"
+  - "src/experiments/**"   # D-10 — P7-exempt research, held by ST-2's one-way rule
+  # ⚠ src/evaluation/** is deliberately NOT here — QR-13 made D-14 spec-governed.
+  # Its globs land with F5.

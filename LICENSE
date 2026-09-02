@@ -1,0 +1,122 @@
+Collective Investment AI Assistant
+Copyright (c) 2026 Victor Truong. All rights reserved.
+
+
+                  SOURCE-AVAILABLE LICENCE
+             THIS IS NOT AN OPEN-SOURCE LICENCE
+
+
+This software, its documentation, its specifications and every other file in
+this repository (together, the "Work") are made available for READING and
+EVALUATION ONLY.
+
+No licence, right, title or interest in the Work is granted to you except the
+narrow permission expressly stated in Section 1 below. All rights not expressly
+granted are reserved by the copyright holder.
+
+
+1. WHAT YOU MAY DO
+
+   You may, at no charge and without needing to ask:
+
+   (a) view and read the Work;
+   (b) make a local copy of the Work (including by cloning this repository)
+       for the sole purpose described in (c);
+   (c) run the Work locally for the sole purpose of evaluating the technical
+       and professional work of the copyright holder — for example, in the
+       course of considering the copyright holder for employment or
+       engagement.
+
+   That is the entire grant.
+
+
+2. WHAT YOU MAY NOT DO
+
+   Without prior written permission from the copyright holder, you may not:
+
+   (a) use the Work, or any part of it, for any purpose other than the
+       evaluation described in Section 1(c) — including any personal,
+       internal, commercial, academic or production use;
+   (b) copy, publish, mirror, host or otherwise redistribute the Work or any
+       part of it;
+   (c) modify the Work, or create derivative works from it;
+   (d) incorporate the Work, or any part of it, into another work, product,
+       model, dataset or service;
+   (e) use the Work, or any part of it, to train, fine-tune, evaluate or
+       otherwise develop any machine-learning model;
+   (f) sublicense, sell, rent, lease or otherwise transfer any rights in the
+       Work;
+   (g) remove, obscure or alter any copyright, licence or attribution notice.
+
+
+3. CONTRIBUTIONS ARE NOT ACCEPTED
+
+   The copyright holder does not accept contributions, patches or pull
+   requests to the Work. Any material submitted notwithstanding this section
+   is submitted on the basis that the copyright holder may use it without
+   restriction, obligation or attribution, and that the submitter asserts no
+   rights in the Work as a result.
+
+
+4. THIRD-PARTY COMPONENTS
+
+   The Work may depend on, reference or include third-party software, which
+   remains subject to its own licence and copyright. Nothing in this licence
+   grants or restricts any right in such third-party software, and nothing in
+   this licence is intended to conflict with the terms under which it is
+   provided.
+
+
+5. NO WARRANTY
+
+   THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, ACCURACY AND NON-INFRINGEMENT.
+
+
+6. NOT INVESTMENT ADVICE
+
+   The Work is investment-analysis software written by an individual for that
+   individual's own use. It is NOT investment advice, NOT a recommendation to
+   buy, sell or hold any security, and NOT a solicitation of any kind. It is
+   not produced by a registered investment adviser, dealer or portfolio
+   manager. Any output it produces — including any verdict, score, target,
+   stop or thesis — is a research artifact and nothing more.
+
+   Any figure, model, backtest or result appearing in the Work may be
+   incomplete, unverified, out of date or wrong. No person should rely on the
+   Work, or on anything it produces, in making any financial decision.
+
+
+7. LIMITATION OF LIABILITY
+
+   TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
+   COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY —
+   INCLUDING ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+   CONSEQUENTIAL OR FINANCIAL LOSS, AND ANY TRADING OR INVESTMENT LOSS —
+   WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+   OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE WORK.
+
+
+8. TERMINATION
+
+   The permission in Section 1 ends automatically if you breach any term of
+   this licence. On termination you must delete every copy of the Work in
+   your possession or control.
+
+
+9. RESERVATION OF RIGHTS
+
+   The copyright holder reserves all rights in the Work not expressly granted
+   in Section 1, and may change the terms on which the Work is made available,
+   or withdraw it entirely, at any time and without notice.
+
+
+10. PERMISSIONS AND ENQUIRIES
+
+    Any use beyond Section 1 requires prior written permission. Enquiries —
+    including licensing enquiries — should be directed to the copyright
+    holder through the contact details published with this repository.
+
+
+                            —  END OF LICENCE  —
