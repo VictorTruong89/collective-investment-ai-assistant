@@ -1,13 +1,58 @@
-# OS / editor cruft
+# ── OS / editor cruft ──────────────────────────────────────────────
 .DS_Store
 *.swp
 
-# Python
+# ── Python ─────────────────────────────────────────────────────────
 __pycache__/
 *.pyc
 .venv/
+.pytest_cache/
 
-# Secrets — never commit
+# ⚠ NOT inherited on purpose: upstream carries a blanket `__init__.py`
+# ignore with `!src/**/__init__.py` negations. Its own .gitignore records
+# that blanket rule as a REAL DEFECT — `src/<domain>/__init__.py` IS the
+# domain's public API surface (L4 ST-3), so a fresh clone imported a
+# namespace package with none of it. We do not inherit a known defect.
+
+# ── Secrets — never commit ─────────────────────────────────────────
 .env
 .env.*
 !.env.example
+deploy/*.service
+!deploy/*.service.example
+
+# ═══════════════════════════════════════════════════════════════════
+#  ⚠ ARRIVES AT MS-8 (absorption) — these paths do not exist yet.
+#  Listed NOW so the copy cannot commit them. Same logic as PG-8:
+#  keeping this file a SUPERSET of upstream's makes the absorption a
+#  merge rather than a reconciliation.
+# ═══════════════════════════════════════════════════════════════════
+
+# Generated / runtime state — re-derivable, never a source of truth
+.state/
+data/
+logs/
+debug/
+test/
+trained_models/
+catboost_info/
+
+# Model artifacts
+*.pkl
+*.model
+*.joblib
+
+# ⚠⚠ REAL BROKER TRANSACTION DATA — the sharpest item in this file.
+# Upstream ignores it; if this rule does not travel with the sdd/ copy
+# at MS-8, real BMO transaction CSVs land in history permanently.
+sdd/design/rel6_design/samples/bmo_investorline_transactions/
+
+# reports/ is ignored EXCEPT the archived Release-5 experiment evidence.
+# ⚠ This block must stay LAST: gitignore cannot re-include below an
+# ignored DIRECTORY (hence the /* layering), and the trailing negations
+# must out-rank the generic logs/ and *.pkl patterns above — last match wins.
+reports/*
+!reports/experiments/
+reports/experiments/*
+!reports/experiments/Rel5_Experiment/
+!reports/experiments/Rel5_Experiment/**
