@@ -3,10 +3,11 @@
 > **Spec-ID:** F6a · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §H.2 · lecture §2.4 ·
 > [`../../questions.md`](../../questions.md) `QR-9`
-> **Milestone:** `M6` · **Governs:** enforces **`PG-7`**, **`PG-9`**; inherits `AP-5`, `ST-9`/`INV-014`.
+> **Milestone:** `MS-6` · **Governs:** enforces **`PG-7`**, **`PG-9`**; inherits `AP-5`, `ST-9`/`INV-014`.
 > **Capability:** `C2`(a) · `C5` — the machine-side half of the control plane.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -116,14 +117,14 @@ falling back to the declared default with `reason == "default"`.
 - **Q1 — What is the declared phase order?** `AC-6a.7` needs one. Fundamental → quant, or the reverse,
   or a richer order? ⚠ The choice determines which seat can influence which, and it is an analytical
   decision, not an engineering one.
-- **Q2 — Which routing predicates exist at `M6`?** The volatility→horizon rule is the worked example.
-  A full predicate list is `M6` scoping, not spec content — but `AC-6a.3`'s test needs at least one.
+- **Q2 — Which routing predicates exist at `MS-6`?** The volatility→horizon rule is the worked example.
+  A full predicate list is `MS-6` scoping, not spec content — but `AC-6a.3`'s test needs at least one.
 - **Q3 — Does `AC-6a.10` bind rendering (D-09) or composition (D-12)?** Probably both, but the
   enforcement point should be named once.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

@@ -3,12 +3,12 @@
 > **Spec-ID:** F1 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §D.5 · §H.1 ·
 > [`../../questions.md`](../../questions.md) `QR-7`, `QR-8`
-> **Milestone:** `M1` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
+> **Milestone:** `MS-1` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
 > **Governs:** `constitution.md` — enforces `PG-8`, `PG-9`; inherits `P5`, `CA-3`, `AP-6`.
 > **Capability:** `C1` (plugin architecture / SPI), and the substrate `C8` (governance) stands on.
 >
-> ⚠ **`PG-1` blocks implementation** until the inherited pipeline completes a verified
-> end-to-end run (`M0`). This spec may be written, reviewed and approved now; **no code
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 > may be written against it yet.**
 
 ---
@@ -25,9 +25,9 @@ This is the mechanism behind capability `C1` and behind the **vertical scalabili
 knowing. It is also what makes `C8` possible — an output can name *which implementation version*
 produced it.
 
-★ **It is deliberately first.** `M1` is the only platform milestone with no pipeline dependency: a
+★ **It is deliberately first.** `MS-1` is the only platform milestone with no pipeline dependency: a
 registry and a protocol can be built and fully contract-tested in isolation, so this spec is writable
-and approvable while `M0` is still in flight.
+and approvable while `MS-0` is still in flight.
 
 > ⚠ **The interface is the easy half.** A satisfied type signature does **not** make an implementation
 > substitutable — the upstream `MU`-71 % incident is a case where two adapters shared a signature and
@@ -191,14 +191,13 @@ and when `F6b` graduates (gated on `F7a`, `PG-5.1`).
 - **Q3 — Is the registry accessed concurrently?** If `F6b`'s agents ever run in parallel, both
   registration (startup-only, so probably safe) and the `AC-1.6` cache (definitely not) need
   thread-safety. Deferring is acceptable **only if** the answer is recorded, not assumed.
-- **Q4 — Does `AC-1.12` hold for `AgentPort` on day one?** At `M1` there may be exactly one agent
+- **Q4 — Does `AC-1.12` hold for `AgentPort` on day one?** At `MS-1` there may be exactly one agent
   implementation plus a stub. If the stub does not count, `AC-1.12` fails and either the AC or the
   port must move. ⚠ This is `A4` ("abstraction is earned") meeting reality — resolve before approval.
 
 ## 8. Traceability (spec → test → code)
 
-⚠ **Empty by design.** `PG-1` blocks implementation until `M0` completes; no test may be marked green
-before it has been run.
+⚠ **Empty by design** — no code exists yet, and no test may be marked green before it has been run.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|

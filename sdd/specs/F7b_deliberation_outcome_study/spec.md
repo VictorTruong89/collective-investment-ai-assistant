@@ -2,13 +2,14 @@
 
 > **Spec-ID:** F7b · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** [`../../questions.md`](../../questions.md) `QR-3` §I
-> **Milestone:** `M7` onward — ★ **and then for years** · **Governs:** enforces `PG-5.1`, `PG-5.2`.
+> **Milestone:** `MS-7` onward — ★ **and then for years** · **Governs:** enforces `PG-5.1`, `PG-5.2`.
 > **Capability:** `C6` · **Domain:** D-14, seat 9.
 >
 > ★★ **This study accrues from day one and NEVER GATES.** That is not a weakness of the design; it is
 > the design (`PG-5.1`).
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -134,7 +135,7 @@ the accrual record that makes a future answer possible.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`, and no outcomes exist to join.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

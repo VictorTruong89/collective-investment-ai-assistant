@@ -37,10 +37,23 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state:** `vision.md` and `constitution.md` are written. No `F<n>` spec has
-graduated yet, `ownership.yaml` is still empty, and `src/` does not exist —
-**`PG-1` blocks all implementation** until the inherited pipeline completes a verified
-end-to-end run. Spec-writing is not blocked.
+**Current state:** vision, constitution and **11 specs (🟡 draft, 137 ACs)** are written, with
+9 governed globs live in `ownership.yaml`. **`src/` does not exist — no code yet.**
+
+⚠ `PG-1`, which blocked all implementation, was **retired 2026-09-02**: verification moved to the
+fund manager, done manually against real run outcomes. **Implementation is now gated only by spec
+approval 🟡→🟢** — and by the `PreToolUse` gate, which is unaffected and still refuses an edit to a
+governed path until this session has read the governing spec.
+
+## Skills
+
+- **`fmp-api`** — what Financial Modeling Prep can and cannot serve, **measured** against the
+  real Starter key (156 `/stable/` endpoints probed 2026-08-15), not read from FMP's docs.
+  Carries the full endpoint catalog, the plan gates (`402` vs `404`), the point-in-time
+  hazard classes, and the five traps that have already caused measured defects — including
+  ⚠ **FMP guesses the quarter and got Micron wrong by 71 %**. Load it before designing or
+  coding any data fetch.
+- **`sdd-implement`** — the spec → failing test → code → traceability loop.
 
 ## Enforcement
 

@@ -2,13 +2,14 @@
 
 > **Spec-ID:** F7a · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** [`../../questions.md`](../../questions.md) `QR-3` §I · lecture §2.6
-> **Milestone:** `M7` · **Governs:** enforces **`PG-5.1`**, `PG-5.2`; inherits `P7`, `ST-2`.
+> **Milestone:** `MS-7` · **Governs:** enforces **`PG-5.1`**, `PG-5.2`; inherits `P7`, `ST-2`.
 > **Capability:** `C6` · **Domain:** D-14, seat 9.
 >
 > ★★ **This spec is a gate.** `PG-5.1`: `F6b` (deliberation) may not graduate until **this design
 > exists**. F7a is therefore written *before* the thing it measures.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -53,8 +54,8 @@ requirement; the harness bindings to `F5`; the report.
 ## 4. Behaviour & reuse (the lean "how")
 
 - **Every test runs on `CapabilityDelta` pairs** (`PG-5.2`) — the pre- and post-deliberation verdicts
-  `F2` records from the first run. ⚠ Without those, none of this is computable, which is why `M3`
-  precedes `M7`.
+  `F2` records from the first run. ⚠ Without those, none of this is computable, which is why `MS-3`
+  precedes `MS-7`.
 - **Synthetic challenges are generated, not sampled.** T1's bogus-challenge arm needs challenges that
   are plausible and **false** — a concentration figure that is wrong, an exposure that does not exist.
 - ★★ **The analysis plan is pre-registered.** The null, statistic, α, power, δ and bands are written
@@ -175,7 +176,7 @@ keep-or-delete call the evidence does not support.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`, and `F6b` does not yet exist to measure.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

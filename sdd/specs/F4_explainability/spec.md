@@ -3,11 +3,12 @@
 > **Spec-ID:** F4 · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** lecture §3 · [`../../questions.md`](../../questions.md) `QR-10` ·
 > upstream `AB-1`, `AB-2`
-> **Milestone:** `M5` · **Governs:** inherits `AP-1`, `AP-2`, `AP-3`, `P5`, `INV-014`/`ST-9`,
+> **Milestone:** `MS-5` · **Governs:** inherits `AP-1`, `AP-2`, `AP-3`, `P5`, `INV-014`/`ST-9`,
 > upstream `RA-6`, `RA-9`, `RA-67`.
 > **Capability:** `C3` · **Domain:** **D-13** `src/explain/`, seat 6.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -52,7 +53,7 @@ diagnostic.
 - ✗ **Re-deriving gate binding.** `decision/attribute/binding.py` owns it.
 - ✗ ⚠ **Asking a model to explain itself.** See §4 — self-reported reasoning is not evidence.
 - ✗ **Measuring faithfulness.** `F5` owns deletion/insertion curves; F4 produces the artifact they test.
-- ✗ **Choosing the model.** The EBM challenger is a `M5` experiment under seat 9, not a spec commitment.
+- ✗ **Choosing the model.** The EBM challenger is a `MS-5` experiment under seat 9, not a spec commitment.
 
 ## 3. Users & triggers
 
@@ -156,7 +157,7 @@ diagnostic.
 ## 7. Open questions
 
 - **Q1 — ⬆ `AB-1` and `AB-2` are upstream.** `AC-4.4` and `AC-4.6` wire inherited D-01 machinery, which
-  `vision.md` §2 says changes upstream until absorption. ⚠ **Are these F4's work or `M0`'s?**
+  `vision.md` §2 says changes upstream until absorption. ⚠ **Are these F4's work or `MS-0`'s?**
   *Leaning: the wiring is upstream (D-01 owns it); F4 owns the contract that consumes the result.*
 - **Q2 — What is the attribution method per domain?** SHAP for the GBDT is the default; ⚠ if the EBM
   challenger wins, attribution becomes intrinsic and `CT-4.1.method` changes. Deliberately left open.
@@ -169,7 +170,7 @@ diagnostic.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

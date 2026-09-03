@@ -3,12 +3,13 @@
 > **Spec-ID:** F2 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §D.1 · lecture §2.7 ·
 > [`../../questions.md`](../../questions.md) `QR-14`
-> **Milestone:** `M3` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
+> **Milestone:** `MS-3` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
 > **Governs:** `constitution.md` — enforces **`PG-5.2`**, **`PG-9`**, `PG-7`; inherits `P5`, `AP-6`,
 > and upstream **`OR-13` / `INV-005` / `INV-006`** (manifest immutability).
 > **Capability:** `C7` observability — the substrate `C2`, `C4`, `C5`, `C6` and `C8` all stand on.
 >
-> ⚠ **`PG-1` blocks implementation** until `M0` completes. Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -67,7 +68,7 @@ counterfactual arm permanently.
 - ✗ **The decision journal** (D-11) — a human-facing record of what the fund manager did. F2 records
   what the *system* did. They join on `decision_id` and are not the same artifact.
 - ✗ **Metrics over traces** — that is `F5`. F2 produces the substrate; it computes nothing.
-- ✗ **A dashboard.** Reading traces is `M9` polish.
+- ✗ **A dashboard.** Reading traces is `MS-9` polish.
 
 ## 3. Users & triggers
 
@@ -220,7 +221,7 @@ years after the decision.
   Are they redacted, excluded, or simply never published? Blocks `AC-2.9`'s scope.
 - **Q5 — Does the existing `seed` cover all randomness?** `RunManifest.seed` exists, which is
   promising. ⚠ Confirm there is no unseeded RNG, clock read or dict-ordering dependence before
-  `AC-2.3` can pass. **This is a question about the inherited code and is answerable at `M2`.**
+  `AC-2.3` can pass. **This is a question about the inherited code and is answerable at `MS-2`.**
 - **Q6 — Does F2 trace the inherited pipeline's jobs, or only platform code?** Tracing D-01/D-03
   internals means touching inherited domains, which `vision.md` §2 says change upstream. **Boundary
   proposal:** F2 records at *job* and *external-call* boundaries, which are already D-08's territory,
@@ -228,7 +229,7 @@ years after the decision.
 
 ## 8. Traceability (spec → test → code)
 
-⚠ **Empty by design.** `PG-1` blocks implementation; no AC may be marked green before its test runs.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|

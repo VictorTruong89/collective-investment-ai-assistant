@@ -2,7 +2,7 @@
 
 > **Spec-ID:** F6b · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** lecture §2.5–§2.6 · [`../../questions.md`](../../questions.md) `QR-3`, `QR-9`
-> **Milestone:** `M7` · **Governs:** enforces `PG-5.1`, `PG-5.2`, `PG-3`; inherits `P3`, `P5`,
+> **Milestone:** `MS-7` · **Governs:** enforces `PG-5.1`, `PG-5.2`, `PG-3`; inherits `P3`, `P5`,
 > `INV-014`/`ST-9`, `AP-3`.
 > **Capability:** `C2`(b).
 >
@@ -10,7 +10,8 @@
 > may graduate. [`F7a`](../F7a_deliberation_process_tests/spec.md) exists as of 2026-09-01.
 > ⚠ **Deployment status is a separate matter** — see §2.1.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -178,7 +179,7 @@ flow.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`, and deployment mode awaits `F7a`'s verdict.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

@@ -3,11 +3,12 @@
 > **Spec-ID:** F9 · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` S4 ·
 > [`../../questions.md`](../../questions.md) `QR-20`, `QR-16`
-> **Milestone:** `M6` · **Governs:** inherits `P4`, `P5`, `AP-2`, upstream `RA-6`/`RA-9`,
+> **Milestone:** `MS-6` · **Governs:** inherits `P4`, `P5`, `AP-2`, upstream `RA-6`/`RA-9`,
 > `RA-67`/`RA-114`/`RA-144`, `AC-1.77`.
 > **Capability:** `C1` applied to seat 2 · `C8` provenance.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -124,16 +125,16 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 - **Q1 — Does the relay envelope carry source spans?** `QR-16`'s "earn the confidence back" option
   depends on the relayed report returning claims **with spans** so `ingest()` can verify every one.
   ⚠ If it does not, the relay stays blanket-de-rated and `AC-9.7`'s parity is nominal. **Answerable by
-  reading `relay/models.py` at `M6`.**
+  reading `relay/models.py` at `MS-6`.**
 - **Q2 — What is the API adapter's prompt?** The relay has a 463-line prompt spec upstream. Does the
   API path reuse it, or does the master prompt differ? ⚠ If they differ, `AC-9.7`'s parity claim
   weakens and the A/B compares two things at once.
-- **Q3 — Cost measurement (`QR-20`'s action).** Pull the usage report before `M6` closes and record
+- **Q3 — Cost measurement (`QR-20`'s action).** Pull the usage report before `MS-6` closes and record
   the number in `QR-20`.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

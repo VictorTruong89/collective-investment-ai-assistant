@@ -3,10 +3,11 @@
 > **Spec-ID:** F8 · **Status:** 🟡 draft · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` S4 ·
 > [`../../questions.md`](../../questions.md) `QR-16`
-> **Milestone:** `M6` · **Governs:** enforces `PG-2`; inherits `P5`, `INV-6`, upstream `RC-*` (journal).
+> **Milestone:** `MS-6` · **Governs:** enforces `PG-2`; inherits `P5`, `INV-6`, upstream `RC-*` (journal).
 > **Capability:** `C5` human-side · `C4` suspend/resume.
 >
-> ⚠ **`PG-1` blocks implementation.** Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -63,7 +64,7 @@ the fund manager confirms the resulting parameter changes; the system applies th
 
 ★★ **And interpretation happens exactly once, at input time.** The typed directive is persisted and
 **frozen**; replay reads the stored object and never re-invokes the model. A replayed run therefore
-takes the same path — which is precisely what `PG-9` protects and what `F7` depends on (`AC-8.13`).
+takes the same path — which is precisely what `PG-9` protects and what `F7a`/`F7b` depend on (`AC-8.13`).
 
 It clears `PG-3` for the same reason `F3` does: **human natural language is genuinely unbounded**, so
 no deterministic parser can cover it. That is where an agent earns its place.
@@ -255,7 +256,7 @@ validation, once real directives exist to map.
 
 ## 8. Traceability
 
-⚠ **Empty by design** — `PG-1`.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test | Code module |
 |---|---|---|

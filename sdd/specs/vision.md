@@ -97,7 +97,7 @@ That separation removes bias, and it is reproduced here deliberately.
 | 6 | **Decision Mediator** | AI | D-12 `src/decision/` · **D-13** `src/explain/` | RECOMMEND — *composes; originates nothing* |
 | 7 | **Orchestrator** | AI | D-08 `src/orchestration/` | AUTONOMOUS for control flow · ★ **zero analytical authority** |
 | 8 | **Back Office** | AI | D-07 `src/data_engine/` · D-02 `src/feature_engineer/` · D-09 `src/reporting/` · D-11 `src/recording/` | split — recording AUTONOMOUS, reporting RECOMMEND |
-| 9 | **Experiments** | AI | D-10 `src/experiments/` · **D-14** `src/evaluation/` | none — research, `P7`-exempt |
+| 9 | **Experiments** | AI | D-10 `src/experiments/` · **D-14** `src/evaluation/` | none — research, `P7`-exempt. ★ **Its measurements *gate*, but never *decide*** — `F7a`'s band is applied by a pre-registered rule and by seat 1, not by seat 9 |
 
 **Cross-cutting, no seat:** D-00 `src/shared/` — the SPI registry, the agent protocol, the LLM gateway,
 money, errors. It serves every seat and belongs to none.
@@ -322,8 +322,8 @@ defined *here*.
 - **Proposing or brainstorming?** Start here, then `../design/rel<N>_brainstorm.md`. A proposal that
   serves no capability in §4, or contradicts §5 or §7, is out of scope — say so rather than building it.
 - **Implementing?** This file binds nothing directly. Go to [`constitution.md`](constitution.md) and the
-  governing spec. ⚠ **`PG-1` blocks implementation** until the inherited pipeline completes a verified
-  end-to-end run; it does **not** block spec-writing.
+  governing spec. ⚠ `PG-1` was **retired 2026-09-02** — implementation is gated by **spec approval**,
+  not by a phase gate.
 - **Amending?** The seats (§3), the capabilities (§4) and the non-goals (§7) change only when the fund
   manager says so, and the change lands **here first**. The spec registry (§4.1) is expected to churn.
 

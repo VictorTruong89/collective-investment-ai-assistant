@@ -40,7 +40,7 @@ sdd/
 ├── design/                         NON-AUTHORITATIVE · release-scoped
 │   ├── rel<N>_brainstorm.md        the live release's brainstorm + decision log
 │   ├── rel<N>_design/
-│   │   ├── L3-build-sequence.md    ★ the BUILD PLAN — M0..M9, the link step (M2),
+│   │   ├── L3-build-sequence.md    ★ the BUILD PLAN — MS-0..MS-9, the link step (MS-2),
 │   │   │                             and the DX absorption-discrepancy log
 │   │   └── L4-target-structure.md  the target tree the absorption merges into
 │   ├── _templates/brainstorm.md    skeleton for the next release
@@ -102,7 +102,5 @@ it is per-domain, records what the code does and why, and drifts against the
 decision and the one still open. **No `F<n>` spec has graduated yet**, `ownership.yaml`
 is still empty, and `src/` does not exist.
 
-⚠ **`PG-1` blocks all implementation** until the inherited `ai-investment-pipeline`
-completes a verified end-to-end run — milestone `M0` in
-[`design/rel1_design/L3-build-sequence.md`](design/rel1_design/L3-build-sequence.md).
-**Spec-writing is not blocked.**
+⚠ `PG-1` was **retired 2026-09-02** — verification moved to the fund manager. Implementation is
+gated by **spec approval 🟡→🟢** and by the `PreToolUse` gate, which is unaffected.

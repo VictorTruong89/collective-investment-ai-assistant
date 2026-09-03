@@ -83,14 +83,14 @@ market than any framework on a CV.
 ║  growing. It is a WEEK of learning presented as eight months of      ║
 ║  work, and an experienced interviewer knows it.                      ║
 ║                                                                      ║
-║  ★ WHAT IS SCARCE IN 2027:                                          ║
+║  ★ WHAT IS SCARCE IN 2027:                                           ║
 ║    · someone who can EVALUATE a non-deterministic system             ║
 ║    · someone who can EXPLAIN why a model said what it said           ║
 ║    · someone who ships a system that KNOWS WHAT IT DOESN'T KNOW      ║
 ║    · someone with real DOMAIN depth + AI (fintech AI is a niche      ║
 ║      that pays, and is hard to fake)                                 ║
 ║                                                                      ║
-║  ⚠ THE REPO ALREADY HAS ALL FOUR. THE PIVOT AS WRITTEN BURIES       ║
+║  ⚠ THE REPO ALREADY HAS ALL FOUR. THE PIVOT AS WRITTEN BURIES        ║
 ║    THEM UNDER A COMMODITY DEMO.                                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 ```

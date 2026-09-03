@@ -40,7 +40,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-1** | Which repo is the home? | platform | ✅ | `vision.md` §2 |
 | **QR-2** | Portfolio framing — xAI-led, agents-led, or both? | platform | ✅ | `vision.md` §1.1 |
 | **QR-3** | Is deliberation acceptable only if measured? | D-14 · seat 9 | ✅ | `PG-5.1` · `PG-5.2` |
-| **QR-4** | Does a verified E2E run gate platform code? | platform | ✅ | `PG-1` |
+| ~~QR-4~~ | Does a verified E2E run gate platform code? | platform | ⊘ **superseded 2026-09-02** | `PG-1` retired → ✅ **`PG-10`** |
 | **QR-5** | ★ **The IC gate's standard error** | D-03 · seat 3 | ✅ ⚠ *corrected 2026-09-01* | ⬆ upstream `metric_gate.py`, §5.3b — **action required** |
 | **QR-6** | Does D-12 stay deterministic? | D-12 · seat 6 | ✅ | `PG-6` |
 | **QR-7** | ★ **Which pluggability layers, and what binding times?** | D-00 · F1 | ✅ | `vision.md` §7 · `F1` scope |
@@ -48,7 +48,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-9** | Is "interactive agents" one feature or two? | D-08 · seat 7 | ✅ | `vision.md` §4.1 `F6a`/`F6b` |
 | **QR-10** | Who owns explainability — each domain, or seat 6? | D-13 · seat 6 | ✅ | `vision.md` §3, §4.2 |
 | **QR-11** | How many scalability axes? | platform | ✅ | `vision.md` §6 |
-| **QR-12** | ★ **Publication model — how are all rights retained?** | platform | ✅ | [`../LICENSE`](../LICENSE) · `M9` |
+| **QR-12** | ★ **Publication model — how are all rights retained?** | platform | ✅ | [`../LICENSE`](../LICENSE) · `MS-9` |
 | **QR-13** | Does `src/evaluation/` get a spec, or stay gate-exempt? | D-14 · seat 9 | ✅ | `ownership.yaml` · `F5` |
 | **QR-14** | Is LangGraph confinement enforced by CI grep? | D-08 · seat 7 | ✅ | `A8` · `F2` ACs |
 | **QR-15** | Does `config/` merge cleanly at absorption? | platform | 🔵 | — |
@@ -57,6 +57,7 @@ rather than one file per decision, because tracking in a single place was the re
 | ~~QR-18~~ | *withdrawn — misread intent; ID retired, not reused* | — | ⊘ | — |
 | **QR-19** | ★ **The IC gate's t-threshold** — spun out of QR-5 | D-03 · seat 3 | ✅ | ⬆ upstream — **with QR-5** |
 | **QR-20** | Is the API or the relay the default thesis source? | D-01 · seat 2 | ✅ | `F9` default variant |
+| **QR-21** | ★ **CAD/CDR positions — block, buy, or scope out?** | D-05 · seat 4 ⬆ | ✅ | ⬆ upstream `DN-39`/`RC-58` |
 | ⬆ | Upstream questions that block this repo | various | ⬆ | §9 |
 
 ---
@@ -99,19 +100,40 @@ harness — and the deliberation A/B study is *simultaneously* the agent demo an
 One thesis, two demos. ⚠ Conditional on the harness being built **once, early, and shared** (`PG-4`);
 if each lane grows its own ad-hoc measurement code the risk becomes real.
 
-## ✅ QR-4 — Does a verified E2E run gate platform code?
+## ~~QR-4~~ — ⊘ **SUPERSEDED 2026-09-02**
 
-**Origin:** rel1 S1. **Status:** ✅ decided 2026-08-28. **Binds:** `PG-1`.
+**Origin:** rel1 S1. **Decided** 2026-08-28 → **reversed** 2026-09-02.
 
-**Context.** The pipeline has 34,723 LOC and 1,192 passing tests but **has never completed a verified
-end-to-end production run**.
+**~~Decision (2026-08-28):~~** a verified E2E run is a **binding gate**; no platform code until it
+passes. Recorded as `PG-1`. *Rationale: mirrored Victor's own `AB-5` precedent, and guarded against
+arriving at May 2027 with an elaborate demo over an unproven signal.*
 
-**Decision.** Binding gate — no platform code until it does. Mirrors Victor's own precedent for D-10
-(*"I do not plan to implement D-10 code until the full pipeline runs stably"*). ⚠ Blocks
-*implementation* only; spec-writing continues.
+### ⊘ Reversed — Victor, 2026-09-02
 
-**Rejected:** a soft gate allowing F1/F2 in parallel — faster, but risks arriving at May 2027 with an
-elaborate demo over an unproven signal.
+**Verification moves to the fund manager**, performed manually and in depth against real run outcomes.
+`PG-1` is **retired** (constitution §2, struck in place, ID never reused).
+
+**What changed the answer** — three findings from the G1 review:
+
+1. ⚠ **`PG-1` carried three bars that disagreed** — *"verified"* (undefined), *"completes unattended"*
+   (arguably already met), and *"not over an unproven signal"* (a different question entirely).
+2. ★ **The done-when was empirically already satisfied** — two runs on 2026-08-28 returned `SUCCESS`,
+   13/13 jobs, with a rendered report — while HEAD still read *"not yet test or verified."*
+3. ★★ **It blocked `F5`, the evaluation harness** — the instrument that would have answered the
+   concern the rationale rested on. **A gate that blocks its own key.**
+
+### ⚠⚠ The gap, left open deliberately
+
+Manual verification answers the operational bar. It does **not** answer the third one, and **no rule
+now prevents a performance figure or an actionable card being presented from an unpromoted model**
+(walk-forward IC 0.0203, *t* = 1.42, refused by its own gate). `PG-2` and `PG-5` do not cover it.
+
+> ✅ **Closed by `PG-10`, adopted 2026-09-02.** *A claim carries its subject's status* — no output
+> presents a recommendation as actionable, or publishes a performance figure, unless the model behind
+> it has passed its own gates or the output says plainly that it has not.
+>
+> ★ `PG-1` blocked 137 ACs to guard this. `PG-10` guards it with one sentence on the output, and
+> blocks nothing.
 
 ## ✅ QR-11 — How many scalability axes?
 
@@ -127,7 +149,7 @@ capability. `C1` and `A3` are what make it cheap.
 ## ✅ QR-12 — Publication model: source-available, all rights reserved
 
 **Origin:** `vision.md` §8 (V-Q1), 2026-08-30. **Status:** ✅ decided 2026-08-30.
-**Binds:** [`../LICENSE`](../LICENSE) *(written 2026-08-30)* · README §Licence *(pending)* · `M9.1`–`M9.3`.
+**Binds:** [`../LICENSE`](../LICENSE) *(written 2026-08-30)* · README §Licence *(pending)* · `MS-9.1`–`MS-9.3`.
 
 **Victor's requirement:** *"this project only review the code base, but I keep all control and rights."*
 
@@ -211,7 +233,7 @@ network distribution, which is not the concern here.
 
 ## 🔵 QR-15 — Does `config/` merge cleanly at absorption?
 
-**Origin:** `L4-target-structure.md` S-3. **Status:** 🔵 open. Low urgency until Phase 0 completes.
+**Origin:** `L4-target-structure.md` S-3. **Status:** 🔵 open. Low urgency until `MS-0` completes.
 
 ---
 
@@ -638,7 +660,7 @@ lives in each domain. Both could not be true — a real inconsistency.
 D-03 in one module — a firewall breach — and could not work anyway, since attribution requires the
 internals of the thing being explained.
 
-★ **The fences caught a design error before any code existed.** Worth keeping for the Phase-4 write-up.
+★ **The fences caught a design error before any code existed.** Worth keeping for the `MS-9` write-up.
 
 ---
 
@@ -782,6 +804,57 @@ guardrail that would have blocked a legitimate question.
 alongside a full analysis, answering *"why was #1 ranked above this one"*. ⚠ It was wrong to offer it
 as a way to avoid doing the work.
 
+## ✅ QR-21 — CAD-venue and CDR positions: scope out, declare, do not block
+
+**Origin:** upstream **`AB-3`**, raised in the G1 review 2026-09-02. **Status:** ✅ decided 2026-09-02.
+**Binds:** ⬆ upstream `DN-39` / `RC-58` — **implementation is an upstream change.**
+
+**Context.** All four accounts hold at least one CAD-venue or CDR position, and those symbols return
+`402` on the current FMP plan — measured 2026-08-26: `MDA.TO` → 402, `MRV.NE` → 402, against an `NVDA`
+control at 200. `DN-39` requires a `COMPLETE` risk pass; a complete pass needs book-wide exposure;
+that needs every held name priced. ⚠ Upstream calls it *"the single thing keeping the daily card
+non-actionable"* — and *"a **subscription boundary, not a bug**."*
+
+| Option | Cost | Outcome |
+|---|---|---|
+| **a** — upgrade the FMP plan | recurring money | ✗ **not chosen** — a recurring bill to price a minor slice |
+| **b** — add a second price source for CAD venues | one-time engineering | ✗ **not chosen** for now — real work for the same minor slice |
+| ★ **c** — **scope it out: exclude unpriceable positions, declare the exclusion, keep the card actionable** | free | ✅ **CHOSEN** |
+
+### Decision
+
+**Unpriceable positions are excluded from the exposure calculation, and the exclusion is stated on the
+card with its magnitude.** The risk pass is no longer all-or-nothing: it is `COMPLETE` over a declared
+subset rather than `INCOMPLETE` over the whole book.
+
+**Why.** ★ **CAD/CDR is a minor portion of the portfolio** (Victor, 2026-09-02). Blocking the entire
+actionable path — and, until 2026-09-02, the entire build — on a slice that small was the tail wagging
+the dog. Option (c) also fits `P5` better than the status quo: the incompleteness is **declared**, not
+papered over by a card that simply never becomes actionable.
+
+### ⚠ The constraint the future logic must satisfy
+
+**Excluding positions from exposure means concentration and risk are computed on a *partial book*, and
+that understates exposure.** Tolerable for a minor slice — **but only if it is visible.**
+
+> ★ **The card must state the coverage and name what was excluded**, e.g.
+> *"exposure computed on 94 % of book by value · 6 % unpriceable: `MDA.TO`, `MRV.NE`."*
+> ⚠ A silent exclusion is strictly worse than the current block, because it looks complete.
+
+**Two further guards to design in:**
+- ⚠ **A ceiling.** Below some excluded fraction the card is actionable; above it, it is not. An
+  unbounded exclusion rule eventually excludes the whole book. *The threshold is undecided — see `Q1`.*
+- **The excluded set is recorded per run** (`F2`), so the coverage figure is auditable after the fact.
+
+### 7. Open
+
+- **Q1 — What excluded-fraction ceiling makes the card non-actionable?** ⚠ Needs a number. *Frame:
+  well below the smallest position size that would change a decision.*
+- **Q2 — Does "unpriceable" include stale-but-present prices**, or only hard `402`s?
+- **Q3 — Where does the logic live?** Exposure is D-05; the book is D-11; pricing is D-07. ⬆ All
+  upstream, all needing a small spec amendment to `DN-39`.
+
+
 ---
 
 # 10. ⬆ Upstream — owned in `ai-investment-pipeline`
@@ -794,8 +867,8 @@ Referenced by their upstream IDs; **not renumbered**.
 | **AB-12** | The IC gate's standard error | ★ = QR-5. **Decided here; upstream edit pending** |
 | **AB-1** | `evidence_coverage` never computed, so confidence is declared unmeasured | Blocks `F4`. ⚠ Note the trap: once coverage becomes real, `CONFIDENCE_FLOOR` becomes *reachable* and will start firing — that is the mechanism working, not a regression |
 | **AB-2** | Claim-binding does not run on the judgement narrative | ★ **Highest value-per-unit-work item in the xAI lane** — the machinery is built, tested, exported and never called |
-| **AB-3** | Canadian listings and CDRs are not priced | Keeps the daily card non-actionable. A subscription boundary, not a bug |
-| **AB-5** | D-10 unspecified and unbuilt | Precedent for `PG-1` |
+| **AB-3** | Canadian listings and CDRs are not priced | ✅ **answered by `QR-21`** — scope out, declare coverage on the card. ⬆ Upstream change to `DN-39` pending |
+| **AB-5** | D-10 unspecified and unbuilt | ~~Precedent for `PG-1`~~ — `PG-1` retired 2026-09-02 |
 | **AB-25** | Four decisions postponed 2026-08-28 | Unreviewed here |
 
 ---

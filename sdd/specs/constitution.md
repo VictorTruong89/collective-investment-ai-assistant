@@ -12,26 +12,98 @@
 
 # 1. ⚠⚠ ID families — read before inventing an ID
 
-This repo will **absorb `ai-investment-pipeline` and retire it** (vision §3). That repo carries
-a large, live ID space:
+This repo will **absorb `ai-investment-pipeline` and retire it** (vision §3). That repo carries a
+large, live ID space, and **every family below is reserved.** ⚠ The upstream L0 §5.2 records a real
+defect caused by *"two live meanings for one ID"* — `AP-n` had to be renamed out of `P1`–`P6` for
+exactly this.
 
-```text
-   P1–P7 · INV-1..9 · INV-0nn · AP-n · ST-n · CA-n · DR-n · G-n
-   DE-nn · RA-nn · QA-nn · RC-nn · MT-nn · FE-nn · DN-nn · CB-nn
-   BS-nn · AB-nn · QD-nn · DC-n
-```
+> ⚠ **Corrected 2026-09-02.** The earlier version of this list named 20 families and **missed eleven**
+> that are in live use upstream — `OR`, `RM`, `RK`, `RP`, `PS`, `GW`, `XP`, `QQ`, `CN`, `J`/`E`/`S`.
+> `OR-n` alone has **76 definitions and ~600 citations.** The list below was rebuilt by extraction, not
+> recollection, and each family is assigned to the document that actually *defines* it (by density).
+>
+> ⚠⚠ **The rebuild immediately caught a live collision of our own making.** This repo's build
+> milestones were `M0`…`M9`, and §1.1 shows `M-n` is already the **mandate** family in `L0`. Two
+> meanings for one letter is the exact defect this section exists to prevent, so the milestones were
+> **renamed `M<n>` → `MS-n`** the same day, across 118 references. ★ *That is the section doing its
+> job on its first real use.*
 
-⚠ **Every one of those is reserved.** The upstream L0 §5.2 records a real defect caused by
-*"two live meanings for one ID"* — `AP-n` had to be renamed out of `P1`–`P6` for exactly this.
+## 1.1 Inherited families — reserved, do not reuse
 
-★ **This repo therefore opens one fresh family for its own process rules: `PG-n` (Platform
-Governance).** Do not invent any other new family without amending this section.
+### Cross-cutting rules
+
+| Family | Meaning | Defined in |
+|---|---|---|
+| **`P1`–`P7`** | **Constitution principles** — spec-before-code · AI only for qualitative work · ★ verdicts gate, never upgrade · reuse before rebuild · ★ fail loud, never silent · self-contained delivery · research is exempt | upstream `constitution.md` |
+| **`INV-1`…`INV-9`** | **Constitution invariants** — no look-ahead · determinism · feature ranges · train/inference parity · currency explicit · ★ one actionable rec per day · positions round-trip · model tiering · prompt alignment | upstream `constitution.md` |
+| ⚠ **`INV-0nn`** | **A DIFFERENT family sharing the prefix** — L0's system invariants (`INV-004` claim binding, `INV-005/006` manifest immutability, `INV-012/013` confidence, ★ `INV-014` the analyst firewall, `INV-017` survivorship, `INV-021`/`INV-026` risk reports-never-blocks) | `L0-system-vision` |
+| **`AP-1`…`AP-7`** | **Agent principles** — transparency over confidence · cited claims only · adversarial thinking · graceful degradation · ★ `AP-5` deterministic when possible · versioned and reproducible | `L0-system-vision` §5.2 |
+| **`M-n`** | **Mandate rules** — the investment posture (no penny stocks, no derivatives, concentration policy, registered-account constraints, base currency) | `L0-system-vision` |
+| **`G-n`** | **Governance gates** — tier promotion, spec graduation | `L0-system-vision` §17 |
+| **`DC-n`** | **Discipline Card rules** — what the card may and may not originate | `L0` §5.1a · `L1-reporting` |
+
+### Structural rules (`L4-coding-standards`)
+
+| Family | Meaning |
+|---|---|
+| **`ST-n`** | ★ **Horizontal import fences** *between* domains — `ST-2` nothing imports experiments · `ST-5` only the gateway calls an LLM · `ST-8` a stale glob fails the gate OPEN · `ST-9` the analyst firewall · `ST-10` neither analyst imports decision |
+| **`CA-n`** | ★ **Vertical Clean-Architecture rules** *within* a module — `models.py` pure · `service.py` no SDK · `ports.py` typing only · `CA-9` the composition root |
+| **`CN-n`** | Coding conventions — naming, structure, style |
+| **`EH-n`** | Error-handling rules — e.g. `EH-14`, *only orchestration retries* |
+
+### Per-domain rules — one family per domain
+
+| Family | Domain | Defined in | Scale |
+|---|---|---|---|
+| **`RA-nn`** | D-01 Fundamental Analysis | `L1-fundamental-analysis` | **293 defs** — the largest |
+| **`QA-nn`** | D-03 Quantitative Analysis | `L1-quantitative-analysis` | 263 |
+| **`DE-nn`** | D-07 Data Engine | `L1-data-engine` | 131 |
+| **`RC-nn`** | D-11 Recording | `L1-recording` | 110 |
+| **`OR-nn`** | D-08 Orchestration | `L1-orchestration` | 76 ⚠ *was missing* |
+| **`PS-nn`** | D-06 Portfolio Strategy | `L1-portfolio-strategy` | 69 ⚠ *was missing* |
+| **`MT-nn`** | D-04 Model Training | `L1-model-training` | 67 |
+| **`RP-nn`** | D-09 Reporting | `L1-reporting` | 64 ⚠ *was missing* |
+| **`RK-nn`** | D-05 Risk Management | `L1-risk-management` | 62 ⚠ *was missing* |
+| **`FE-nn`** | D-02 Feature Engineering | `L1-feature-engineering` | 54 |
+| **`DN-nn`** | D-12 Decision | `L1-decision` | 51 |
+| **`GW-nn`** | D-00 the LLM gateway | `L2-shared-infrastructure` | 37 ⚠ *was missing* |
+| **`RM-nn`** | D-01 relay / monitoring | `L1-fundamental-analysis` | 22 ⚠ *was missing* |
+| **`CB-nn`** | signal combination | `L2-signal-combination` | 52 |
+| **`XP-nn`** | D-10 Experiments | `L1-experiments-intent` | 78 ⚠ *was missing* |
+
+### Prompt-internal families (`L1-fundamental-analysis-master-prompt`)
+
+⚠ **Short prefixes, high collision risk.** `J-nn` judgement steps · `E-nn` event/macro blocks ·
+`S-n` prompt sections · `P-n` *(a third meaning of `P`)*.
+
+### Process & record families
+
+| Family | Meaning | Defined in |
+|---|---|---|
+| **`BS-nn`** | Build-sequence rules | `L3-build-sequence` |
+| **`AB-nn`** | ★ **As-built remaining** — open defects and postponed decisions | `L6-as-built-remaining` |
+| **`QD-nn`** | Open data questions | `L1-data-engine` |
+| **`QQ-nn`** | Open quant questions | `L1-quantitative-analysis` |
+| **`DR-n`** | Blueprint-tier rules | `blueprints/README.md` |
+
+### Spec-internal (every spec, both repos)
+
+| Family | Meaning |
+|---|---|
+| **`AC-<n>.<k>`** | Acceptance criterion — the unit of done |
+| **`CT-<n>.<k>`** | Contract — a concrete data/API shape |
+| **`D-nn`** | Domain identifier (`D-00`…`D-14`) |
+
+## 1.2 This repo's own families
+
+★ **Against that space, this repo opens only fresh, non-colliding families.** Do not invent any other
+without amending this section — and ⚠ **check §1.1 first**, because the space is fuller than it looks.
 
 | Family | Meaning | Owned by |
 |---|---|---|
-| **`PG-n`** | **Platform governance** — this repo's own process and structural rules | ★ **this file** |
+| **`PG-n`** | **Platform governance** — this repo's own process and structural rules. ⚠ `PG-1` is **retired**; the ID is not reused | ★ **this file** |
 | **`QR-n`** | **Question register** — one ID per design question, answered or open | [`../questions.md`](../questions.md) |
-| **`M<n>`** | **Build milestone** | [`../design/rel1_design/L3-build-sequence.md`](../design/rel1_design/L3-build-sequence.md) |
+| **`MS-n`** | **Build milestone** ⚠ *renamed from `M<n>` on 2026-09-02 — it collided with inherited `M-n` mandate rules* | [`../design/rel1_design/L3-build-sequence.md`](../design/rel1_design/L3-build-sequence.md) |
 | **`DX-n`** | **Absorption discrepancy** — found while merging the pipeline in | `L3-build-sequence.md` §6 |
 | `F<n>` | Feature spec ID | [`vision.md`](vision.md) §4 |
 | everything above | inherited, reserved, unchanged | the pipeline repo, until absorption |
@@ -43,21 +115,43 @@ its decision binds, and never restates the rule.
 
 # 2. Platform governance rules
 
-## ★★ PG-1 — Phase 0 gates everything
+## ⊘ ~~PG-1~~ — RETIRED 2026-09-02
 
-**No platform code — agent layer, explainability, evaluation harness — is written until the
-inherited pipeline completes a verified end-to-end run.**
+> ~~`MS-0` gates everything~~ — **struck.** ⚠ **The ID is retired and never reused** (§1).
 
-*Rationale (rel1 S1, Q4):* mirrors the fund manager's own precedent for D-10 (upstream AB-5:
-*"I do not plan to implement D-10 code until the full pipeline runs stably"*). ⚠ The failure this
-prevents is arriving at May 2027 with an elaborate demo built over an unproven signal — the
-system's own gates currently refuse to promote its model (upstream L6 §7).
+**What it said.** No platform code — agent layer, explainability, evaluation harness — until the
+inherited pipeline completed a verified end-to-end run.
 
-**Done when:** a full daily run completes end-to-end on real data and delivers its report,
-without manual intervention.
+**Why it was cancelled** *(Victor, 2026-09-02)*: **verification moves to the fund manager**, performed
+manually and in depth against real run outcomes. A rule that blocked **137 acceptance criteria across
+11 specs** on a condition that was never defined operationally — and that the running pipeline had
+arguably already met — cost more than it bought.
 
-> ⚠ **PG-1 does not block spec-writing.** Specs, design docs and this constitution are Phase-0
-> work. It blocks *implementation*.
+### ⚠ What the review found before it was struck
+
+`PG-1` carried **three different bars that did not agree**:
+
+| | Bar | Status |
+|---|---|---|
+| the rule body | *"a **verified** end-to-end run"* | undefined — "verified" was never operationalised |
+| the done-when | *"completes… and delivers its report, unattended"* | ★ **arguably already met** — two runs on 2026-08-28 were `SUCCESS`, 13/13 jobs, with a rendered report |
+| the rationale | *"not… a demo built over an **unproven signal**"* | ⚠ **a different question entirely** — about the model, not the run |
+
+★ **And it blocked `F5`, the evaluation harness — the very instrument that would answer the concern
+the rationale was built on.** A gate that blocks its own key is not doing its job.
+
+### ⚠⚠ The gap this leaves — unresolved, and named on purpose
+
+Manual verification answers the *operational* bar. It does **not** answer the third one. **No rule now
+prevents a performance figure or an actionable card being presented from an unpromoted model** (the
+ranker sits at walk-forward IC 0.0203, *t* = 1.42, refused by its own gate).
+
+`PG-2` does not cover it — that is about conflicts between the two purposes. `PG-5` does not cover it —
+that is about capabilities *this platform adds*, not the inherited signal's status.
+
+> ✅ **Replaced by [`PG-10`](#-pg-10--a-claim-carries-its-subjects-status), adopted 2026-09-02.**
+> `PG-1` blocked 137 acceptance criteria to guard this concern; `PG-10` guards it by requiring one
+> sentence on the output — and blocks nothing.
 
 ## ★ PG-2 — Purpose 1 wins on numbers
 
@@ -85,7 +179,7 @@ and an LLM-authored rebuttal, which lengthens the transcript without improving t
 
 Both portfolio lanes (vision §1.1) depend on measurement. **The evaluation harness (F5) is built
 once, early, and serves both.** ⚠ If each lane grows its own ad-hoc measurement code, the
-dual pitch degenerates into split focus — which is the stated risk of the Q2 decision and the
+dual pitch degenerates into split focus — which is the stated risk of the `QR-2` decision and the
 thing this rule exists to prevent.
 
 ## ★ PG-5 — A demonstration must be measured, not merely shown
@@ -171,7 +265,7 @@ record the reason for every choice.** A learned or LLM-driven control policy is 
 an answer better than *"the model chose it"* — otherwise the explainability claim in `vision.md` §1.1
 is false. **(b)** `AP-5` — routing on a definable quantity is a computation, not a judgement.
 **(c)** ⚠ A stochastic control plane makes two runs on identical data take different paths, which
-**destroys `F7`'s ability to attribute an outcome difference to deliberation.**
+**destroys `F7a`/`F7b`'s ability to attribute an outcome difference to deliberation.**
 
 ★ **The reversal conditions are written down** (lecture §2.8): a learned policy becomes viable only
 where a fast, cheap, unconfounded reward signal exists — which is true of cost and of backtest results,
@@ -181,6 +275,30 @@ conditions has changed.
 > **Preparation is required even though adoption is not.** The trace (`F2`) records the state the
 > policy saw, the action taken, a propensity field, and a stable id linking to the realised outcome.
 > All four are near-free today and **cannot be backfilled** onto history that was never recorded.
+
+## ★ PG-10 — A claim carries its subject's status
+
+**No output may present a recommendation as *actionable*, or publish a *performance figure*, unless
+the model behind it has passed its own promotion gates — or the output states plainly that it has
+not.**
+
+*Adopted 2026-09-02 (`QR-4`).* It replaces the half of the retired `PG-1` that was never about
+blocking code.
+
+**Why it is needed once `PG-1` is gone.** Manual verification answers whether the pipeline *ran*. It
+does not answer whether the *signal* is established — and those are different questions. ⚠ The risk is
+live, not hypothetical: the ranker sits at **walk-forward IC 0.0203, *t* = 1.42**, refused by its own
+`ic_significance` gate.
+
+**Scope** — the discipline card, any report, the demo, and the `MS-9` write-up.
+
+> ★★ **It blocks nothing in the build.** It constrains only what may be *claimed*, which is where the
+> risk actually was. `PG-1` blocked 137 acceptance criteria to guard this; `PG-10` guards it by
+> requiring one sentence on the output.
+
+★ **The same shape as `QR-21`'s coverage statement: declare the limit on the artifact, rather than
+withholding the artifact.** A stated caveat is worth more than a blocked page, because a blocked page
+teaches nobody what the limitation was.
 
 ---
 

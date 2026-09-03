@@ -3,12 +3,13 @@
 > **Spec-ID:** F5 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §B.4 · lecture §3.6 ·
 > [`../../questions.md`](../../questions.md) `QR-13`, `QR-19`
-> **Milestone:** `M4` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
+> **Milestone:** `MS-4` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
 > **Governs:** `constitution.md` — enforces **`PG-4`**, **`PG-5`/`PG-5.1`**; inherits `P5`, `ST-2`, `P7`.
 > **Capability:** `C6` — ★ **without it, `C1`–`C5` are demonstrations rather than results.**
 > **Domain:** D-14 `src/evaluation/`, seat 9.
 >
-> ⚠ **`PG-1` blocks implementation** until `M0` completes. Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -47,7 +48,7 @@ precisely the failure this spec exists to prevent.
 
 **Non-goals (this spec)**
 - ✗ **Re-implementing IC, breadth, or the IC standard error.** Consumed from `src/quant/metrics/` and
-  `metric_gate.py`. The `QR-5`/`QR-19` change is upstream work (`M0.2`).
+  `metric_gate.py`. The `QR-5`/`QR-19` change is upstream work (`MS-0.2`).
 - ✗ **The deliberation study itself** — that is `F7a` (Tier A) and `F7b` (Tier B). F5 supplies the
   machinery they run on.
 - ✗ **Deciding promotion.** `metric_gate.py` gates models upstream; F5 measures and reports.
@@ -193,7 +194,7 @@ eventually be trusted for the wrong reason.
 
 ## 8. Traceability (spec → test → code)
 
-⚠ **Empty by design.** `PG-1` blocks implementation.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|

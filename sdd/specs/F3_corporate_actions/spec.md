@@ -3,12 +3,13 @@
 > **Spec-ID:** F3 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §B.2 · upstream skill
 > `.claude/skills/ticker-went-silent/SKILL.md` · upstream `AB-18`, `AB-20`
-> **Milestone:** `M6` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
+> **Milestone:** `MS-6` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
 > **Governs:** `constitution.md` — enforces **`PG-3`**; inherits `P5`, `ST-5`, `AP-2`, and upstream
 > `DE-61`…`DE-68`.
 > **Capability:** `C2` — ★ **the single clearest case in the system where an agent earns its place.**
 >
-> ⚠ **`PG-1` blocks implementation** until `M0` completes. Spec only.
+> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
+> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
 
 ---
 
@@ -177,13 +178,13 @@ requires ≥2 independent sources or one primary; `retired_side == true` require
 - **Q3 — Cadence.** Upstream `AB-14` records that nothing currently schedules the corporate-action
   sweep. Daily with the main run, weekly, or event-driven on detection only?
 - **Q4 — Who acts on a finding?** F3 writes it; the universe rule consumes it. That rule's owner is
-  D-07 upstream. ⚠ Confirm the boundary before `M6` so F3 does not quietly acquire universe authority.
+  D-07 upstream. ⚠ Confirm the boundary before `MS-6` so F3 does not quietly acquire universe authority.
 - **Q5 — Re-resolution policy.** An `undetermined` finding should presumably be retried as more
   reporting appears. On what trigger, and does a later finding supersede or append?
 
 ## 8. Traceability (spec → test → code)
 
-⚠ **Empty by design.** `PG-1` blocks implementation.
+⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
