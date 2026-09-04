@@ -1,3 +1,13 @@
 [tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
+# ⚠⚠ The sibling path is LOAD-BEARING, not a convenience.
+# `src/shared/` was absorbed from ../ai-investment-pipeline on 2026-09-04
+# (QR-22 — absorption is per-domain). `src` and `tests_src` are implicit
+# NAMESPACE packages spanning both repos: this repo owns src/shared/, upstream
+# still owns src/quant/, src/orchestration/, ... and tests_src/architecture.py.
+#
+# ⚠ NEITHER repo may regain a root `src/__init__.py`. A regular package found
+# anywhere on the path ENDS the import scan, and the other repo's domains go
+# silently invisible — a ModuleNotFoundError naming the submodule, with no hint
+# that a packaging decision caused it. See L3 DX-1/DX-2.
+pythonpath = [".", "../ai-investment-pipeline"]
+testpaths = ["tests", "tests_src"]

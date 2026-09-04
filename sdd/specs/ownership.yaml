@@ -31,6 +31,39 @@ map:
       so it must not be editable without reading F1. AC-1.10 also constrains its
       CONTENTS — Protocol declarations only, no executable statement at module scope.
 
+  # ═══ ABSORBED 2026-09-04 — MS-2.2a, per QR-22 ═══════════════════════════
+  # ⚠ These paths moved here FROM ai-investment-pipeline. They are inherited
+  # D-00 code and are now governed HERE, because "changes happen upstream" is
+  # true only for domains NOT YET absorbed (CLAUDE.md).
+  #
+  # ⚠⚠ Governance is the FOURTH thing an absorption must move — after the code,
+  # the tests, and the architecture rules that scan the path. Forgetting any of
+  # them is invisible: the suite stays green (L3 DX-3).
+  #
+  # ⚠ The spec paths must be INSIDE this repo: sdd_gate.py's rel() returns None
+  # for anything outside REPO, so a glob pointing at the upstream spec would
+  # demand a spec the session can never record — blocking the path forever.
+  - globs:
+      - "src/shared/money.py"
+    spec: sdd/design/rel6_design/L2-shared-money.md
+    why: >
+      L2-shared-money (AC-M.1…AC-M.21) — Decimal money, ROUND_HALF_UP, explicit
+      currency (INV-5). ⚠ Absorbed 2026-09-04. Its own test asserts SI-1 per
+      module, which is why the fence survived the move for THIS file and not for
+      its siblings (L3 DX-3).
+
+  - globs:
+      - "src/shared/config.py"
+      - "src/shared/errors.py"
+      - "src/shared/logging.py"
+      - "src/shared/secrets.py"
+      - "src/shared/llm/**"
+    spec: sdd/design/rel6_design/L2-shared-infrastructure.md
+    why: >
+      L2-shared-infrastructure (AC-0.4…AC-0.20, GW-nn, SI-1) — config, errors,
+      logging, secrets and the LLM gateway. ⚠ ST-5: only the gateway calls an
+      LLM. Absorbed 2026-09-04; upstream's copy of this spec is historical.
+
   - globs:
       - "src/orchestration/trace/**"
     spec: sdd/specs/F2_trace_replay/spec.md

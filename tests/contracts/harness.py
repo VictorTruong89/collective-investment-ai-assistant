@@ -9,6 +9,8 @@ constitution warns about in §4.
 
 from __future__ import annotations
 
+import pytest
+
 from tests.contracts.fixture_ports import build_registry
 
 
@@ -25,12 +27,23 @@ class PortContractSuite:
     primary_method: str
     sample_inputs: tuple[object, object]
 
+    #: ⚠ AC-1.7 (`A1`) — the AC compares OUTPUTS, so it is only meaningful when the
+    #: port's external world is held fixed for the duration. A suite that cannot do
+    #: that must say so; reporting a pass would be a lie.
+    external_world_held_fixed: bool = False
+
     @staticmethod
     def registry():
         return build_registry()
 
     def test_ac_1_7_no_state_leaks_between_calls(self, variant):
         """AC-1.7 — call A then B on one instance; B must equal B on a fresh instance."""
+        if not self.external_world_held_fixed:
+            pytest.skip(
+                f"AC-1.7 NOT EVALUATED for port {self.port!r}: its suite does not hold the "
+                "external world fixed, so an output difference cannot be attributed to "
+                "leaked state (F1 A1). Stub the dependency or state the gap — do not pass."
+            )
         assert_no_state_leak(
             self.registry, self.port, variant, self.primary_method, self.sample_inputs
         )

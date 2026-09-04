@@ -35,18 +35,20 @@ EARNED_ABSTRACTION_MIN = 2
 class _Entry:
     """`CT-1.2` — what a registration stores. A FACTORY, never an instance."""
 
-    __slots__ = ("factory", "version", "experimental", "port_type")
+    __slots__ = ("factory", "version", "experimental", "fixture", "port_type")
 
     def __init__(
         self,
         factory: Callable[[], object],
         version: str,
         experimental: bool,
+        fixture: bool,
         port_type: type | None,
     ) -> None:
         self.factory = factory
         self.version = version
         self.experimental = experimental
+        self.fixture = fixture
         self.port_type = port_type
 
 
@@ -77,6 +79,7 @@ class Registry:
         factory: Callable[[], object],
         version: str,
         experimental: bool = False,
+        fixture: bool = False,
         port_type: type | None = None,
     ) -> None:
         """`AC-1.1`, `AC-1.3` — store the factory; never invoke it here.
@@ -90,7 +93,7 @@ class Registry:
         key = (port, variant)
         if key in self._entries:
             raise DuplicateRegistration(port, variant)
-        self._entries[key] = _Entry(factory, version, experimental, port_type)
+        self._entries[key] = _Entry(factory, version, experimental, fixture, port_type)
 
     # ── resolution ───────────────────────────────────────────────────────────
     def _entry(self, port: str, variant: str) -> _Entry:
@@ -117,9 +120,9 @@ class Registry:
     def resolve_with_provenance(self, port: str, variant: str) -> tuple[object, Provenance]:
         """The instance and its `CT-1.4` record together.
 
-        ⚠ Reconciles a contradiction in the spec: `CT-1.3` types `resolve` as
-        returning the object, while `CT-1.4` says Provenance is "returned by
-        `resolve`". Both cannot hold. See the S2 finding raised with this build.
+        ★ `CT-1.3` (`A1`). `resolve` deliberately returns only the object — keeping its
+        return type narrow is what lets `F6a` route and `F2` trace without either
+        depending on the other's payload. A caller needing both asks for both.
         """
         return self.resolve(port, variant), self.provenance(port, variant)
 
@@ -135,12 +138,22 @@ class Registry:
         """`T4` — the registered variant names for one port, sorted."""
         return tuple(sorted(v for (p, v) in self._entries if p == port))
 
-    def ports(self) -> tuple[str, ...]:
-        """Every port with at least one registered variant, sorted.
+    def real_variants(self, port: str) -> tuple[str, ...]:
+        """`AC-1.12` (`A1`) — variants that are implementations, not stand-ins.
 
-        ⚠ Not in `CT-1.3`; needed by `AC-1.9`'s meta-test, which cannot check
-        "a variant registered without being added to the suite causes a failure"
-        without enumerating what is registered. Raised as a spec finding.
+        ⚠ `fixture` answers a DIFFERENT question from `experimental`: an experimental
+        variant is real code on trial; a fixture is not an implementation at all.
+        """
+        return tuple(
+            sorted(v for (p, v), e in self._entries.items() if p == port and not e.fixture)
+        )
+
+    def ports(self) -> tuple[str, ...]:
+        """`CT-1.3` — every port with at least one registered variant, sorted.
+
+        ★ Added to the contract by `A1`: `AC-1.9`'s meta-test cannot check "a variant
+        registered without being added to the suite causes a failure" without
+        enumerating what is registered, so the AC was unimplementable without it.
         """
         return tuple(sorted({p for (p, _) in self._entries}))
 
@@ -164,7 +177,7 @@ class Registry:
             raise IncompleteRegistry(missing)
 
         thin = tuple(
-            sorted(p for p in required if len(self.variants(p)) < EARNED_ABSTRACTION_MIN)
+            sorted(p for p in required if len(self.real_variants(p)) < EARNED_ABSTRACTION_MIN)
         )
         return CoverageReport(required=required, missing=(), thin_ports=thin)
 

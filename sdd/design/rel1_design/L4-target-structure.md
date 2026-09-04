@@ -250,12 +250,17 @@ now so the decision is not re-litigated later.
 | Option | Mechanism | Verdict |
 |---|---|---|
 | **A — editable install** | `pip install -e ../ai-investment-pipeline`; import `src.quant…` | ⚠ **collides.** Both repos root their packages at `src`, so two `src` packages fight |
-| ★ **B — path-scoped namespace** | keep the upstream repo importable under its own distribution name; this repo's own code lives under `src/` and reaches the pipeline through **one adapter module** | ★★ **recommended** |
-| **C — vendor early** | copy `src/**` in now | ✗ **premature.** The pipeline is still changing daily; a copy forks maintenance before the absorption is ready |
+| ~~★ **B — path-scoped namespace**~~ | ~~keep the upstream repo importable under its own distribution name~~ | ⛔ **DISPROVEN 2026-09-04, measured.** The clash is on the **import** name, not the distribution name — a distribution name changes nothing. Partially fixed at the root (`L3` `DX-1` ✅); ⚠ **recurs at every shared subdirectory** (`L3` `DX-2`, open) |
+| **C — vendor early** | copy `src/**` in now | ✗ **premature** *(and still is — B is per-DOMAIN, not wholesale)* |
+| ★★ **PER-DOMAIN ABSORPTION** *(no letter — it is `L3` §6.1's **option B**; ⚠ do not call it "D", which is `L3`'s process-boundary option)* | a domain moves here the moment this repo needs to add to it; the two trees never both hold one domain | ★★ **CHOSEN 2026-09-04** — `questions.md` `QR-22`, `L3` §6.2 |
 
-★ **Option B, concretely:** every reach into the pipeline goes through a single
-`src/shared/upstream.py` shim. ⚠ **One file to delete at absorption time** — at which point the
-imports it wraps become plain intra-repo imports, and nothing else changes.
+⚠ ~~**Option B, concretely:** every reach into the pipeline goes through a single
+`src/shared/upstream.py` shim.~~ **Struck 2026-09-04.** The shim presumes both trees are importable at
+once, which `QR-22` measured to be impossible for any domain both repos populate.
+
+★ **Option D, concretely:** there is **no shim for an absorbed domain** — its imports are plain
+intra-repo imports from the day it arrives, because upstream's copy is gone. A shim survives only for
+reaching a domain this repo has **not** absorbed and does not intend to yet.
 
 > ★★ **That is the test of whether this structure is right:** absorption should delete one shim,
 > move ~294 files with zero content changes, and merge `ownership.yaml`. Nothing else.

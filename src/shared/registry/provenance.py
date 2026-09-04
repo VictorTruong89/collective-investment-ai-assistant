@@ -30,4 +30,5 @@ class CoverageReport:
 
     required: tuple[str, ...]
     missing: tuple[str, ...]
+    #: `AC-1.12` — ports with <2 variants registered `fixture=False` (`A1`).
     thin_ports: tuple[str, ...]

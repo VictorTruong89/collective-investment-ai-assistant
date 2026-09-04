@@ -9,12 +9,14 @@ from tests.contracts.fixture_ports import LeakyGreeter, WarmupGreeter, build_reg
 
 
 class TestGreeterContract(PortContractSuite):
+    external_world_held_fixed = True  # pure in-memory adapters
     port = "greeter"
     primary_method = "greet"
     sample_inputs = ("Ada", "Grace")
 
 
 class TestDoublerContract(PortContractSuite):
+    external_world_held_fixed = True  # pure in-memory adapters
     port = "doubler"
     primary_method = "double"
     sample_inputs = (3, 7)

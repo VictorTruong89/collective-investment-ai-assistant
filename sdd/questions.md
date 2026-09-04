@@ -58,6 +58,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-19** | ★ **The IC gate's t-threshold** — spun out of QR-5 | D-03 · seat 3 | ✅ | ⬆ upstream — **with QR-5** |
 | **QR-20** | Is the API or the relay the default thesis source? | D-01 · seat 2 | ✅ | `F9` default variant |
 | **QR-21** | ★ **CAD/CDR positions — block, buy, or scope out?** | D-05 · seat 4 ⬆ | ✅ | ⬆ upstream `DN-39`/`RC-58` |
+| **QR-22** | ★★ **How do two repos that both root at `src/` coexist before absorption?** | platform | ✅ | `L3` `DX-1`/`DX-2` · `L4` §4 · `MS-2`/`MS-8` |
 | ⬆ | Upstream questions that block this repo | various | ⬆ | §9 |
 
 ---
@@ -230,6 +231,88 @@ thing you show**, and they leak nothing.
 **Rejected:** a permissive OSI licence (MIT/Apache-2.0) — grants exactly the rights Victor wants to
 keep. **Rejected:** AGPL as a "restrictive" choice — it is still an OSI grant, and its copyleft targets
 network distribution, which is not the concern here.
+
+## ★★ ✅ QR-22 — Absorb per-domain, early — two `src/` trees never coexist
+
+**Origin:** the `MS-1` build, 2026-09-03/04 — `L3` `DX-1` and `DX-2`, both found by *running the
+import*, not by reading the plan. **Status:** ✅ decided 2026-09-04.
+**Binds:** `L4` §4 (option B struck) · `L3` `DX-2`, `MS-2`, `MS-8` · `PG-8`.
+
+**Context — the mechanism, stated once.** ⚠ **A *regular* package (a directory with `__init__.py`)
+found anywhere on `sys.path` ENDS the import scan.** Python discards namespace portions from every
+other root the moment it finds one. Both repos root their trees at `src/` and both shipped
+`src/__init__.py`, so whichever root came first on the path won outright and the other repo's domains
+were simply invisible — with a `ModuleNotFoundError` naming the *submodule*, giving no hint that a
+packaging decision two directories up caused it.
+
+`L4` §4's option B — *"keep the upstream repo importable under its own distribution name"* — **cannot
+work**, because the clash is on the **import** name, not the distribution name. Renaming or installing
+the distribution changes nothing. ★ This was **measured**, not reasoned: three sys.path configurations,
+from a neutral working directory.
+
+**The partial fix, and why it is only partial.** Deleting the root `src/__init__.py` in both repos makes
+`src` an implicit namespace package whose `__path__` spans both trees — verified, with `src.shared.registry`
+(this repo) and `src.orchestration.entrypoint` (upstream) importing in one interpreter. That is `DX-1`,
+✅ resolved. ⚠ **But the rule is recursive:** every directory *both* repos populate must also be a
+namespace package. That is `DX-2`, and it is where the approach dies.
+
+| Directory | Upstream `__init__.py` | Needed by |
+|---|---|---|
+| `src/shared/` | 0 non-blank lines | `F1` — already built |
+| `src/orchestration/` | **74** lines, **11** re-exports | `F2` at `MS-3`, `F6a`, `F6b`, `F8` |
+| `src/data_engine/` | **62** lines, **8** re-exports | `F3` |
+| `src/fundamental/` | ⚠ **290** lines, **45** re-exports | `F9` |
+
+⚠⚠ Those files **are** the public API — upstream `L4` `ST-3` says so, upstream's own modules import
+through them, and upstream **has a test enforcing it**. ★★ **And that test's docstring is the
+punchline:** it exists *"because the failure mode is confusing: imports resolve via namespace packages
+until one does not, and the error names the wrong file."* **Upstream had already identified this exact
+trap and written a guard against it.** The plan walked into the thing the inherited repo knew about.
+
+**Decision. Absorb per-domain, early — the two trees never coexist for any domain.** When this repo
+first needs to add code under a domain upstream owns, that domain is **absorbed at that moment**:
+upstream's directory moves here, its globs arrive in `ownership.yaml` pointing at the upstream
+`L`-spec, and upstream stops being the source of truth for it. No shim, no namespace gymnastics, no
+simultaneous import — **because the collision only exists while both copies are live.**
+
+### The options, and why each was rejected
+
+| | Option | Why not |
+|---|---|---|
+| **A** | Amend upstream `L4` §1.1 to exempt namespace-by-design directories, and relax its test | ⚠ Weakens a rule upstream wrote **deliberately**, and restores the confusing failure mode its test exists to catch. ★ Paying with a known-good guard to buy a workaround is the wrong direction |
+| **C** | `pkgutil.extend_path` — a regular `__init__.py` here that appends upstream's directory to its own `__path__` | ⚠ Ours runs, upstream's does **not** — so `src/fundamental/`'s **45 re-exports vanish** and would have to be re-created here and kept in sync. A second copy of a public API is a divergence waiting to happen |
+| **D** | Process boundary — reach upstream only through its CLI (`orchestration/entrypoint.py::main`), exchanging artifacts | ★ Genuinely tempting: it sidesteps the collision entirely and matches upstream's actual shape. ⚠ But `F2` needs **step-level** trace from *inside* a run, and an artifact boundary cannot give that. It would buy import cleanliness by defeating `MS-3`'s whole purpose |
+| **E** | Keep this repo's new code out of upstream-named domains until `MS-8` | ✗ Breaks `PG-8`. Absorption becomes a **restructuring** rather than a merge — precisely what `PG-8` exists to prevent |
+| ★ **B** | **Absorb per-domain, early** *(chosen)* | — |
+
+### What choosing B costs, stated plainly
+
+- ⚠ **`MS-8` stops being one event and becomes a sequence.** Absorption risk moves *earlier* and is paid
+  in instalments. ★ That is arguably the point: `MS-8` was always the largest single-step risk in the
+  plan, and instalments are how you find out early whether the merge actually works.
+- ⚠ **Each absorbed domain becomes this repo's maintenance burden immediately**, ending the
+  *"changes happen upstream"* rule for that domain specifically (`CLAUDE.md`, vision §2). The rule
+  survives only for domains **not yet absorbed** — so the split has to be legible at all times, or
+  someone edits the wrong copy. **`ownership.yaml` is the record of which is which.**
+- ★ **The shim (`L4` §4's `src/shared/upstream.py`) is no longer needed for absorbed domains.** It
+  survives only for reaching a domain this repo has *not* absorbed and does not intend to yet.
+
+### ★ The retrospective note — why the plan was wrong, and what to change
+
+**`L4` §4 was written from reasoning; it survived a full governance review (`G1`–`G3`) and a spec review
+(`S1`); and it was wrong.** The error was not subtle once tested — one `python3 -c` disproved it. It
+survived because **nobody ran an import.**
+
+⚠ This is the second time in two days the same lesson landed: `F1`'s amendment `A1` recorded five spec
+defects that `S1` could not find because *reading* a spec tests whether it is coherent while
+*implementing* it tests whether it is executable. `QR-22` is the same failure at the architecture tier.
+
+★★ **The rule to carry forward: any plan that asserts a mechanism — an import working, a path
+resolving, a tool accepting a flag — is a HYPOTHESIS until something executes it.** Prefer the ten-line
+experiment over the paragraph of reasoning, and record the experiment's output, not its conclusion.
+`DX-1`'s three-configuration table is the shape to copy.
+
+---
 
 ## 🔵 QR-15 — Does `config/` merge cleanly at absorption?
 

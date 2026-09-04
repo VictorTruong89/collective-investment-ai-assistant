@@ -78,6 +78,8 @@ def build_registry() -> Registry:
     r.register("greeter", "terse", TerseGreeter, version="0.2.0", experimental=True)
     r.register("doubler", "mul", IntDoubler, version="1.0.0")
     r.register("doubler", "shift", ShiftDoubler, version="1.1.0")
+    # ⚠ a STAND-IN, flagged so AC-1.12 does not count it as earned abstraction (A1)
+    r.register("greeter", "null", TerseGreeter, version="0.0.0", fixture=True)
     return r
 
 

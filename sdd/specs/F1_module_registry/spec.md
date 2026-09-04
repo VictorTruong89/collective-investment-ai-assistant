@@ -7,6 +7,11 @@
 > **Governs:** `constitution.md` — enforces `PG-8`, `PG-9`; inherits `P5`, `CA-3`, `AP-6`.
 > **Capability:** `C1` (plugin architecture / SPI), and the substrate `C8` (governance) stands on.
 >
+> ✏ **Amended 2026-09-03 (`A1`), same day, from findings raised by the `MS-1` build.** Five defects the
+> spec review could not have found because they only surface when code is written against it — a
+> contradiction between `CT-1.3` and `CT-1.4`, an unmechanised term in `AC-1.12`, a residual
+> false-positive in `AC-1.7`, a missing method, and an untested contract. See §7 `A1`.
+>
 > ✅ **Approved 2026-09-03** after review `S1`. Its ACs are now binding: code in the governed paths
 > must satisfy a named `AC-1.<k>`, and changes go through constitution §5.
 > ⚠ Open questions `Q1`–`Q3` were resolved as `D1`–`D3` (§7) — **read §7 before changing §5 or §6**,
@@ -106,7 +111,13 @@ the code.
 ```json
 { "factory":      "Callable[..., object] — builds the implementation; NOT the instance",
   "version":      "str — semver of the IMPLEMENTATION, not of the port",
-  "experimental": "bool — default false",
+  "experimental": "bool — default false. Real code being TRIALLED",
+  "fixture":      "bool — default false. ⚠ A STAND-IN, not an implementation: a test
+                   double, null object or stub. Added by A1 — AC-1.12 said 'two real
+                   (non-fixture) variants' with no way to tell one from the other,
+                   so the count was silently wrong. Distinct from `experimental`:
+                   an experimental variant is real code on trial; a fixture is not
+                   an implementation at all",
   "port_type":    "type — the Protocol this entry claims to satisfy. ★ Its JOB is to map
                    port → contract suite (AC-1.9); it is not a runtime type assertion,
                    because @runtime_checkable only verifies method NAMES, not signatures
@@ -116,7 +127,7 @@ the code.
 **CT-1.3 — Registry API surface** — ★ **methods on a `Registry` class, not module-level functions**
 (`D1`). Consumers receive a registry by **constructor injection**; there is no importable singleton.
 - `Registry()` → a fresh, empty registry. ★★ **Its lifetime IS the run scope** (`D1`, `AC-1.6`).
-- `register(port, variant, factory, version, experimental=False) -> None`
+- `register(port, variant, factory, version, experimental=False, fixture=False) -> None`
   → raises `DuplicateRegistration` if `(port, variant)` exists.
 - `resolve(port, variant) -> object`
   → raises `UnknownVariant(port, variant, available)` — ⚠ **`available` is required**, so a typo
@@ -132,9 +143,19 @@ the code.
   Passing an explicit list is for **tests only** — production never passes one, because the point of
   `D2` is that there is no second list to keep current.
   Returns `CoverageReport` for `AC-1.12`'s warnings (a *raise* still wins over a *report*).
+- `resolve_with_provenance(port, variant) -> tuple[object, Provenance]` — the instance and its record
+  together. ⚠ **Added by `A1`** to settle a contradiction: `CT-1.3` typed `resolve` as returning the
+  object while `CT-1.4` said Provenance is *"returned by `resolve`"*. **`resolve` returns the object**;
+  a caller that needs both asks for both. ★ Keeping `resolve`'s return type narrow is what lets `F6a`
+  route and `F2` trace without either depending on the other's payload.
 - `provenance(port, variant) -> Provenance` → `CT-1.4` without constructing the implementation.
+- `ports() -> tuple[str, ...]` → every port with at least one registered variant, sorted.
+  ⚠ **Added by `A1`.** `AC-1.9`'s meta-test cannot check *"a variant registered without being added to
+  the suite causes a failure"* without enumerating what is registered — the AC was unimplementable
+  without it.
 
-**CT-1.4 — `Provenance`** (returned by `resolve` and by `provenance`; consumed by `F2`):
+**CT-1.4 — `Provenance`** (returned by `provenance()` and by `resolve_with_provenance()`; ⚠ **not** by
+`resolve()` — corrected by `A1`; consumed by `F2`):
 ```json
 { "port": "str", "variant": "str", "version": "str", "experimental": "bool" }
 ```
@@ -183,9 +204,15 @@ and when `F6b` graduates (gated on `F7a`, `PG-5.1`).
   > ★ The second clause is the one that matters. It is what makes *"run scope"* checkable instead of
   > interpretive, and what stops a long-lived `F8` process serving day 2 from day 1's cache.
 - **AC-1.7** *(⚠ no state leaks between calls — the obligation caching depends on)* — **Given** any
-  registered variant, **when** **the port's primary method, as named in its own contract**, is called
-  with input `A` and then input `B` on the same instance, **then** `B`'s result equals the result of
-  calling `B` on a **fresh** instance. → *invariant / property, run against every registered variant.*
+  registered variant **with its external dependencies held fixed** (`A1`), **when** **the port's primary
+  method, as named in its own contract**, is called with input `A` and then input `B` on the same
+  instance, **then** `B`'s result equals the result of calling `B` on a **fresh** instance.
+  → *invariant / property, run against every registered variant.*
+  > ⚠ **`A1` — the clause `S1-4` missed.** The A-then-B form compares *outputs*, so an adapter reading a
+  > world that moves **between the two calls** fails it — reintroducing, by another route, exactly the
+  > false positive `S1-4` removed from the idempotence form. A `PricePort` against a live vendor fails a
+  > correct implementation unless the vendor is stubbed. **A contract suite that cannot hold its port's
+  > external world fixed cannot run this AC**, and must say so rather than report a pass.
   > ⚠ **This is deliberately NOT an idempotence test.** *"Same input twice → same output"* would
   > **fail a correct adapter**: a `PricePort` hitting a live vendor legitimately returns different
   > results if the data moved. What `AC-1.6`'s instance caching actually requires is that **no
@@ -200,22 +227,37 @@ and when `F6b` graduates (gated on `F7a`, `PG-5.1`).
   added to the suite causes a failure**. → *invariant / property (meta-test over the
   parameterisation).* (`A3` — the rule that makes substitution safe)
 - **AC-1.10** *(ports carry no implementation)* — **Given** any module declaring a port, **when** it is
-  inspected, **then** it contains only `Protocol` declarations, type aliases and imports **from
-  `typing`/stdlib typing modules** — no I/O, no vendor SDK import, no executable statement at module
-  scope. → *invariant / property (structural).* (`CA-3`, `A2`)
+  inspected, **then** it contains only `Protocol` declarations, type aliases, `__all__`-style literal
+  bindings, and imports **from `typing`/stdlib typing modules** — ⚠ **no module-scope call, no I/O, no
+  vendor SDK import, and no control flow at module scope**.
+  → *invariant / property (structural).* (`CA-3`, `A2`)
+  > ✏ `A1`: *"no executable statement"* was literally false — a binding like `__all__ = ()` is an
+  > executable statement, and `D2` **requires** one. The ban is on **calls and side effects**; a literal
+  > binding is a declaration. Written down because the implementer otherwise decides it privately.
 - **AC-1.11** *(experimental output is never mistakable for production)* — **Given** a variant
   registered with `experimental=True`, **when** it is resolved, **then** `Provenance.experimental` is
   `True`; and **when** any artifact is produced from it, **then** that artifact carries the flag.
   → *data contract.* (`PG-2`)
 - **AC-1.12** *(★ earned abstraction is reported, not enforced)* — **Given** the registry at
-  construction, **when** coverage is validated, **then** every port **in the same `D2` list** with fewer than **two real (non-fixture)
-  variants** is **listed as a warning** — ⚠ **and the build does not fail**. → *unit.* (`A4`)
+  construction, **when** coverage is validated, **then** every port **in the same `D2` list** with fewer
+  than **two variants registered with `fixture=False`** is **listed as a warning** — ⚠ **and the build
+  does not fail**. → *unit.* (`A4`)
+  > ✏ `A1`: *"real (non-fixture)"* previously named a distinction `CT-1.2` could not express, so the
+  > count included stand-ins and the warning was quietly wrong in the one direction that matters —
+  > **under**-reporting. `fixture` makes it checkable.
   > ★ **Why a warning and not a gate.** *"Abstraction is earned"* is a judgement. A hard test on it is
   > either **vacuous** — the earlier wording let a test double count, so every port passed — or it
   > **blocks legitimate work**: `AgentPort` has one real implementation on day one and would fail the
   > build. A warning list gives visibility without false precision, and `AgentPort` simply sits on it
   > until a second implementation exists, which is *true and useful*.
 
+- **AC-1.15** *(`CT-1.1`'s key rules are enforced, not merely stated — `A1`)* — **Given** a port or
+  variant name that is empty or does not match `[a-z0-9_.]+`, **when** it is registered, **then**
+  `InvalidKey` is raised naming the offending field. → *unit.* (`P5`)
+  > ✏ `A1`: `CT-1.1` stated these rules and **no AC tested them**, so the implementation enforced them
+  > on its own authority — an improvisation the constitution §5.1 table lists as the illegal move.
+  > ★ They matter because a key *"appears in provenance records that outlive the code"*: a mixed-case
+  > or whitespace-bearing name is unfixable once written to a trace.
 - **AC-1.14** *(⚠ single-threaded, and it says so out loud — `D3`)* — **Given** a `Registry`
   constructed on thread `T`, **when** `resolve` is called from any other thread, **then**
   `ConcurrentRegistryAccess` is raised naming both threads. → *unit.*
@@ -278,6 +320,26 @@ carrying an explicit optional marker. Declaring a port *is* requiring it. *(Reso
   calls are independent, so parallelism will be tempting. `AC-1.14` guarantees that attempt announces
   itself instead of quietly costing reproducibility.
 
+**`A1` — Amendment 2026-09-03, from the `MS-1` build.** ★ Five defects found by *writing code against
+the spec*, which is a different instrument from reviewing it. Recorded together because the pattern
+matters more than any one of them: **each was a place the spec read fluently and could not be
+implemented as written.**
+
+| # | Defect | Fix | Class |
+|---|---|---|---|
+| 1 | `CT-1.3` typed `resolve -> object`; `CT-1.4` said Provenance is *"returned by `resolve`"* | `resolve` returns the object; added `resolve_with_provenance()` | ⚠ **contradiction** — two contracts, no possible implementation |
+| 2 | `AC-1.12` counted *"real (non-fixture)"* variants; `CT-1.2` had no way to tell | added `fixture: bool` to `CT-1.2` and `register()` | **unmechanised term** — the count was silently under-reporting |
+| 3 | `AC-1.7` compares outputs, so an adapter reading a moving world fails it | added *"with its external dependencies held fixed"* | ⚠ **residual false positive** — `S1-4` closed the idempotence route, not this one |
+| 4 | `CT-1.1`'s key rules had no AC | added `AC-1.15` (`InvalidKey`) | **untested contract** — enforced on the implementer's authority |
+| 5 | `AC-1.10` banned *"executable statements"*, but `D2` requires `__all__ = ()` | ban module-scope **calls**; a literal binding is a declaration | **literally false as written** |
+
+> ★★ **What this says about the process.** `S1` was a careful review that found eight issues, and it
+> found **none of these five** — because reading a spec checks whether it is *coherent*, while
+> implementing it checks whether it is *executable*. ⚠ The two failure modes that recur here are
+> **a term with no mechanism** (#2) and **two contracts that cannot both hold** (#1). Both read fine.
+> The lesson is not "review harder"; it is that **the first implementation is part of the review**, and
+> a spec should not be considered settled until something has been built against it.
+
 ## 8. Open questions (must resolve before/at implementation)
 
 > ✅ **None blocking.** `Q1`–`Q3` are resolved above as `D1`–`D3`; `Q4` dissolved at `S1-5`.
@@ -299,16 +361,17 @@ carrying an explicit optional marker. Declaring a port *is* requiring it. *(Reso
 | AC-1.4 | `tests/unit/test_registry.py::test_ac_1_4_coverage_fails_at_boot_naming_every_missing_port` | `Registry.validate_coverage` |
 | AC-1.5 | `tests/unit/test_registry.py::test_ac_1_5_closed_variant_set_attempts_no_import` | `Registry._entry` |
 | AC-1.6 | `tests/unit/test_registry.py::test_ac_1_6_caching_is_scoped_to_the_registry_instance` | `Registry.resolve` |
-| AC-1.7 | `tests/contracts/harness.py::assert_no_state_leak`, run per variant by `PortContractSuite`; ★ power proven by `test_port_contracts.py::test_ac_1_7_the_suite_actually_catches_a_leaky_adapter` and `::test_ac_1_7_the_fresh_instance_clause_is_load_bearing` | every registered variant |
+| AC-1.7 | `tests/contracts/harness.py::assert_no_state_leak`, run per variant by `PortContractSuite` — ⚠ **skipped, loudly, for any suite with `external_world_held_fixed = False`** (`A1`); ★ power proven by `test_port_contracts.py::test_ac_1_7_the_suite_actually_catches_a_leaky_adapter` and `::test_ac_1_7_the_fresh_instance_clause_is_load_bearing` | every registered variant |
 | AC-1.8 | `tests/unit/test_registry.py::test_ac_1_8_provenance_is_entry_derived_not_object_reported` | `src/shared/registry/provenance.py::Provenance` |
 | AC-1.9 | `tests/contracts/conftest.py::pytest_generate_tests` + `test_port_contracts.py::test_ac_1_9_every_port_with_variants_has_a_contract_suite` | `tests/contracts/harness.py` |
 | AC-1.10 | `tests/structural/test_ports_purity.py::test_ac_1_10_port_modules_carry_no_implementation` | `src/shared/ports/*.py` (AST scan) |
 | AC-1.11 | `tests/unit/test_registry.py::test_ac_1_11_experimental_flag_propagates` | `Registry.provenance` |
-| AC-1.12 | `tests/unit/test_registry.py::test_ac_1_12_thin_ports_are_warned_not_failed` | `Registry.validate_coverage` → `CoverageReport.thin_ports` |
+| AC-1.12 | `tests/unit/test_registry.py::test_ac_1_12_thin_ports_are_warned_not_failed` · `::test_ac_1_12_a_fixture_variant_does_not_count_as_earned_abstraction` · `::test_ac_1_12_an_experimental_variant_DOES_count` | `Registry.real_variants` → `CoverageReport.thin_ports` |
 | AC-1.13 | `tests/structural/test_ports_purity.py::test_ac_1_13_default_required_ports_comes_from_all_not_a_second_list` · `::test_ac_1_13_a_declared_port_with_no_variant_is_caught` (⏳ `::test_ac_1_13_declaring_a_port_is_requiring_it` **skips** while `__all__` is empty) | `src/shared/ports/__init__.py` + `Registry.validate_coverage` |
 | AC-1.14 | `tests/unit/test_registry.py::test_ac_1_14_resolve_from_another_thread_is_refused` | `Registry._assert_owner_thread` |
+| AC-1.15 | `tests/unit/test_registry.py::test_ac_1_15_invalid_keys_are_refused` (6 cases) · `::test_ac_1_15_names_the_offending_field` | `Registry._check_key` → `errors.InvalidKey` |
 
-★ **Verified by mutation, 2026-09-03.** Every row above was checked by breaking the behaviour and
+★ **Verified by mutation, 2026-09-03** (re-run after amendment `A1`; **16 mutations, all caught**). Every row above was checked by breaking the behaviour and
 confirming the named test goes red — a suite written alongside its own implementation proves nothing
 otherwise (constitution §5.1: *"the illegal move produces green tests"*). ⚠ Two mutations initially
 **survived** against `AC-1.7`, whose suite passed vacuously because every fixture adapter is stateless;

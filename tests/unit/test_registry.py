@@ -10,6 +10,7 @@ from src.shared.registry import (
     ConcurrentRegistryAccess,
     DuplicateRegistration,
     IncompleteRegistry,
+    InvalidKey,
     Registry,
     UnknownVariant,
 )
@@ -142,6 +143,47 @@ def test_ac_1_12_thin_ports_are_warned_not_failed():
     report = r.validate_coverage(required_ports=("greeter", "doubler"))
     assert report.thin_ports == ("greeter",)
     assert report.missing == ()
+
+
+@pytest.mark.parametrize(
+    "port,variant",
+    [("", "polite"), ("greeter", ""), ("Greeter", "polite"), ("greeter", "po lite"),
+     ("greeter", "polite!"), ("green-ter", "polite")],
+)
+def test_ac_1_15_invalid_keys_are_refused(port, variant):
+    """AC-1.15 — CT-1.1's key rules are enforced, not merely stated.
+
+    ⚠ A key "appears in provenance records that outlive the code" (CT-1.1), so a
+    mixed-case or whitespace-bearing name is unfixable once written to a trace.
+    """
+    r = Registry()
+    with pytest.raises(InvalidKey):
+        r.register(port, variant, lambda: 1, version="1.0.0")
+
+
+def test_ac_1_15_names_the_offending_field():
+    """AC-1.15 — the error says WHICH field was wrong."""
+    r = Registry()
+    with pytest.raises(InvalidKey) as exc:
+        r.register("greeter", "Polite", lambda: 1, version="1.0.0")
+    assert exc.value.field == "variant"
+
+
+def test_ac_1_12_a_fixture_variant_does_not_count_as_earned_abstraction():
+    """AC-1.12 (A1) — a stand-in must not silence the thin-port warning."""
+    r = Registry()
+    r.register("greeter", "polite", lambda: 1, version="1.0.0")
+    r.register("greeter", "stub", lambda: 2, version="0.0.0", fixture=True)
+    report = r.validate_coverage(required_ports=("greeter",))
+    assert report.thin_ports == ("greeter",), "a fixture is not a second implementation"
+
+
+def test_ac_1_12_an_experimental_variant_DOES_count():
+    """AC-1.12 (A1) — experimental is real code on trial; it is not a stand-in."""
+    r = Registry()
+    r.register("greeter", "polite", lambda: 1, version="1.0.0")
+    r.register("greeter", "lab", lambda: 2, version="0.1.0", experimental=True)
+    assert r.validate_coverage(required_ports=("greeter",)).thin_ports == ()
 
 
 def test_ac_1_14_resolve_from_another_thread_is_refused():

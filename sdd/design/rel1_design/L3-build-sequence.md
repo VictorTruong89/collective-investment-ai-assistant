@@ -39,13 +39,13 @@ the machinery that records what it changed.
 |---|---|---|---|---|---|
 | **MS-0** | ⬆ **Close the loop** *(upstream)* | all | — | — | 🟡 **in progress — the critical path** |
 | **MS-1** | Platform substrate, standalone | D-00 | `F1` 🟢 | — | 🟨 **built 2026-09-03** — registry, ports package, contract harness; ⚠ `AgentPort` + real ports deferred |
-| **MS-2** | ★★ **The link** — first import from the pipeline | D-00 | — | MS-1 | ⬜ |
+| **MS-2** | ★★ **First absorption** — `src/shared/` moved here *(rescoped by `QR-22`)* | D-00 | — | MS-1 | 🟨 **`2.1` `2.1a` `2.2a` `2.6` ✅ 2026-09-04** — 1,500 lines + 112 tests + 2 specs absorbed, counts conserved; ⬜ `2.3` pin revision, `2.4` smoke test, `2.5` rehearsal |
 | **MS-3** | Observability | 7 | `F2` 🟡 | MS-2 | ⬜ — ★ **spec drafted 2026-09-01** |
 | **MS-4** | Evaluation harness | 9 | `F5` 🟡 | MS-3 | ⬜ — ★ **spec drafted** |
 | **MS-5** | Explainability | 6 + 2/3/4/5 | `F4` 🟡 | MS-4 | ⬜ — ★ **spec drafted** |
 | **MS-6** | The earned agent + control surface | 8 · 7 · 2 | `F3` 🟡 `F8` `F9` `F6a` | MS-4 | ⬜ — ★ **`F3` drafted** |
 | **MS-7** | Deliberation, measured | 7 · 9 | `F7a` 🟡 → `F6b` 🟡 → `F7b` 🟡 | MS-6 | ⬜ — ★ **all drafted** |
-| **MS-8** | ★★ **Absorption** — copy in, retire the old repo | all | — | MS-0 + MS-6 | ⬜ |
+| **MS-8** | **Absorption — the *remainder***, and retire the old repo ⚠ *(no longer the absorption event — `QR-22`)* | all | — | MS-0 + MS-6 | ⬜ |
 | **MS-9** | Write-up, mirror, polish | — | — | MS-8 | ⬜ |
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
@@ -95,8 +95,13 @@ before it starts; reviewing them now spends attention early for value late.
 | | Work | Where | Status |
 |---|---|---|---|
 | ✅ *2026-09-02* | ~~G1–G3 governance review~~ — 7 issues found, all resolved | this repo | done |
-| ★★ **Next** | **`S1` — review `F1` + `F2`, answer `F1`'s `Q1` and `Q4`, approve `F1` 🟢** | this repo | ✅ unblocked |
-| ★ **Then** | **Build `MS-1`** against the approved `F1`. ⚠ Do **not** wait for `S2`–`S7` | this repo | after `F1` 🟢 |
+| ✅ *2026-09-03* | ~~`S1` — review `F1` + `F2`~~; `Q1`–`Q3` → `D1`–`D3`; **`F1` approved 🟢** | this repo | done |
+| ✅ *2026-09-03* | ~~**Build `MS-1`**~~ — registry + ports + contract harness. 31 tests, **16 mutations all caught**; spec amended `A1` from 5 build-found defects | this repo | done |
+| ✅ *2026-09-04* | ~~`MS-2.1` — the `src` collision~~ → `DX-1` ✅ fixed, `DX-2` ✅ decided (`QR-22`) | both repos | done |
+| ✅ *2026-09-04* | ~~**`MS-2.2a` — absorb `src/shared/`**~~ — 1,500 lines, 112 tests, 2 L2 specs, 2 globs. **1197 tests before, 1197 after.** Surfaced `DX-3` | this repo ⬅ ⬆ | done |
+| ★★ **Next** | `MS-2.3`–`2.5` — pin the upstream revision, smoke test, absorption rehearsal | this repo | ✅ unblocked |
+| ✅ *2026-09-04* | ~~`DX-3`'s open half~~ — upstream's `architecture.py` is **multi-root**; one rule set spans both trees, verified by cross-repo planted violations | ⬆ upstream | done |
+| ◐ **Anytime** | `MS-1.1` leftovers — CI, ruff. Independent of everything above | this repo | ⬜ |
 | ⇄ **In parallel** | Manual verification of run outcomes (`MS-0.1`) — the fund manager's own task | ⬆ pipeline | ongoing |
 | ⇄ **In parallel** | `MS-0.2` — the `QR-5`/`QR-19` gate change. ⚠ Still governs every **performance claim** (`PG-10`) | ⬆ pipeline | not started |
 
@@ -231,7 +236,13 @@ and fully tested in isolation.
 | 1.5 | ★ **Instance caching per `(port, variant)` within a run** | `F1` | ✅ `AC-1.6` — *run scope* = one `Registry` instance (`F1` `D1`) |
 | 1.6 | ★★ **One contract-test suite, parameterised over every registered variant** | `F1` | ✅ `tests/contracts/` |
 
-**Built 2026-09-03 — `21 passed, 1 skipped`, every AC mutation-verified.**
+**Built 2026-09-03 — `31 passed, 1 skipped`, all 15 ACs mutation-verified (16 mutations, all caught).**
+
+✏ **Amended the same day (`F1` `A1`).** The build raised **five spec defects that the `S1` review did
+not find** — a contradiction between `CT-1.3` and `CT-1.4`, an unmechanised term in `AC-1.12`, a
+residual false positive in `AC-1.7`, a missing `ports()` method, and untested `CT-1.1` rules. ★ Reading
+a spec checks whether it is *coherent*; implementing it checks whether it is *executable*. **Treat the
+first implementation as part of the review** for every spec after this one.
 
 ⚠ **Two deliberate gaps, both named rather than quietly closed:**
 
@@ -249,24 +260,64 @@ implementations are **fixtures**, not real adapters. The clause closes at `MS-2`
 real port lands. ★ Stated rather than marked green, because a fixture passing a suite is evidence about
 the *harness*, not about *substitutability*.
 
-## ★★ MS-2 — The link
+## ★★ MS-2 — The first absorption *(was: "The link")*
 
-**This is the step where this repo first imports code from `ai-investment-pipeline`.**
+✏ **Rewritten 2026-09-04 by `QR-22`.** This milestone used to build a shim so the two trees could be
+imported together. ⚠ **They cannot be** — see §6.1. `MS-2` is now the **first per-domain absorption**,
+and `src/shared/` is the natural first because it is the only domain *already* split across both repos.
 
-| # | Item |
-|---|---|
-| 2.1 | ⚠ Confirm the **`src` package collision**: both repos root their packages at `src`, so a plain `pip install -e ../ai-investment-pipeline` will not work (`L4` §4) |
-| 2.2 | ★ Build **one** shim — `src/shared/upstream.py`. Every reach into the pipeline goes through it |
-| 2.3 | Pin the upstream revision. A moving dependency makes discrepancies unattributable |
-| 2.4 | Smoke test: call one pipeline function from this repo, get real data back |
-| 2.5 | ★★ **Absorption rehearsal** — see §5. Dry-run the copy into a scratch branch, record every `DX-n` it surfaces, then **throw the branch away** |
-| 2.6 | ⚠ **Open the discrepancy log** (§6) |
+| # | Item | Status |
+|---|---|---|
+| 2.1 | ✅ **Confirm the `src` package collision** — measured, not reasoned: 3 sys.path configurations from a neutral cwd | ✅ `DX-1` |
+| 2.1a | ✅ Root `src/__init__.py` deleted in **both** repos; upstream `pyproject.toml` → `[tool.setuptools.packages.find]`, `namespaces = true`. Upstream re-run: **1166 passed, 4 skipped — identical to baseline** | ✅ 2026-09-04 |
+| 2.2 | ~~Build one shim, `src/shared/upstream.py`~~ — ⛔ **struck.** A shim presumes simultaneous import (`QR-22`) | ⊘ |
+| 2.2a | ★ **Absorb `src/shared/`** — ✅ **done 2026-09-04.** Moved: 6 modules + `llm/` (1,500 lines), their **3 dedicated test files** (112 tests), and **2 L2 specs**. `ownership.yaml` globs landed in the same change (`ST-8`) | ✅ |
+| 2.2b | ⚠ **Restore the fences the move silently disabled** (`DX-3`) — `SI-1` re-implemented here **and** upstream's `architecture.py` made multi-root | ✅ **2026-09-04** |
+| 2.3 | Pin the upstream revision. A moving dependency makes discrepancies unattributable | ⬜ |
+| 2.4 | Smoke test: call one absorbed function from this repo, get real data back — ★ now a **plain intra-repo import**, no shim | ⬜ |
+| 2.5 | ★★ **Absorption rehearsal** — see §5. ⚠ **Now doubly worth doing**, because `MS-2` *is* an absorption and every lesson transfers directly | ⬜ |
+| 2.6 | ✅ **Discrepancy log opened** (§6) — `DX-1` ✅, `DX-2` ✅ | ✅ |
 
-**Done when:** 2.4 passes and 2.5's findings are recorded in §6.
+**Done when:** `src/shared/` exists in exactly **one** repo, both suites are green, and `ownership.yaml`
+says who governs the moved files.
 
-> ★ **Why one shim and not many.** At `MS-8` the shim is deleted and the imports it wrapped become plain
-> intra-repo imports. **One file to delete** is the whole design. Reaching into the pipeline from
-> twenty call sites turns absorption into a refactor.
+### ✅ `MS-2.2a` — the first absorption, 2026-09-04
+
+**Test counts are exactly conserved — that is the check that nothing was lost or double-counted:**
+
+| | Before | After | Δ |
+|---|---|---|---|
+| this repo | 31 passed, 1 skipped | ✅ **150 passed, 1 skipped** | +119 *(112 absorbed + 7 new `DX-3` fence tests)* |
+| ⬆ upstream (tf_gpu 3.10) | 1166 passed, 4 skipped | ✅ **1054 passed, 4 skipped** | −112 |
+| **sum of the two** | **1197** | **1197** | ★ **0 — conserved** |
+
+**What moved.** `config.py` `errors.py` `logging.py` `money.py` `secrets.py` `llm/` (~1,500 lines) ·
+`tests_src/{test_money,test_gateway,test_shared_infra}.py` + `conftest.py` ·
+`sdd/design/rel6_design/L2-shared-{infrastructure,money}.md` · 2 `ownership.yaml` entries.
+
+⚠ **`tests_src/` was used here deliberately** — the same path upstream uses — so `MS-8` merges rather
+than moves (`PG-8`). ★ And **`conftest.py` travelled with the tests**: it is an autouse guard that
+redirects `PIPELINE_STATE` to a tmp dir, and upstream's own comment records that a test once became *"a
+FULL LIVE DAILY RUN… 44 phantom records"* without it. **A safety net left behind is a safety net
+removed.**
+
+**Verified in both directions**, not just ours: upstream's `entrypoint` still imports, and
+`src.shared.money` resolves *from this repo* through the namespace package.
+
+⚠ **The upstream path is now load-bearing.** Upstream's `pytest.ini` carries
+`pythonpath = . ../collective-investment-ai-assistant`, and this repo's `pyproject.toml` carries the
+mirror. **Neither repo may regain a root `src/__init__.py`** (`DX-1`).
+
+> ★★ **What this milestone actually taught.** The plan said absorption moves *code*. It moves **four
+> things** — code, tests, `ownership.yaml` globs, and the architecture rules that scan the path — and
+> `DX-3` is what the fourth looks like when you forget it: **upstream's `SI-1` went from policing a
+> directory to scanning zero files, and reported `14 passed`.** ⚠ Nothing failed. The only reason it
+> was caught is that a violation was **planted on purpose**. See §6.3 — that check is now mandatory
+> before any future absorption is called done.
+
+> ⚠⚠ **`ST-8` applies from this milestone onward, per domain.** Every glob moves in the *same* change as
+> its code — a glob matching nothing makes the gate **fail open, silently**. This used to be an `MS-8`
+> concern; per-domain absorption makes it a **recurring** one.
 
 ## MS-3 — Observability
 
@@ -346,7 +397,12 @@ the rank it held, and any designation are recorded.
 **Done when:** `F7a` has run and its result is published — ★ **including if the result is that
 deliberation does not help**, which satisfies `PG-5` and is the stronger portfolio artifact.
 
-## ★★ MS-8 — Absorption
+## ★★ MS-8 — Absorption *(the remainder)*
+
+✏ **Rescoped 2026-09-04 by `QR-22`.** ⚠ **`MS-8` is no longer the absorption event** — it is whatever is
+**left over**. The domains this repo needs (`shared`, `orchestration`, `data_engine`, `fundamental`) are
+absorbed earlier and individually, each with its own test run. ★ That converts the plan's largest
+single-step risk into instalments that fail small.
 
 **Entry:** `MS-0` complete (the pipeline is stable) **and** `MS-6` complete (the platform works against it).
 
@@ -358,7 +414,7 @@ deliberation does not help**, which satisfies `PG-5` and is the stronger portfol
 | 8.3 | Copy the upstream `sdd/design/rel6_design/**` L-specs |
 | 8.4 | Merge `ownership.yaml` — ⚠ **`ST-8`: every glob moves in the same commit as its code.** A stale glob matches nothing and the gate then **fails open, silently** |
 | 8.4a | ★★ **Assert glob ordering** — for every pair where one glob is a prefix of another, the **more specific must come first** (`L4` §5.1). ⚠ Four platform paths sit inside inherited domains; if an inherited glob is written above them the wrong spec governs, the gate still fires, and **nothing looks broken** |
-| 8.5 | ★ **Delete `src/shared/upstream.py`.** Its wrapped imports become plain intra-repo imports |
+| 8.5 | ~~Delete `src/shared/upstream.py`~~ — ⊘ **no shim was ever built** (`QR-22`). Instead: ⚠ **verify no domain remains split across both repos** |
 | 8.6 | Run the **whole** suite — 1,192 upstream tests plus the platform's |
 | 8.7 | Reconcile ID families: upstream's `P/INV/AP/ST/CA/DR/DE/RA/QA/...` now live beside `PG/QR/F/M/DX` |
 | 8.8 | Record every discrepancy in §6 **before fixing any of them** |
@@ -366,9 +422,10 @@ deliberation does not help**, which satisfies `PG-5` and is the stronger portfol
 
 **Done when:** the full suite is green in one repo and the shim is gone.
 
-> ★★ **The test of whether `L4`'s structure was right:** absorption deletes one shim, moves ~294 files
-> with zero content changes, and merges one YAML. **Anything more means `PG-8` was violated somewhere
-> earlier** — and that is a finding about the plan, not about the merge.
+> ★★ **The test of whether `L4`'s structure was right** *(restated for per-domain absorption)*: **every**
+> absorption — `MS-2`'s and this one — moves files with **zero content changes** and merges globs into
+> `ownership.yaml`. **Anything more means `PG-8` was violated somewhere earlier** — a finding about the
+> plan, not about the merge. ★ And now it is tested repeatedly instead of once, at the end.
 
 ## MS-9 — Write-up, mirror, polish
 
@@ -451,9 +508,32 @@ status · resolution *(filled in later, never at the same time as the row)*.
 
 | ID | Date | M | Expected | Found | Where | Sev | Status | Resolution |
 |---|---|---|---|---|---|---|---|---|
-| | | | | | | | | |
+| **DX-1** | 2026-09-03 | MS-2 | `L4` §4 option B — *"keep the upstream repo importable under its own distribution name"* — lets this repo reach `src.quant…` through one shim | ⛔ **Option B cannot work as written.** The clash is on the **import** name, not the distribution name. Both repos root at `src` **and both ship `src/__init__.py`**, making `src` a *regular* package in each. ⚠ **A regular package found anywhere on `sys.path` ends the scan** — so whichever root is found first wins outright and the other's domains are simply invisible. Installing upstream under any distribution name changes nothing | `src/__init__.py` (both repos) · `L4` §4 option B · upstream `pyproject.toml` `packages = ["src"]` | ⛔ blocker | ✅ **resolved 2026-09-04** | **Root `src/__init__.py` deleted in BOTH repos; upstream `pyproject.toml` switched to `[tool.setuptools.packages.find]` with `namespaces = true`** (authorised by Victor). Verified: upstream **1166 passed, 4 skipped — identical to baseline**; this repo 31 passed. ⚠ Resolves the ROOT level only — see `DX-2` |
+| **DX-2** | 2026-09-04 | MS-3 | With `DX-1` fixed, this repo can add a subpackage under any upstream domain and import both trees at once | ⛔ **The same rule bites again one level down, and there it cannot be fixed the same way.** `src/shared/` exists in BOTH repos as a *regular* package, so `src.shared` resolves to one repo and the other's modules are invisible. Deleting both `src/shared/__init__.py` **does** work — measured, both trees import simultaneously — ⚠ **but it breaks upstream's `tests_src/test_architecture.py::test_every_domain_directory_is_a_package`**, which enforces upstream `L4` §1.1 | `src/shared/` (both repos) · upstream `L4` §1.1 · `tests_src/test_architecture.py` | ⛔ blocker | ✅ **decided 2026-09-04** | **Option B — absorb per-domain, early; the two trees never coexist for any domain** (`QR-22`). ⚠ Upstream `L4` §1.1 and its test are **left intact** — the chosen option needs no upstream rule change, which is why it beat option A |
+| **DX-3** | 2026-09-04 | MS-2 | Absorbing a domain moves its code, its tests and the rules that police it | ⚠⚠ **The architecture fences that scanned the absorbed directory became silently VACUOUS.** Upstream's `SI-1` (*"`src/shared/` imports no `src/<domain>/`"*) uses `importer_prefixes=("src/shared/",)` against upstream's own tree — now **empty**. **Measured: SI-1 scans 0 files** (`ST-5` still scans 285, so it stayed meaningful for upstream *importers* but is blind to this repo's). ★ Caught by **planting a violation**: upstream still reported `14 passed` | upstream `tests_src/architecture.py` `SRC = REPO / "src"` · rules `SI-1`, `ST-5` | ⚠ material | ✅ **resolved 2026-09-04** | **Upstream's `tests_src/architecture.py` is now MULTI-ROOT** — `SRC_ROOTS` spans both trees, so **one rule set** governs both. `SI-1` went from **0 files scanned back to 14**; graph 285 → 299. ★ Proven by planting `SI-1` and `ST-5` violations *in this repo* and watching **upstream's** suite fail. Plus two new guards: `test_the_graph_is_not_vacuous` (fires if any domain prefix matches nothing) and a `scan()` **raise** if one domain appears in both trees (`QR-22`). This repo's `test_shared_fences.py` stays as defence in depth |
 
-*(empty — opens at `MS-2`)*
+> **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
+>
+> | Both roots have `__init__.py` | ours only | **neither** |
+> |---|---|---|
+> | ⛔ `src.quant` invisible | ⛔ `src.quant` invisible | ✅ `src.__path__` spans **both** trees; `src.shared` and `src.quant` both import |
+>
+> ★ **Deleting *our* `src/__init__.py` alone does nothing** — that is the counter-intuitive half, and the
+> reason this row exists. The scan stops at the first *regular* package, so a single `__init__.py` left
+> anywhere on the path re-breaks it silently, with a `ModuleNotFoundError` that names the submodule and
+> gives no hint that a packaging decision two directories up caused it.
+>
+> ⚠ **The candidate fix needs an upstream change**, and `CLAUDE.md` is explicit that inherited code is
+> changed *there*, not here — so it is Victor's call, not this repo's. Upstream's root `src/__init__.py`
+> is **docstring-only**, and `L4` `ST-3`'s *"`__init__.py` is the domain's public API"* is about
+> `src/<domain>/__init__.py`, **not** the root — so the blast radius looks small. ⚠ *Looks* small: it also
+> touches upstream's `pyproject.toml`, which declares `packages = ["src"]` under setuptools.
+>
+> ★ **Why this is worth the trouble rather than a workaround:** if `src` becomes one namespace package
+> spanning both trees, the absorption is *already rehearsed* — the two trees merge into one directory
+> and **not a single import statement changes**, which is exactly the test `L4` §4 sets for itself
+> (*"delete one shim, move ~294 files with zero content changes"*). A workaround that fakes the import
+> path would pass `MS-2` and fail that test at `MS-8`.
 
 > ⚠ **Do not delete a resolved row.** Strike the status, keep the finding. The shape of a discrepancy
 > recurs; the fix does not.
@@ -461,6 +541,129 @@ status · resolution *(filled in later, never at the same time as the row)*.
 > ★ **If a `DX` turns out to be a spec-versus-code disagreement rather than a merge artifact, it is not
 > a discrepancy — it is a defect,** and it goes to the owning spec under the constitution's change
 > process. Say which it is in the row.
+
+---
+
+## 6.1 ⚠⚠ `DX-2` in full — the collision is recursive, and it gets worse
+
+**The rule, stated once:** *a **regular** package (one with `__init__.py`) found anywhere on `sys.path`
+**ends the import scan***. Namespace portions from other roots are discarded. So **every directory that
+both repos populate must be a namespace package**, all the way down — not just `src/`.
+
+⚠ **`src/shared/` was the easy case.** Both `__init__.py` were docstring-only, so deleting them costs
+nothing but two docstrings. **The next three are not.**
+
+| Directory | Upstream `__init__.py` | Needed by | Verdict |
+|---|---|---|---|
+| `src/shared/` | **0** non-blank lines | `F1` — ★ *already built* | ◐ deletable, but see the test below |
+| `src/orchestration/` | **74** lines, **11** re-export imports | `F2` `MS-3`, `F6a`, `F6b`, `F8` | ⛔ **not deletable** |
+| `src/data_engine/` | **62** lines, **8** re-exports | `F3` | ⛔ **not deletable** |
+| `src/fundamental/` | ⚠ **290** lines, **45** re-exports | `F9` | ⛔⛔ **not deletable** |
+| `src/evaluation/`, `src/explain/` | *absent upstream* | `F5`, `F4` | ✅ no collision, ever |
+
+⚠⚠ **Those `__init__.py` files ARE the public API** — upstream `L4` `ST-3` says so, upstream's own code
+imports through them (`from src.orchestration.errors import …`), and upstream has **a test that enforces
+it**. ★ **That test's docstring is the punchline:** it exists *"because the failure mode is confusing:
+imports resolve via namespace packages until one does not, and the error names the wrong file."*
+**Upstream already knew about this trap and wrote a guard against it** — and this plan walks into it.
+
+### The options, none free
+
+| | Option | Cost |
+|---|---|---|
+| **A** | **Amend upstream `L4` §1.1** to exempt directories that are namespace-by-design, and relax its test | ⚠ Weakens a rule upstream wrote *deliberately*, and the confusing failure mode it guards returns |
+| **B** | **Absorb per-domain, early** — when this repo first needs `src/orchestration/`, absorb upstream's whole `src/orchestration/` then, instead of coexisting | ★ No shim for that domain, and `PG-8` is satisfied by construction. ⚠ Turns `MS-8` from one event into a sequence, and pulls absorption risk forward |
+| **C** | **`pkgutil.extend_path`** in this repo's colliding `__init__.py` — a regular package that appends upstream's directory to its own `__path__` | ⚠ Our `__init__.py` runs and upstream's does **not**, so its 45 re-exports vanish. Would have to be re-created and kept in sync — a second copy of the API surface |
+| **D** | **Process boundary** — reach upstream through its CLI (`orchestration/entrypoint.py::main`) and exchange artifacts, never importing it | ★ Sidesteps the collision entirely and matches upstream's actual shape (a CLI). ⚠ `F2` wants *step-level* trace from inside a run, which an artifact boundary does not give |
+| **E** | **Keep this repo's new code out of upstream-named domains until `MS-8`** | ✗ Breaks `PG-8` — absorption becomes a restructuring, the exact thing `PG-8` exists to prevent |
+
+★ **`F1`/`MS-1` is unaffected** — already built and green, and `src/shared/` is only a problem the day
+something imports *both* repos' `shared`. Nothing does.
+
+## 6.3 ⚠⚠ `DX-3` — absorption silently un-enforces the rules that policed the domain
+
+★★ **This is the general hazard of per-domain absorption, and it will recur at every one.** It is
+`ST-8`'s failure shape — *"a stale glob matches nothing and the gate fails open, silently"* — but for
+**architecture tests** rather than ownership globs, so `ST-8`'s own wording does not cover it.
+
+**What happened.** Upstream's `SI-1` scans `src/shared/**` in *upstream's* tree. Absorbing the domain
+emptied that directory, so the rule examines **zero files** and passes unconditionally. Nothing failed,
+nothing warned. ⚠ A green suite reported a rule satisfied when it was no longer being checked at all.
+
+**How it was caught, and the lesson.** By **planting a violation** and observing that upstream still
+reported `14 passed`. ★ *A rule that cannot fail is indistinguishable from a rule that passes — the only
+way to tell them apart is to make it fail on purpose.* This is the same instrument that caught `AC-1.7`'s
+vacuous contract suite during `MS-1` two days earlier, and it is now **twice** the thing that found a
+defect nothing else did.
+
+**What survived by luck, and what did not.** `money.py` carries its *own* per-module assertion
+(`test_module_imports_nothing_from_another_domain`) which travelled with the code and **did** catch the
+planted violation. `config.py`, `errors.py`, `logging.py`, `secrets.py` and `llm/` carry no such test —
+for those, enforcement simply stopped. ⚠ **Do not read the surviving case as evidence the move was
+safe;** it was one module's belt-and-braces, not a property of the process.
+
+### ★★ The rule to apply at every future absorption
+
+> **An absorption moves FOUR things, not one: the code, its tests, its `ownership.yaml` globs, and the
+> architecture rules that scan its path.** Forgetting the fourth is invisible — the suite stays green.
+> ⚠ **Before declaring an absorption done, plant a violation of each rule that used to cover the moved
+> directory and confirm something still fails.**
+
+### ✅ Closed 2026-09-04 — one rule set now spans both trees
+
+`tests_src/architecture.py` (upstream) is **multi-root**. `SRC_ROOTS` = this repo's `src/` **plus** each
+absorbed sibling's, discovered by name and overridable via `ARCHITECTURE_SRC_ROOTS`. ★ **One enforcement
+point**, not two copies that would eventually disagree.
+
+**The one non-obvious mechanic:** `scan()` used to key files by `path.relative_to(REPO)`, which *throws*
+for a sibling's file. Keys now come from **each root's own parent**, so an absorbed file keys as
+`src/shared/money.py` exactly as it did before the move — and **every existing prefix rule keeps working
+unchanged**. No rule needed rewriting; that is the test of whether the abstraction was right.
+
+| Verification | Result |
+|---|---|
+| `SI-1` files scanned | **0 → 14** ✅ |
+| import graph | 285 → **299 files** |
+| `SI-1` violation planted **in this repo** | ⬆ **upstream suite fails** ✅ |
+| `ST-5` violation planted **in this repo** | ⬆ **upstream suite fails** ✅ |
+| sibling root missing | `test_the_graph_is_not_vacuous` **fails** ✅ — cannot go silent again |
+| one domain in **both** trees | `scan()` **raises** ✅ — enforces `QR-22`'s one-owner invariant |
+| upstream suite | 1054 → **1056 passed, 4 skipped** (the 2 new guards) |
+
+⚠ **`ARCHITECTURE_SRC_ROOTS` and the two `pythonpath` entries are now load-bearing.** A CI checkout that
+does not place the repos as siblings must set it, or the rules narrow — and `test_the_graph_is_not_vacuous`
+is what turns that from silent into loud.
+
+## 6.2 ✅ Resolved — option B, and what it changes
+
+**Decision `QR-22` (2026-09-04): absorb per-domain, early.** The full rationale and the four rejected
+options live in [`questions.md`](../../questions.md) `QR-22` — ★ **read it before proposing a shim**,
+because options A and D are attractive and were rejected for specific measured reasons.
+
+**The rule, operationally:** *when this repo first needs to add code under a domain upstream owns, that
+domain is absorbed **at that moment*** — upstream's directory moves here, its globs arrive in
+`ownership.yaml` pointing at the upstream `L`-spec, and upstream stops being the source of truth for it.
+⚠ **The two trees never both contain the same domain.** The collision only exists while both copies are
+live, so the fix is to never have both.
+
+| Domain | Owner today | Absorbed at |
+|---|---|---|
+| `src/shared/` | ⚠ **split** — `registry`, `ports` here; `config`, `errors`, `llm`, `money`, `secrets` upstream | `MS-2` — ★ **first, because it is the only one already split** |
+| `src/orchestration/` | upstream | `MS-3` (`F2` needs it) |
+| `src/data_engine/` | upstream | `MS-3`/`MS-5` (`F3`) |
+| `src/fundamental/` | upstream | when `F9` is built — ⚠ **the 290-line one; do it last and alone** |
+| `src/evaluation/`, `src/explain/` | ★ this repo, from scratch | never absorbed — no upstream counterpart |
+| everything else | upstream | `MS-8`, as the remainder |
+
+⚠ **`MS-8` is now the *remainder*, not the event.** It absorbs whatever is left; the risky domains are
+absorbed earlier, individually, each with its own test run. ★ That is the argument *for* B rather than a
+cost of it: `MS-8` was the largest single-step risk in the plan, and this converts it into instalments
+that fail small.
+
+⚠⚠ **The maintenance rule now has an exception that must stay legible.** `CLAUDE.md` and vision §2 say
+inherited logic changes *upstream*. That remains true **only for domains not yet absorbed.** Once a
+domain is here, it changes here. **`ownership.yaml` is the authority on which is which** — check it
+before editing anything under `src/`, not memory.
 
 ---
 
