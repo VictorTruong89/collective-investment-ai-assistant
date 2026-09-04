@@ -231,7 +231,13 @@ validation, once real directives exist to map.
   request, the suspension, the resume and the designation are all recorded with the run's `run_id`.
   → *data contract.* (`F2`)
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - ✅ ~~**Q1 — what is a directive for?**~~ **Resolved 2026-09-01** — interpreted, not enumerated (§2.1).
 - **Q6 — ⏳ The initial effect vocabulary (`CT-8.5`) is deferred to E2E validation.** Victor:
@@ -254,7 +260,7 @@ validation, once real directives exist to map.
 - **Q5 — Does a designation ever get revoked?** If the manager designates and then changes their mind,
   is that a second journal entry or an amendment? *(Append-only argues for the first.)*
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

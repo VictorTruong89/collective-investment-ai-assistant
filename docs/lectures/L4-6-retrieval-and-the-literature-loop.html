@@ -1,0 +1,900 @@
+<title>Retrieval, Grounding, and the Literature Loop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+:root{
+  --ground:#F6F7F9;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F5;
+  --code-bg:#EDF0F4;
+  --ink:#141A24;
+  --ink-soft:#57616F;
+  --ink-faint:#828C9A;
+  --accent:#1F4E8C;
+  --accent-soft:#E3EBF6;
+  --verd:#0E7C6B;
+  --verd-soft:#DEEFEB;
+  --oxide:#A33A1E;
+  --oxide-soft:#F7E4DE;
+  --rule:#DCE1E8;
+  --rule-soft:#E9ECF1;
+
+  --fs-xs:.76rem; --fs-sm:.875rem; --fs-base:1.0625rem;
+  --fs-lg:1.22rem; --fs-xl:1.55rem; --fs-2xl:2.05rem; --fs-3xl:2.75rem;
+  --measure:68ch;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+    --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+    --accent:#77ADEB; --accent-soft:#17293F;
+    --verd:#3ECBB2; --verd-soft:#0F2C29;
+    --oxide:#E58A6D; --oxide-soft:#331E17;
+    --rule:#26313F; --rule-soft:#1D2531;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+  --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+  --accent:#77ADEB; --accent-soft:#17293F;
+  --verd:#3ECBB2; --verd-soft:#0F2C29;
+  --oxide:#E58A6D; --oxide-soft:#331E17;
+  --rule:#26313F; --rule-soft:#1D2531;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--body); font-size:var(--fs-base); line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.col{max-width:var(--measure)}
+
+/* ---------- masthead ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface)}
+.masthead .wrap{padding-top:clamp(2.5rem,7vw,4.5rem);padding-bottom:clamp(2rem,5vw,3rem)}
+.eyebrow{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);margin:0 0 1.1rem
+}
+h1{
+  font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5.5vw,var(--fs-3xl));
+  line-height:1.08;letter-spacing:-.015em;margin:0 0 1rem;text-wrap:balance
+}
+.standfirst{font-size:var(--fs-lg);color:var(--ink-soft);margin:0;max-width:60ch;text-wrap:pretty}
+.meta{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;margin-top:1.8rem;
+  font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);
+  letter-spacing:.04em
+}
+
+/* ---------- nav ---------- */
+.tocbar{
+  position:sticky;top:0;z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--rule)
+}
+.tocbar .wrap{display:flex;gap:.4rem;overflow-x:auto;padding-top:.5rem;padding-bottom:.5rem}
+.tocbar a{
+  flex:0 0 auto;display:flex;align-items:baseline;gap:.5rem;
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;
+  text-transform:uppercase;text-decoration:none;color:var(--ink-soft);
+  padding:.45rem .7rem;border-radius:3px;white-space:nowrap
+}
+.tocbar a:hover{background:var(--surface-2);color:var(--ink)}
+.tocbar a b{font-weight:700}
+.tocbar a.l1 b{color:var(--accent)} .tocbar a.l2 b{color:var(--verd)} .tocbar a.l3 b{color:var(--oxide)}
+
+/* ---------- lecture ---------- */
+.lecture{padding:clamp(3rem,8vw,6rem) 0 clamp(2rem,5vw,4rem);border-bottom:1px solid var(--rule)}
+.lechead{display:flex;gap:clamp(1rem,3vw,2rem);align-items:flex-start;margin-bottom:2.5rem}
+.lecnum{
+  flex:0 0 auto;font-family:var(--mono);font-weight:700;font-size:var(--fs-sm);
+  letter-spacing:.1em;padding:.35rem .6rem;border-radius:3px;line-height:1.2
+}
+.l1 .lecnum{background:var(--accent-soft);color:var(--accent)}
+.l2 .lecnum{background:var(--verd-soft);color:var(--verd)}
+.l3 .lecnum{background:var(--oxide-soft);color:var(--oxide)}
+.lechead h2{
+  font-family:var(--display);font-weight:700;font-size:clamp(1.7rem,4vw,var(--fs-2xl));
+  line-height:1.15;letter-spacing:-.01em;margin:0 0 .6rem;text-wrap:balance
+}
+.lechead p{margin:0;color:var(--ink-soft);max-width:58ch}
+
+h3{
+  font-family:var(--display);font-weight:600;font-size:var(--fs-xl);
+  line-height:1.25;margin:3.2rem 0 1rem;text-wrap:balance;
+  padding-top:1.2rem;border-top:1px solid var(--rule-soft)
+}
+h3 .sn{font-family:var(--mono);font-size:var(--fs-sm);color:var(--ink-faint);margin-right:.6rem;font-weight:500}
+h4{font-family:var(--display);font-weight:600;font-size:var(--fs-lg);margin:2rem 0 .6rem;line-height:1.3}
+p{margin:0 0 1.1rem;max-width:var(--measure);text-wrap:pretty}
+ul,ol{margin:0 0 1.2rem;padding-left:1.3rem;max-width:var(--measure)}
+li{margin-bottom:.5rem}
+li::marker{color:var(--ink-faint)}
+strong{font-weight:700}
+em{font-style:italic}
+a{color:var(--accent)}
+
+code{
+  font-family:var(--mono);font-size:.86em;background:var(--code-bg);
+  padding:.1em .35em;border-radius:3px;color:var(--ink)
+}
+pre{
+  font-family:var(--mono);font-size:var(--fs-sm);line-height:1.62;
+  background:var(--code-bg);border:1px solid var(--rule);border-radius:5px;
+  padding:1.1rem 1.25rem;overflow-x:auto;margin:0 0 1.4rem
+}
+pre code{background:none;padding:0;font-size:inherit}
+.cm{color:var(--ink-faint)}
+.kw{color:var(--accent);font-weight:500}
+.st{color:var(--verd)}
+
+/* ---------- devices ---------- */
+.callout{
+  border-left:3px solid var(--accent);background:var(--surface);
+  padding:1.1rem 1.3rem;margin:0 0 1.5rem;max-width:var(--measure);border-radius:0 4px 4px 0
+}
+.callout.warn{border-left-color:var(--oxide)}
+.callout.key{border-left-color:var(--verd)}
+.callout p:last-child{margin-bottom:0}
+.callout .lbl{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);display:block;margin-bottom:.5rem;font-weight:700
+}
+.callout.warn .lbl{color:var(--oxide)}
+.callout.key .lbl{color:var(--verd)}
+
+.tablewrap{overflow-x:auto;margin:0 0 1.6rem;border:1px solid var(--rule);border-radius:5px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:var(--fs-sm);min-width:34rem}
+th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:700;background:var(--surface-2);white-space:nowrap
+}
+tr:last-child td{border-bottom:none}
+td code{font-size:.82em}
+
+figure{margin:0 0 1.8rem}
+figure svg{display:block;width:100%;height:auto;background:var(--surface);border:1px solid var(--rule);border-radius:5px}
+figcaption{
+  font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);
+  margin-top:.6rem;letter-spacing:.02em;line-height:1.55;max-width:var(--measure)
+}
+.svg-ink{fill:var(--ink)} .svg-soft{fill:var(--ink-soft)} .svg-faint{fill:var(--ink-faint)}
+.svg-box{fill:var(--surface-2);stroke:var(--rule)}
+.svg-line{stroke:var(--ink-faint);fill:none}
+text{font-family:var(--mono);font-size:11px}
+
+.exercises{background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:1.4rem 1.6rem;margin-top:2.5rem;max-width:var(--measure)}
+.exercises h4{margin-top:0}
+.exercises ol{margin-bottom:0}
+
+.pill{
+  font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.05em;
+  padding:.12em .45em;border-radius:3px;background:var(--surface-2);color:var(--ink-soft);
+  white-space:nowrap
+}
+.pill.ok{background:var(--verd-soft);color:var(--verd)}
+.pill.no{background:var(--oxide-soft);color:var(--oxide)}
+
+footer{padding:clamp(2.5rem,6vw,4rem) 0 5rem;color:var(--ink-soft)}
+footer .col{font-size:var(--fs-sm)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+html{scroll-behavior:smooth;scroll-padding-top:4rem}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Retrieval &amp; Research Method · Lecture Notes</p>
+    <h1>Retrieval, Grounding, and the Literature Loop</h1>
+    <p class="standfirst">What retrieval-augmented generation actually is; why this project already specified one of the strictest versions of it without ever using the word; and how to build the research loop that will make the next release's mathematics defensible.</p>
+    <div class="meta">
+      <span>Three lectures — 04, 05, 06</span>
+      <span>Prereq: the vision, §3 and §4</span>
+      <span>Companion to <code>sdd/specs/vision.md</code> C3 · C6 · C7</span>
+      <span>Written 2026-09-03</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar" aria-label="Lectures">
+  <div class="wrap">
+    <a class="l1" href="#lecture-4"><b>04</b> Retrieval-Augmented Generation</a>
+    <a class="l2" href="#lecture-5"><b>05</b> The RAG You Already Specified</a>
+    <a class="l3" href="#lecture-6"><b>06</b> The Literature Loop</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════ LECTURE 4 ══════════════════════════ -->
+<section class="lecture l1" id="lecture-4">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">04</span>
+    <div>
+      <h2>Retrieval-Augmented Generation: the Mechanism, and Where It Breaks</h2>
+      <p>Taking the acronym apart — because "RAG" now names two quite different architectures, and choosing the wrong one is the most common expensive mistake in the field.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p><strong>Why this lecture exists.</strong> The question that prompted it was a plain one: <em>what is RAG, and which of its generic applications are relevant to this project?</em> That question cannot be answered honestly in a paragraph, because the term has drifted. What was named in a 2020 paper as a specific trained architecture is now an umbrella covering everything from "paste three paragraphs into a prompt" to a multi-turn agent that reads a document, disagrees with it, and goes looking for a better one. Those two things share a technique and nothing else — not their cost, not their accuracy, not their failure modes, and not the engineering they require.</p>
+
+  <p>So this lecture builds the mechanism from the bottom. Lecture 05 then shows that this project has <em>already specified</em> a RAG system, in stricter terms than most production systems attempt, and never wrote the word down. Lecture 06 turns to the research loop — a second, quite different use of retrieval that is about to matter, because the next release is about mathematics and mathematics has a literature.</p>
+  </div>
+
+  <h3><span class="sn">4.1</span> The three deficits RAG addresses — only one of which matters here</h3>
+
+  <div class="col">
+  <p>A language model's knowledge is <strong>frozen, undated, and unattributable</strong>. It was compressed out of a training corpus into weights, and the compression is lossy in a way that does not announce itself. The model cannot tell you where a fact came from, cannot tell you when it was true, and — the load-bearing problem — will produce a fact-shaped sentence in exactly the same confident register whether or not it has a fact behind it.</p>
+
+  <p>Retrieval fixes three distinct deficits, and they are worth separating because they have different costs:</p>
+
+  <ul>
+    <li><strong>Recency</strong> — the model does not know what happened after its cutoff. Solved trivially by putting recent text in the context.</li>
+    <li><strong>Private knowledge</strong> — the model never saw your filings, your prior theses, your specs. Solved by indexing them.</li>
+    <li>★ <strong>Attribution</strong> — the model cannot show its source. This is <em>not</em> solved by putting text in the context. Putting a document in the prompt makes a grounded answer <em>possible</em>; it does not make it <em>happen</em>, and it does not make it <em>checkable</em>. Almost all of the difficulty in this field lives here.</li>
+  </ul>
+
+  <p>For this project, the first two are conveniences. The third is the whole point, and it is the one production systems handle worst.</p>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">A note on the term, so the paper does not confuse you</span>
+    <p>Lewis et al. (NeurIPS 2020) coined "retrieval-augmented generation" for a specific architecture: a dense retriever and a sequence-to-sequence generator, <strong>trained jointly end-to-end</strong>, with retrieval as a latent variable. That is not what the industry means today. Today "RAG" almost always means the untrained version — retrieve text, concatenate it into a prompt, generate. The modern practice is simpler and much less principled than the paper that named it. Read the paper knowing this, or you will spend an hour wondering where the gradient goes.</p>
+  </div>
+
+  <h3><span class="sn">4.2</span> The four stages, and the failure that belongs to each</h3>
+
+  <div class="col">
+  <p>Every retrieval system, however dressed up, is these four stages. They fail <strong>independently</strong>, which is the single most useful fact about them: a system that produces a wrong answer has failed at exactly one of these, and treating it as one undifferentiated "the RAG isn't working" is how teams spend months tuning the stage that was already fine.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 720 250" role="img" aria-label="Diagram: the four stages of a retrieval pipeline — ingest, index, retrieve, generate — with the characteristic failure of each shown beneath">
+      <defs><marker id="ar4" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink-faint)"/></marker></defs>
+
+      <rect class="svg-box" x="18" y="46" width="153" height="56" rx="4"/>
+      <text class="svg-ink" x="94" y="70" text-anchor="middle" font-weight="700">1 · INGEST</text>
+      <text class="svg-faint" x="94" y="88" text-anchor="middle">parse · split</text>
+
+      <rect class="svg-box" x="195" y="46" width="153" height="56" rx="4"/>
+      <text class="svg-ink" x="271" y="70" text-anchor="middle" font-weight="700">2 · INDEX</text>
+      <text class="svg-faint" x="271" y="88" text-anchor="middle">BM25 · vectors</text>
+
+      <rect x="372" y="46" width="153" height="56" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="448" y="70" text-anchor="middle" font-weight="700" fill="var(--accent)">3 · RETRIEVE</text>
+      <text class="svg-soft" x="448" y="88" text-anchor="middle">top-k · rerank</text>
+
+      <rect class="svg-box" x="549" y="46" width="153" height="56" rx="4"/>
+      <text class="svg-ink" x="625" y="70" text-anchor="middle" font-weight="700">4 · GENERATE</text>
+      <text class="svg-faint" x="625" y="88" text-anchor="middle">answer + cite</text>
+
+      <line class="svg-line" x1="171" y1="74" x2="191" y2="74" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <line class="svg-line" x1="348" y1="74" x2="368" y2="74" stroke-width="1.5" marker-end="url(#ar4)"/>
+      <line class="svg-line" x1="525" y1="74" x2="545" y2="74" stroke-width="1.5" marker-end="url(#ar4)"/>
+
+      <line class="svg-line" x1="94" y1="102" x2="94" y2="126" stroke-width="1" stroke-dasharray="2 3"/>
+      <line class="svg-line" x1="271" y1="102" x2="271" y2="126" stroke-width="1" stroke-dasharray="2 3"/>
+      <line class="svg-line" x1="448" y1="102" x2="448" y2="126" stroke-width="1" stroke-dasharray="2 3"/>
+      <line class="svg-line" x1="625" y1="102" x2="625" y2="126" stroke-width="1" stroke-dasharray="2 3"/>
+
+      <text class="svg-soft" x="94" y="142" text-anchor="middle" font-size="10">tables, equations and</text>
+      <text class="svg-soft" x="94" y="156" text-anchor="middle" font-size="10">footnotes destroyed</text>
+      <text class="svg-soft" x="94" y="170" text-anchor="middle" font-size="10">by the PDF parser;</text>
+      <text class="svg-soft" x="94" y="184" text-anchor="middle" font-size="10">a chunk boundary cuts</text>
+      <text class="svg-soft" x="94" y="198" text-anchor="middle" font-size="10">a claim from its caveat</text>
+
+      <text class="svg-soft" x="271" y="142" text-anchor="middle" font-size="10">embeddings encode</text>
+      <text class="svg-soft" x="271" y="156" text-anchor="middle" font-size="10">TOPIC, not TRUTH:</text>
+      <text class="svg-soft" x="271" y="170" text-anchor="middle" font-size="10">"X survives costs" and</text>
+      <text class="svg-soft" x="271" y="184" text-anchor="middle" font-size="10">"X does not survive"</text>
+      <text class="svg-soft" x="271" y="198" text-anchor="middle" font-size="10">sit almost on top of</text>
+      <text class="svg-soft" x="271" y="212" text-anchor="middle" font-size="10">each other</text>
+
+      <text x="448" y="142" text-anchor="middle" font-size="10" fill="var(--accent)" font-weight="700">★ THE DOMINANT</text>
+      <text x="448" y="156" text-anchor="middle" font-size="10" fill="var(--accent)" font-weight="700">ERROR SOURCE</text>
+      <text class="svg-soft" x="448" y="174" text-anchor="middle" font-size="10">if the right passage is</text>
+      <text class="svg-soft" x="448" y="188" text-anchor="middle" font-size="10">not in the top-k, no</text>
+      <text class="svg-soft" x="448" y="202" text-anchor="middle" font-size="10">model quality recovers it</text>
+
+      <text class="svg-soft" x="625" y="142" text-anchor="middle" font-size="10">gaps silently filled</text>
+      <text class="svg-soft" x="625" y="156" text-anchor="middle" font-size="10">from training memory,</text>
+      <text class="svg-soft" x="625" y="170" text-anchor="middle" font-size="10">in the same confident</text>
+      <text class="svg-soft" x="625" y="184" text-anchor="middle" font-size="10">voice as the retrieved</text>
+      <text class="svg-soft" x="625" y="198" text-anchor="middle" font-size="10">fact</text>
+    </svg>
+    <figcaption>The four stages fail independently. Diagnosing "the RAG isn't working" as one problem is how teams tune stage 4 for a month when stage 3 was never returning the right passage.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Stage</th><th>What happens</th><th>The diagnostic question</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 · Ingest</strong></td><td>Documents → parsed → split into retrievable units</td><td>If I read this chunk alone, with no neighbours, is the claim in it still true and still qualified?</td></tr>
+      <tr><td><strong>2 · Index</strong></td><td>Units → a searchable structure: sparse keyword (BM25), dense vectors, or both</td><td>Can this index distinguish a statement from its negation? (A pure vector index largely cannot.)</td></tr>
+      <tr><td>★ <strong>3 · Retrieve</strong></td><td>Query → candidate units → reranked → top-k into the context</td><td><strong>Is the passage that contains the answer actually in the k I returned?</strong> Measure this <em>before</em> looking at any generated output.</td></tr>
+      <tr><td><strong>4 · Generate</strong></td><td>Model answers conditioned on those units, ideally citing them</td><td>Is every claim in the output traceable to a span in the context — and does the system <em>refuse</em> when it is not?</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3><span class="sn">4.3</span> The uncomfortable fact: this is a search problem in a generation costume</h3>
+
+  <div class="col">
+  <p>The word "generation" in the name draws attention to the wrong half. In practice, <strong>retrieval quality dominates end-to-end quality</strong>, and by a wide margin. Upgrading the model is the intervention people reach for first and it is usually the smallest available improvement. Fixing retrieval is the boring one that works.</p>
+
+  <p>Three findings from the information-retrieval literature that save a great deal of time:</p>
+
+  <ul>
+    <li><strong>BM25 is a very strong baseline.</strong> Robertson and Zaragoza's probabilistic relevance framework is fifty years of accumulated tuning, it needs no training, no GPU and no embedding model, and the <strong>BEIR</strong> benchmark (Thakur et al., NeurIPS Datasets 2021) found that dense retrievers frequently <em>fail to beat it</em> when moved out of the domain they were trained on. Anyone who tells you to start with a vector database has skipped this result.</li>
+    <li><strong>Hybrid plus reranking is the workhorse.</strong> Run BM25 and a dense retriever, fuse the candidate lists, then rerank the top ~100 with a cross-encoder — a model that reads the query and the passage <em>together</em> rather than embedding them separately. Nogueira and Cho (2019) is the reference point. This combination is close to the practical ceiling for most corpora and it is unglamorous.</li>
+    <li>★ <strong>Embeddings encode topic, not truth value.</strong> "Momentum survives transaction costs" and "momentum does not survive transaction costs" are near-identical vectors. For a project whose entire purpose is telling a claim from its refutation, this is not a footnote — it is a reason to keep keyword and structural signals in the loop permanently.</li>
+  </ul>
+
+  <p>The operational conclusion: <strong>build the search first, measure it in isolation, and only then attach a model.</strong> A retriever you have not measured is a random-number generator with good manners.</p>
+  </div>
+
+  <h3><span class="sn">4.4</span> Two architectures, one word</h3>
+
+  <div class="col">
+  <p>This is the distinction that determines what you should build, and it maps neatly onto a concept Lecture 01 already established — <strong>binding time</strong>. In classic RAG the retrieval is bound <em>once, before generation</em>. In agentic retrieval it is bound <em>repeatedly, during</em>.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th></th><th>Classic / static RAG</th><th>Agentic retrieval</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Shape</strong></td><td>One query → top-k chunks → one prompt → one answer</td><td>The model searches, reads, judges, re-queries, follows a citation, opens a full document, decides it needs a different source</td></tr>
+      <tr><td><strong>Retrieval passes</strong></td><td>Exactly one</td><td>Unbounded, budgeted</td></tr>
+      <tr><td><strong>Cost / latency</strong></td><td>Low, predictable</td><td>High, variable — needs a budget (<code>C9</code>)</td></tr>
+      <tr><td><strong>Accuracy on hard questions</strong></td><td>Poor. A single query cannot express a multi-part question</td><td>Substantially better; it can recover from a bad first search</td></tr>
+      <tr><td><strong>Unit retrieved</strong></td><td>A chunk (256–1024 tokens)</td><td>Often a <em>whole document</em> — context windows made this affordable</td></tr>
+      <tr><td><strong>Traceability</strong></td><td>Easy — one retrieval to log</td><td>Harder, and <strong>more important</strong>: every query and result must be traced or the run cannot be replayed (<code>C7</code>)</td></tr>
+      <tr><td><strong>Right for</strong></td><td>High-volume, narrow, repeated questions over a stable corpus</td><td>★ Research, method study, multi-hop questions, anything where being wrong is expensive</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The drift, and why it matters to you</span>
+    <p>The field has moved hard from the first column to the second, for one mundane reason: <strong>context windows got large enough that "retrieve the whole document and read it" became affordable.</strong> Chunking was always a workaround for a constraint, not a good idea in its own right, and much of the elaborate chunking machinery of 2023 is now solving a problem that has partly gone away.</p>
+    <p>This bears directly on Lecture 06. The research loop you want is <strong>agentic retrieval over whole papers</strong>, not classic chunked RAG — and knowing that up front saves you from building the wrong thing well.</p>
+  </div>
+
+  <div class="col">
+  <p>One caveat before you conclude that long context solves everything. Liu et al., <em>Lost in the Middle</em> (TACL 2024), showed that models attend unevenly across a long context — material at the beginning and end is used far more reliably than material in the middle. Stuffing fifty papers into a window is not equivalent to reading fifty papers. Ordering still matters, relevance filtering still matters, and Shi et al. (ICML 2023) showed that <em>irrelevant</em> context actively degrades reasoning rather than being harmlessly ignored. More context is not monotonically better.</p>
+  </div>
+
+  <h3><span class="sn">4.5</span> The evaluation vocabulary — which you will need for <code>F5</code></h3>
+
+  <div class="col">
+  <p>Retrieval evaluation has a mature vocabulary, and it decomposes failure along exactly the seam that matters: <em>was the evidence there?</em> versus <em>did the model use it honestly?</em> These are different bugs with different fixes, and a single end-to-end accuracy number conflates them.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Metric</th><th>Side</th><th>What it asks</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Recall@k</strong></td><td>Retrieval</td><td>Of the passages that <em>could</em> answer this, how many made the top k? ★ The ceiling on everything downstream.</td></tr>
+      <tr><td><strong>Precision@k</strong> · <strong>nDCG</strong> · <strong>MRR</strong></td><td>Retrieval</td><td>How much of what I returned was junk, and how high did the good material rank?</td></tr>
+      <tr><td><strong>Context precision / recall</strong></td><td>Retrieval</td><td>The same two questions phrased for a generation pipeline — the RAGAS framing (Es et al., EACL 2024).</td></tr>
+      <tr><td>★ <strong>Faithfulness</strong> / <strong>groundedness</strong></td><td>Generation</td><td>Is every claim in the answer entailed by the retrieved context? <strong>Not</strong> whether it is <em>true</em> — whether it is <em>supported</em>. A true-but-unsupported claim is still a defect.</td></tr>
+      <tr><td>★ <strong>Attribution (AIS)</strong></td><td>Generation</td><td>Rashkin et al.'s <em>Attributable to Identified Sources</em>: would a reasonable person, reading the cited source, agree it says this? The formal version of claim→span binding.</td></tr>
+      <tr><td><strong>Answer relevance</strong></td><td>Generation</td><td>Did it answer the question actually asked, or an adjacent easier one?</td></tr>
+      <tr><td><strong>Refusal rate on empty retrieval</strong></td><td>System</td><td>When nothing relevant was found, how often did it say so instead of inventing? ⚠ Rarely measured. Directly the <code>A7</code> rule.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The distinction to hold on to</span>
+    <p><strong>Faithful ≠ correct.</strong> A perfectly faithful answer over a wrong document is confidently, traceably wrong — and that is <em>still an improvement</em>, because you can find it. An unfaithful answer over a right document is right by accident and will silently stop being right. Optimise for faithfulness first; it is the property that makes every other error findable.</p>
+  </div>
+
+  <h3><span class="sn">4.6</span> What retrieval is not</h3>
+
+  <div class="col">
+  <ul>
+    <li><strong>Not a fix for reasoning.</strong> If the model cannot reason about the material, handing it more material produces a longer wrong answer.</li>
+    <li>⛔ <strong>Not a fix for arithmetic.</strong> Retrieving a revenue figure and asking the model to compute a growth rate violates this project's standing rule — <em>no arithmetic inside a prompt</em>. Retrieval may deliver the number; deterministic code must consume it.</li>
+    <li><strong>Not memory.</strong> Retrieval is stateless lookup. A system that "remembers" needs a write path, a decay policy and a conflict rule — genuinely harder, and a different design.</li>
+    <li><strong>Not a substitute for a database.</strong> If the answer is a value in a table, query the table. Embedding structured data so a model can approximately find it is a well-populated category of wasted effort.</li>
+  </ul>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Take a filing you know well. Pick a claim whose meaning depends on a footnote three paragraphs away. Now chunk the document at 512 tokens and say which stage of §4.2 has already failed, before any model is involved.</li>
+      <li>Construct two sentences about the same financial effect that are semantically opposite and would embed near-identically. Then state what signal, other than the embedding, would separate them — and whether that signal survives your chunking.</li>
+      <li>You measure end-to-end accuracy at 60%. Design the two experiments that tell you whether the missing 40% is a retrieval failure or a generation failure. Which do you run first, and why is running only the end-to-end number a methodological error?</li>
+      <li>Argue the case for BM25 over a vector index for a corpus of 2,000 finance papers. Then argue the reverse. Which argument required assumptions you cannot currently check?</li>
+      <li>Define, as a testable statement, what "the system refused correctly" means. Then say how you would build a golden set for it — noting that it requires questions whose answer is <em>deliberately absent</em> from the corpus.</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════ LECTURE 5 ══════════════════════════ -->
+<section class="lecture l2" id="lecture-5">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">05</span>
+    <div>
+      <h2>The RAG You Already Specified</h2>
+      <p>The vision asks for claim→evidence-span binding and measured grounding rates. That is a retrieval-augmented generation contract, written more strictly than most shipped systems attempt — and the word appears nowhere in it.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p>The natural next question after Lecture 04 is <em>"which of these generic applications are relevant to us?"</em> — and the honest answer is sharper than a catalogue. Two of this project's existing capabilities <strong>are</strong> a retrieval system, described in the vocabulary of explainability rather than the vocabulary of retrieval. Recognising that is worth more than any list, because it means the RAG-evaluation literature can be read as if it were written about <code>F4</code> and <code>F5</code>.</p>
+  </div>
+
+  <h3><span class="sn">5.1</span> The catalogue, filtered against the vision</h3>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Generic RAG application</th><th>Verdict here</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Q&amp;A over a private document corpus</td><td><span class="pill">weak</span></td><td>There is no document-pile problem yet. This is the demo everyone builds and it is the least useful one here.</td></tr>
+      <tr><td>★ <strong>Grounded claim generation with citations</strong></td><td><span class="pill ok">core</span></td><td><strong>This is <code>C3</code> / <code>F4</code>.</strong> See §5.2 — it is the project's hardest existing requirement.</td></tr>
+      <tr><td>★ <strong>Long-document analysis</strong> — filings, transcripts, prospectuses</td><td><span class="pill ok">core</span></td><td>Seat 2's actual work, and the territory <code>F9</code>'s thesis source port already fences.</td></tr>
+      <tr><td>Memory / recall across sessions</td><td><span class="pill">solved</span></td><td>The <code>sdd/</code> tree, <code>questions.md</code> and the <code>PreToolUse</code> gate already are this — as a file tree and a hook, deterministically, with no embeddings. ★ Do not replace a working deterministic solution with a probabilistic one.</td></tr>
+      <tr><td>Code / API documentation lookup</td><td><span class="pill">solved</span></td><td>The <code>fmp-api</code> skill is hand-curated retrieval, measured against a real key. Better than an index over vendor docs, because it records what is <em>false</em> in those docs.</td></tr>
+      <tr><td>Structured data → natural language</td><td><span class="pill no">blocked</span></td><td>Non-goal: <em>no arithmetic inside a prompt</em>. The model narrates numbers; it never produces them.</td></tr>
+      <tr><td>Recommendation by similarity</td><td><span class="pill no">out of scope</span></td><td>Vision §1: <em>ranking was never the scarce resource</em>. Retrieval-as-recommender adds a ranker nobody asked for.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3><span class="sn">5.2</span> <code>C3</code> is a faithfulness contract with a stricter bar than the field's</h3>
+
+  <div class="col">
+  <p>Vision §4 states capability <code>C3</code> as: <em>"attribution for the ranker, <strong>claim→evidence-span binding for the LLM</strong>, counterfactuals, calibrated confidence."</em> And <code>C6</code> lists among the evaluation harness's obligations: <em>"golden sets, <strong>citation and grounding rates</strong>, calibration, faithfulness tests."</em></p>
+
+  <p>Read those two clauses next to §4.5 of the previous lecture and the correspondence is exact. <strong>Claim→span binding is the attribution problem</strong> — Rashkin et al.'s AIS framework, and the mechanism Menick et al. built in GopherCite, where a model is trained to support each assertion with a verbatim quoted span. <strong>Grounding rate is faithfulness</strong>, measured.</p>
+
+  <p>And the bar set here is <em>higher</em> than the industry norm in a specific, expensive way:</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Granularity of citation</th><th>Who does this</th><th>What it can actually verify</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Document-level</strong> — "source: 2024 10-K"</td><td>Most production RAG</td><td>Almost nothing. The document is 200 pages; the claim may appear nowhere in it.</td></tr>
+      <tr><td><strong>Chunk-level</strong> — "source: chunk 47"</td><td>Better systems</td><td>Narrows it to a paragraph. A reviewer can check, slowly.</td></tr>
+      <tr><td>★ <strong>Span-level</strong> — this sentence ↔ these characters</td><td><strong>What <code>C3</code> demands</strong></td><td>Mechanical verification. A test can assert it. This is what makes <code>F5</code>'s "grounding rate" a computable number rather than a human review exercise.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The claim of this lecture, in one line</span>
+    <p><strong><code>F9</code> is the retrieval half and <code>F4</code> is the grounded-generation half of a RAG system; <code>F5</code> is its retrieval-and-attribution evaluation harness.</strong> None of the three uses the word. That is fine — but it means the RAG literature is <em>directly</em> applicable to specs already written, and that the metrics in §4.5 are candidate acceptance criteria rather than background reading.</p>
+  </div>
+
+  <h3><span class="sn">5.3</span> Three standing rules become three design constraints</h3>
+
+  <div class="col">
+  <p>The constitution and the vision already contain rules that, translated into retrieval terms, decide most of the architecture. They were not written with retrieval in mind, which is a good sign — it suggests they are principles rather than preferences.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Existing rule</th><th>Becomes, in a retrieval system</th></tr></thead>
+    <tbody>
+      <tr><td><code>A7</code> — <strong>fail loud, never silent</strong>. A degraded input raises; it never emits a plausible-looking default</td><td>★ <strong>Empty or low-confidence retrieval must produce a refusal, not a synthesis.</strong> This is the single most frequently violated rule in production RAG, because a refusal looks like a broken product and a fluent guess looks like a working one. It needs to be an acceptance criterion with a golden set of deliberately unanswerable questions, or it will erode.</td></tr>
+      <tr><td><strong>No arithmetic inside a prompt</strong> (§7 non-goal)</td><td>Retrieval may deliver text and retrieved figures. A retrieved figure is an <em>input to deterministic code</em>, never an operand the model multiplies. The boundary is enforced by where the number goes next, not by prompt wording.</td></tr>
+      <tr><td><code>C7</code> trace &amp; replay · <code>C8</code> provenance</td><td>Every retrieval is traced: <strong>the query as issued, the index version, the returned document ids, their scores, the reranker version, and the k</strong>. Without these an explanation cannot be replayed, because the same question against a re-indexed corpus is a different question. ⚠ This is the vision's own C6/C7 argument again — cheap to record now, impossible to reconstruct from history that never recorded it.</td></tr>
+      <tr><td><code>A5</code> — the control plane stays deterministic</td><td>Choosing <em>whether</em> to retrieve, and from which source, is a routing decision: a pure function with a recorded reason. Judging <em>which retrieved passage supports the claim</em> is analysis, and belongs in a seat with a contract — not in the orchestrator.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3><span class="sn">5.4</span> Where retrieval sits in the seat model — and the firewall trap</h3>
+
+  <div class="col">
+  <p>This section exists because there is a design that looks obviously sensible and quietly breaches a structural fence.</p>
+
+  <p>Vision §3.2 states the analyst firewall: <em>"Seats 2 and 3 reach their views independently. Neither consumes the other's <strong>conclusion</strong>; both freely consume the same <strong>data</strong> and the same computed numbers from seat 8."</em> A shared evidence index is <strong>data</strong> — both analytical seats may query it, and should. That is not the trap.</p>
+
+  <p>★ <strong>The trap is corpus growth.</strong> The natural, lazy instinct when building an index is to index everything the system has ever produced — including prior theses, prior verdicts, prior explanation pages. The moment seat 3 retrieves a passage from seat 2's published thesis, the firewall has been breached by a similarity score, with no import statement to catch it and nothing in <code>ownership.yaml</code> to deny it. <strong>The fence is enforced at the corpus boundary, not at the query.</strong></p>
+
+  <p>The consequence is a rule worth writing into <code>F9</code> when it is drafted: <em>an evidence index consumed by an analytical seat contains external evidence and seat-8 computed numbers only. Seat outputs are indexed in a separate corpus that only seat 6 may query.</em></p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 720 320" role="img" aria-label="Diagram: seats 2 and 3 may both query a shared evidence index because it is data, but must never retrieve each other's conclusions; both publish into seat 6">
+      <defs>
+        <marker id="ar5" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--ink-faint)"/></marker>
+        <marker id="ar5x" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--oxide)"/></marker>
+      </defs>
+
+      <rect x="205" y="16" width="310" height="52" rx="4" fill="var(--verd-soft)" stroke="var(--verd)" stroke-width="1.5"/>
+      <text x="360" y="38" text-anchor="middle" font-weight="700" fill="var(--verd)">shared evidence index</text>
+      <text class="svg-soft" x="360" y="56" text-anchor="middle">filings · transcripts · news · seat-8 numbers</text>
+
+      <line class="svg-line" x1="150" y1="150" x2="235" y2="72" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line class="svg-line" x1="570" y1="150" x2="485" y2="72" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <text fill="var(--verd)" x="150" y="106" text-anchor="middle" font-size="10" font-weight="700">✓ same data</text>
+      <text fill="var(--verd)" x="576" y="106" text-anchor="middle" font-size="10" font-weight="700">✓ same data</text>
+
+      <rect class="svg-box" x="60" y="152" width="180" height="58" rx="4"/>
+      <text class="svg-ink" x="150" y="176" text-anchor="middle" font-weight="700">Seat 2 — Fundamental</text>
+      <text class="svg-faint" x="150" y="194" text-anchor="middle">src/fundamental/</text>
+
+      <rect class="svg-box" x="480" y="152" width="180" height="58" rx="4"/>
+      <text class="svg-ink" x="570" y="176" text-anchor="middle" font-weight="700">Seat 3 — Quantitative</text>
+      <text class="svg-faint" x="570" y="194" text-anchor="middle">src/quant/</text>
+
+      <line x1="248" y1="181" x2="472" y2="181" stroke="var(--oxide)" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <line x1="248" y1="181" x2="270" y2="181" stroke="var(--oxide)" stroke-width="1.5" marker-end="url(#ar5x)" opacity="0"/>
+      <rect x="286" y="167" width="148" height="28" rx="3" fill="var(--oxide-soft)" stroke="var(--oxide)"/>
+      <text x="360" y="185" text-anchor="middle" font-size="10" font-weight="700" fill="var(--oxide)">✗ never each other</text>
+
+      <text fill="var(--oxide)" x="360" y="216" text-anchor="middle" font-size="10">the firewall — breached by a similarity score</text>
+      <text fill="var(--oxide)" x="360" y="230" text-anchor="middle" font-size="10">if prior seat outputs enter the shared corpus</text>
+
+      <line class="svg-line" x1="150" y1="210" x2="270" y2="256" stroke-width="1.5" marker-end="url(#ar5)"/>
+      <line class="svg-line" x1="570" y1="210" x2="450" y2="256" stroke-width="1.5" marker-end="url(#ar5)"/>
+
+      <rect x="272" y="258" width="176" height="52" rx="4" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="360" y="280" text-anchor="middle" font-weight="700" fill="var(--accent)">Seat 6 — Mediator</text>
+      <text class="svg-soft" x="360" y="298" text-anchor="middle">published outputs + their spans</text>
+    </svg>
+    <figcaption>A shared evidence index is permitted — it is <em>data</em>, which §3.2 explicitly allows both analysts to consume. What is forbidden is a <em>conclusion</em> crossing, and an index that has grown to include prior seat outputs lets one cross without any import to detect it.</figcaption>
+  </figure>
+
+  <div class="col">
+  <p>Two further placements follow directly from the seat rules:</p>
+
+  <ul>
+    <li><strong>Seat 6 / D-13 does not retrieve.</strong> Vision §4.2 is explicit: it <em>consumes published outputs and never sees in-progress analysis</em>. Its inputs are the spans each seat published on its own output contract. If D-13 ever needs to go and fetch supporting evidence itself, the attribution obligation upstream was under-specified — fix it there.</li>
+    <li><strong>Seat 7 may route to a retriever, never judge its results.</strong> "The orchestrator carries, never computes" applies unchanged. Deciding <em>to search</em> is control flow. Deciding <em>what the search means</em> is analysis.</li>
+  </ul>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Write claim→span binding as a testable acceptance criterion in the form <code>AC-4.k</code>. It must be checkable by a test with no human in the loop. State what the test does when the model emits a claim with no span.</li>
+      <li>Design the golden set for the refusal rule in §5.3. It requires questions whose answers are deliberately absent. Say how you construct such questions without accidentally making them trivially recognisable as traps.</li>
+      <li>An analyst asks for "the same retrieval index for both seat 2 and seat 3, it's cheaper." Give the case for, the case against, and the precise line in vision §3.2 that decides it. Then write the corpus-boundary rule as one sentence for <code>F9</code>.</li>
+      <li>You re-index the corpus with a better embedding model. Every stored explanation now cites document ids that rank differently. What must have been traced for the old explanations to remain replayable — and if it was not, what have you lost?</li>
+      <li>Argue whether "grounding rate" should <em>gate</em> a release or merely <em>accrue</em>. Use the <code>F7a</code>/<code>F7b</code> distinction as your model, and say which one it resembles.</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<!-- ══════════════════════════ LECTURE 6 ══════════════════════════ -->
+<section class="lecture l3" id="lecture-6">
+<div class="wrap">
+
+  <div class="lechead">
+    <span class="lecnum">06</span>
+    <div>
+      <h2>The Literature Loop: Making the Next Release's Mathematics Defensible</h2>
+      <p>The next release is quantitative method, risk, collective decision, the academics of fundamental analysis, and orchestrator design. All of those have a literature. This lecture is about how to actually reach it — and why the rule matters more than the tool.</p>
+    </div>
+  </div>
+
+  <div class="col">
+  <p><strong>The brief, restated.</strong> The next release turns from platform scaffolding to substance: quantitative method, risk, collective decision-making, the academic basis of fundamental analysis, and the design of the orchestrator. For that release the assistant must be <em>forced through real academic research from reputable sources</em>, rather than allowed to produce a confident summary from memory. The fund manager holds a University of Ottawa graduate library entitlement, which is a genuine asset. The questions that follow are: <em>what tooling exists, what does the assistant already support, and if nothing fits, is building something feasible?</em></p>
+
+  <p>The answers are, briefly: quite a lot exists and most of it is free; the assistant can already do the open-access half today with no new tooling at all; and building the rest is feasible but should be deferred until a specific search has failed without it. The rest of this lecture is why.</p>
+  </div>
+
+  <h3><span class="sn">6.1</span> The failure this is meant to prevent — name it precisely</h3>
+
+  <div class="col">
+  <p>Ask a language model to design a risk module and it will produce fluent, plausible, textbook-shaped output: Kelly sizing, CVaR, hierarchical risk parity, ensemble disagreement as an uncertainty proxy, a Bayesian shrinkage estimator for the covariance matrix. Every item will be a real method with a real name. The output will read like a competent literature review.</p>
+
+  <p>What it will be missing is everything that makes a literature review worth reading:</p>
+
+  <ul>
+    <li>the <strong>regime</strong> the original result was established in — which market, which period, which universe, which turnover assumption</li>
+    <li>the <strong>qualifications</strong> the authors themselves attached, which are usually in section 5 and never in the abstract</li>
+    <li>the <strong>failed replications</strong>, and the sizeable literature showing that a great many published results shrink or vanish out of sample</li>
+    <li>the fact that a later paper <strong>demolished the result</strong> that everyone still cites, and the citation kept propagating anyway</li>
+  </ul>
+
+  <p>That output is <strong>memory, not scholarship</strong>. It has no provenance, it cannot be audited, and — the part that matters for this project specifically — <em>it is indistinguishable in tone from the version that has all four</em>.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">Why this is the same defect the project already refuses</span>
+    <p>The vision closes on the property it calls the most valuable thing this project has: the willingness to refuse its own model. The record shows a walk-forward IC of 0.0203 at <em>t</em> = 1.42 and declines promotion, noting <em>"a signal that passed would not have been shown to work."</em></p>
+    <p><strong>An uncited method claim in a design document is the design-tier version of that unvalidated signal.</strong> It looks like a result. It has not been shown to be one. Applying the same instinct one tier earlier — at the point where a method is <em>chosen</em> rather than where it is <em>measured</em> — is what this whole lecture is arguing for.</p>
+  </div>
+
+  <h3><span class="sn">6.2</span> The rule does more work than the tool</h3>
+
+  <div class="col">
+  <p>There are three interventions available, and they are not equally powerful. In descending order of effect per unit of effort:</p>
+
+  <ol>
+    <li>★ <strong>A rule</strong> that makes an uncited method claim a process violation rather than a stylistic preference. Free. Available today. Does most of the work.</li>
+    <li><strong>Access</strong> to the actual papers, so the citations are real and the method section has been read rather than the abstract. This is where tooling and the library entitlement enter.</li>
+    <li><strong>A durable corpus</strong>, so release 3 does not re-litigate what release 2 settled, and so a decision can point at its justification months later.</li>
+  </ol>
+
+  <p>⚠ <strong>The ordering is the point.</strong> Building (2) and (3) while skipping (1) produces a good search tool and no obligation to use it. The rule is what converts "go and read the literature" from an aspiration into a gate — and gates are this project's established mechanism.</p>
+
+  <p>A concrete draft, sized to drop into the design-tier template:</p>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">Proposed rule — for <code>sdd/design/_templates/</code></span>
+    <p><em>A design proposal that adopts a quantitative method must cite the primary source by DOI or stable identifier; state the data regime in which the result was established (market, period, universe, and any turnover or cost assumption); and name at least one paper that limits, disputes, or fails to replicate it.</em></p>
+    <p><em>★ Where no dissenting work is located, the proposal records <strong>"no dissent found"</strong> — never "undisputed."</em></p>
+  </div>
+
+  <div class="col">
+  <p>That last clause is doing real work. Absence of located evidence is not evidence of absence, and the difference between the two phrasings is the difference between a search that was performed and a conclusion that was assumed. It also creates an honest audit trail: a later reader can see that a search happened and came up empty, which is information.</p>
+
+  <p><strong>Where the citations live is already decided.</strong> This directory's own convention holds: citations belong in <code>docs/lectures/</code> and in <code>sdd/design/</code>, not in specs. A spec states what must be true; it does not argue from literature. So the literature loop feeds the <em>design and study</em> tiers, and the spec that graduates out of them records <strong>the decision and its rationale, not the bibliography</strong>.</p>
+  </div>
+
+  <h3><span class="sn">6.3</span> The resource directory — what actually exists</h3>
+
+  <div class="col">
+  <p>The free tier here is considerably better than most people assume, and for this project's specific domains it is better still. Three groups.</p>
+  </div>
+
+  <h4>(a) Open metadata and the citation graph — no institution required</h4>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Source</th><th>What it gives</th><th>Access</th></tr></thead>
+    <tbody>
+      <tr><td>★ <strong><a href="https://docs.openalex.org/">OpenAlex</a></strong><br><span class="pill">api.openalex.org</span></td><td>~250M works, authors, institutions, venues, topic tags, and the <strong>full citation graph</strong> in both directions. The open successor to Microsoft Academic Graph.</td><td>Free, <strong>no key</strong>. Put an email in the User-Agent for the "polite pool" — ~100k requests/day. <strong>The correct default.</strong></td></tr>
+      <tr><td>★ <strong><a href="https://www.semanticscholar.org/product/api">Semantic Scholar Academic Graph</a></strong><br><span class="pill">api.semanticscholar.org</span></td><td>Abstracts, TLDRs, influential-citation flags, SPECTER2 embeddings, and — unusually valuable — <strong>citation contexts</strong>: the actual sentence in which one paper cites another.</td><td>Free; key on request and you will want one, as unkeyed limits are tight.</td></tr>
+      <tr><td><strong><a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/">Crossref REST API</a></strong></td><td>Authoritative DOI metadata, reference lists, licence and TDM links.</td><td>Free, polite pool via email in the User-Agent.</td></tr>
+      <tr><td><strong><a href="https://econpapers.repec.org/">RePEc / EconPapers / IDEAS</a></strong></td><td>Economics and finance working papers and journal metadata; downloadable in bulk.</td><td>Free. Where a great deal of finance research first appears.</td></tr>
+      <tr><td><strong><a href="https://unpaywall.org/products/api">Unpaywall</a></strong></td><td>Given a DOI: is there a <em>legal</em> open-access copy, and where. The bridge from a citation to a readable PDF.</td><td>Free with an email parameter.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h4>(b) Open <em>full text</em> — readable end to end, today</h4>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Source</th><th>Coverage relevant here</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>★ <strong><a href="https://info.arxiv.org/help/api/index.html">arXiv API</a></strong></td><td><a href="https://arxiv.org/list/q-fin/recent"><code>q-fin.PM</code></a> portfolio management · <code>q-fin.RM</code> risk management · <code>q-fin.ST</code> statistical finance · <code>q-fin.CP</code> computational finance · <code>cs.LG</code> · <code>stat.ML</code></td><td>Metadata <em>and</em> full PDF/LaTeX, no paywall. ★ For this project's domains this is the single highest-value open source.</td></tr>
+      <tr><td><strong><a href="https://www.nber.org/papers">NBER working papers</a></strong></td><td>Asset pricing, macro-finance, market microstructure</td><td>Abstracts open; many PDFs open or available via the author. Heavily cited canon.</td></tr>
+      <tr><td><strong><a href="https://www.ssrn.com/">SSRN</a></strong> — Financial Economics Network</td><td>Where a large share of finance working papers live before journal publication</td><td>⚠ No public API. Abstracts are findable through OpenAlex/Crossref; download manually. Do not scrape.</td></tr>
+      <tr><td><strong><a href="https://core.ac.uk/services/api">CORE</a></strong></td><td>Aggregated open-access repository full text, including university repositories</td><td>Free key. Good for finding the author's accepted manuscript of a paywalled paper.</td></tr>
+      <tr><td><strong><a href="https://osf.io/preprints/">OSF Preprints</a></strong></td><td>Cross-discipline preprints; relevant for methodology and replication work</td><td>Free API.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">A field note specific to these domains</span>
+    <p><strong>Quantitative finance and machine-learning-for-finance have unusually good open-access coverage.</strong> arXiv <code>q-fin</code>, SSRN, NBER and author preprints on personal pages cover a large fraction of what an active research loop actually wants.</p>
+    <p>The paywall bites hardest on the classic <em>Journal of Finance</em> / <em>Journal of Financial Economics</em> / <em>Review of Financial Studies</em> canon — which you will want. But note the shape of that problem: it is a <strong>bounded, known set of famous papers</strong>, not an ongoing discovery problem. Twenty or thirty PDFs fetched manually through the library over an afternoon largely closes it, and they stay closed.</p>
+  </div>
+
+  <h4>(c) Publisher and institutional full text — where the uOttawa entitlement matters</h4>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Route</th><th>Journals that matter here</th><th>How access actually works</th></tr></thead>
+    <tbody>
+      <tr><td><strong><a href="https://dev.elsevier.com/">Elsevier / ScienceDirect API</a></strong></td><td><em>Journal of Financial Economics</em> · <em>Journal of Banking &amp; Finance</em> · <em>Journal of Empirical Finance</em></td><td>Free developer key for metadata. <strong>Full text requires institutional entitlement to resolve</strong> — in practice an on-campus or VPN IP, or an institutional token.</td></tr>
+      <tr><td><strong><a href="https://dev.springernature.com/">Springer Nature API</a></strong></td><td>Quantitative finance, OR and applied-mathematics titles</td><td>Free key; metadata broadly, full text for open-access content.</td></tr>
+      <tr><td><strong><a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley Text and Data Mining API</a></strong></td><td><em>Journal of Finance</em> · <em>Mathematical Finance</em> · <em>Journal of Futures Markets</em></td><td>★ Requires a <strong>TDM token issued through your library</strong>. This is the single most valuable thing to ask for.</td></tr>
+      <tr><td><strong>Oxford University Press</strong> · <strong>Taylor &amp; Francis</strong></td><td><em>Review of Financial Studies</em> (OUP) · <em>Financial Analysts Journal</em> (T&amp;F / CFA Institute) · <em>Quantitative Finance</em> (T&amp;F)</td><td>TDM arrangements exist but are negotiated per institution. Ask the library rather than assuming.</td></tr>
+      <tr><td><strong>JSTOR</strong></td><td>Older finance and economics canon</td><td>⚠ JSTOR ran a TDM platform (<em>Constellate</em>) which I understand was discontinued around mid-2025. <strong>Verify current status</strong> rather than planning around it.</td></tr>
+      <tr><td><strong>WRDS</strong> — Wharton Research Data Services</td><td>CRSP · Compustat · IBES · TAQ</td><td>Data, not papers — but it is what turns "read the paper" into "replicate the paper." ★ Worth asking whether Telfer holds a subscription; many business schools do.</td></tr>
+      <tr><td><strong><a href="https://www.zotero.org/support/dev/web_api/v3/start">Zotero</a></strong></td><td>—</td><td>Not a source; the pragmatic <em>store</em>. Free, with a REST API and a local SQLite database a tool can read. Its browser connector handles the "I am already authenticated in this tab, save this paper" case, which is exactly the manual-acquisition path that stays inside every licence.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3><span class="sn">6.4</span> The boundary that matters, and the one email that resolves it</h3>
+
+  <div class="col">
+  <p>Institutional licences generally do permit text and data mining for research — <em>through the sanctioned route</em>. The unsanctioned route is scripting an EZproxy session to bulk-download PDFs, and it is worth being clear about why that is a bad idea beyond the abstract question of terms of service:</p>
+
+  <ul>
+    <li>At individual scale it gets the account suspended, which ends the research loop entirely.</li>
+    <li>⚠ At any noticeable scale, publishers respond by <strong>blocking the institution's whole IP range</strong>. The cost of that lands on several thousand other students and researchers who did nothing. This is not a hypothetical failure mode; it happens regularly enough that libraries have standing procedures for it.</li>
+  </ul>
+
+  <p><strong>The correct move is one email, and it costs an afternoon.</strong> University libraries employ scholarly-communication and research-data librarians whose actual job is this request. What to ask for:</p>
+
+  <ol>
+    <li>Does uOttawa hold <strong>TDM agreements</strong> with Wiley, Elsevier, OUP or Taylor &amp; Francis, and how does a graduate student obtain a token?</li>
+    <li>Is there an <strong>institutional entitlement for the Elsevier developer API</strong>, and what does it require — VPN, campus IP, institutional token?</li>
+    <li>What is the <strong>sanctioned method</strong> for programmatic access to licensed content, and what volumes are considered acceptable?</li>
+    <li>Does the institution subscribe to <strong>WRDS</strong>, and is graduate access available?</li>
+    <li>Is there a <strong>current-awareness / alerting</strong> service worth configuring, so new work in these areas arrives rather than being hunted?</li>
+  </ol>
+
+  <p>★ A companion draft of this email is filed alongside this lecture at <code>docs/lectures/L6-librarian-enquiry.md</code>. Send it early — institutional processes move on their own schedule, and this is the only item in the whole plan with an external dependency.</p>
+  </div>
+
+  <h3><span class="sn">6.5</span> What the assistant can already do — the honest inventory</h3>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Capability</th><th>Status</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><code>WebSearch</code></td><td><span class="pill ok">available</span></td><td>General web search. Finds papers, landing pages, author copies. Not paywalled content.</td></tr>
+      <tr><td><code>WebFetch</code></td><td><span class="pill ok">available</span></td><td>Fetches and processes a URL. Works directly against OpenAlex, arXiv, Crossref and Semantic Scholar endpoints.</td></tr>
+      <tr><td>★ <code>Bash</code> → <code>curl</code> / <code>python</code></td><td><span class="pill ok">available</span></td><td><strong>This is the real answer.</strong> Any API reachable with a key in an environment variable is usable right now. No new tooling, no MCP server, no integration work.</td></tr>
+      <tr><td>Reading a downloaded PDF</td><td><span class="pill ok">available</span></td><td><code>Read</code> handles PDFs directly, with page ranges — so a fetched paper can be read section by section.</td></tr>
+      <tr><td>Institutional / paywalled access</td><td><span class="pill no">no</span></td><td>No session, no cookies, no VPN, no credentials. This is a hard boundary and should stay one.</td></tr>
+      <tr><td>A first-party academic connector</td><td><span class="pill no">no</span></td><td>None exists. The connectors configured for this project are financial-data and productivity ones.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The division of labour that works — and stays inside every licence</span>
+    <p><strong>For open-access literature, no new tool is required at all.</strong> The assistant can query OpenAlex, walk the citation graph in both directions, pull citation contexts from Semantic Scholar, fetch arXiv PDFs and read them — today, with <code>curl</code> and <code>Read</code>.</p>
+    <p>For paywalled full text the loop is: <strong>assistant searches, ranks and hands over a DOI shortlist → the human fetches through the library in a browser → the PDFs land in a folder → the assistant reads them.</strong> The human is the authenticated agent; the assistant is the search-and-synthesis layer. ★ This is not a workaround for a missing feature. It is the correct boundary, and it happens to be the one that keeps the institution's access intact.</p>
+  </div>
+
+  <div class="col">
+  <p><strong>On third-party MCP servers.</strong> Community MCP servers exist for arXiv, Semantic Scholar, PubMed and Zotero, and would make these tools native in any session. Quality varies considerably and I would not vouch for any specific one without reading it. In a repository with this governance posture — a <code>PreToolUse</code> gate, an ownership map, a rule against silent failure — installing an unread third-party server that can make network calls deserves the same scrutiny as any other dependency. It is also not obviously better than fifty lines of <code>curl</code> you wrote yourself.</p>
+  </div>
+
+  <h3><span class="sn">6.6</span> If you build it: the tier ladder, and a stop rule</h3>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>Tier</th><th>What it is</th><th>Effort</th><th>What it buys</th></tr></thead>
+    <tbody>
+      <tr><td>★ <strong>0</strong></td><td><strong>Nothing.</strong> Assistant + <code>curl</code> + OpenAlex / arXiv / Semantic Scholar + manual PDF fetches</td><td><span class="pill ok">zero</span></td><td>Everything, for a single brainstorm. <strong>Start here and find out whether it is already enough.</strong></td></tr>
+      <tr><td><strong>1</strong></td><td>A thin search CLI: query three APIs in parallel, dedupe by DOI, rank by citation count / recency / venue, emit JSON + BibTeX</td><td>~half a day</td><td>Reproducibility and caching. The same search stops being re-issued and re-paid-for every session.</td></tr>
+      <tr><td><strong>2</strong></td><td>Acquisition: Unpaywall → OA PDF where legal; otherwise flag <code>needs-library</code>. PDFs in a cache directory with a DOI-keyed manifest and extracted text</td><td>~half a day + the library conversation</td><td>The durable corpus. Release 3 stops re-litigating release 2.</td></tr>
+      <tr><td><strong>3</strong></td><td>Expose it as an MCP server: <code>lit_search</code>, <code>lit_get</code>, <code>lit_cited_by</code>, <code>lit_citing</code></td><td>~a day</td><td>Native in every session, including a fresh one, with no <code>curl</code> ceremony and no re-explanation.</td></tr>
+      <tr><td><strong>4</strong></td><td>A local index over full text</td><td>~a day</td><td>⚠ <strong>Probably nothing.</strong> See §6.7.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout">
+    <span class="lbl">The stop rule</span>
+    <p><strong>Build tier <em>n</em>+1 only when you can name a specific search that tier <em>n</em> could not perform.</strong> Not "it would be nicer" — a search you actually wanted and could not run. This is the same discipline as <code>A4</code>, <em>abstraction is earned</em>, applied to tooling: a tier exists when a second real need for it has appeared, not speculatively.</p>
+  </div>
+
+  <h3><span class="sn">6.7</span> Why you probably should not chunk, and probably do not need vectors</h3>
+
+  <div class="col">
+  <p>This is the most contrarian section of the lecture and the one most likely to save a wasted week.</p>
+
+  <p><strong>First: for a corpus of a few thousand papers, you almost certainly do not need embeddings.</strong> SQLite FTS5 gives you BM25 over full text in the standard library, <code>ripgrep</code> handles everything it misses, and — per §4.3 — BM25 is a strong baseline that dense retrieval frequently fails to beat out of domain. This costs an afternoon rather than a week and has no model to maintain, no dimension to choose, and no re-indexing bill when a better embedding model appears.</p>
+
+  <p>★★ <strong>Second, and more important: chunked RAG is the wrong architecture for methods papers.</strong> The thing you are actually trying to retrieve from a quantitative paper is <em>the method</em> — and the method does not live in a paragraph. It lives in the equations, the table of specifications, the description of the estimation window, the robustness section, and very often the appendix. A 512-token chunk severs an estimator from its assumptions and hands you a fragment that is worse than useless, because it reads as complete.</p>
+
+  <p>What you want is <strong>find the paper, then read the whole paper</strong> — agentic retrieval per §4.4, not classic RAG. The goal is precision over roughly thirty papers, not recall over 250 million.</p>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">★ The best retriever in this domain is not a retriever</span>
+    <p><strong>It is the citation graph.</strong> Starting from one seed paper you trust and walking <em>cited-by</em> forward and <em>references</em> backward gives higher precision than any embedding search over the same corpus — because <strong>every edge in that graph was placed there by a human being who read both papers</strong>. OpenAlex and Semantic Scholar both expose it in both directions, free.</p>
+    <p>It also answers the question §6.2's rule demands and that similarity search is structurally bad at: <em>who disagreed with this?</em> Semantic Scholar's citation <em>contexts</em> take it further — the sentence in which a later paper cites an earlier one frequently contains the disagreement verbatim. That is a dissent-finding mechanism, not just a discovery one.</p>
+  </div>
+
+  <h3><span class="sn">6.8</span> Where such a tool lives — and why not in <code>src/</code></h3>
+
+  <div class="col">
+  <p>⚠ <strong>Not in <code>src/</code>.</strong> Three independent reasons, any one sufficient:</p>
+
+  <ul>
+    <li><code>PG-8</code>: this repository's tree must remain a <strong>superset</strong> of the pipeline's <code>src/**</code> so that absorption is a merge and not a restructuring. A literature tool under <code>src/</code> pollutes that merge for zero benefit.</li>
+    <li>It has <strong>no seat and no domain</strong>. It produces nothing anyone would trade on, so it sits outside the authority model entirely — which is precisely why it needs no governance.</li>
+    <li>Vision §7 lists as a durable non-goal: <em>"not a general-purpose research tool."</em> That non-goal is about the <em>product</em>. A dev-time tool does not violate it — but putting it in <code>src/</code> would make it look like it does, to a future reader who has only the tree.</li>
+  </ul>
+
+  <p><strong>So: <code>tools/litsearch/</code>, or a <code>.claude/skills/</code> skill wrapping it</strong> — the same category as <code>fmp-api</code>, which is already exactly this: hand-built, dev-time, authoritative about an external system, governing nothing. Its outputs land in <code>docs/lectures/</code> and <code>sdd/design/</code>.</p>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The drift to guard against</span>
+    <p><strong>Do not let the dev-time research tool grow into the product's retriever by accident.</strong> They will look similar and share code, and that is exactly how an ungoverned component ends up on the path to a number someone trades on.</p>
+    <p>If retrieval enters the product it enters under <code>F9</code> / <code>F4</code>, with acceptance criteria, a trace, a corpus boundary (§5.4) and <code>F5</code> measurement. The research tool has none of those and needs none — because nothing it produces is ever consumed by anything but a human writing a design document.</p>
+  </div>
+
+  <h3><span class="sn">6.9</span> So — is the research intention the same thing as RAG?</h3>
+
+  <div class="col">
+  <p>The closing question of the discussion that produced these notes. The answer: <strong>yes, they are siblings — and treating them as the same system would be a mistake.</strong> They share a technique and almost nothing else.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th></th><th>The research loop <span class="pill">dev-time</span></th><th>Retrieval in the product <span class="pill">run-time</span></th></tr></thead>
+    <tbody>
+      <tr><td><strong>Who consumes it</strong></td><td>The fund manager and the assistant, during design</td><td>An analytical seat, during a run</td></tr>
+      <tr><td><strong>When</strong></td><td>Brainstorm. Offline. Unhurried</td><td>Every run</td></tr>
+      <tr><td><strong>Corpus</strong></td><td>Academic literature</td><td>Filings, transcripts, news, prior theses</td></tr>
+      <tr><td><strong>Right architecture</strong></td><td>★ Agentic search over the citation graph, then read whole papers</td><td>Span-bound retrieval with strict citation and a refusal path</td></tr>
+      <tr><td><strong>Cost / latency budget</strong></td><td>Irrelevant — take an hour</td><td>Bounded per <code>C9</code></td></tr>
+      <tr><td><strong>Cost of being wrong</strong></td><td>A weak design document. Recoverable, and visible on review</td><td>★ A wrong number in a recommendation. <code>PG-2</code> territory</td></tr>
+      <tr><td><strong>Governance</strong></td><td><span class="pill no">none</span> Not in <code>src/</code>, no seat, no AC, no trace</td><td><span class="pill ok">full</span> Spec, ACs, trace, provenance, <code>F5</code> measurement</td></tr>
+      <tr><td><strong>Correctness bar</strong></td><td>A human reading and judging</td><td>Measured groundedness and calibration</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">The non-obvious payoff</span>
+    <p><strong>The research loop is a low-stakes rehearsal for the high-stakes one.</strong> Building it teaches, at first hand, what retrieval evaluation actually feels like: that top-<em>k</em> is where accuracy dies; that span-level grounding is far harder than document-level; that a model will confidently synthesise across two papers that flatly contradict each other and produce a fluent sentence containing neither position.</p>
+    <p>You learn all of that where the only casualty is a mediocre design document. <em>Then</em> you build <code>F4</code>'s claim→span binding, already burned by the easy version.</p>
+  </div>
+
+  <h3><span class="sn">6.10</span> What to do, in order</h3>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th>#</th><th>Do</th><th>Why in this position</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>★ <strong>Write the citation rule (§6.2) into the design-tier template</strong></td><td>Free, today, and the largest single effect. Turns "read the literature" from an aspiration into a gate.</td></tr>
+      <tr><td>2</td><td><strong>Send the librarian enquiry</strong> (<code>L6-librarian-enquiry.md</code>)</td><td>The only step with an external dependency and its own timetable. Start it before it is needed.</td></tr>
+      <tr><td>3</td><td><strong>Run Tier 0 on one real question</strong> from the next release</td><td>You cannot specify the tool until you have felt the gap. One session answers whether Tier 1 is warranted.</td></tr>
+      <tr><td>4</td><td><strong>Decide on Tier 1</strong> — only after 3</td><td>Per the stop rule: a named search that Tier 0 could not perform, or it does not get built.</td></tr>
+      <tr><td>5</td><td>Tier 2 (corpus) once a second release needs what the first found</td><td>The value is durability across releases, which cannot be demonstrated within one.</td></tr>
+      <tr><td>6</td><td>Tier 3 (MCP) once Tier 1 has proved itself across several sessions</td><td>Packaging is worth doing to something that works. Not before.</td></tr>
+      <tr><td>7</td><td>⚠ <strong>Do not build Tier 4</strong></td><td>§6.7. Not yet, and quite possibly not ever for this corpus size.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The one-sentence version</span>
+    <p><strong>Write the rule that makes an uncited method claim a violation; get sanctioned library access through the library; search the citation graph rather than an embedding index; read whole papers rather than chunks; and keep the whole thing out of <code>src/</code>.</strong></p>
+  </div>
+
+  <div class="exercises">
+    <h4>Exercises</h4>
+    <ol>
+      <li>Take one method you already intend to use in the next release. Apply the §6.2 rule to it by hand: primary source, regime, and one dissenting paper. Time yourself. That number is the real cost of the rule, and it is the number that decides whether the rule survives contact with a deadline.</li>
+      <li>Pick a seed paper and walk <em>cited-by</em> forward two hops in OpenAlex. Then run a keyword search for the same topic. Compare the two result sets and say which found the dissent — and why.</li>
+      <li>Write the stop-rule test for Tier 1 as a concrete sentence: what search, exactly, would Tier 0 fail at? If you cannot write it, that is the answer.</li>
+      <li>The rule in §6.2 requires naming a paper that disputes the method. Argue the case that this requirement is <em>too strong</em> for a well-established method — then repair the rule so it survives your own objection without becoming unenforceable.</li>
+      <li>Sketch the trace record a Tier 1 search would emit for <code>C7</code>-style replay: what fields must it carry for a search run today to be reproducible in eighteen months, given that OpenAlex is a living index? Note which fields are impossible and say what follows.</li>
+      <li>You find a 2011 paper establishing a result, and a 2019 paper failing to replicate it, and a 2023 paper defending the original with a different dataset. Under the §6.2 rule, what does the design document record — and what does the <em>spec</em> that graduates from it record?</li>
+    </ol>
+  </div>
+
+</div>
+</section>
+
+<footer>
+  <div class="wrap col">
+    <p><strong>Where these land in the specs.</strong> Lecture 04 is background. Lecture 05 → <code>F4</code> explainability contract (claim→span binding), <code>F9</code> thesis source port (the retrieval half), <code>F5</code> evaluation harness (grounding and citation rates), standing on <code>F2</code> trace &amp; replay. Lecture 06 governs nothing in <code>src/</code> by design — it proposes a rule for <code>sdd/design/_templates/</code> and a dev-time tool that lives outside the seat model.</p>
+
+    <p><strong>Companion document.</strong> <code>docs/lectures/L6-librarian-enquiry.md</code> — a draft enquiry to the university library covering TDM tokens, API entitlements and sanctioned programmatic access (§6.4).</p>
+
+    <h4 style="margin-top:2rem">References</h4>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 04 — retrieval mechanism and evaluation.</strong> Lewis et al., <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em> (NeurIPS 2020) — the origin of the term · Guu et al., <em>REALM: Retrieval-Augmented Language Model Pre-Training</em> (ICML 2020) · Karpukhin et al., <em>Dense Passage Retrieval for Open-Domain Question Answering</em> (EMNLP 2020) · Robertson &amp; Zaragoza, <em>The Probabilistic Relevance Framework: BM25 and Beyond</em> (2009) · Nogueira &amp; Cho, <em>Passage Re-ranking with BERT</em> (2019) · Khattab &amp; Zaharia, <em>ColBERT</em> (SIGIR 2020) · Izacard &amp; Grave, <em>Leveraging Passage Retrieval with Generative Models</em> — Fusion-in-Decoder (EACL 2021) · Thakur et al., <em>BEIR: A Heterogeneous Benchmark for Zero-shot Evaluation of Information Retrieval Models</em> (NeurIPS Datasets 2021) · Asai et al., <em>Self-RAG</em> (ICLR 2024) · Gao et al., <em>Retrieval-Augmented Generation for Large Language Models: A Survey</em> (2023) · Es et al., <em>RAGAS: Automated Evaluation of Retrieval Augmented Generation</em> (EACL 2024) · Liu et al., <em>Lost in the Middle: How Language Models Use Long Contexts</em> (TACL 2024) · Shi et al., <em>Large Language Models Can Be Easily Distracted by Irrelevant Context</em> (ICML 2023).</p>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 05 — attribution and grounded generation.</strong> Rashkin et al., <em>Measuring Attribution in Natural Language Generation Models</em> (Computational Linguistics, 2023) — the AIS framework · Menick et al., <em>Teaching Language Models to Support Answers with Verified Quotes</em> (GopherCite, 2022) · Bohnet et al., <em>Attributed Question Answering</em> (2022) · Gao et al., <em>RARR: Researching and Revising What Language Models Say, Using Language Models</em> (ACL 2023) · Nakano et al., <em>WebGPT: Browser-assisted Question-answering with Human Feedback</em> (2021) · Ji et al., <em>Survey of Hallucination in Natural Language Generation</em> (ACM Computing Surveys, 2023).</p>
+
+    <p style="color:var(--ink-soft)"><strong>Lecture 06 — scholarly infrastructure and review method.</strong> Priem, Piwowar &amp; Orr, <em>OpenAlex: A Fully-Open Index of Scholarly Works, Authors, Venues, Institutions, and Concepts</em> (2022) · Kinney et al., <em>The Semantic Scholar Open Data Platform</em> (2023) · Cohan et al., <em>SPECTER: Document-level Representation Learning using Citation-informed Transformers</em> (ACL 2020) · Page et al., <em>The PRISMA 2020 Statement: An Updated Guideline for Reporting Systematic Reviews</em> (BMJ, 2021) — the reporting standard for a literature search that is meant to be reproducible · Kitchenham, <em>Procedures for Performing Systematic Reviews</em> (2004) — the software-engineering adaptation, and the closer model for this project's purpose.</p>
+
+    <p style="color:var(--ink-soft)"><strong>Endpoints and documentation.</strong> <a href="https://docs.openalex.org/">OpenAlex</a> · <a href="https://www.semanticscholar.org/product/api">Semantic Scholar API</a> · <a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/">Crossref REST API</a> · <a href="https://info.arxiv.org/help/api/index.html">arXiv API</a> · <a href="https://unpaywall.org/products/api">Unpaywall</a> · <a href="https://core.ac.uk/services/api">CORE</a> · <a href="https://econpapers.repec.org/">RePEc / EconPapers</a> · <a href="https://www.nber.org/papers">NBER</a> · <a href="https://osf.io/preprints/">OSF Preprints</a> · <a href="https://dev.elsevier.com/">Elsevier Developer Portal</a> · <a href="https://dev.springernature.com/">Springer Nature API</a> · <a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley TDM</a> · <a href="https://www.zotero.org/support/dev/web_api/v3/start">Zotero Web API</a> · <a href="https://biblio.uottawa.ca/en">uOttawa Library</a>.</p>
+
+    <p style="color:var(--ink-faint);font-size:var(--fs-xs);margin-top:2rem">⚠ Status notes recorded 2026-09-03 and worth re-checking before relying on them: JSTOR's Constellate TDM platform is understood to have been discontinued around mid-2025; Semantic Scholar's unkeyed rate limits change periodically; and institutional entitlements vary by agreement, so §6.3(c) should be confirmed with the library rather than assumed.</p>
+  </div>
+</footer>

@@ -155,7 +155,13 @@ keep-or-delete call the evidence does not support.
   read, **then** it states each test's result, its `n`, the pre-registered rule and whether it fired —
   ★ **including when the verdict is that deliberation does not help**. → *data contract.* (`PG-5`)
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — Confirm `detectable_ratio` (δ) and the band boundaries.** ✅ **The blocker is gone** — the
   rule is now a pre-registerable analysis plan (`CT-7a.2`), so no knowledge of the data is needed. What
@@ -174,7 +180,7 @@ keep-or-delete call the evidence does not support.
 - **Q5 — Does a failed T1 delete `F6b`, or gate it to advisory-only?** The `QR-3` option 4 that was not
   chosen. *(Deleting is cleaner; advisory-only preserves the demo.)*
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

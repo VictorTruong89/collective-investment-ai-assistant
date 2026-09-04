@@ -38,7 +38,7 @@ the machinery that records what it changed.
 | # | Milestone | Seats | Specs | Gate to enter | **Status** |
 |---|---|---|---|---|---|
 | **MS-0** | ⬆ **Close the loop** *(upstream)* | all | — | — | 🟡 **in progress — the critical path** |
-| **MS-1** | Platform substrate, standalone | D-00 | `F1` 🟡 | ★ **`F1` approved 🟢** | ⬜ — ★ **unblocked 2026-09-02**; awaits spec approval only |
+| **MS-1** | Platform substrate, standalone | D-00 | `F1` 🟢 | — | 🟨 **built 2026-09-03** — registry, ports package, contract harness; ⚠ `AgentPort` + real ports deferred |
 | **MS-2** | ★★ **The link** — first import from the pipeline | D-00 | — | MS-1 | ⬜ |
 | **MS-3** | Observability | 7 | `F2` 🟡 | MS-2 | ⬜ — ★ **spec drafted 2026-09-01** |
 | **MS-4** | Evaluation harness | 9 | `F5` 🟡 | MS-3 | ⬜ — ★ **spec drafted** |
@@ -222,17 +222,32 @@ governs every performance claim, but they **do not block `MS-1`**.
 **No pipeline dependency.** This is why it is first — it is the only platform work that can be built
 and fully tested in isolation.
 
-| # | Item | Spec |
-|---|---|---|
-| 1.1 | Repo scaffolding: `pyproject.toml`, CI, `LICENSE`, ruff/pytest config | — |
-| 1.2 | `src/shared/registry/` — `(port, variant) → factory`, versioning, `validate_coverage()` | `F1` |
-| 1.3 | `src/shared/agents/ports.py` — `AgentPort` as **one registered port among several** (`QR-8`) | `F1` |
-| 1.4 | ★ **Closed variant set** — every selectable variant registered at startup (`QR-7`) | `F1` |
-| 1.5 | ★ **Instance caching per `(port, variant)` within a run** — or per-ticker selection reloads a model 500 times | `F1` |
-| 1.6 | ★★ **One contract-test suite, parameterised over every registered variant** | `F1` |
+| # | Item | Spec | Status |
+|---|---|---|---|
+| 1.1 | Repo scaffolding: `pyproject.toml`, CI, `LICENSE`, ruff/pytest config | — | 🟨 `pyproject.toml` + pytest ✅ · `LICENSE` ✅ · ⬜ CI, ruff |
+| 1.2 | `src/shared/registry/` — `(port, variant) → factory`, versioning, `validate_coverage()` | `F1` | ✅ 2026-09-03 |
+| 1.3 | `src/shared/agents/ports.py` — `AgentPort` as **one registered port among several** (`QR-8`) | `F1` | ⬜ **deferred to `MS-4`** — see note |
+| 1.4 | ★ **Closed variant set** — every selectable variant registered at startup (`QR-7`) | `F1` | ✅ `AC-1.5` |
+| 1.5 | ★ **Instance caching per `(port, variant)` within a run** | `F1` | ✅ `AC-1.6` — *run scope* = one `Registry` instance (`F1` `D1`) |
+| 1.6 | ★★ **One contract-test suite, parameterised over every registered variant** | `F1` | ✅ `tests/contracts/` |
 
-**Done when:** two real implementations of one port both pass the same contract suite, and a missing
-variant fails at **startup**, not at call time.
+**Built 2026-09-03 — `21 passed, 1 skipped`, every AC mutation-verified.**
+
+⚠ **Two deliberate gaps, both named rather than quietly closed:**
+
+- **`1.3` `AgentPort` deferred.** Victor's call. `CT-1.5` declares it, but its only real consumer is
+  `F6b`, which is unapproved and gated on `F7a`. Building it now would put a port in the tree whose
+  contract suite has nothing to parameterise over.
+- ⚠ **`src/shared/ports/__all__` ships EMPTY.** `F1` §2 makes the semantics of any particular port an
+  explicit **non-goal** — `PricePort`, `ThesisSourcePort` (`F9`) and the rest arrive with their own
+  specs. Declaring them here would be writing behaviour no approved AC covers (constitution §5.1). The
+  *mechanism* is complete and proven against fixture ports in `tests/contracts/`.
+
+**Done when:** ⚠ **partially met.** Two implementations of one port do both pass the same contract
+suite, and a missing variant does fail at **startup** rather than at call time — but both
+implementations are **fixtures**, not real adapters. The clause closes at `MS-2`/`MS-3`, when the first
+real port lands. ★ Stated rather than marked green, because a fixture passing a suite is evidence about
+the *harness*, not about *substitutability*.
 
 ## ★★ MS-2 — The link
 

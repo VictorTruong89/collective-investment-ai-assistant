@@ -189,7 +189,7 @@ of the platform*, not a feature of the investment strategy.
 
 | ID | Spec | Cap. | Home | Status |
 |---|---|---|---|---|
-| **F1** | Module protocol & registry (SPI) | C1 | D-00 | 🔵 idea |
+| **F1** | Module protocol & registry (SPI) | C1 | D-00 | 🟢 **approved 2026-09-03** |
 | **F2** | Execution trace & replay | C7 | 7 | 🔵 idea |
 | **F3** | Corporate-action resolution agent | C2 | 8 (D-07) | 🔵 idea |
 | **F4** | Explainability contract | C3 | 6 (D-13) | 🔵 idea |

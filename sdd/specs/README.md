@@ -10,7 +10,7 @@
 |---|---|---|
 | [`vision.md`](vision.md) | **WHAT we are building** — dual purpose, the nine seats, capabilities `C1`–`C9`, the two scalability axes, the spec registry | **Highest, alongside the constitution** |
 | [`constitution.md`](constitution.md) | **HOW we build** — `PG-2`…`PG-9` (`PG-1` retired), inherited rules, test tiers, change process | **Highest** — a spec may add constraints, never contradict it |
-| `F<n>_<slug>/spec.md` | One feature = one spec. **★ **ALL 11 specs exist (🟡 draft)** — `F1` `F2` `F3` `F4` `F5` `F6a` `F6b` `F7a` `F7b` `F8` `F9`** — IDs are claimed in `vision.md` §4.1 | Authoritative once created |
+| `F<n>_<slug>/spec.md` | One feature = one spec. **★ **ALL 11 specs exist — `F1` 🟢 approved, 10 🟡 draft** — `F1` `F2` `F3` `F4` `F5` `F6a` `F6b` `F7a` `F7b` `F8` `F9`** — IDs are claimed in `vision.md` §4.1 | Authoritative once created |
 | [`ownership.yaml`](ownership.yaml) | spec → code globs. The `PreToolUse` gate reads this; a spec with no globs is unenforced. ★ **Live since 2026-09-01** — 9 governed globs across 11 drafted specs | Authoritative (machine-read) |
 | [`_templates/spec.md`](_templates/spec.md) | Skeleton for new specs — copy it to start a feature | — |
 | `../design/rel<N>_brainstorm.md` | Brainstorm / rationale / decision log. Ideas live here until they graduate into a spec | **Non-authoritative** |
@@ -51,8 +51,8 @@ metric-gate · unit · integration.
 
 | Spec-ID | Feature | Status | Acceptance criteria | Tests exist? |
 |---|---|---|---|---|
-| **F1** | [Module protocol & registry (SPI)](F1_module_registry/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 2 blocked (Q1, Q4) | AC-1.1 … AC-1.12 | ⛔ none — unapproved |
-| **F2** | [Execution trace & replay](F2_trace_replay/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 3 blocked (Q3, Q4, Q5) | AC-2.1 … AC-2.12 | ⛔ none — unapproved |
+| **F1** | [Module protocol & registry (SPI)](F1_module_registry/spec.md) | 🟢 **approved 2026-09-03** — 14 ACs, **0 blocked** (`Q1`–`Q3` → `D1`–`D3`) | AC-1.1 … AC-1.14 | 🔨 `MS-1` in progress |
+| **F2** | [Execution trace & replay](F2_trace_replay/spec.md) | 🟡 **draft** — 13 ACs, ⚠ 3 blocked (Q3, Q4, Q5) | AC-2.1 … AC-2.13 | ⛔ none — unapproved |
 | **F3** | [Corporate-action resolution agent](F3_corporate_actions/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 1 blocked (Q1) | AC-3.1 … AC-3.12 | ⛔ none — `PG-1` |
 | **F4** | [Explainability contract](F4_explainability/spec.md) | 🟡 **draft** — 13 ACs, ⚠ 3 blocked (Q1, Q4, Q5) | AC-4.1 … AC-4.13 | ⛔ none |
 | **F5** | [Evaluation harness](F5_evaluation_harness/spec.md) | 🟡 **draft** — 14 ACs, ⚠ 4 blocked (Q2, Q3, Q5) | AC-5.1 … AC-5.14 | ⛔ none — `PG-1` |

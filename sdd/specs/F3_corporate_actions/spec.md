@@ -167,7 +167,13 @@ requires ≥2 independent sources or one primary; `retired_side == true` require
   written, **then** no price series is modified, merged or spliced. → *invariant / property.*
   (`DE-64`)
 
-## 7. Open questions (must resolve before/at implementation)
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — Which search tool?** Server-side web search through the gateway, or a separate search API?
   ⚠ Affects `AC-3.11`: replay requires the page contents to be *recorded*, which a server-side tool
@@ -182,7 +188,7 @@ requires ≥2 independent sources or one primary; `retired_side == true` require
 - **Q5 — Re-resolution policy.** An `undetermined` finding should presumably be retried as more
   reporting appears. On what trigger, and does a later finding supersede or append?
 
-## 8. Traceability (spec → test → code)
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

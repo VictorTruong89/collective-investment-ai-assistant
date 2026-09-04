@@ -154,7 +154,13 @@ diagnostic.
   **when** compared, **then** the output names the drivers of the gap using each name's **published**
   attribution. → *unit.* (`QR-16`)
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — ⬆ `AB-1` and `AB-2` are upstream.** `AC-4.4` and `AC-4.6` wire inherited D-01 machinery, which
   `vision.md` §2 says changes upstream until absorption. ⚠ **Are these F4's work or `MS-0`'s?**
@@ -168,7 +174,7 @@ diagnostic.
   `INSUFFICIENT_DATA` that previously scored. **This is a `PG-2` change and needs Victor's sign-off
   before it ships**, not after.
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

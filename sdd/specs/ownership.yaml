@@ -18,11 +18,18 @@ map:
   - globs:
       - "src/shared/registry/**"
       - "src/shared/agents/**"
+      - "src/shared/ports/**"
     spec: sdd/specs/F1_module_registry/spec.md
     why: >
       F1 — the (port, variant) registry and the port protocols. Closed variant set
       (QR-7), module-scoped not agent-scoped (QR-8), provenance on every resolution.
       AgentPort is one registered port among several.
+      ⚠ src/shared/ports/** is governed because D2 made __init__.py's __all__
+      LOAD-BEARING: it is the sole source of required_ports (AC-1.4), the
+      contract-suite map (AC-1.9), the earned-abstraction warning (AC-1.12) and the
+      drift guard (AC-1.13). Adding a Protocol there changes what the build enforces,
+      so it must not be editable without reading F1. AC-1.10 also constrains its
+      CONTENTS — Protocol declarations only, no executable statement at module scope.
 
   - globs:
       - "src/orchestration/trace/**"
@@ -94,14 +101,14 @@ map:
   # First matching entry wins, so F5's entry covers it; F7a is cited from F5's ACs.
 
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
-  # D-07 code, changes upstream (vision §2) until the M8 absorption.
+  # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 
   # ⚠ src/orchestration/{contracts,state,jobs,policy,schedule}/** stay UNGOVERNED
   # here — they are inherited D-08 code and change upstream (vision §2) until the
   # M8 absorption, when their globs arrive pointing at the upstream L-specs.
 
   # Future entries land here as each spec graduates. Inherited domains
-  # (src/fundamental/**, src/quant/**, ...) arrive with the M8 absorption,
+  # (src/fundamental/**, src/quant/**, ...) arrive with the MS-8 absorption,
   # repointed at their upstream L-specs.
 
 # Paths deliberately NOT spec-governed. Never blocked.

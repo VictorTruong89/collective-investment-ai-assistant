@@ -174,7 +174,13 @@ eventually be trusted for the wrong reason.
   **when** it is written, **then** `pre_registered_rule` is non-empty and its recorded timestamp
   precedes the comparison's `computed_at`. → *data contract.* (`PG-5.1`)
 
-## 7. Open questions (must resolve before/at implementation)
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — ⚠ Where is the metric / study boundary?** `QR-13` flagged it and deferred it here. Metric
   implementations are spec-governed; **one-off exploratory studies arguably stay `P7`-exempt like
@@ -192,7 +198,7 @@ eventually be trusted for the wrong reason.
   ⚠ CI cannot call an LLM cheaply; the golden-set regression may need recorded responses from `F2`
   rather than live calls.
 
-## 8. Traceability (spec → test → code)
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

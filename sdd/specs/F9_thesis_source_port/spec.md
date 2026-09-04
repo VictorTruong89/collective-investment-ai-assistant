@@ -120,7 +120,13 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
   trace is read, **then** the external calls, the provenance and the step records have the same shape.
   → *data contract.* (`F2`)
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — Does the relay envelope carry source spans?** `QR-16`'s "earn the confidence back" option
   depends on the relayed report returning claims **with spans** so `ingest()` can verify every one.
@@ -132,7 +138,7 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 - **Q3 — Cost measurement (`QR-20`'s action).** Pull the usage report before `MS-6` closes and record
   the number in `QR-20`.
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

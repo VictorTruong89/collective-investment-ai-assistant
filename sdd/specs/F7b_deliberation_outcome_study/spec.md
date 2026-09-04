@@ -94,7 +94,8 @@ the accrual record that makes a future answer possible.
 
 - **AC-7b.1** *(★ the paired arms come from recorded deltas)* — **Given** the study, **when** it runs,
   **then** each pair is a `CapabilityDelta`'s `pre`/`post`, joined to a realised outcome by
-  `decision_id`. → *data contract.* (`PG-5.2`, `F2` `CT-2.6`)
+  `decision_id` (`F2` `CT-2.7` — ★ the join this whole study rests on).
+  → *data contract.* (`PG-5.2`, `F2` `CT-2.6`)
 - **AC-7b.2** *(unchanged decisions are retained)* — **Given** deliberations that changed nothing,
   **when** the study runs, **then** they appear in `n_unchanged` and are not silently dropped.
   → *unit.*
@@ -119,7 +120,13 @@ the accrual record that makes a future answer possible.
   **when** each is linked, **then** the record grows append-only and re-linking the same outcome is a
   no-op. → *invariant / property.*
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — ⚠ What is "the outcome"?** Forward return at the horizon? Realised P&L? Whether the stop was
   hit? Whether the thesis was falsified? **This is an investment judgement, not an engineering one, and
@@ -133,7 +140,7 @@ the accrual record that makes a future answer possible.
 - **Q4 — Does `F7b` ever supersede `F7a`?** If Tier B eventually reaches power and disagrees with Tier
   A, which governs? *Leaning: Tier B informs, Tier A still gates — `PG-5.1` is unconditional.*
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

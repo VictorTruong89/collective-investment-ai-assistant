@@ -1,15 +1,16 @@
 # F1 — Module protocol & registry (SPI)
 
-> **Spec-ID:** F1 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
+> **Spec-ID:** F1 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-03
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §D.5 · §H.1 ·
 > [`../../questions.md`](../../questions.md) `QR-7`, `QR-8`
 > **Milestone:** `MS-1` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
 > **Governs:** `constitution.md` — enforces `PG-8`, `PG-9`; inherits `P5`, `CA-3`, `AP-6`.
 > **Capability:** `C1` (plugin architecture / SPI), and the substrate `C8` (governance) stands on.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
-> may be written against it yet.**
+> ✅ **Approved 2026-09-03** after review `S1`. Its ACs are now binding: code in the governed paths
+> must satisfy a named `AC-1.<k>`, and changes go through constitution §5.
+> ⚠ Open questions `Q1`–`Q3` were resolved as `D1`–`D3` (§7) — **read §7 before changing §5 or §6**,
+> because the rejected options are recorded there and should not be re-argued from scratch.
 
 ---
 
@@ -106,17 +107,31 @@ the code.
 { "factory":      "Callable[..., object] — builds the implementation; NOT the instance",
   "version":      "str — semver of the IMPLEMENTATION, not of the port",
   "experimental": "bool — default false",
-  "port_type":    "type — the Protocol this entry claims to satisfy" }
+  "port_type":    "type — the Protocol this entry claims to satisfy. ★ Its JOB is to map
+                   port → contract suite (AC-1.9); it is not a runtime type assertion,
+                   because @runtime_checkable only verifies method NAMES, not signatures
+                   or semantics" }
 ```
 
-**CT-1.3 — Registry API surface:**
+**CT-1.3 — Registry API surface** — ★ **methods on a `Registry` class, not module-level functions**
+(`D1`). Consumers receive a registry by **constructor injection**; there is no importable singleton.
+- `Registry()` → a fresh, empty registry. ★★ **Its lifetime IS the run scope** (`D1`, `AC-1.6`).
 - `register(port, variant, factory, version, experimental=False) -> None`
   → raises `DuplicateRegistration` if `(port, variant)` exists.
-- `resolve(port, variant, **kwargs) -> object`
+- `resolve(port, variant) -> object`
   → raises `UnknownVariant(port, variant, available)` — ⚠ **`available` is required**, so a typo
   diagnoses itself.
+  ★ **No runtime arguments.** Variant configuration happens at *registration*, beside `version` and
+  `experimental`. ⚠ Runtime kwargs would break two things at once: the `(port, variant)` cache key
+  (`AC-1.6`) would silently return an instance built with a different call's arguments, and `AC-1.8`'s
+  *"provenance is fully determined by the registry entry"* would become false — two resolutions
+  behaving differently while reporting identical provenance.
 - `variants(port) -> tuple[str, ...]` → registered variant names, sorted. Used by T4.
-- `validate_coverage(required_ports) -> None` → raises `IncompleteRegistry(missing)`.
+- `validate_coverage(required_ports=None) -> CoverageReport` → raises `IncompleteRegistry(missing)`.
+  ⚠ **`required_ports` defaults to `src.shared.ports.__all__`** minus entries marked optional (`D2`).
+  Passing an explicit list is for **tests only** — production never passes one, because the point of
+  `D2` is that there is no second list to keep current.
+  Returns `CoverageReport` for `AC-1.12`'s warnings (a *raise* still wins over a *report*).
 - `provenance(port, variant) -> Provenance` → `CT-1.4` without constructing the implementation.
 
 **CT-1.4 — `Provenance`** (returned by `resolve` and by `provenance`; consumed by `F2`):
@@ -144,28 +159,46 @@ and when `F6b` graduates (gated on `F7a`, `PG-5.1`).
 - **AC-1.3** *(factories, not instances)* — **Given** a registered factory, **when** registration
   occurs, **then** the factory is **not** invoked; **when** `resolve` is first called, **then** it is.
   → *unit.*
-- **AC-1.4** *(coverage fails at boot)* — **Given** a required port with no registered variant, **when**
-  `validate_coverage` runs, **then** `IncompleteRegistry` is raised naming every missing port. → *unit.*
-- **AC-1.5** *(★ the variant set is closed)* — **Given** any variant name not registered at startup,
+- **AC-1.4** *(coverage fails at boot)* — **Given** a port declared in **`src/shared/ports/__all__`**
+  and not marked optional (`D2`), **when** `validate_coverage` runs with no variant registered for it,
+  **then** `IncompleteRegistry` is raised naming every missing port. → *unit.*
+- **AC-1.13** *(★★ declaring a port IS requiring it — `D2`)* — **Given** a new `Protocol` added to
+  `src/shared/ports/__all__` with no variant and no optional marker, **when** `validate_coverage` runs,
+  **then** it fails. → *invariant / property (structural).*
+  > ★ This is the whole point of `D2`: the drift that a hand-kept list permits — *add a port, forget the
+  > entry, coverage silently stops checking it* — becomes impossible rather than merely discouraged.
+  > "This port is optional" must be **stated**, never achieved by omission.
+- **AC-1.5** *(★ the variant set is closed)* — **Given** any variant name not registered **at registry
+  construction** (`D1` — a real moment, where *"startup"* was a vague one),
   **when** it is resolved, **then** `UnknownVariant` is raised — **and no import, module load or
   filesystem lookup is attempted**. → *invariant / property.* (`QR-7`; makes `vision.md` §7's
   hot-reload non-goal structural)
-- **AC-1.6** *(per-run caching)* — **Given** a registered factory, **when** the same `(port, variant)`
-  is resolved `n > 1` times within one run scope, **then** the factory is invoked **exactly once** and
-  every call returns the same object. → *unit.*
-- **AC-1.7** *(⚠ reuse is a port obligation)* — **Given** any registered variant, **when** its
-  `analyze`-equivalent entry point is invoked twice with identical inputs on the same instance,
-  **then** both calls return equal results — i.e. **no caller-visible state carries between calls**.
-  → *invariant / property, run against every registered variant.* (the obligation `AC-1.6`'s caching
-  depends on)
+  > ⚠ `D2` reads `ports.__all__` **at construction**, which is a plain list lookup, not a scan. This AC
+  > constrains **resolve** time and is untouched by it.
+- **AC-1.6** *(per-registry caching — ★ the `Registry` instance IS the run scope, `D1`)* — **Given** a
+  registered factory, **when** the same `(port, variant)` is resolved `n > 1` times **on one `Registry`
+  instance**, **then** the factory is invoked **exactly once** and every call returns the same object;
+  **and** a second `Registry` built from the same registrations invokes the factory again and returns a
+  **different** object. → *unit.*
+  > ★ The second clause is the one that matters. It is what makes *"run scope"* checkable instead of
+  > interpretive, and what stops a long-lived `F8` process serving day 2 from day 1's cache.
+- **AC-1.7** *(⚠ no state leaks between calls — the obligation caching depends on)* — **Given** any
+  registered variant, **when** **the port's primary method, as named in its own contract**, is called
+  with input `A` and then input `B` on the same instance, **then** `B`'s result equals the result of
+  calling `B` on a **fresh** instance. → *invariant / property, run against every registered variant.*
+  > ⚠ **This is deliberately NOT an idempotence test.** *"Same input twice → same output"* would
+  > **fail a correct adapter**: a `PricePort` hitting a live vendor legitimately returns different
+  > results if the data moved. What `AC-1.6`'s instance caching actually requires is that **no
+  > caller-visible state carries from one call to the next** — which is what the A-then-B form tests.
 - **AC-1.8** *(provenance is complete and entry-derived)* — **Given** a resolution, **when**
   `Provenance` is read, **then** it carries `port`, `variant`, `version` and `experimental`, and its
   values equal the registry entry's — **not** anything reported by the resolved object.
   → *data contract.* (`AP-6`, `C8`)
 - **AC-1.9** *(★★ every variant faces the same contract suite)* — **Given** a port with a contract
-  suite, **when** the suite runs, **then** it executes once per name in `registry.variants(port)`, and
-  **a variant registered without being added to the suite causes a failure**. → *invariant / property
-  (meta-test over the parameterisation).* (`A3` — the rule that makes substitution safe)
+  suite, **when** the suite runs, **then** it executes once per name in `registry.variants(port)` —
+  the suite being selected by the entry's **`port_type`** — and **a variant registered without being
+  added to the suite causes a failure**. → *invariant / property (meta-test over the
+  parameterisation).* (`A3` — the rule that makes substitution safe)
 - **AC-1.10** *(ports carry no implementation)* — **Given** any module declaring a port, **when** it is
   inspected, **then** it contains only `Protocol` declarations, type aliases and imports **from
   `typing`/stdlib typing modules** — no I/O, no vendor SDK import, no executable statement at module
@@ -174,42 +207,113 @@ and when `F6b` graduates (gated on `F7a`, `PG-5.1`).
   registered with `experimental=True`, **when** it is resolved, **then** `Provenance.experimental` is
   `True`; and **when** any artifact is produced from it, **then** that artifact carries the flag.
   → *data contract.* (`PG-2`)
-- **AC-1.12** *(a port declaration is earned)* — **Given** a port in `src/shared/`, **when** the
-  registry is validated, **then** it has **at least two registered variants**, of which a fixture or
-  test double counts as one. → *invariant / property.* (`A4`; ⚠ *blocked — Q1*)
+- **AC-1.12** *(★ earned abstraction is reported, not enforced)* — **Given** the registry at
+  construction, **when** coverage is validated, **then** every port **in the same `D2` list** with fewer than **two real (non-fixture)
+  variants** is **listed as a warning** — ⚠ **and the build does not fail**. → *unit.* (`A4`)
+  > ★ **Why a warning and not a gate.** *"Abstraction is earned"* is a judgement. A hard test on it is
+  > either **vacuous** — the earlier wording let a test double count, so every port passed — or it
+  > **blocks legitimate work**: `AgentPort` has one real implementation on day one and would fail the
+  > build. A warning list gives visibility without false precision, and `AgentPort` simply sits on it
+  > until a second implementation exists, which is *true and useful*.
 
-## 7. Open questions (must resolve before/at implementation)
+- **AC-1.14** *(⚠ single-threaded, and it says so out loud — `D3`)* — **Given** a `Registry`
+  constructed on thread `T`, **when** `resolve` is called from any other thread, **then**
+  `ConcurrentRegistryAccess` is raised naming both threads. → *unit.*
+  > ★ Fails **loud**, per the house rule. `INV-2` (reproducibility) is a property of the whole
+  > invocation, and upstream's `models/zoo/gbdt.py` already requires single-threading to hold it. The
+  > alternative — a lock around the cache — would guard the *dict* while leaving the *shared instance*
+  > exactly as exposed, i.e. it would look like a fix and not be one.
 
-- **Q1 — What is a "run scope"?** `AC-1.6` caches "within one run scope". For a once-daily batch that
-  is the process lifetime; but `F8`'s control surface is long-lived and serves many runs, and a cached
-  model there would outlive the data it was built for. **Options:** process-lifetime cache (simplest,
-  wrong for `F8`); an explicit `RunScope` object threaded through resolution (correct, more plumbing);
-  cache keyed by `(port, variant, run_id)` (middle). ⚠ Blocks `AC-1.6`'s precise wording.
-- **Q2 — Where does `required_ports` come from?** `validate_coverage` needs a list. From config, or
-  from a declared manifest in code? A config list can drift from reality silently; a code manifest
-  cannot, but is another thing to keep current. Blocks `AC-1.4`'s fixture.
-- **Q3 — Is the registry accessed concurrently?** If `F6b`'s agents ever run in parallel, both
-  registration (startup-only, so probably safe) and the `AC-1.6` cache (definitely not) need
-  thread-safety. Deferring is acceptable **only if** the answer is recorded, not assumed.
-- **Q4 — Does `AC-1.12` hold for `AgentPort` on day one?** At `MS-1` there may be exactly one agent
-  implementation plus a stub. If the stub does not count, `AC-1.12` fails and either the AC or the
-  port must move. ⚠ This is `A4` ("abstraction is earned") meeting reality — resolve before approval.
+## 7. Decisions (resolved questions — kept with their rejected options)
 
-## 8. Traceability (spec → test → code)
+> ⚠ **Recorded so they can be re-explained, not just obeyed.** Each entry keeps the options that were
+> rejected and why — a later reader (human or agent) should be able to reconstruct the argument
+> without this conversation.
+
+**`D1` — "Run scope" means: the lifetime of one `Registry` instance.** One registry is constructed per
+run; consumers take it by constructor injection. *(Resolves `Q1`; rewords `AC-1.5`, `AC-1.6`, `CT-1.3`.)*
+
+- ⚠ **The fact that decided it:** a run is **already not a process**. `F8` §4 states a run may pause and
+  resume *"possibly after a process restart"* (`AC-8.7` tests it), so process-lifetime is false the day
+  suspend/resume lands — not merely inelegant.
+- **Rejected — process-lifetime cache (module-level dict).** Free, and wrong: a long-lived `F8` process
+  serves day 2 with an instance built from day 1's config, **silently**.
+- **Rejected — an explicit `RunScope` threaded through `resolve()`.** Correct, but re-opens the
+  signature `S1-6` had just closed: `resolve` grows a third parameter at every call site.
+- **Rejected — cache keyed `(port, variant, run_id)`.** `run_id` arrives either as a parameter (= the
+  option above) or as an ambient global (= a hidden dependency). No third way.
+- **Cost accepted:** no importable singleton, which is the conventional Python shape. Bought back as
+  the dependency inversion `A2` wants anyway, plus **test isolation for free** — a fresh registry per
+  test instead of order-dependent global state, the classic flake source for this pattern.
+- ⚠ A restart mid-run rebuilds the cache. That is **correct**: the cache is a performance device, and
+  `AC-1.7` guarantees the instances are stateless, so rebuilding costs time and nothing else.
+
+**`D2` — `required_ports` is derived from `src/shared/ports/__init__.py`'s `__all__`**, minus entries
+carrying an explicit optional marker. Declaring a port *is* requiring it. *(Resolves `Q2`; feeds
+`AC-1.4`, `AC-1.9`, `AC-1.12`, `AC-1.13`.)*
+
+- ⚠ **The asymmetry that decided it:** a hand-kept list that names a *deleted* port fails loudly at boot
+  (harmless). One that *omits a new* port silently stops checking it (harmful). Only derivation removes
+  the harmful direction.
+- **Rejected — a YAML config list.** Permits exactly that silent omission.
+- **Rejected — a hand-maintained manifest module.** The same failure, relocated from YAML to Python.
+- **Why `__all__` and not a filesystem scan:** it is a plain list, no import magic — and `L4` `ST-3`
+  already holds that `src/<domain>/__init__.py` **is** the domain's public API surface. This makes that
+  claim load-bearing rather than decorative.
+- ★ One list, four consumers: coverage (`AC-1.4`), contract-suite mapping (`AC-1.9`), the earned-
+  abstraction warning (`AC-1.12`), and the drift guard (`AC-1.13`).
+
+**`D3` — The registry is single-threaded, asserted rather than assumed.** *(Resolves `Q3`; adds
+`AC-1.14`.)*
+
+- **Evidence, not preference:** upstream `src/models/zoo/gbdt.py` — *"Determinism is not LightGBM's
+  default… single-threading [is] required, or repeated fits differ in the low bits — and **`INV-2` is a
+  property of the whole invocation**."* Concurrency is excluded upstream **on purpose**. Upstream
+  `orchestration/state/locks.py` `OR-24` is *in-process* mutual exclusion between **runs**, not threads.
+- **Rejected — add a lock around the cache now.** Licenses concurrency `INV-2` does not want, and guards
+  the wrong object: the hazard is two threads sharing one resolved instance, not the dict.
+- **Rejected — defer and record only.** Leaves the answer discoverable solely through a
+  non-reproducible diff. The assertion converts that into an immediate, named failure.
+- ⚠ **Where this gets reopened deliberately:** `F6b`. LLM latency dominates deliberation and the agent
+  calls are independent, so parallelism will be tempting. `AC-1.14` guarantees that attempt announces
+  itself instead of quietly costing reproducibility.
+
+## 8. Open questions (must resolve before/at implementation)
+
+> ✅ **None blocking.** `Q1`–`Q3` are resolved above as `D1`–`D3`; `Q4` dissolved at `S1-5`.
+> Their rejected options are kept in §7 — do not re-litigate them without reading it first.
+
+- ~~**Q4 — Does `AC-1.12` hold for `AgentPort` on day one?**~~ ✅ **Dissolved 2026-09-03 (S1-5).**
+  `AC-1.12` now **warns rather than fails**, so a port with one real implementation is *reported*, not
+  a build break. `AgentPort` sits on the warning list until a second implementation exists.
+
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet, and no test may be marked green before it has been run.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-1.1 | *(to be written)* | `src/shared/registry/registry.py` |
-| AC-1.2 | *(to be written)* | `src/shared/registry/registry.py` |
-| AC-1.3 | *(to be written)* | `src/shared/registry/registry.py` |
-| AC-1.4 | *(to be written)* | `src/shared/registry/registry.py` |
-| AC-1.5 | *(to be written)* | `src/shared/registry/registry.py` |
-| AC-1.6 | *(to be written — blocked Q1)* | `src/shared/registry/registry.py` |
-| AC-1.7 | *(to be written)* | contract suite, all variants |
-| AC-1.8 | *(to be written)* | `src/shared/registry/provenance.py` |
-| AC-1.9 | *(to be written)* | `tests/contracts/conftest.py` |
-| AC-1.10 | *(to be written)* | structural test over `src/shared/**/ports.py` |
-| AC-1.11 | *(to be written)* | `src/shared/registry/provenance.py` |
-| AC-1.12 | *(to be written — blocked Q4)* | structural test |
+| AC-1.1 | `tests/unit/test_registry.py::test_ac_1_1_duplicate_registration_is_loud` | `src/shared/registry/registry.py::Registry.register` |
+| AC-1.2 | `tests/unit/test_registry.py::test_ac_1_2_unknown_variant_names_the_alternatives` | `src/shared/registry/errors.py::UnknownVariant` |
+| AC-1.3 | `tests/unit/test_registry.py::test_ac_1_3_factories_not_instances` | `src/shared/registry/registry.py::Registry.register` |
+| AC-1.4 | `tests/unit/test_registry.py::test_ac_1_4_coverage_fails_at_boot_naming_every_missing_port` | `Registry.validate_coverage` |
+| AC-1.5 | `tests/unit/test_registry.py::test_ac_1_5_closed_variant_set_attempts_no_import` | `Registry._entry` |
+| AC-1.6 | `tests/unit/test_registry.py::test_ac_1_6_caching_is_scoped_to_the_registry_instance` | `Registry.resolve` |
+| AC-1.7 | `tests/contracts/harness.py::assert_no_state_leak`, run per variant by `PortContractSuite`; ★ power proven by `test_port_contracts.py::test_ac_1_7_the_suite_actually_catches_a_leaky_adapter` and `::test_ac_1_7_the_fresh_instance_clause_is_load_bearing` | every registered variant |
+| AC-1.8 | `tests/unit/test_registry.py::test_ac_1_8_provenance_is_entry_derived_not_object_reported` | `src/shared/registry/provenance.py::Provenance` |
+| AC-1.9 | `tests/contracts/conftest.py::pytest_generate_tests` + `test_port_contracts.py::test_ac_1_9_every_port_with_variants_has_a_contract_suite` | `tests/contracts/harness.py` |
+| AC-1.10 | `tests/structural/test_ports_purity.py::test_ac_1_10_port_modules_carry_no_implementation` | `src/shared/ports/*.py` (AST scan) |
+| AC-1.11 | `tests/unit/test_registry.py::test_ac_1_11_experimental_flag_propagates` | `Registry.provenance` |
+| AC-1.12 | `tests/unit/test_registry.py::test_ac_1_12_thin_ports_are_warned_not_failed` | `Registry.validate_coverage` → `CoverageReport.thin_ports` |
+| AC-1.13 | `tests/structural/test_ports_purity.py::test_ac_1_13_default_required_ports_comes_from_all_not_a_second_list` · `::test_ac_1_13_a_declared_port_with_no_variant_is_caught` (⏳ `::test_ac_1_13_declaring_a_port_is_requiring_it` **skips** while `__all__` is empty) | `src/shared/ports/__init__.py` + `Registry.validate_coverage` |
+| AC-1.14 | `tests/unit/test_registry.py::test_ac_1_14_resolve_from_another_thread_is_refused` | `Registry._assert_owner_thread` |
+
+★ **Verified by mutation, 2026-09-03.** Every row above was checked by breaking the behaviour and
+confirming the named test goes red — a suite written alongside its own implementation proves nothing
+otherwise (constitution §5.1: *"the illegal move produces green tests"*). ⚠ Two mutations initially
+**survived** against `AC-1.7`, whose suite passed vacuously because every fixture adapter is stateless;
+`WarmupGreeter` (leaks on the first call only) and `LeakyGreeter` were added until the check had power.
+
+⚠ **`src/shared/ports/__all__` is empty**, so `AC-1.4`/`AC-1.12`/`AC-1.13` are exercised against
+explicit lists and fixtures rather than real ports. F1 §2 makes port *semantics* a non-goal — real
+ports arrive with their own specs, and `AC-1.13`'s skipped test turns itself on when the first one lands.

@@ -161,7 +161,13 @@ flow.
   **when** it emits `ERROR`, **then** the deliberation terminates with a partial result **marked
   incomplete** — ⚠ never a silently shortened exchange presented as settled. → *unit.* (`AP-4`, `P5`)
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — What is `turn_budget`?** Lecture §2.5: `max_turns=1` is request-response; `N` is full
   deliberation. ⚠ Cost scales with turns (`F7a` T7) and so does sycophancy exposure. *Leaning: start
@@ -177,7 +183,7 @@ flow.
 - **Q5 — Which seat may initiate?** §4 gives Risk the challenge role on asymmetry grounds. Can Research
   challenge Risk? Symmetry is tempting but the information asymmetry runs one way.
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 

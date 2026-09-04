@@ -92,6 +92,9 @@ counterfactual arm permanently.
 - **A decision record is written by the routing function itself**, carrying the reason it already
   returns (`F6a`'s `Routing(variant, reason, influenced_by)`), so `PG-7`'s cross-configuration flag
   and `PG-9`'s reason are the *same* field, recorded once.
+- ★★ **`decision_id` is minted once per `(run_id, ticker, attempt)`, at the START of that ticker's
+  analysis** — before any routing, analysis or verdict exists. It is a **correlation id**, and minting
+  it early is what makes it available to every record that must reference it (`CT-2.7`).
 - **`propensity` is `1.0` while the control plane is deterministic** (`PG-9`). The field exists now so
   off-policy evaluation is possible later; ⚠ it is not a placeholder to be added when needed, because
   by then the history is gone.
@@ -108,8 +111,10 @@ counterfactual arm permanently.
   "job_id": "str — FK to the existing JobRun",
   "step_id": "str — unique within the run",
   "parent_step_id": "str | null",
+  "decision_id": "str | null — CT-2.7; null for run-scoped steps not about one ticker",
   "node": "str — graph node / function name",
-  "seat": "int — 1..9",
+  "seat": "int | null — 1..9; ⚠ NULL for cross-cutting D-00 work, which vision §3
+           says has no seat (the registry itself is the first such step)",
   "started_at": "iso8601", "ended_at": "iso8601",
   "provenance": "Provenance | null — F1 CT-1.4, when the step resolved a variant",
   "status": "SUCCESS | FAILED | INCOMPLETE" }
@@ -132,7 +137,8 @@ replayed. `model_id` records what actually served the call, so provider aliasing
 **CT-2.3 — `DecisionRecord`** (⭐ `PG-9`):
 ```json
 { "run_id": "str", "step_id": "str",
-  "decision_id": "str — ★ stable, and the join key to the outcome store",
+  "decision_id": "str — ⚠ REFERENCE to CT-2.7, not owned here. This record's own
+                  identity is step_id; a routing choice is part of a decision",
   "state": "object — the inputs the policy actually saw",
   "candidates": ["str"], "action": "str — the variant chosen",
   "reason": "str — the predicate that fired, e.g. 'realised_vol_60d > 0.45'",
@@ -142,7 +148,10 @@ replayed. `model_id` records what actually served the call, so provider aliasing
 
 **CT-2.4 — `CapabilityDelta`** (⭐ `PG-5.2`):
 ```json
-{ "run_id": "str", "decision_id": "str",
+{ "run_id": "str",
+  "decision_id": "str — reference to CT-2.7; ★ REQUIRED, and the reason CT-2.7 exists —
+                  deliberation and explanation alter an output without any routing
+                  decision to hang off",
   "capability": "str — e.g. 'deliberation', 'config_influence', 'explanation'",
   "pre":  "object — the value BEFORE the capability ran",
   "post": "object — the value AFTER",
@@ -151,11 +160,39 @@ replayed. `model_id` records what actually served the call, so provider aliasing
 Rules: written **whenever the capability runs**, including when `changed` is `false` — ⚠ the
 no-change cases are half the comparison and dropping them biases the study.
 
+**CT-2.7 — `decision_id`** ⭐ *the join key every other record references* — added 2026-09-03 (`S1-1`):
+```json
+{ "decision_id": "str — mint format: '{run_id}:{ticker}:{attempt}'",
+  "run_id": "str", "ticker": "str",
+  "attempt": "int — 1 for the scheduled analysis; 2+ for a drill-down (QR-16),
+              which is a SEPARATE analysis of the same ticker and mints its own",
+  "minted_at": "iso8601 — at the START of the ticker's analysis" }
+```
+
+★★ **It identifies *the system's decision about one ticker in one run* — not a routing choice.**
+Routing choices already have their own identity (`step_id`); they **reference** `decision_id`, they do
+not own it.
+
+⚠ **Why it is minted early rather than when the verdict forms.** Routing (`F6a`) runs *before* D-12
+composes a verdict — so an id minted at verdict time could not be referenced by the records that
+precede it. Minting at the start of the ticker's analysis removes the ordering problem entirely.
+
+**Who references it:**
+
+| Record | Relationship | Why it needs the *recommendation*, not the routing choice |
+|---|---|---|
+| `CT-2.1` `StepRecord` | references, **nullable** | ⚠ null for run-scoped steps that are not about one ticker (price ingest, calendar check) |
+| `CT-2.3` `DecisionRecord` | references | a routing choice is *part of* a decision, not the decision |
+| `CT-2.4` `CapabilityDelta` | references | *"what was the verdict before/after deliberation"* is about the recommendation |
+| `CT-2.6` outcome link | joins on it | outcomes attach to recommendations |
+| `F7b` `AC-7b.1` | joins on it | ★ the whole Tier-B study rests on this |
+
 **CT-2.5 — `ReplayReport`:**
 ```json
 { "run_id": "str", "verdict": "IDENTICAL | DIVERGED | UNREPLAYABLE",
-  "first_divergence": {"step_id": "str", "field": "str",
-                       "recorded": "object", "replayed": "object"} }
+  "first_divergence": "object | null — ⚠ NULL when verdict is IDENTICAL",
+  "//first_divergence": {"step_id": "str", "field": "str",
+                         "recorded": "object", "replayed": "object"} }
 ```
 - `UNREPLAYABLE` when the trace is `INCOMPLETE` or an external call lacks its response.
 
@@ -186,6 +223,11 @@ years after the decision.
 - **AC-2.7** *(the join key survives)* — **Given** a `decision_id` from a past run, **when** an outcome
   resolves later, **then** it links to that decision without re-deriving the id from run contents.
   → *data contract.* (enables `F7b`)
+- **AC-2.13** *(★★ `decision_id` is minted once and referenced, never re-derived)* — **Given** a
+  ticker's analysis in a run, **when** any `StepRecord`, `DecisionRecord` or `CapabilityDelta` for it
+  is written, **then** all carry the **same** `decision_id`, minted once at the start of that
+  analysis; and a drill-down of the same ticker carries a **different** one. → *data contract.*
+  (`CT-2.7`, `PG-5.2`; enables `F7b`)
 - **AC-2.8** *(append-only)* — **Given** a written trace record, **when** a write to the same id is
   attempted, **then** it raises and the original is unchanged. → *invariant / property.*
   (`OR-13`, `INV-005/006`)
@@ -202,7 +244,13 @@ years after the decision.
   **then** its status is `INCOMPLETE` and replay returns `UNREPLAYABLE` — ⚠ **never a silently partial
   trace that reads as whole**. → *unit.* (`P5`)
 
-## 7. Open questions (must resolve before/at implementation)
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — Storage location, format and size.** Alongside `manifest.json` in
   `.state/runs/<run_id>/`? One file per record type, or one append-only log? ⚠ **A trace containing
@@ -227,7 +275,7 @@ years after the decision.
   proposal:** F2 records at *job* and *external-call* boundaries, which are already D-08's territory,
   and does not reach inside an inherited domain's logic.
 
-## 8. Traceability (spec → test → code)
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
@@ -244,4 +292,5 @@ years after the decision.
 | AC-2.9 | *(to be written — blocked Q4)* | `src/orchestration/trace/redact.py` |
 | AC-2.10 | *(to be written)* | `tools/check_framework_confinement.py` |
 | AC-2.11 | *(to be written)* | `src/orchestration/trace/models.py` |
+| AC-2.13 | *(to be written)* | `src/orchestration/trace/models.py` |
 | AC-2.12 | *(to be written)* | `src/orchestration/trace/store.py` |

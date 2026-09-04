@@ -64,11 +64,19 @@ data contract already covers it.>
   **then** <observable outcome>. → *<test tier>.* (<INV/DC/P refs>)
 - <mark any AC blocked on an open question, e.g. "(blocked — Q1)">
 
-## 7. Open questions (must resolve before/at implementation)
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> Move a question here once decided, rather than deleting it. Record **the options that were
+> rejected and why** — a later reader must be able to reconstruct the argument without the
+> conversation that produced it. Give each a `D<n>` and cite it from the ACs it changed.
+> ⚠ Keep this heading even when empty (write *None yet*) — section numbers stay stable
+> across all specs, so `§9` always means traceability.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — <question>:** <context; which AC it blocks.>
 
-## 8. Traceability (spec → test → code)
+## 9. Traceability (spec → test → code)
 
 | AC | Test (file::test) | Code module |
 |---|---|---|

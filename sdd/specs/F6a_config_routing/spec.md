@@ -100,8 +100,9 @@ falling back to the declared default with `reason == "default"`.
   graph is built, **then** it is a DAG — ⚠ **a cycle fails the build**, not the run. → *invariant /
   property (structural).*
 - **AC-6a.8** *(every selection is recorded)* — **Given** any `select` call in a run, **when** the
-  trace is read, **then** a `DecisionRecord` exists with `state`, `candidates`, `action`, `reason` and
-  `propensity == 1.0`. → *data contract.* (`F2` `AC-2.5`, `PG-9`)
+  trace is read, **then** a `DecisionRecord` exists with `state`, `candidates`, `action`, `reason`,
+  `propensity == 1.0`, and the **`decision_id` of the ticker analysis it ran inside** — ⚠ *referenced,
+  not minted here* (`F2` `CT-2.7`). → *data contract.* (`F2` `AC-2.5`, `PG-9`)
 - **AC-6a.9** *(★ influenced decisions are separable)* — **Given** a set of decisions, **when**
   evaluation partitions them, **then** those with non-null `influenced_by` form a distinct bucket
   reportable on its own. → *data contract.* (`PG-7.2`)
@@ -112,7 +113,13 @@ falling back to the declared default with `reason == "default"`.
   **when** `select` runs, **then** it returns a `Routing` — falling back to the default with
   `reason == "default"` rather than raising. → *unit.*
 
-## 7. Open questions
+## 7. Decisions (resolved questions — kept with their rejected options)
+
+> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
+> **options that were rejected and why** — a later reader must be able to reconstruct the
+> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+
+## 8. Open questions (must resolve before/at implementation)
 
 - **Q1 — What is the declared phase order?** `AC-6a.7` needs one. Fundamental → quant, or the reverse,
   or a richer order? ⚠ The choice determines which seat can influence which, and it is an analytical
@@ -122,7 +129,7 @@ falling back to the declared default with `reason == "default"`.
 - **Q3 — Does `AC-6a.10` bind rendering (D-09) or composition (D-12)?** Probably both, but the
   enforcement point should be named once.
 
-## 8. Traceability
+## 9. Traceability (spec → test → code)
 
 ⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
 
