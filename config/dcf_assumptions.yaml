@@ -1,0 +1,77 @@
+defaults:
+  wacc: 0.09
+  terminal_growth_rate: 0.03
+  projection_years: 10
+  margin_of_safety_threshold: 0.25   # BUY threshold
+  hold_zone_threshold: 0.10          # HOLD lower bound
+  owner_earnings:
+    maintenance_capex_pct_of_revenue: 0.03
+    da_pct_of_revenue: 0.04
+  dcf_scenarios:
+    bull:  { revenue_cagr: 0.15, fcf_margin: 0.20, weight: 0.25 }
+    base:  { revenue_cagr: 0.10, fcf_margin: 0.15, weight: 0.50 }
+    bear:  { revenue_cagr: 0.04, fcf_margin: 0.10, weight: 0.25 }
+
+sector_overrides:
+  Technology:
+    wacc: 0.10
+    terminal_growth_rate: 0.04
+    # FCF margin trajectory reflects CapEx investment cycles (e.g. AI infra
+    # buildout). Year-1..Year-N entries; remaining years reuse the last entry.
+    dcf_scenarios:
+      bull:
+        revenue_cagr: 0.18
+        fcf_margin_trajectory: [0.25, 0.27, 0.30, 0.32, 0.35]
+        terminal_fcf_margin: 0.35
+        weight: 0.30
+      base:
+        revenue_cagr: 0.13
+        fcf_margin_trajectory: [0.25, 0.26, 0.28, 0.30, 0.32]
+        terminal_fcf_margin: 0.30
+        weight: 0.50
+      bear:
+        revenue_cagr: 0.07
+        fcf_margin_trajectory: [0.22, 0.22, 0.23, 0.24, 0.25]
+        terminal_fcf_margin: 0.25
+        weight: 0.20
+  Energy:           { wacc: 0.10, terminal_growth_rate: 0.02,
+                      maintenance_capex_pct_of_revenue: 0.08 }
+  Consumer Staples: { wacc: 0.08, terminal_growth_rate: 0.025 }
+  Healthcare:       { wacc: 0.09, terminal_growth_rate: 0.035 }
+  Financials:       { wacc: 0.10, terminal_growth_rate: 0.025 }
+
+ticker_overrides: {}   # per-ticker manual overrides (e.g. AAPL: { wacc: 0.09 })
+
+# Cross-source data validation for DCF inputs. For every FMP-sourced datum
+# that feeds intrinsic value, fetch the same datum from an independent
+# source (EDGAR XBRL for fundamentals & sector) and compare.
+# Severity per field:
+#   |Δ%| <  warn      → OK
+#   warn ≤ |Δ%| < block → WARN     (log + report, DCF still runs)
+#   |Δ%| ≥ block       → BLOCKED  (DCF skipped, side-by-side surfaced)
+# `numeric: false` fields use string compare; mismatch is WARN-only.
+data_validation:
+  enabled: true
+  secondary_source_timeout_seconds: 5.0
+  cache_ttl_hours: 6
+  symbol_translations:           # ticker symbol differences across sources
+    BRK.B: BRK-B
+    BRK.A: BRK-A
+  fields:
+    price:                       { numeric: true,  warn: 0.005, block: 0.020 }
+    # WARN-only: FMP reports per-ticker float; EDGAR reports company-level
+    # aggregate across share classes (and ordinary shares for ADRs). Multi-class
+    # equities (GOOG, BRK.A/B, DELL, SYM) and ADRs (TSM) make a hard block
+    # unreliable. Discrepancies still surface in the data-quality report.
+    shares_outstanding:          { numeric: true,  warn: 0.020, block: 0.999 }
+    sector:                      { numeric: false, blocks: false }   # WARN only
+    # WARN-only for TTM cross-checks. EDGAR-side TTM reconstruction is
+    # approximate: income-statement items work when 4 consecutive 3-month
+    # facts are available, but cash-flow items (OCF, capex) in 10-Qs are
+    # reported only as YTD-cumulative, and Q4 must be derived from the 10-K.
+    # A hard block on TTM mismatch loses the DCF on too many tickers without
+    # being authoritative. The side-by-side still surfaces in the WARN log.
+    ttm_revenue:                 { numeric: true,  warn: 0.030, block: 0.999 }
+    ttm_net_income:              { numeric: true,  warn: 0.050, block: 0.999 }
+    ttm_operating_cash_flow:     { numeric: true,  warn: 0.050, block: 0.999 }
+    ttm_capex:                   { numeric: true,  warn: 0.100, block: 0.999 }

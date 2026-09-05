@@ -60,6 +60,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-21** | ★ **CAD/CDR positions — block, buy, or scope out?** | D-05 · seat 4 ⬆ | ✅ | ⬆ upstream `DN-39`/`RC-58` |
 | **QR-22** | ★★ **How do two repos that both root at `src/` coexist before absorption?** | platform | ✅ | `L3` `DX-1`/`DX-2` · `L4` §4 · `MS-2`/`MS-8` |
 | **QR-23** | ★ **May absorption touch domains the daily run depends on?** | platform | ✅ | `CLAUDE.md` · `L3` §2.2a · `MS-2.7` |
+| **QR-24** | **Is the `MS-9.4` demo needed in 2026?** | platform | ✅ | `L3` `MS-9.4` · §2.4 D |
 | ⬆ | Upstream questions that block this repo | various | ⬆ | §9 |
 
 ---
@@ -232,6 +233,29 @@ thing you show**, and they leak nothing.
 **Rejected:** a permissive OSI licence (MIT/Apache-2.0) — grants exactly the rights Victor wants to
 keep. **Rejected:** AGPL as a "restrictive" choice — it is still an OSI grant, and its copyleft targets
 network distribution, which is not the concern here.
+
+## ✅ QR-24 — The demo is descoped to 2027
+
+**Origin:** `MS-9`, 2026-09-04. **Status:** ✅ decided 2026-09-04. **Binds:** `L3` `MS-9.4`, §2.4 D.
+
+**Victor's decision:** *"demo is not required at this stage because I will not apply for any job in
+2026, and lots of new improvement for this project is expected in the last quarter of 2026."*
+
+**Consequence.** `MS-9.4` is **deferred, not cancelled** — it is the portfolio artifact for the
+**May–June 2027** transition (`vision.md` purpose 2), so it should be built against the system that
+exists *then*.
+
+★ **And it makes publishing non-urgent too.** `MS-9.1`'s mirror is built and verified but
+**unpublished**; a mirror published now would describe a system about to be rewritten, and ⚠ **a
+public repo's history is the one thing that cannot be curated afterwards.**
+
+⚠ **What does NOT get deferred with it.** The other four `MS-9` items are done and stay useful
+independently of any demo: the **architecture essay** (the actual portfolio artifact — it argues from
+14 recorded findings), the **README**'s `PG-10` disclosure, the **dependency-licence audit**, and the
+**mirror builder** itself. ★ The essay in particular is worth more to a 2027 reviewer than a demo,
+because it shows judgement rather than output.
+
+---
 
 ## ✅ QR-23 — The daily run is suspended, so absorption may take any domain
 

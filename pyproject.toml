@@ -4,21 +4,29 @@ name = "collective-investment-ai-assistant"
 version = "0.1.0"
 requires-python = ">=3.10"
 
+# ⚠⚠ DX-13 — these were MISSING until MS-9.3's audit. Every absorption moved the
+# code that NEEDS a dependency and left the line that DECLARES it behind, and the
+# dev machine already had them installed, so nothing ever failed.
+# ★ `lightgbm` was never declared in EITHER repo despite 3 import sites.
+dependencies = [
+    "anthropic>=0.97",
+    "pandas>=2.2",
+    "numpy>=2.1",
+    "PyYAML>=6.0",
+    "pyarrow>=19.0",
+    "lightgbm>=4.6",
+]
+
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "ruff>=0.6", "PyYAML>=6.0"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
 
 [tool.pytest.ini_options]
-# ⚠⚠ The sibling path is LOAD-BEARING, not a convenience.
-# `src/shared/` was absorbed from ../ai-investment-pipeline on 2026-09-04
-# (QR-22 — absorption is per-domain). `src` and `tests_src` are implicit
-# NAMESPACE packages spanning both repos: this repo owns src/shared/, upstream
-# still owns src/quant/, src/orchestration/, ... and tests_src/architecture.py.
-#
-# ⚠ NEITHER repo may regain a root `src/__init__.py`. A regular package found
-# anywhere on the path ENDS the import scan, and the other repo's domains go
-# silently invisible — a ModuleNotFoundError naming the submodule, with no hint
-# that a packaging decision caused it. See L3 DX-1/DX-2.
-pythonpath = [".", "../ai-investment-pipeline"]
+# ✏ MS-8: `pythonpath` is `.` alone again. The sibling entry was load-bearing from
+# MS-2 to MS-7 while `src` spanned two repos as a namespace package (QR-22); after
+# the last absorption there is one tree and one root.
+# ⚠ Do NOT re-add a root `src/__init__.py` — DX-1's rule outlives the split: a
+# regular package still ends the import scan, and `src` is still a namespace.
+pythonpath = ["."]
 testpaths = ["tests", "tests_src"]
 
 # ── ruff ────────────────────────────────────────────────────────────────────
@@ -68,6 +76,11 @@ extend-exclude = [
     "src/shared/secrets.py",
     "src/shared/logging.py",
     "tests_src",
+    # ⚠ Inherited tooling, arrived at MS-8 with the rest of upstream's tree.
+    # Same rule as the absorbed src/: linting it strictly would force a reformat
+    # of code this repo did not write (PG-8 — absorption is a move).
+    "tools/sdd_audit.py",
+    "tools/inspect_data.py",
 ]
 
 [tool.ruff.lint]

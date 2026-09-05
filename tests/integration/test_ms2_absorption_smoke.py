@@ -42,15 +42,22 @@ def test_absorbed_modules_load_from_this_repo():
     )
 
 
-def test_upstream_modules_load_from_the_sibling_repo():
-    """The mirror: a NON-absorbed domain must still come from upstream."""
+def test_every_domain_now_loads_from_THIS_repo():
+    """✏ INVERTED at `MS-8` (`DX-6` item 8.5b).
+
+    ⚠ Until `MS-8` this asserted `src.quant` loads from **outside** this repo —
+    correct then, and false the moment the last domain was absorbed. ★ It was
+    left correct-and-about-to-be-wrong on purpose rather than weakened early:
+    weakening it would have removed the only check that the boundary was real
+    while the boundary still existed.
+    """
+    import src.orchestration.entrypoint as e
     import src.quant.errors as q
 
-    assert not pathlib.Path(q.__file__).resolve().is_relative_to(REPO), (
-        f"src.quant.errors loaded from {q.__file__} — inside this repo. Either it "
-        "was absorbed without updating this test, or a stray copy exists (QR-22 "
-        "forbids one domain living in two trees)."
-    )
+    for mod in (q, e):
+        assert pathlib.Path(mod.__file__).resolve().is_relative_to(REPO), (
+            f"{mod.__name__} loaded from {mod.__file__} — outside this repo. After "
+            "MS-8 there is no sibling to load from (QR-22: one owner per domain).")
 
 
 # --------------------------------------------------------------------------- #

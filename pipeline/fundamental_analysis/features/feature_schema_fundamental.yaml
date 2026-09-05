@@ -1,0 +1,215 @@
+# ===========================================================================
+# Fundamental Feature Schema
+# ===========================================================================
+# All features produced by the fundamental feature engineering pipeline.
+# Each feature is prefixed with f_ to distinguish from price/OHLCV features.
+# ===========================================================================
+
+features:
+
+  # -----------------------------------------------------------------------
+  # Basic ratios (ratio_calculator.py — original 6)
+  # -----------------------------------------------------------------------
+  - name: f_net_margin
+    dtype: float
+    description: Net income / revenue
+
+  - name: f_roa
+    dtype: float
+    description: Return on assets (net_income / total_assets)
+
+  - name: f_debt_to_assets
+    dtype: float
+    description: Total liabilities / total assets
+
+  - name: f_eps
+    dtype: float
+    description: Earnings per share (net_income / shares_outstanding)
+
+  - name: f_ocf_to_assets
+    dtype: float
+    description: Operating cash flow / total assets
+
+  - name: f_market_to_book
+    dtype: float
+    description: Market cap / total assets (if market_cap available)
+
+  # -----------------------------------------------------------------------
+  # Expanded ratios (ratio_calculator.py — 14 new)
+  # -----------------------------------------------------------------------
+  - name: f_roe
+    dtype: float
+    description: Return on equity (net_income / stockholders_equity)
+
+  - name: f_gross_margin
+    dtype: float
+    description: Gross profit / revenue (fallback via cost_of_revenue)
+
+  - name: f_operating_margin
+    dtype: float
+    description: Operating income / revenue
+
+  - name: f_roic
+    dtype: float
+    description: Return on invested capital (operating_income / (total_assets - current_liabilities))
+
+  - name: f_rd_to_revenue
+    dtype: float
+    description: R&D expense / revenue
+
+  - name: f_current_ratio
+    dtype: float
+    description: Current assets / current liabilities
+
+  - name: f_debt_to_equity
+    dtype: float
+    description: Total liabilities / stockholders equity
+
+  - name: f_interest_coverage
+    dtype: float
+    description: Operating income / interest expense
+
+  - name: f_equity_ratio
+    dtype: float
+    description: Stockholders equity / total assets
+
+  - name: f_fcf
+    dtype: float
+    description: Free cash flow (operating_cash_flow - capital_expenditures)
+
+  - name: f_fcf_margin
+    dtype: float
+    description: Free cash flow / revenue
+
+  - name: f_ocf_to_net_income
+    dtype: float
+    description: Operating cash flow / net income (earnings quality)
+
+  - name: f_capex_to_revenue
+    dtype: float
+    description: Capital expenditures / revenue
+
+  - name: f_size_log_assets
+    dtype: float
+    description: Log of total assets (size proxy)
+
+  # -----------------------------------------------------------------------
+  # Accrual features (accruals.py)
+  # -----------------------------------------------------------------------
+  - name: f_accruals
+    dtype: float
+    description: (net_income - operating_cash_flow) / lag(total_assets)
+
+  - name: f_accruals_std
+    dtype: float
+    description: Z-scored accruals within ticker
+
+  # -----------------------------------------------------------------------
+  # Growth features — QoQ (trend_features.py, periods=1)
+  # -----------------------------------------------------------------------
+  - name: f_revenue_chg_1
+    dtype: float
+    description: QoQ percent change in revenue
+
+  - name: f_net_income_chg_1
+    dtype: float
+    description: QoQ percent change in net income
+
+  - name: f_operating_income_chg_1
+    dtype: float
+    description: QoQ percent change in operating income
+
+  - name: f_gross_profit_chg_1
+    dtype: float
+    description: QoQ percent change in gross profit
+
+  - name: f_operating_cash_flow_chg_1
+    dtype: float
+    description: QoQ percent change in operating cash flow
+
+  - name: f_stockholders_equity_chg_1
+    dtype: float
+    description: QoQ percent change in stockholders equity
+
+  - name: f_total_assets_chg_1
+    dtype: float
+    description: QoQ percent change in total assets
+
+  # -----------------------------------------------------------------------
+  # Growth features — YoY (trend_features.py, periods=4)
+  # -----------------------------------------------------------------------
+  - name: f_revenue_chg_4
+    dtype: float
+    description: YoY percent change in revenue (4 quarters)
+
+  - name: f_net_income_chg_4
+    dtype: float
+    description: YoY percent change in net income (4 quarters)
+
+  - name: f_operating_income_chg_4
+    dtype: float
+    description: YoY percent change in operating income (4 quarters)
+
+  # -----------------------------------------------------------------------
+  # Rolling growth (trend_features.py)
+  # -----------------------------------------------------------------------
+  - name: f_revenue_rolling_chg_4
+    dtype: float
+    description: Percent change in revenue vs 4 snapshots ago (rolling)
+
+  # -----------------------------------------------------------------------
+  # Margin trend features (trend_features.py — OLS slope)
+  # -----------------------------------------------------------------------
+  - name: f_f_net_margin_trend_4
+    dtype: float
+    description: 4-quarter OLS slope of net margin
+
+  - name: f_f_gross_margin_trend_4
+    dtype: float
+    description: 4-quarter OLS slope of gross margin
+
+  - name: f_f_operating_margin_trend_4
+    dtype: float
+    description: 4-quarter OLS slope of operating margin
+
+  # -----------------------------------------------------------------------
+  # Piotroski F-Score (piotroski.py)
+  # -----------------------------------------------------------------------
+  - name: f_piotroski_f
+    dtype: int
+    description: Piotroski F-Score (0-9 composite)
+
+  - name: f_piotroski_profitability
+    dtype: int
+    description: Piotroski profitability sub-score (0-4)
+
+  - name: f_piotroski_leverage
+    dtype: int
+    description: Piotroski leverage/liquidity sub-score (0-3)
+
+  - name: f_piotroski_efficiency
+    dtype: int
+    description: Piotroski operating efficiency sub-score (0-2)
+
+  # -----------------------------------------------------------------------
+  # Sector-relative Z-scores (sector_relative.py)
+  # -----------------------------------------------------------------------
+  - name: f_roe_sector_z
+    dtype: float
+    description: Within-sector Z-score of ROE
+
+  - name: f_net_margin_sector_z
+    dtype: float
+    description: Within-sector Z-score of net margin
+
+  - name: f_debt_to_assets_sector_z
+    dtype: float
+    description: Within-sector Z-score of debt-to-assets
+
+  - name: f_revenue_chg_1_sector_z
+    dtype: float
+    description: Within-sector Z-score of QoQ revenue growth
+
+  - name: f_accruals_sector_z
+    dtype: float
+    description: Within-sector Z-score of accruals

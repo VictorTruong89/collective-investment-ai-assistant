@@ -1,0 +1,287 @@
+# ============================================================================
+# DORMANT — NO CODE READS THIS FILE.  Verified 2026-08-10 (F0 §8).
+# It records the PROVENANCE of the sector-balanced 123-name set that was pasted
+# into `pipeline.tickers` during rel5. It has not tracked that list since --
+# pipeline.tickers is now 130 names. Editing this file changes NOTHING.
+# The live universe is config/settings.yaml -> pipeline.tickers.
+# ============================================================================
+# Sector-balanced large-cap training universe — generated; see reports/experiments/feature3c_run_summary.md for rationale.
+name: balanced_large_cap_v1
+description: Sector-balanced S&P 500 large-cap training universe for the OHLCV models
+  (rel5 §3a/§3c). Replaces the ad-hoc ~30-name hi-tech basket to widen cross-sectional
+  breadth+dispersion (lifts RankICIR, the gate that failed). Hand-curated to recognizable
+  large caps so a human can still follow them.
+date_created: '2026-06-21'
+source: config/sp500_tickers.yaml (validated members + GICS sector_map)
+count: 123
+sector_counts:
+  Information Technology: 18
+  Financials: 14
+  Health Care: 14
+  Industrials: 12
+  Consumer Discretionary: 12
+  Consumer Staples: 10
+  Communication Services: 10
+  Energy: 9
+  Utilities: 8
+  Materials: 8
+  Real Estate: 8
+sector_tickers:
+  Information Technology:
+  - AAPL
+  - MSFT
+  - NVDA
+  - AVGO
+  - ORCL
+  - CRM
+  - AMD
+  - ADBE
+  - CSCO
+  - ACN
+  - INTC
+  - QCOM
+  - TXN
+  - IBM
+  - NOW
+  - INTU
+  - AMAT
+  - MU
+  Financials:
+  - BRK-B
+  - JPM
+  - V
+  - MA
+  - BAC
+  - WFC
+  - GS
+  - MS
+  - AXP
+  - BLK
+  - C
+  - SCHW
+  - SPGI
+  - CB
+  Health Care:
+  - LLY
+  - UNH
+  - JNJ
+  - MRK
+  - ABBV
+  - TMO
+  - ABT
+  - DHR
+  - PFE
+  - AMGN
+  - ISRG
+  - BMY
+  - MDT
+  - GILD
+  Industrials:
+  - CAT
+  - GE
+  - HON
+  - UNP
+  - RTX
+  - BA
+  - UPS
+  - LMT
+  - DE
+  - ETN
+  - ADP
+  - NOC
+  Consumer Discretionary:
+  - AMZN
+  - TSLA
+  - HD
+  - MCD
+  - NKE
+  - LOW
+  - SBUX
+  - BKNG
+  - TJX
+  - ORLY
+  - CMG
+  - MAR
+  Consumer Staples:
+  - PG
+  - KO
+  - PEP
+  - COST
+  - WMT
+  - MDLZ
+  - PM
+  - MO
+  - CL
+  - KMB
+  Communication Services:
+  - GOOGL
+  - META
+  - NFLX
+  - DIS
+  - CMCSA
+  - VZ
+  - T
+  - TMUS
+  - CHTR
+  - EA
+  Energy:
+  - XOM
+  - CVX
+  - COP
+  - SLB
+  - EOG
+  - MPC
+  - PSX
+  - VLO
+  - OXY
+  Utilities:
+  - NEE
+  - DUK
+  - SO
+  - D
+  - AEP
+  - SRE
+  - EXC
+  - XEL
+  Materials:
+  - LIN
+  - SHW
+  - APD
+  - ECL
+  - FCX
+  - NEM
+  - DOW
+  - DD
+  Real Estate:
+  - PLD
+  - AMT
+  - EQIX
+  - WELL
+  - SPG
+  - PSA
+  - O
+  - CCI
+tickers:
+- AAPL
+- MSFT
+- NVDA
+- AVGO
+- ORCL
+- CRM
+- AMD
+- ADBE
+- CSCO
+- ACN
+- INTC
+- QCOM
+- TXN
+- IBM
+- NOW
+- INTU
+- AMAT
+- MU
+- BRK-B
+- JPM
+- V
+- MA
+- BAC
+- WFC
+- GS
+- MS
+- AXP
+- BLK
+- C
+- SCHW
+- SPGI
+- CB
+- LLY
+- UNH
+- JNJ
+- MRK
+- ABBV
+- TMO
+- ABT
+- DHR
+- PFE
+- AMGN
+- ISRG
+- BMY
+- MDT
+- GILD
+- CAT
+- GE
+- HON
+- UNP
+- RTX
+- BA
+- UPS
+- LMT
+- DE
+- ETN
+- ADP
+- NOC
+- AMZN
+- TSLA
+- HD
+- MCD
+- NKE
+- LOW
+- SBUX
+- BKNG
+- TJX
+- ORLY
+- CMG
+- MAR
+- PG
+- KO
+- PEP
+- COST
+- WMT
+- MDLZ
+- PM
+- MO
+- CL
+- KMB
+- GOOGL
+- META
+- NFLX
+- DIS
+- CMCSA
+- VZ
+- T
+- TMUS
+- CHTR
+- EA
+- XOM
+- CVX
+- COP
+- SLB
+- EOG
+- MPC
+- PSX
+- VLO
+- OXY
+- NEE
+- DUK
+- SO
+- D
+- AEP
+- SRE
+- EXC
+- XEL
+- LIN
+- SHW
+- APD
+- ECL
+- FCX
+- NEM
+- DOW
+- DD
+- PLD
+- AMT
+- EQIX
+- WELL
+- SPG
+- PSA
+- O
+- CCI

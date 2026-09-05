@@ -81,6 +81,29 @@ map:
       symbology/detect.py ("no vendor, no search"); F3 supplies the cause, which is
       not in the data. Search precedes classification, always (PG-3).
 
+  # ⚠⚠ F7a and F7b live INSIDE src/evaluation/**, so they must come FIRST —
+  # first match wins (L4 §5.1). Until MS-8 this was recorded as a COMMENT saying
+  # "F5's entry covers them", which upstream's own test_code_governing_specs_have_globs
+  # could not read — it reported F7a as governing code with no globs (DX-10).
+  # ★ A comment is not machine-readable; a glob is.
+  - globs:
+      - "src/evaluation/studies/killrule.py"
+      - "src/evaluation/studies/deliberation_tier_a.py"
+    spec: sdd/specs/F7a_deliberation_process_tests/spec.md
+    why: >
+      F7a — Tier-A process tests (T1-T7) and the PRE-REGISTERED kill rule.
+      ⚠ PG-5.1: F7a GATES F6b. D1 found the DELETE verdict needs ~99 samples per
+      arm against ~23 for KEEP, so budget pressure favours the verdict that
+      preserves the capability — the bands must not be widened to save money.
+
+  - globs:
+      - "src/evaluation/studies/deliberation_tier_b.py"
+    spec: sdd/specs/F7b_deliberation_outcome_study/spec.md
+    why: >
+      F7b — Tier-B outcome study. ⚠ It NEVER gates (PG-5.1). D2: both arms are
+      scored as PAPER outcomes, so it measures the RECOMMENDATION, not the
+      portfolio — and every figure must say so.
+
   - globs:
       - "src/evaluation/**"
     spec: sdd/specs/F5_evaluation_harness/spec.md

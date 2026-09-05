@@ -1,0 +1,222 @@
+@startuml rel3_training_architecture
+' ============================================================================
+' ARCHIVED — DO NOT CODE FROM THIS FILE.  Frozen 2026-08-08.
+' Pre-SDD Release-3 diagram, kept as an immutable historical record. It does NOT
+' describe the code today. Authoritative: sdd/specs/vision.md (what this project
+' is), sdd/specs/constitution.md (the rules), sdd/specs/F0_code_map/spec.md
+' (what the code currently looks like). See sdd/archive/README.md.
+' ============================================================================
+' AI Investment Pipeline — Release 3 Training Architecture
+' Generated as part of TO-DO 2 (rel3_todo_agent_tasks.md)
+'
+' Renders end-to-end flow from raw external data through both training tracks,
+' validation gates, feature selection, model artifacts, and the orchestrator.
+
+title AI Investment Pipeline — Release 3 Training & Backtest Architecture
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam ArrowColor #555555
+skinparam packageBackgroundColor #F5F7FA
+skinparam package {
+    BorderColor #6F88AA
+    FontStyle bold
+}
+skinparam component {
+    BackgroundColor #FFFFFF
+    BorderColor #6F88AA
+    FontSize 11
+}
+skinparam database {
+    BackgroundColor #FFF6E1
+    BorderColor #B58900
+}
+skinparam node {
+    BackgroundColor #E1F0FF
+    BorderColor #2F6FB6
+}
+
+' =====================================================================
+' External data sources
+' =====================================================================
+package "External Data" {
+    database "SEC EDGAR\nCompany Facts API\n(no API key)" as EDGAR
+    database "OHLCV Price Feed\n(adj_close, OHLCV)" as PRICES
+}
+
+' =====================================================================
+' ETL & Feature engineering
+' =====================================================================
+package "ETL & Feature Engineering" {
+    component "EdgarClient\n+ companyfacts_extractor" as ETL_CLIENT
+    component "DataLoader" as DATALOADER
+    component "OhlcvFeatureEngineer\n→ 14 PRICE_FEATURES" as OHLCV_FE
+    component "FundamentalsFeatureEngineer\n→ 44 f_* features" as FUND_FE
+    component "FeatureJoiner\n(merge_asof, backward)\nensures filing_date <= date" as JOINER
+
+    database "fundamental_training_data\n.parquet" as ETL_OUT
+    database "combined_features_for\n_fundamental_training.parquet\n(76,937 × 91)" as COMBINED_OUT
+}
+
+EDGAR    --> ETL_CLIENT  : raw filings
+ETL_CLIENT --> ETL_OUT
+PRICES   --> DATALOADER
+DATALOADER --> OHLCV_FE
+ETL_OUT  --> FUND_FE
+OHLCV_FE --> JOINER
+FUND_FE  --> JOINER
+JOINER   --> COMBINED_OUT
+
+' =====================================================================
+' Validation gates
+' =====================================================================
+package "Validation Gates (TO-DOs 9, 10)" {
+    component "DataQualityValidator\n(TO-DO 9)\n4 layers, FAIL-HARD" as DQV
+    component "FeatureMatrixValidator\n(TO-DO 10)\n4 layers, FAIL-HARD" as FMV
+}
+
+COMBINED_OUT --> DQV : pre-engineering gate
+
+' =====================================================================
+' Feature selection (TO-DO 8)
+' =====================================================================
+package "Feature Selection Pipeline (TO-DO 8)" {
+    component "NaNVarianceFilter\nStage 1a" as STAGE1A
+    component "CorrelationFilter\nStage 1b" as STAGE1B
+    component "PermutationImportance\nStage 2 (per role)" as STAGE2
+    component "AnyModelUnionSelector\nStage 3 (min_models knob)" as STAGE3
+    database "selected_features.json\n+ feature_selection_summary.csv" as SEL_OUT
+}
+STAGE1A --> STAGE1B
+STAGE1B --> STAGE2
+STAGE2  --> STAGE3
+STAGE3  --> SEL_OUT
+
+' =====================================================================
+' Two parallel training tracks
+' =====================================================================
+package "Track A — OHLCV Trading Models" #DDF0E8 {
+    component "LabelBuilder\n1-week forward rank" as LB
+    component "LightGBM ranker\n+ regressor + classifier" as MODELS_A
+    component "SlotSelector\noptimize_coefficients()" as SELECTOR
+    database "ranker.pkl, regressor.pkl,\nclassifier.pkl" as MODELS_OUT
+    database "policy_params.json" as POLICY_OUT
+}
+
+package "Track B — Fundamental Scorer" #FCEDDA {
+    component "FundamentalLabelBuilder\n6-month forward return" as FUND_LB
+    component "FundamentalScorer\n4 LightGBM boosters\n(composite/quality/value/trend)" as SCORER
+    component "score_panel + to_daily_panel\n(TO-DO 3 — point-in-time)" as PANEL_BUILD
+    database "fundamental_scorer.pkl\nfundamental_scores.json" as SCORER_OUT
+    database "fundamental_scores_panel\n.parquet  (TO-DO 3)" as PANEL_OUT
+}
+
+' =====================================================================
+' Training pipeline class (TO-DO 11)
+' =====================================================================
+package "TrainingPipeline (TO-DO 11)" {
+    component "TrainingPipeline.train()\nshared by main_train and Phase 3b" as TRAINPIPE
+    note right of TRAINPIPE
+      Single source of truth.
+      Sequence:
+        1. FeatureMatrixValidator
+        2. FeatureSelectionPipeline
+        3. Train ranker/regressor/classifier
+        4. SlotSelector.optimize_coefficients()
+      Returns TrainingArtifacts dataclass.
+    end note
+}
+
+' =====================================================================
+' Wiring inside the validation -> selection -> training flow
+' =====================================================================
+COMBINED_OUT --> LB
+LB           --> FMV : feature matrix gate
+FMV          --> STAGE1A
+SEL_OUT      --> TRAINPIPE
+TRAINPIPE    --> MODELS_A
+MODELS_A     --> MODELS_OUT
+TRAINPIPE    --> SELECTOR
+SELECTOR     --> POLICY_OUT
+
+ETL_OUT      --> FUND_LB
+FUND_LB      --> SCORER
+SCORER       --> SCORER_OUT
+SCORER       --> PANEL_BUILD
+PANEL_BUILD  --> PANEL_OUT
+
+' =====================================================================
+' Threshold optimisation (TO-DO 4) — calibrates overlay
+' =====================================================================
+package "Overlay Calibration (TO-DO 4)" {
+    component "ThresholdOptimizer\ngrid search on val window\nmaximise Sharpe" as OPT
+    database "optimal_thresholds.json" as OPT_OUT
+}
+PANEL_OUT --> OPT
+MODELS_OUT --> OPT
+OPT --> OPT_OUT
+
+' =====================================================================
+' Inference / backtest consumption
+' =====================================================================
+package "Inference & Backtest" {
+    component "main_inference.py" as INF
+    component "main_backtest.py\n(single-split + walk-forward)" as BT
+    component "Backtester\nFLAT $10/trade (TO-DO 5)\n_fill_downgraded_slots() (TO-DO 6)" as BTER
+    component "FundamentalOverlay\nBUY → DOWNGRADE/WARN/STRONG_BUY" as OVERLAY
+}
+
+MODELS_OUT --> INF
+POLICY_OUT --> INF
+SCORER_OUT --> INF : snapshot
+
+MODELS_OUT --> BT
+PANEL_OUT  --> BT  : per-fold as_of_date
+SCORER_OUT --> BT  : single-split fallback
+OPT_OUT    --> OVERLAY : auto-loaded thresholds
+
+BT --> BTER
+INF --> BTER
+BTER --> OVERLAY
+
+' =====================================================================
+' Orchestrator (TO-DO 11) ties everything under one timestamped run_dir
+' =====================================================================
+package "main_pipeline.py — Orchestrator (TO-DO 11)" {
+    component "Phase 1\nDataQualityValidator" as PH1
+    component "Phase 2\nFull training\n(uses TrainingPipeline)" as PH2
+    component "Phase 3a\nSingle-split backtest\n(loads saved artifacts)" as PH3A
+    component "Phase 3b\nWalk-forward (Option B)\nper-fold validation+selection" as PH3B
+    component "Phase 4\nPipelineReporter\npipeline_summary.{json,md}\n+ feature_stability_across_folds.csv" as PH4
+}
+PH1 --> PH2
+PH2 --> PH3A
+PH2 --> PH3B
+PH3A --> PH4
+PH3B --> PH4
+
+PH1 ..> DQV
+PH2 ..> TRAINPIPE
+PH3A ..> BTER
+PH3B ..> TRAINPIPE
+PH3B ..> BTER
+
+' =====================================================================
+' Entry points
+' =====================================================================
+package "Entry Points" {
+    node "python -m pipeline.main_train\n--mode price | fundamental | both\n[--skip-etl] [--mode optimize_thresholds]" as ENTRY_TRAIN
+    node "python -m pipeline.main_backtest\n--mode backtest | wf-backtest\n[--fundamental-overlay]" as ENTRY_BT
+    node "python -m pipeline.main_pipeline\n--mode fundamental [--fundamental-overlay]\n[--fundamental-scores-path] [--skip-etl]" as ENTRY_PIPE
+    node "python -m pipeline.main_inference" as ENTRY_INF
+}
+
+ENTRY_TRAIN ..> TRAINPIPE
+ENTRY_TRAIN ..> SCORER
+ENTRY_TRAIN ..> OPT
+ENTRY_BT    ..> BT
+ENTRY_PIPE  ..> PH1
+ENTRY_INF   ..> INF
+
+@enduml

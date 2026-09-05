@@ -45,117 +45,62 @@ the machinery that records what it changed.
 | **MS-5** | Explainability | 6 + 2/3/4/5 | `F4` 🟢 | MS-4 ✅ | ✅ **BUILT 2026-09-04** — 13/15 ACs green, 16 mutations caught. ⏸ `AC-4.4`/`AC-4.6` moved to **upstream R7** (`D1`) |
 | **MS-6** | The earned agent + control surface | 8 · 7 · 2 | `F3` `F8` `F9` `F6a` **all 🟢** | MS-4 ✅ | ✅ **BUILT 2026-09-04** — 4 specs, 17 decisions, **74 new tests**, 22 mutations all caught |
 | **MS-7** | Deliberation, measured | 7 · 9 | `F7a` → `F6b` → `F7b`, **all 🟢** | MS-6 ✅ | 🟨 **BUILT 2026-09-04** — kill rule, Tier-A battery, deliberation, Tier-B study. 14 mutations all caught. ⏳ **`F7a` has not RUN** — that needs a live `F6b` |
-| **MS-8** | **Absorption — the *remainder***, and retire the old repo ⚠ *(no longer the absorption event — `QR-22`)* | all | — | MS-0 + MS-6 | ⬜ |
-| **MS-9** | Write-up, mirror, polish | — | — | MS-8 | ⬜ |
+| **MS-8** | **Absorption — the remainder** | all | — | MS-6 ✅ | 🟨 **DONE 2026-09-04** — 9 domains, one tree, **1,524 passing**. ⚠ `8.9` (retire upstream) NOT done — outward-facing; `DX-12` open |
+| **MS-9** | Write-up, mirror, polish | — | — | MS-8 ✅ | 🟨 **2026-09-04** — essay, README, audit, mirror builder all built. ⊘ `9.4` demo descoped to 2027; ⛔ publishing is Victor's and is **not urgent** |
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — updated 2026-09-04
+## 2.1 Current position — **MS-1 … MS-9 built**, updated 2026-09-04
 
 ```text
-   ┌─ PHASE 0 · SPEC WORK ─────────────── substantially COMPLETE ──┐
-   │  vision · constitution (PG-2..10) · questions register (22)   │
-   │  build plan · target structure · LICENCE · lectures           │
-   └───────────────────────────────────────────────────────────────┘
-                              │
-   ┌─ MS-0 · UPSTREAM ─────────────────────── IN PROGRESS ─────────┐
-   │  ◐ 0.1 run completes SUCCESS · verification is MANUAL now     │
-   │  ⚠ 0.2 QR-5 + QR-19         decided, NOT IMPLEMENTED          │
-   │    0.3 QA-4 · 0.4 AB-3 CAD·CDR · 0.5 L0 seat numbers          │
-   └───────────────────────────────────────────────────────────────┘
-                              │  ★ NO GATE — MS-0 and MS-1+ are PARALLEL
-                              ▼
-   ┌─ MS-1 · PLATFORM SUBSTRATE ───────────── BUILT 2026-09-03 ────┐
-   │  ✅ F1 APPROVED 🟢 · 15 ACs · 16 mutations, all caught         │
-   │  ✅ Registry · ports package · contract-suite harness          │
-   │  ⚠ AgentPort deferred to MS-4 · ports/__all__ still EMPTY      │
-   │  ⬜ CI · ruff  (item 1.1 — independent of everything)          │
+   ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ─┐
+   │  ★★ 11 of 11 specs 🟢 APPROVED · 148 ACs · 50 decisions       │
+   │  vision · constitution (PG-2..10) · 23 QR · 14 DX             │
    └───────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-2 · FIRST ABSORPTION ───────────── COMPLETE 2026-09-04 ───┐
-   │  ✅ src/shared/ absorbed: 1,500 lines · 112 tests · 2 L2 specs │
-   │  ✅ namespace package spans both repos · pin + drift tests     │
-   │  ✅ rehearsal run · DX-1..DX-6 ALL RESOLVED                    │
+   ┌─ MS-1 … MS-7 · THE PLATFORM ─────────────────────── BUILT ────┐
+   │  F1 registry · F2 trace+replay · F5 eval · F4 explain         │
+   │  F3 corp-actions · F6a routing · F8 control · F9 source port  │
+   │  F7a Tier-A · F6b deliberation · F7b Tier-B                   │
+   │  ✅ CI + ruff · 7 guarantees automated (tools/check_all.py)    │
    └───────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-3 · OBSERVABILITY ─────────────────── ⛔ BLOCKED ──────────┐
-   │  ⛔ F2 is 🟡 DRAFT with SIX open questions (Q1..Q6)            │
-   │  ⚠ needs src/orchestration/ absorbed first (QR-22)            │
+   ┌─ MS-8 · ABSORPTION ──────────────────────────── ONE TREE ─────┐
+   │  ✅ 15 domains · ~38,000 lines · upstream src/ is GONE         │
+   │  ⛔ 8.9 retire the old repo — Victor's (outward-facing)        │
+   └───────────────────────────────────────────────────────────────┘
+                              ▼
+   ┌─ MS-9 · WRITE-UP ────────────────────────────────── BUILT ────┐
+   │  ✅ essay · README · licence audit · mirror builder            │
+   │  ⊘ 9.4 demo DESCOPED to 2027 · ⛔ publishing is Victor's       │
    └───────────────────────────────────────────────────────────────┘
 ```
 
-| | Tests | Note |
-|---|---|---|
-| this repo | **169 passed, 1 skipped** | 15 `F1` ACs · fences · pin · smoke |
-| ⬆ upstream | **1068 passed, 4 skipped** | +12 from the `DX-5` fixtures |
-| ⬆ upstream, **fresh clone** | **1027 passed, 45 skipped, 0 failed** | ★ was 30 **failed** before `DX-5` |
+| | Result |
+|---|---|
+| tests | **1,570 collected · 1,524 pass · 46 skip · 0 fail** |
+| ⚠ of those skips | **41 are `DX-12`** — external-truth tests that skip *everywhere*, fixable in one `cp` (§2.5 F1) |
+| lint | ruff clean on all code this repo authored; inherited code excluded, not exempt |
+| mirror | 103 files, **233 tests green**, 0 strategy files, no history — **built, not published** |
 
-**What is done, and it is not nothing.** `F1` is approved and implemented with every AC
-mutation-verified; the two repos import each other through one namespace package; the absorption has
-been **rehearsed end-to-end**; and six discrepancies were found and closed — five of which only
-surfaced *because code was written*, not because a document was reviewed.
+**⚠ What is NOT done, in one line each:**
 
-⚠ **What is NOT done.** **Ten of eleven specs are still 🟡 draft**, so only `F1`'s ACs bind an
-implementer. `MS-3` cannot start until `F2` is approved — and `F2` has **six** open questions, more
-than `F1` had.
+- ⚠⚠ **`DX-12`** — 41 external-truth tests dormant. **One `cp`.** §2.5 F1.
+- **`F7a` has never run.** The instrument exists; the experiment does not.
+- **`F5`'s golden set is empty.** `D2` makes filling it Victor's, deliberately.
+- ⚠ **`DX-11`** — ~38,000 inherited lines, **one** characterization test.
+- **`AC-2.2` at call granularity** — `traced()` records jobs, not LLM calls.
+- **Nothing is committed** in either repo; upstream has 201 uncommitted deletions.
+
+★ **`MS-1`–`MS-9` are done.** ⚠ *"Done"* means the ACs are green and mutation-verified — **not**
+that the system has been validated end-to-end against real money. `QR-23` makes that E2E validation
+a precondition for resuming the daily run, and it has not happened.
 
 ## 2.2 ★ The next deliverable
 
-★ **`PG-1` is retired, so approval is now PER-SPEC, not corpus-wide.** `MS-1` needs exactly one
-thing: **`F1` at 🟢**. Nothing else in the corpus gates it.
-
-⚠ **That changes what "next" means.** Reviewing all eleven specs before writing any code was `PG-1`'s
-logic, and `PG-1` is gone. `S4`–`S7` cover work that is months away and whose open questions will move
-before it starts; reviewing them now spends attention early for value late.
-
-| | Work | Where | Status |
-|---|---|---|---|
-| ✅ *2026-09-02* | ~~G1–G3 governance review~~ — 7 issues found, all resolved | this repo | done |
-| ✅ *2026-09-03* | ~~`S1` — review `F1` + `F2`~~; `Q1`–`Q3` → `D1`–`D3`; **`F1` approved 🟢** | this repo | done |
-| ✅ *2026-09-03* | ~~**Build `MS-1`**~~ — registry + ports + contract harness. 31 tests, **16 mutations all caught**; spec amended `A1` from 5 build-found defects | this repo | done |
-| ✅ *2026-09-04* | ~~`MS-2.1` — the `src` collision~~ → `DX-1` ✅ fixed, `DX-2` ✅ decided (`QR-22`) | both repos | done |
-| ✅ *2026-09-04* | ~~**`MS-2.2a` — absorb `src/shared/`**~~ — 1,500 lines, 112 tests, 2 L2 specs, 2 globs. **1197 tests before, 1197 after.** Surfaced `DX-3` | this repo ⬅ ⬆ | done |
-| ✅ *2026-09-04* | ~~`MS-2.3` — pin the upstream revision~~ — pin + 11 drift tests + refresh tool; 5 drift modes each verified by planting them | this repo | done |
-| ✅ *2026-09-04* | ~~`MS-2.4` smoke test · `MS-2.5` absorption rehearsal~~ — **`MS-2` complete**. Rehearsal surfaced `DX-4`/`DX-5`/`DX-6` and answered `QR-15` | this repo | done |
-| ✅ *2026-09-04* | ~~`DX-5`~~ — synthetic broker fixtures + loud skips; **upstream is runnable from a fresh clone for the first time** | ⬆ upstream | done |
-| ✅ *2026-09-04* | ~~**`S2` — approve `F2`**~~ — `D1`–`D6` adopted, 16 ACs, 0 open questions | this repo | done |
-| ✅ *2026-09-04* | ~~**`MS-3`** — trace substrate built~~ — 14/16 ACs green, mutation-verified; `DX-7` found and fixed | this repo | done |
-| ✅ *2026-09-04* | ~~**`MS-3` completion**~~ — real 13-job graph traced and replayed; `AC-2.7`/`AC-2.11` closed. **16/16 ACs** | this repo | done |
-| ✅ *2026-09-04* | ~~Approve `F5` `D1`–`D5`~~ — adopted; `D2` confirmed *"fund manager decides what is right"* | this repo | done |
-| ✅ *2026-09-04* | ~~**`MS-4`** — evaluation harness built~~ — **16/16 ACs**, 21 mutations all caught first pass | this repo | done |
-| ⚠ **Victor** | **Establish the first golden cases** (`D2`, `AC-5.1`). ⚠ The harness refuses a circular value and the regression reds correctly — but **the golden set is empty, so it currently has nothing to red about** | — | ⏳ **needs Victor** |
-| ✅ *2026-09-04* | ~~**`MS-5`** — explainability~~ — `F4` approved, 13/15 ACs; ⚠ `D1` **moved two ACs to upstream R7** and corrected §1's *"wire it"* framing | this repo | done |
-| ★★ **Next** | **Approve `MS-6`'s four specs.** ⏳ All **17 questions** worked up 2026-09-04 with rejected options: `F3` `D1`–`D5` · `F6a` `D1`–`D3` · `F9` `D1`–`D3` · `F8` `D1`–`D6`. ⚠⚠ **`F8` `D3` (authentication) needs real attention**; ⏳ `F8` `Q6` stays open by design | this repo | ⏳ **needs Victor** |
-| ✅ *2026-09-04* | ~~Approve `MS-7`'s three specs~~ — 14 decisions adopted; ★★ **all 11 specs 🟢** | this repo | done |
-| ✅ *2026-09-04* | ~~**`MS-7`** built~~ — kill rule, `T1`–`T7`, deliberation, Tier-B study | this repo | done |
-| ⚠ **Victor** | **Run `F7a`** — needs hand-written false challenges and a live `F6b`. `D1`: ~23/arm for KEEP, ~99 for DELETE | — | ⏳ |
-| ⚠ **Victor** | **Add repository secret `UPSTREAM_REPO_TOKEN`** (read access to `ai-investment-pipeline`) — CI cannot check out the private sibling without it, and ⚠ **the namespace packages span both repos** | — | ⏳ |
-| ★★ **Next** | `MS-8` (absorption remainder — 9 domains still upstream) or `MS-9` | this repo | ✅ unblocked |
-| ~~superseded~~ | ~~Approve `MS-7`'s three specs~~ — 14 decisions worked up. ⚠⚠ Two need real attention: **`F7a` `D1`** (the kill rule's cheap verdict is KEEP and its expensive one is DELETE — wrong way round for a gate) and **`F7b` `D2`** (both arms are PAPER outcomes; the study measures the *recommendation*, not the *portfolio*) | this repo | ⏳ **needs Victor** |
-| ◐ **Anytime** | `MS-1.1` — CI + ruff. ★ **Eight** hand-verified guarantees now depend on it | this repo | ⬜ |
-| ★ **Also ready** | **Wrap the LLM gateway** so `ExternalCall` records come from real runs, not direct writes — the one gap `MS-3` leaves | this repo | ✅ unblocked |
-| ◐ **Anytime** | `MS-1.1` — CI + ruff. ★ **Now four** hand-verified guarantees depend on it | this repo | ⬜ |
-| ~~superseded~~ | ~~`S2` — approve `F2`~~ ⏳ All six questions now have worked proposals with rejected options (`F2` §7 `D1`–`D6`). ★ `Q5` was **answered by measuring** the inherited code: `seed` covers the RNG, **43 wall-clock call sites** are the real gap | this repo | ⏳ **needs Victor's approval only** |
-| ★ **Then** | **`MS-2.7` — absorb `src/orchestration/`** (`QR-22`) — ⚠ the 74-line `__init__.py` with 11 re-exports. Do it *before* `MS-3` writes `src/orchestration/trace/`. ★ `D6` depends on it: boundary instrumentation becomes an intra-repo change | this repo ⬅ ⬆ | after `F2` 🟢 |
-| ◐ **Anytime** | `MS-1.1` — CI + ruff. ★ Now more valuable than it looks: **CI is what makes the fresh-clone guarantee `DX-5` just bought actually hold** | this repo | ⬜ |
-| ✅ *2026-09-04* | ~~**`DX-5`**~~ — fixed with **A + B split by kind**: 12 structural tests on tracked synthetic fixtures, 41 external-truth tests skip loudly. Fresh clone: 30 failed → **0 failed** | ⬆ upstream | done |
-| ★★ **Next** | **`MS-3` — observability** (`F2`). ⚠ First absorb `src/orchestration/` (74-line `__init__`, 11 re-exports) per `QR-22` | this repo | ✅ unblocked |
-| ✅ *2026-09-04* | ~~`DX-3`'s open half~~ — upstream's `architecture.py` is **multi-root**; one rule set spans both trees, verified by cross-repo planted violations | ⬆ upstream | done |
-| ◐ **Anytime** | `MS-1.1` leftovers — CI, ruff. Independent of everything above | this repo | ⬜ |
-| ⇄ **In parallel** | Manual verification of run outcomes (`MS-0.1`) — the fund manager's own task | ⬆ pipeline | ongoing |
-| ⇄ **In parallel** | `MS-0.2` — the `QR-5`/`QR-19` gate change. ⚠ Still governs every **performance claim** (`PG-10`) | ⬆ pipeline | not started |
-
-### Why `S1` and not the whole corpus
-
-| | |
-|---|---|
-| **It is the critical path** | `F1` 🟢 is the only thing between here and the first line of code |
-| ★★ **It carries the irreversible content** | `PG-5.2`'s pre/post arms and `PG-9`'s propensity live in `F2`. Everything else can be retrofitted; **unlogged history cannot** |
-| **It has the widest blast radius** | `CT-1.4` and `CT-2.4` are cited by 8 specs — a change here moves them all |
-| ⚠ **It carries two live decisions** | `F1` `Q1` (what is a "run scope"?) and `Q4` (does `AgentPort` satisfy `A4` on day one, or does the AC move?) |
-
-★ **Review the rest just-in-time** — `S2` before `MS-4`, `S5` before `MS-6`, and so on. A spec reviewed
-months before it is built is reviewed twice.
+> ✏ **Superseded 2026-09-04.** Milestone sequencing is finished — `MS-1`–`MS-9` are built.
+> ★★ **What remains is in §2.4 (the list) and §2.5 (step by step).**
+> ⚠ The historical queue below is kept as record; do not work from it.
 
 ## 2.2b ✅ `MS-2.7` — D-08 absorbed, 2026-09-04
 
@@ -234,6 +179,164 @@ blocks nothing.
 | ⏳ **2** | **Approve `F2` `D1`–`D6`** | ⏳ **Victor** | The only true blocker on `MS-3` |
 | ✅ **3** | ~~`MS-2.7` — absorb `src/orchestration/`~~ | ✅ `QR-23` voided the objection | **Done 2026-09-04** — 3,088 lines; surfaced the `L4` §5.1 hazard early (§2.2b) |
 | **4** | **`MS-3`** — observability | **only 2 now** | ★ D-08 is ours, so `D6`'s boundary instrumentation is an intra-repo change |
+
+## 2.4 ★★ WHAT REMAINS — the definitive list, 2026-09-04
+
+> ⚠ **Read this before starting anything.** `MS-1`–`MS-9` are built. What is left is
+> **not more milestones** — it is a short list of things that need a human, plus one
+> optional cleanup. ★ Nothing below blocks Q4 2026's improvement work.
+
+### A. Build state
+
+| | |
+|---|---|
+| Specs | **11 of 11 🟢 approved**, 148 ACs, 50 recorded decisions |
+| Code | ~38,000 lines, 15 domains, **one tree** |
+| Tests | **1,570 collected · 1,524 pass · 46 skip · 0 fail** |
+| Findings | **14 `DX` logged** — 12 closed, ⚠ `DX-11` partial, ⚠ `DX-12` open |
+| Guarantees | 7, automated by `tools/check_all.py` + CI |
+
+### B. ✋ Things I CANNOT do on your behalf — and exactly why
+
+| # | Task | Why it is yours |
+|---|---|---|
+| **B1** | **Copy the real BMO statements** (`DX-12`) | They are personal financial data. ⚠ I excluded them from the `MS-8` copy deliberately; moving them is a decision about *your* data, not a build step |
+| **B2** | **Commit and review both repos** | House rule: *never `git commit` without review.* ⚠ Upstream holds **201 uncommitted deletions** with no tag to return to |
+| **B3** | **Publish the mirror** | Outward-facing and irreversible. A public repo cannot be un-published |
+| **B4** | **Archive `ai-investment-pipeline`** (`MS-8.9`) | Same reason, plus `8.1` (clean tree + tag) is unmet |
+| **B5** | **Establish `F5`'s golden values** (`D2`) | ⚠⚠ **The system may not do this.** Seeding from its own output would certify it against itself, and every regression would become the new expected value. `GoldenCase` **raises** if `established_by` names a pipeline component |
+| **B6** | **Run `F7a`** | Needs hand-written false challenges, a live `F6b`, and real spend. ★ `D1`: **~23 deliberations/arm** for `KEEP`, **~99** for `DELETE` |
+| **B7** | **Add `UPSTREAM_REPO_TOKEN`** | ⊘ **Now obsolete** — `MS-8` merged the repos, so CI needs one checkout. Nothing to do |
+
+### C. ✅ Things I CAN do, on request
+
+| # | Task | Notes |
+|---|---|---|
+| **C1** | **Verify `anthropic`'s licence** — `pip install anthropic`, read it **and its transitive deps** | The only ⛔ item in `L5-dependency-licence-audit.md` |
+| **C2** | **Finish `DX-11`** — characterization tests for the other inherited surfaces this repo relies on (`src/quant/metrics/`, the relay) | ~38,000 inherited lines currently carry **one** |
+| **C3** | **Wrap the LLM gateway** so `ExternalCall` records come from real runs | `MS-3`'s one stated gap: `traced()` gives **job** granularity, not call granularity |
+| **C4** | **Close `AC-1.12`'s warning list** — declare real ports in `src/shared/ports/__all__` | Currently empty by design; each real port needs its own spec first |
+| **C5** | **Reconcile ID families** (`MS-8.7`) | Upstream's `RA/QA/OR/DE/...` now live beside `PG/QR/F/MS/DX` in one repo |
+| **C6** | **Build the demo** (`9.4`) | ⊘ Descoped to 2027 by your decision |
+
+### D. ⛔ What "publishing" actually involves — beyond the demo
+
+You asked what else is in it. Publishing is **five** things, and only one is the demo:
+
+1. **`9.1` the mirror** — ✅ builder written and verified: 103 files, **233 tests green**, 0 strategy
+   files, no git history. ⛔ *Creating the public GitHub repo and pushing* is not done.
+2. **`9.2` `LICENSE` + README** — ✅ done. ⚠ The README opens with the `PG-10` disclosure.
+3. **`9.3` dependency-licence audit** — ✅ done **except `anthropic`** (⛔ `C1`).
+4. **`9.5` the essay** — ✅ done.
+5. **`9.4` the demo** — ⊘ descoped to 2027.
+
+★★ **Given no job applications in 2026 and heavy Q4 change expected, publishing has no deadline
+and arguably should wait.** A mirror published now describes a system about to be rewritten, and a
+public repo's history is the one thing you cannot curate afterwards.
+
+### E. ⚠ Two open findings, in priority order
+
+| | |
+|---|---|
+| ⚠ **`DX-12`** | **41 external-truth tests skip everywhere**, including on your machine. One `cp` fixes it — see `B1`. ★ This is the highest-value item on the whole page: it restores verification you already had |
+| ⚠ **`DX-11`** | ~38,000 inherited lines, one characterization test. Constitution §5 item 3. Partially resolved, recorded rather than closed |
+
+## 2.5 ⚠ STEP BY STEP — what Victor does, in order
+
+> ★ Ordered by value, not by effort. **F1 is worth more than everything else here.**
+
+### F1 · ⚠⚠ Restore the 41 dormant tests — `DX-12` · **5 seconds**
+
+The 4 real BMO statements are **still in the old repo's working directory**. They were
+deliberately left out of the `MS-8` copy — moving personal financial data is your call, not mine.
+
+```bash
+mkdir -p ~/Workspace/collective-investment-ai-assistant/sdd/design/rel6_design/samples/bmo_investorline_transactions
+cp ~/Workspace/ai-investment-pipeline/sdd/design/rel6_design/samples/bmo_investorline_transactions/*.csv \
+   ~/Workspace/collective-investment-ai-assistant/sdd/design/rel6_design/samples/bmo_investorline_transactions/
+cd ~/Workspace/collective-investment-ai-assistant && python3 -m pytest -q
+```
+
+**Expect: `1565 passed, 5 skipped`** (up from 1524/46).
+⚠ **Safe:** `.gitignore:48` already covers that path, so `git status` will not show them and they
+cannot enter history. ★ Verify with `git status --short | grep -i bmo` → **no output**.
+
+> ★★ **Why this is first.** Those 41 tests check derived cash **against your real broker
+> statements** — the only place in the system where a number is verified against external truth.
+> They are skipping *by design*, which means **nothing will ever alert you** that they stopped
+> running. `DX-12` exists because a correct mechanism produced a silent loss.
+
+### F2 · Commit and review both repos · **30-60 min of reading**
+
+⚠ Upstream holds **201 uncommitted deletions** (my absorptions) with **no tag to return to**.
+Its git history is intact, so nothing is lost — but until it is committed there is no clean point.
+
+```bash
+cd ~/Workspace/collective-investment-ai-assistant && git status --short   # review, then commit
+cd ~/Workspace/ai-investment-pipeline && git status --short               # 201 deletions + config edits
+```
+
+★ Suggested: tag both **before** committing the deletions, so the pre-absorption state has a name
+(`git tag pre-absorption-2026-09-04`).
+
+### F3 · Verify `anthropic`'s licence · **2 minutes** — or ask me (`C1`)
+
+⛔ The only unaudited entry. ⚠ *"MIT, I'm fairly sure"* is not an audit — `MS-9.3` is a **gate**.
+
+```bash
+pip install anthropic
+python3 -c "import importlib.metadata as m; print(m.metadata('anthropic').get('License') or \
+  [c for c in m.metadata('anthropic').get_all('Classifier') if 'License' in c])"
+```
+
+**What to look for — three things, not one:**
+
+1. **The SDK's own licence.** Expect **MIT**. ⛔ Anything with *GPL*, *AGPL*, *SSPL* or
+   *"Commons Clause"* conflicts with all-rights-reserved publication.
+2. ⚠⚠ **Its transitive dependencies** — `httpx`, `pydantic`, `anyio`, `distro`, `sniffio`,
+   `jiter`, `typing-extensions`. ★ **A package's own licence says nothing about what it pulls in**,
+   and this is where a real audit differs from reading one line.
+3. **Whether it is a *licence* or a *terms-of-service*.** The SDK is MIT; **the API it calls is
+   governed by Anthropic's commercial terms**, which are a separate question and are **not** a
+   dependency-licence matter. ⚠ They do bear on whether outputs may be published.
+
+Then update `L5-dependency-licence-audit.md` — the file names the ⛔ explicitly.
+
+### F4 · ⚠⚠ Establish `F5`'s golden values — `D2` · **an afternoon, periodically**
+
+**Nobody else can do this, including me.** `GoldenCase` **raises `CircularGoldenValue`** if
+`established_by` names a pipeline component — the check is in code precisely because the shortcut
+looks better: seeding from the system's own output gives more cases and a permanently green suite,
+while certifying the system against itself.
+
+**Aim for ~20-30 cases:**
+
+| kind | what "correct" means | difficulty |
+|---|---|---|
+| `extraction` | *"the 10-K says revenue was $X"* — objective, checkable | ★ easy, do these first |
+| `ranking` | *"on this date these names ranked in this order"* — objective given the inputs | moderate |
+| `thesis` | ⚠ **a judgement**, and recorded as one (`is_judgement == True`) | hard; it does **not** pretend to be ground truth |
+
+★ Start with 10 `extraction` cases. That alone turns the regression suite from *machinery* into a
+*measurement*.
+
+### F5 · Run `F7a` when you want the deliberation answer · **real spend**
+
+⚠ Needs hand-written false challenges (`D3`) and a live `F6b`.
+★ `D1`'s economics: **~23 deliberations per arm** to establish `KEEP`, **~99** for `DELETE`.
+**Run the KEEP test first** — if the ratio lands ≤0.33 the expensive one is never needed.
+⚠⚠ **Do not widen the DELETE band to save money** — that is a threshold chosen after seeing the
+*cost*, which is the same failure as choosing one after seeing the data.
+
+### F6 · Publishing — ⊘ **no deadline; consider waiting**
+
+Given no 2026 job applications and heavy Q4 change, ★ a mirror published now describes a system
+about to be rewritten, and **a public repo's history is the one thing you cannot curate later.**
+When you do want it: `python3 tools/build_mirror.py` (dry-run) → review → `--out DIR
+--i-have-read-the-refusals` → inspect → create the public repo and push **that directory**, not
+this one.
+
+---
 
 ## 2.3 ★ Review sequence — governance first, then specs
 
@@ -761,6 +864,37 @@ single-step risk into instalments that fail small.
 
 **Done when:** the full suite is green in one repo and the shim is gone.
 
+### ✅ `MS-8` — one tree, 2026-09-04
+
+**1,524 passed, 46 skipped, 0 failed.** ★ `src/` now holds every domain; upstream's `src/`,
+`tests_src/` and `pipeline/` are gone.
+
+**The `MS-8` checklist worked.** Every item written at `MS-2.5` fired as predicted: `8.1a`'s
+`.gitignore` check confirmed the BMO path covered **before** copying; `8.3`'s *"`sdd/` is a test
+input"* (`DX-4`) was needed; `8.4a`'s glob-ordering assertion — built early at `MS-2.7` — passed
+unchanged; `8.5a`–`8.5d` retired the pin, inverted the smoke test, and returned `pythonpath` to `.`.
+
+⚠ **Two findings the rehearsal did not predict:**
+
+- **`DX-10`** — absorbing upstream's tests brought its **process assumptions**. Its AC regex
+  `AC-\d+\.\d+` does not match `AC-6a.1` (the `F6a`/`F6b` split is **this repo's own**), and
+  ★★ `test_the_vision_is_release_independent` asserted the vision names *"Portfolio Manager"* —
+  **upstream's five-seat vocabulary**, which `CLAUDE.md` explicitly forbids carrying between the
+  repos. **The absorbed test did the exact thing the working agreement warns against.**
+- **`DX-11`** — ⚠ **~17,000 lines absorbed and not one characterization test written**, which
+  constitution §5 item 3 requires. Caught by upstream's own guard, which the absorption brought with
+  it. One real test now freezes the inherited contract `F2`'s `traced()` depends on; the rest is
+  recorded, not closed.
+
+⚠⚠ **`DX-12` is open and needs one manual step from Victor.** The real BMO statements could not
+travel (`.gitignore`d by design), so **41 external-truth tests now skip on Victor's machine too** —
+the merged tree has *less* verification than upstream had. ★ The fresh-clone check is now identical
+to the normal run, which is exactly why nothing looked wrong.
+
+⛔ **`8.9` — retiring `ai-investment-pipeline` — was NOT done.** Archiving a repo is outward-facing
+and effectively irreversible, and upstream still holds **201 uncommitted deletions** with no tag to
+return to (`8.1` unmet). ★ Its `src/` is empty but its git history is intact, so nothing is lost.
+
 > ★★ **The test of whether `L4`'s structure was right** *(restated for per-domain absorption)*: **every**
 > absorption — `MS-2`'s and this one — moves files with **zero content changes** and merges globs into
 > `ownership.yaml`. **Anything more means `PG-8` was violated somewhere earlier** — a finding about the
@@ -770,11 +904,11 @@ single-step risk into instalments that fail small.
 
 | # | Item |
 |---|---|
-| 9.1 | The curated public mirror (`QR-12`) — platform only, synthetic fixtures, no history |
-| 9.2 | `LICENSE` + README §Licence on the mirror |
-| 9.3 | ⚠ Dependency-licence audit before first publish |
-| 9.4 | The demo |
-| 9.5 | ★ Architecture essay — *why* the decisions were made. The `questions.md` register is most of the raw material |
+| 9.1 | 🟨 **`tools/build_mirror.py`** — positive allowlist, dry-run default, refuses on anything `.gitignore`d. Verified: **103 files, 233 tests green, 0 strategy files, no history.** ⛔ **NOT PUBLISHED** — publishing is Victor's |
+| 9.2 | ✅ **`README.md`** — ⚠ opens with the `PG-10` status disclosure (IC 0.0203, *t* = 1.42) and a *What is deliberately not working* section |
+| 9.3 | ✅ **Dependency-licence audit** — `L5-dependency-licence-audit.md`. No copyleft; ⛔ `anthropic` UNVERIFIED (not installed). ★ Surfaced `DX-13` |
+| 9.4 | ⊘ **DESCOPED by Victor 2026-09-04** — *"I will not apply for any job in 2026, and lots of new improvement is expected in Q4 2026."* ★ A demo built now would demo a system about to change. ⚠ It is **deferred, not cancelled**: `MS-9.4` is the portfolio artifact for the 2027 transition |
+| 9.5 | ✅ **`docs/essays/E1-what-the-process-caught.md`** — 1,400 words on **thirteen things the process caught that review did not**, and a *What is not true here* section |
 
 ---
 
@@ -899,6 +1033,11 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-7** | 2026-09-04 | MS-3 | `DX-1`/`DX-2` settled the namespace rule for `src/` and `tests_src/`; other shared top-level directories follow | ⚠ **It recurs at `tools/` — the THIRD instance.** This repo's `tools/` has no `__init__.py` (namespace); upstream's has an **empty** one, making it a *regular* package that **ends the import scan**. So `import tools.check_framework_confinement` resolved to upstream's `tools/`, which does not contain it, and failed with `ModuleNotFoundError` naming the submodule — ⚠ **exactly the misleading error `DX-1` documented.** ★ It passed under `python3 -c` (only one root on the path) and failed under pytest (both roots) — so it looked like a pytest problem | `tools/__init__.py` (upstream, 0 lines) · this repo's `tools/` | ⚠ material | ✅ **resolved 2026-09-04** | Deleted upstream's empty `tools/__init__.py`. ★★ **It was UNTRACKED** — hidden by upstream's blanket `__init__.py` gitignore rule, which this repo's own `.gitignore` calls *"a real defect"* and deliberately refused to inherit. **So a file git could not see was silently breaking imports across the repo boundary.** Nothing upstream imports `tools.*`; blast radius zero. `tools` is now a namespace spanning both, like `src` and `tests_src`. ★ **The rule generalises: EVERY shared top-level directory must be a namespace package**, now stated in `L4` §4 rather than rediscovered per directory |
 | **DX-8** | 2026-09-04 | MS-6 | An absorption moves code, tests, globs and architecture rules (`DX-3`'s "four things") | ⚠ **There is a FIFTH: `config/`.** Absorbing `src/data_engine/` broke 2 tests here with `FileNotFoundError: config/sp500_tickers.yaml` — the domain's tests read config files that stayed upstream. ★ `QR-15` measured that `config/` **merges** cleanly; it never asked whether a domain's config must **travel** with it | `config/sp500_tickers.yaml` · `tests_src/test_data_engine_ingest.py` | ⚠ material | ✅ **resolved 2026-09-04** | The absorbed domain's config files copied with it. ★ **The rule is now FIVE things: code · tests · `ownership.yaml` globs · architecture rules · CONFIG** |
 | **DX-9** | 2026-09-04 | MS-6 | `DX-3`'s multi-root fix made the architecture rules span both trees | ⚠⚠ **It fixed the IMPORT-graph rules only. Tests that scan the FILESYSTEM narrowed silently.** `tests_src/test_data_source_precedence.py` sets `SCANNED = (Path("src"), Path("tools"))` — upstream's own tree — and asserts **absence** (`assert offenders == []`, the yfinance ban). ★★ **An absence assertion over a shrinking tree passes trivially**, so the ban stopped covering the absorbed domains **and nothing failed.** ⚠ One sibling test in the same file failed loudly only because it asserted *presence* (`assert "period" in seen`) — **that was luck, not design** | upstream `tests_src/test_data_source_precedence.py` | ⚠ material | ✅ **resolved 2026-09-04** | `SCANNED` now derives from `architecture.SRC_ROOTS`, so it spans both trees like the import rules; the EDGAR path test resolves its directory across roots. ★ **The generalised rule is in §6.5** |
+| **DX-10** | 2026-09-04 | MS-8 | Absorbing upstream's tests brings its coverage | ⚠⚠ **It also brings its PROCESS ASSUMPTIONS.** `tests/test_sdd_process.py` enforces upstream's SDD conventions against **this repo's** specs, and 4 of them are wrong here: (a) the AC regex `AC-\d+\.\d+` does not match `AC-6a.1` — the `F6a`/`F6b`/`F7a`/`F7b` split is **this repo's own**; (b) `test_code_governing_specs_have_globs` does not know `F7a`/`F7b` live under `F5`'s glob, which `ownership.yaml` records in a **comment**, not machine-readably; (c) ★★ `test_the_vision_is_release_independent` asserts the vision names *"Portfolio Manager"* — **upstream's FIVE-seat vocabulary**, which `CLAUDE.md` explicitly forbids carrying between the repos: *"Never carry a seat number between the two models."* **The absorbed test does exactly that** | `tests/test_sdd_process.py` | ⚠ material | ✅ **resolved 2026-09-04** | Regex widened to `AC-\d+[a-z]?\.\d+`; `F7a`/`F7b` given **real globs** ordered before `F5`'s broad one (`L4` §5.1), so the comment becomes machine-readable; the vision test now asserts **this repo's nine-seat** vocabulary with the `CLAUDE.md` warning quoted beside it |
+| **DX-11** | 2026-09-04 | MS-8 | Constitution §5 item 3: *relying on inherited behaviour ⇒ characterization test to freeze it before building near it* | ⚠⚠ **~17,000 lines were absorbed across `MS-2`/`MS-6`/`MS-8` and NOT ONE characterization test was written.** Upstream's own suite freezes that behaviour in effect — but it is not **labelled**, so the inventory is not greppable and nobody can tell which tests exist to freeze legacy behaviour rather than to assert it is correct. ★ Caught by upstream's own `test_characterization_tests_are_labelled`, which the absorption brought with it | constitution §5 item 3 · `tests/test_sdd_process.py` | ⚠ material | 🟨 **partially resolved** | One real characterization test written for the inherited contract this repo's **own** code depends on — `Orchestrator.run`'s `invoke` dispatch, which `F2`'s `traced()` wraps. ⚠ **Not a full inventory**: the other inherited surfaces this repo consumes (`src/quant/metrics/`, the relay) are still unfrozen. Recorded rather than closed |
+| **DX-12** | 2026-09-04 | MS-8 | `DX-5`'s loud skip means a clone reports honestly; the fund manager's machine still runs the external-truth tests | ⚠⚠ **After absorption they are DORMANT EVERYWHERE.** The real BMO statements were deliberately excluded from the `MS-8` copy (they are `.gitignore`d and must never enter history), so the merged repo has **no** path to them — **41 external-truth tests now skip on Victor's machine too.** ★ The merged tree therefore has *less* verification than upstream had, and the fresh-clone check is now **identical** to the normal run, which is why nothing looked wrong | `sdd/design/rel6_design/samples/bmo_investorline_transactions/` (absent) · `tests_src/broker_fixtures.py` | ⚠ material | 🔴 **open — one manual step** | **Copy the 4 real CSVs into `sdd/design/rel6_design/samples/bmo_investorline_transactions/`, or set `$BMO_STATEMENTS_DIR`.** ⚠ `.gitignore` already covers the path, so they stay out of history. ★ Recorded because the skip is *by design* and therefore invisible — nobody would notice the loss |
+| **DX-13** | 2026-09-04 | MS-9.3 | The absorption checklist moves FIVE things (`DX-3` + `DX-8`) | ⚠⚠ **A SIXTH: runtime dependency DECLARATIONS.** `pyproject.toml` here declared a `dev` extra and **no runtime dependencies at all**, while `MS-8` moved in 15 domains needing `pandas`, `numpy`, `PyYAML`, `lightgbm` and `anthropic`. ★★ Worse: **`lightgbm` was never declared in EITHER repo** despite 3 import sites in `src/models/`. ⚠ Nothing failed because the dev machine already had everything installed — a clean environment would fail at import with no hint what to install, and `MS-9.1`'s mirror would have shipped a `pyproject.toml` that cannot build what it describes | `pyproject.toml` (both repos) · `src/models/zoo/gbdt.py` | ⚠ material | ✅ **resolved 2026-09-04** | Six runtime dependencies declared. ★ **The rule is now SIX things: code · tests · globs · architecture rules · config · dependency declarations.** Found by `MS-9.3`'s licence audit, which was looking for something else entirely |
+| **DX-14** | 2026-09-04 | MS-9.1 | The curated mirror (`QR-12`) ships the platform layers and withholds the strategy | ⚠⚠ **The mirror could not run its own test suite.** Six collection errors: `tests/` imports `src.orchestration.jobs`, `src.data_engine`, `src.recording` — domains the curation **deliberately removes**. ★★ A reviewer's first action on a source-available repo is `pytest`, so this would have been the **first impression**: a project whose central claim is verification discipline, shipping a suite that does not collect. ⚠ Found only by **building the mirror and running it** — the dry-run reported 108 files, no refusals, and looked correct | `tools/build_mirror.py` · `tests/` | ⚠ material | ✅ **resolved 2026-09-04** | The builder now **computes** which included tests import excluded modules and drops them, **reporting the count** rather than filtering silently. ★ A derived exclusion cannot drift from the allowlist the way a hand-kept list would |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -979,9 +1118,15 @@ and the architecture rules that scan its path.* **Two more absorptions found two
 | `MS-6` (`DX-8`) | **`config/`** | `FileNotFoundError: config/sp500_tickers.yaml` — loud, at least |
 | `MS-6` (`DX-9`) | **filesystem-scanning tests** | ⚠⚠ **silent** — an absence assertion over a shrinking tree |
 
-### ★★ The rule, restated — an absorption moves FIVE things
+### ★★ The rule, restated — an absorption moves SIX things
 
-> **code · its tests · its `ownership.yaml` globs · the rules that scan its path · its `config/`**
+> **code · its tests · its `ownership.yaml` globs · the rules that scan its path ·
+> its `config/` · its runtime DEPENDENCY DECLARATIONS**
+
+⚠ The list grew three times — `DX-3` (four), `DX-8` (five), `DX-13` (six) — and **each addition was
+found by something other than looking for it.** `DX-13` surfaced during a *licence* audit. ★ That is
+the argument for running unrelated checks after a structural change: the thing you are not looking for
+is the thing nobody wrote a guard for.
 
 ### ⚠ And the sharper lesson from `DX-9`
 

@@ -1,0 +1,4 @@
+Transaction Date,Settlement Date,Activity Description,Description,Symbol,Quantity,Price,Price Currency,Total Amount,Total Currency
+2026-01-05,2026-01-07,Contribution,CONTRIBUTION,,0,0,CAD,2500.00,CAD
+2026-01-20,2026-01-22,Grant,BENE: 01 FICTIONAL GRANT REC,,0,0,CAD,500.00,CAD
+2026-02-15,2026-02-17,Buy,FICTIONAL BROAD ETF,FBE,100,30.00,CAD,-3000.00,CAD

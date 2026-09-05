@@ -1,0 +1,5 @@
+Transaction Date,Settlement Date,Account name,Account type,Account number,Activity Description,Description,Symbol,Quantity,Price,Price Currency,Total Amount,Total Currency
+2026-01-05,2026-01-07,Fictional Person,TFSA,000000002,Contribution,CONTRIBUTION,,0,0,CAD,3000.00,CAD
+2026-01-09,2026-01-11,Fictional Person,TFSA,000000002,Buy,FICTIONAL ENERGY LTD,FEL,80,15.00,CAD,-1209.95,CAD
+2026-02-10,2026-02-12,Fictional Person,TFSA,000000002,Disbursement,FICTIONAL ENERGY LTD,FEL,25,0,CAD,0,CAD
+2026-03-11,2026-03-13,Sell,FICTIONAL ENERGY LTD,FEL,-30,18.00,CAD,530.05,CAD

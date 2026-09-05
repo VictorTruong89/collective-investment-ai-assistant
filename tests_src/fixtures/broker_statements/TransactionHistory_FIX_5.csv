@@ -1,0 +1,3 @@
+Transaction Date,Settlement Date,Account name,Account type,Account number,Activity Description,Description,Symbol,Quantity,Price,Price Currency,Total Amount,Total Currency
+2026-01-05,2026-01-07,Fictional Person,TFSA,000000005,Contribution,CONTRIBUTION,,0,0,CAD,1000.00,CAD
+2026-01-06,2026-01-08,Fictional Person,Joint,000000099,Buy,FICTIONAL RAIL CO,FRC.B,10,10.00,CAD,-109.95,CAD

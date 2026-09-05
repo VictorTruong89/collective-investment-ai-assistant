@@ -1,0 +1,224 @@
+# =====================================================================
+# Feature 3-a — model experiment matrix  (rel5_features.md §3a.5.6)
+# =====================================================================
+# Run:  python -m pipeline.main_pipeline --mode experiment
+#
+# THIS FILE IS THE SINGLE SOURCE OF TRUTH FOR THE SWEEP.
+#   * Every per-variant model hyperparameter is read from each variant's
+#     `hyperparameters:` block (highest priority — overrides settings.yaml).
+#   * Experiment-wide label/eval knobs are read from `config_overrides:` below
+#     (deep-merged into settings.yaml for the sweep only).
+#   * All values below are pre-set to the CURRENT CODE DEFAULTS, so this run
+#     reproduces the built-in behaviour. Change any value and re-run to tune.
+#
+# Notes / conventions:
+#   * SEED is NOT listed per variant on purpose — the runner assigns each
+#     variant a deterministic seed (`experiment.seed + variant_index`) and
+#     records it in the leaderboard. Add an explicit seed only to pin one.
+#   * objective/metric/loss_function are fixed by ROLE (ranker/regressor/
+#     classifier) and are intentionally not exposed (changing them breaks the
+#     role contract, e.g. ranker grouping). See the REFERENCE block.
+#   * Variants whose backend isn't installed (catboost/torch) are SKIPPED with
+#     a warning, never fatal — the CPU tabular sweep always completes (§3a.9.9).
+
+experiment:
+  features: ALL_FEATURES          # PRICE_FEATURES | ALL_FEATURES | ALL_FEATURES_V2 | [explicit list]
+  label_horizon: 1w               # only 1w (5 trading days) implemented in v1
+  walk_forward: { fold_years: 3, val_years: 1 }   # main_pipeline._make_wf_folds
+  seed: 42                        # base seed; per-variant = seed + index
+  # max_folds: 1                  # uncomment to cap folds for a quick sweep
+
+  # --- experiment-wide overrides (deep-merged into settings.yaml) -------------
+  # These live OUTSIDE per-variant hyperparameters but still affect the models /
+  # evaluation. Set to current settings.yaml defaults.
+  config_overrides:
+    costs:
+      cls_threshold_bps: 16       # classifier "up" label threshold + quantile prob_up cutoff (decimal = bps/1e4)
+    allocation:
+      max_slots: 3                # K for NDCG@K / Precision@K, and SlotSelector slots in the frozen-policy backtest
+
+# =====================================================================
+# FULL PARAMETER REFERENCE  (every key the model code accepts + its default)
+# ---------------------------------------------------------------------
+# Put these under a variant's `hyperparameters:`. For paradigm=separate, nest
+# per role (ranker/regressor/classifier). For quantile, nest under `regressor`.
+# For multihead, nest under `multihead`. For sequence, list flat.
+#
+# backend: lightgbm   (paradigm: separate | quantile)
+#   boosting_type: gbdt | num_leaves: 31 | learning_rate: 0.05
+#   feature_fraction: 0.9 | bagging_fraction: 0.8 | bagging_freq: 5
+#   min_data_in_leaf: 20 | num_boost_round: 300 | early_stopping_rounds: 50
+#   (objective/metric set by role: ranker=lambdarank/ndcg,
+#    regressor=regression/rmse, classifier=binary/binary_logloss)
+#
+# backend: xgboost    (paradigm: separate)
+#   max_depth: 6 | learning_rate: 0.05 | subsample: 0.8 | colsample_bytree: 0.9
+#   min_child_weight: 20 | num_boost_round: 300 | early_stopping_rounds: 50
+#   (objective by role: rank:pairwise / reg:squarederror / binary:logistic)
+#
+# backend: sklearn    (GradientBoosting; paradigm: separate)
+#   n_estimators: 300 | max_depth: 5 | learning_rate: 0.05 | subsample: 0.8
+#   min_samples_leaf: 20 | max_features: 0.9
+#
+# backend: sklearn_rf (RandomForest; paradigm: separate)
+#   n_estimators: 500 | max_depth: 8 | min_samples_leaf: 20
+#   max_features: sqrt | n_jobs: -1
+#
+# backend: linear     (ElasticNet rank/reg, LogisticRegression cls; separate)
+#   ranker/regressor: alpha: 0.001 | l1_ratio: 0.5
+#   classifier:       C: 1.0 | max_iter: 2000
+#   (only alpha/l1_ratio/C/max_iter/random_state are read; GBDT keys ignored)
+#
+# backend: catboost   (paradigm: separate; needs sector → handled by runner)
+#   iterations: 500 | learning_rate: 0.05 | depth: 6 | early_stopping_rounds: 50
+#   (also accepts native CatBoost keys: l2_leaf_reg, border_count, bagging_temperature, …)
+#   (loss_function by role: YetiRank / RMSE / Logloss)
+#
+# backend: ft_transformer  (paradigm: separate | multihead)
+#   net:   d_token: 64 | n_layers: 3 | n_heads: 8 | dropout: 0.1 | ff_factor: 2
+#   train: epochs: 100 | lr: 0.001 | batch_size: 1024 | weight_decay: 0.00001 | patience: 10
+#
+# backend: tabm       (paradigm: separate)
+#   net:   hidden: 256 | depth: 3 | k_members: 8 | dropout: 0.1
+#   train: epochs: 100 | lr: 0.001 | batch_size: 1024 | weight_decay: 0.00001 | patience: 10
+#
+# paradigm: multihead (backend: ft_transformer/tabm only sets device; net is an MLP)
+#   nest under `multihead`:
+#   hidden: 128 | depth: 2 | dropout: 0.2 | epochs: 100 | lr: 0.001
+#   batch_size: 1024 | weight_decay: 0.00001 | patience: 10
+#   loss_weights: [1.0, 1.0, 1.0]   # [rank, return, prob] task weights
+#
+# paradigm: quantile  (LightGBM under the hood)
+#   quantiles: [0.1, 0.5, 0.9]       # [lo, mid, hi]; prob_up via normal approx
+#   regressor: { …any lightgbm key above… }
+#
+# paradigm: stacked   (no own hyperparameters; equal-weight blend of children)
+#
+# paradigm: sequence  (LSTM; list flat)
+#   lookback: 60 | hidden: 64 | mlp_hidden: 64 | dropout: 0.2
+#   epochs: 50 | lr: 0.001 | batch_size: 512 | patience: 5
+# =====================================================================
+
+  variants:
+    # ---- P0 baseline: current production LightGBM ----------------------
+    - id: baseline_lgbm_3sep
+      backend: lightgbm
+      paradigm: separate
+      hyperparameters:
+        ranker:
+          boosting_type: gbdt
+          num_leaves: 31
+          learning_rate: 0.05
+          feature_fraction: 0.9
+          bagging_fraction: 0.8
+          bagging_freq: 5
+          min_data_in_leaf: 20
+          num_boost_round: 300
+          early_stopping_rounds: 50
+        regressor:
+          boosting_type: gbdt
+          num_leaves: 31
+          learning_rate: 0.05
+          feature_fraction: 0.9
+          bagging_fraction: 0.8
+          bagging_freq: 5
+          min_data_in_leaf: 20
+          num_boost_round: 300
+          early_stopping_rounds: 50
+        classifier:
+          boosting_type: gbdt
+          num_leaves: 31
+          learning_rate: 0.05
+          feature_fraction: 0.9
+          bagging_fraction: 0.8
+          bagging_freq: 5
+          min_data_in_leaf: 20
+          num_boost_round: 300
+          early_stopping_rounds: 50
+
+    # ---- linear floor (Gu-Kelly-Xiu reference) ------------------------
+    - id: elasticnet_floor
+      backend: linear
+      paradigm: separate
+      hyperparameters:
+        ranker:     { alpha: 0.001, l1_ratio: 0.5 }
+        regressor:  { alpha: 0.001, l1_ratio: 0.5 }
+        classifier: { C: 1.0, max_iter: 2000 }
+
+    # ---- CatBoost (sector as native categorical) ----------------------
+    - id: catboost_3sep
+      backend: catboost
+      paradigm: separate
+      hyperparameters:
+        ranker:     { iterations: 500, learning_rate: 0.05, depth: 6, early_stopping_rounds: 50 }
+        regressor:  { iterations: 500, learning_rate: 0.05, depth: 6, early_stopping_rounds: 50 }
+        classifier: { iterations: 500, learning_rate: 0.05, depth: 6, early_stopping_rounds: 50 }
+
+    # ---- P3 quantile (P10/P50/P90, prob from spread) ------------------
+    - id: lgbm_quantile
+      backend: lightgbm
+      paradigm: quantile
+      hyperparameters:
+        quantiles: [0.1, 0.5, 0.9]
+        regressor:
+          boosting_type: gbdt
+          num_leaves: 31
+          learning_rate: 0.05
+          feature_fraction: 0.9
+          bagging_fraction: 0.8
+          bagging_freq: 5
+          min_data_in_leaf: 20
+          num_boost_round: 300
+          early_stopping_rounds: 50
+
+    # ---- P4 stacked (blend of two paradigms; no own hyperparameters) --
+    - id: stack_lgbm_quantile
+      paradigm: stacked
+      children: [baseline_lgbm_3sep, lgbm_quantile]
+
+    # ---- P1 multi-head (shared trunk, 3 heads; torch) -----------------
+    - id: ft_transformer_multihead
+      backend: ft_transformer
+      paradigm: multihead
+      hyperparameters:
+        multihead:
+          hidden: 128
+          depth: 2
+          dropout: 0.2
+          epochs: 100
+          lr: 0.001
+          batch_size: 1024
+          weight_decay: 0.00001
+          patience: 10
+          loss_weights: [1.0, 1.0, 1.0]
+
+    # ---- FT-Transformer separate (torch) ------------------------------
+    - id: ft_transformer_3sep
+      backend: ft_transformer
+      paradigm: separate
+      hyperparameters:
+        ranker:     { d_token: 64, n_layers: 3, n_heads: 8, dropout: 0.1, ff_factor: 2, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+        regressor:  { d_token: 64, n_layers: 3, n_heads: 8, dropout: 0.1, ff_factor: 2, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+        classifier: { d_token: 64, n_layers: 3, n_heads: 8, dropout: 0.1, ff_factor: 2, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+
+    # ---- TabM separate (torch) ----------------------------------------
+    - id: tabm_3sep
+      backend: tabm
+      paradigm: separate
+      hyperparameters:
+        ranker:     { hidden: 256, depth: 3, k_members: 8, dropout: 0.1, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+        regressor:  { hidden: 256, depth: 3, k_members: 8, dropout: 0.1, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+        classifier: { hidden: 256, depth: 3, k_members: 8, dropout: 0.1, epochs: 100, lr: 0.001, batch_size: 1024, weight_decay: 0.00001, patience: 10 }
+
+    # ---- Phase 6 temporal sequence model (LSTM; torch) ----------------
+    - id: lstm_sequence
+      paradigm: sequence
+      hyperparameters:
+        lookback: 60
+        hidden: 64
+        mlp_hidden: 64
+        dropout: 0.2
+        epochs: 50
+        lr: 0.001
+        batch_size: 512
+        patience: 5

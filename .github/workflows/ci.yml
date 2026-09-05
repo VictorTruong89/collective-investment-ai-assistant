@@ -1,26 +1,15 @@
-# MS-1.1 — CI. ⚠⚠ Read the SIBLING CHECKOUT note before changing anything here.
+# MS-1.1 — CI. ✏ Rewritten at MS-8: there is ONE tree now.
 #
-# ★ Nine guarantees were established between MS-1 and MS-7, and every one held
+# ★ The guarantees this runs were established between MS-1 and MS-7 and each held
 #   because it was run by hand, once. This is what makes them properties.
 #
-# ⚠⚠ SIBLING CHECKOUT — the hard part, and the thing that will break first.
-#   `src` and `tests_src` are IMPLICIT NAMESPACE PACKAGES spanning BOTH repos
-#   (QR-22). This repo owns src/shared/, src/orchestration/, src/data_engine/,
-#   src/fundamental/; ai-investment-pipeline still owns src/quant/, src/models/,
-#   src/risk/, src/decision/, src/portfolio/, src/reporting/, src/recording/,
-#   src/feature_engineer/, src/experiments/ — and tests_src/architecture.py.
+# ⚠⚠ The sibling-checkout machinery is GONE (MS-8 absorbed the last domain), but
+#   its rule outlives it: `src` and `tests_src` are still IMPLICIT NAMESPACE
+#   PACKAGES. Do not add a root `src/__init__.py` — a regular package ends the
+#   import scan (DX-1), and the pre-flight step below fails if one appears.
 #
-#   So CI MUST check out both, as SIBLING DIRECTORIES, or:
-#     · imports of the other repo's domains fail outright, and
-#     · ⚠ worse, tests that SCAN the filesystem and assert ABSENCE pass
-#       vacuously on the smaller tree. That is DX-9, and it is silent.
-#
-#   `test_the_graph_is_not_vacuous` is the guard: it FAILS when a domain prefix
-#   matches no files, so a missing sibling is loud rather than quietly green.
-#   ★ Do not "fix" a CI failure there by relaxing that test.
-#
-#   ai-investment-pipeline is PRIVATE (QR-12), so the checkout needs a token with
-#   read access to it: repository secret `UPSTREAM_REPO_TOKEN`.
+# ⚠ The real BMO broker statements are NOT in git and never will be (DX-5, QR-12).
+#   A clone is expected to SKIP those ~41 tests loudly, not fail.
 
 name: CI
 
@@ -34,18 +23,7 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Check out this repo
-        uses: actions/checkout@v4
-        with:
-          path: collective-investment-ai-assistant
-
-      # ⚠ MUST be a sibling directory — see the note above.
-      - name: Check out ai-investment-pipeline (sibling)
-        uses: actions/checkout@v4
-        with:
-          repository: VictorTruong89/ai-investment-pipeline
-          token: ${{ secrets.UPSTREAM_REPO_TOKEN }}
-          path: ai-investment-pipeline
+      - uses: actions/checkout@v4
 
       - uses: actions/setup-python@v5
         with:
@@ -53,31 +31,20 @@ jobs:
           python-version: "3.10"
 
       - name: Install
-        working-directory: collective-investment-ai-assistant
         run: |
           python -m pip install --upgrade pip
           python -m pip install pytest ruff pandas pyarrow PyYAML numpy
 
-      - name: Confirm the two repos are siblings
+      - name: Pre-flight — the namespace rule outlives the split (DX-1)
         run: |
-          test -d collective-investment-ai-assistant/src || exit 1
-          test -d ai-investment-pipeline/src || exit 1
-          test -f ai-investment-pipeline/tests_src/architecture.py || {
-            echo "⛔ upstream checkout is missing tests_src/architecture.py —"
-            echo "   the multi-root architecture rules (DX-3) cannot run."; exit 1; }
-          # ⚠ Neither repo may carry a root src/__init__.py (DX-1).
-          for f in collective-investment-ai-assistant/src/__init__.py \
-                   ai-investment-pipeline/src/__init__.py; do
-            test -e "$f" && {
-              echo "⛔ $f exists. A REGULAR package ends the import scan, so the"
-              echo "   other repo's domains become invisible (DX-1/DX-2)."; exit 1; }
-          done
-          echo "✅ sibling layout is correct"
+          test -d src || { echo "⛔ no src/"; exit 1; }
+          test -f tests_src/architecture.py || {
+            echo "⛔ tests_src/architecture.py missing — the architecture rules cannot run"
+            exit 1; }
+          test -e src/__init__.py && {
+            echo "⛔ src/__init__.py exists. `src` is an implicit NAMESPACE package;"
+            echo "   a regular package ends the import scan (DX-1)."; exit 1; }
+          echo "✅ layout is correct"
 
       - name: All checks
-        working-directory: collective-investment-ai-assistant
-        # ⚠ The real broker statements are not in git and never will be (DX-5).
-        # A clone is expected to SKIP those tests loudly, not fail.
-        env:
-          BMO_STATEMENTS_DIR: /nonexistent
         run: python tools/check_all.py

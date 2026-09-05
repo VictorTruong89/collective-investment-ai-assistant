@@ -1,0 +1,11 @@
+{
+  "name": "Buffett Infer",
+  "short_name": "Buffett",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "scope": "/",
+  "description": "On-demand Buffett-style infer signal",
+  "icons": []
+}

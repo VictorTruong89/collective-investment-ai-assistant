@@ -1,0 +1,136 @@
+# Feature 3-c §9 — PRODUCTION COMBINED MODEL validation sweep
+# (sdd/archive/rel5_feature3c_all_model_evaluation.md §9 + §10 item 3)
+#
+# Re-runs the exact 3-c protocol (CPCV N=6/k=2 -> 15 splits / 5 paths,
+# purge+embargo, §3c.1 selection) on the POST-EXPERIMENT architecture:
+#
+#   prod_rf_lin   : the §9 production bundle — RandomForest ranker +
+#                   ElasticNet regressor + HistGB classifier (mixed backend),
+#                   each role on its CPCV-tuned winner config (Appendix B).
+#   rf_pure       : all-RandomForest reference (the old single-backend way)
+#   lin_pure      : all-Linear reference (the "dumb floor")
+#   histgb_pure   : all-HistGB reference (fast backup, §9 item 2)
+#   ens_rf_lin_gb : §10-item-3 ensemble — equal-weight z-blend of the three
+#                   pointwise survivors (StackedBundle)
+#
+# All 3 heads are needed downstream, so train_only_selected_role stays OFF.
+# Selected on ranker RankIC (the head that drives the daily pick).
+# Run: python -m pipeline.main_pipeline --mode experiment --experiments {this file}
+# =====================================================================
+
+experiment:
+  features: ALL_FEATURES
+  label_horizon: 1w
+  seed: 42
+  validation:
+    scheme: cpcv
+    n_groups: 6
+    n_test_groups: 2
+    embargo_days: 5
+    label_horizon_days: 5
+  selection:
+    metric: pred_rank_ic_mean
+    direction: max
+    gate: pred_rank_ic_ir
+    gate_min: 0.3
+    sigma_penalty: 0.5
+    default_variant: prod_rf_lin
+  config_overrides:
+    costs:
+      cls_threshold_bps: 16
+    allocation:
+      max_slots: 3
+
+  variants:
+    # ---- the §9 production bundle (mixed backend, tuned configs) --------
+    - id: prod_rf_lin
+      paradigm: separate
+      backend:
+        ranker: sklearn_rf
+        regressor: linear
+        classifier: sklearn
+      hyperparameters:
+        ranker:            # skrf_rk__mfsqrt_msl20_md8
+          n_estimators: 500
+          max_features: sqrt
+          min_samples_leaf: 20
+          max_depth: 8
+          n_jobs: -1
+        regressor:         # lin_reg__alph001_lr01
+          alpha: 0.01
+          l1_ratio: 0.1
+        classifier:        # skgb_cls__md5_lr01_mln31
+          n_estimators: 300
+          max_depth: 5
+          learning_rate: 0.1
+          max_leaf_nodes: 31
+          min_samples_leaf: 20
+          max_features: 0.9
+
+    # ---- single-backend references (tuned winners per role) -------------
+    - id: rf_pure
+      paradigm: separate
+      backend: sklearn_rf
+      hyperparameters:
+        ranker:            # skrf_rk__mfsqrt_msl20_md8
+          n_estimators: 500
+          max_features: sqrt
+          min_samples_leaf: 20
+          max_depth: 8
+          n_jobs: -1
+        regressor:         # skrf_reg__mfsqrt_msl20_md8
+          n_estimators: 500
+          max_features: sqrt
+          min_samples_leaf: 20
+          max_depth: 8
+          n_jobs: -1
+        classifier:        # skrf_cls__mf05_msl20_mdNone
+          n_estimators: 500
+          max_features: 0.5
+          min_samples_leaf: 20
+          max_depth: null  # pin: settings.yaml's HistGB cls block would leak max_depth=5
+          n_jobs: -1
+
+    - id: lin_pure
+      paradigm: separate
+      backend: linear
+      hyperparameters:
+        ranker:            # lin_rk winner corner
+          alpha: 0.01
+          l1_ratio: 0.5
+        regressor:         # lin_reg__alph001_lr01
+          alpha: 0.01
+          l1_ratio: 0.1
+        classifier:        # lin_cls (all C ties ~0.514)
+          C: 1.0
+
+    - id: histgb_pure
+      paradigm: separate
+      backend: sklearn
+      hyperparameters:
+        ranker:            # skgb_rk__md3_lr002_mln15
+          n_estimators: 300
+          max_depth: 3
+          learning_rate: 0.02
+          max_leaf_nodes: 15
+          min_samples_leaf: 20
+          max_features: 0.9
+        regressor:         # skgb_reg (md2/lr002 corner)
+          n_estimators: 300
+          max_depth: 2
+          learning_rate: 0.02
+          max_leaf_nodes: 31
+          min_samples_leaf: 20
+          max_features: 0.9
+        classifier:        # skgb_cls__md5_lr01_mln31
+          n_estimators: 300
+          max_depth: 5
+          learning_rate: 0.1
+          max_leaf_nodes: 31
+          min_samples_leaf: 20
+          max_features: 0.9
+
+    # ---- §10 item 3: ensemble of the pointwise survivors ----------------
+    - id: ens_rf_lin_gb
+      paradigm: stacked
+      children: [rf_pure, lin_pure, histgb_pure]
