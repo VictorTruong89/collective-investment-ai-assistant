@@ -8,7 +8,8 @@ the mechanism completely.
 
 from __future__ import annotations
 
-from typing import Mapping, Protocol, runtime_checkable
+from collections.abc import Mapping
+from typing import Protocol, runtime_checkable
 
 from src.shared.registry import Registry
 

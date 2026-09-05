@@ -1,13 +1,13 @@
 # F6a — Config-influence routing
 
-> **Spec-ID:** F6a · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F6a · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §H.2 · lecture §2.4 ·
 > [`../../questions.md`](../../questions.md) `QR-9`
 > **Milestone:** `MS-6` · **Governs:** enforces **`PG-7`**, **`PG-9`**; inherits `AP-5`, `ST-9`/`INV-014`.
 > **Capability:** `C2`(a) · `C5` — the machine-side half of the control plane.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**; the rejected options are recorded there.
 
 ---
 
@@ -115,11 +115,64 @@ falling back to the declared default with `reason == "default"`.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D3` ADOPTED 2026-09-04.**
 
-## 8. Open questions (must resolve before/at implementation)
+**`D1` — The phase order is `quant → fundamental → risk`, and it is DERIVED, not chosen.**
+*(Resolves `Q1`.)*
+
+★★ **Already settled upstream, on economic grounds — this is not a free choice.**
+`L0-system-vision` records the answer from `L2-signal-combination`:
+
+> *"The combination is **quant ranks → thesis gates → risk alerts**, derived from **coverage
+> economics** rather than from the `P3` ordering that was withdrawn: D-01's coverage is `O(1)/day`
+> and **conditioned on D-03's output**, so it carries **zero cross-sectional ranking information**, and
+> dense coverage costs **6.3–19 % of NAV per year**."*
+
+- ★ **The running graph already implements it.** `DAILY_INFERENCE`'s order is
+  `… features → rank → risk → observe → thesis → thesis_gate → decide …`: quant ranks first, the
+  thesis gates, and the decision composes. `AC-6a.7`'s declared order is therefore a *statement of
+  what runs*, not a new rule — which is the only kind that stays true.
+- ⚠ **Do not resurrect the withdrawn `P3` ordering as the justification.** Constitution `P3` was
+  narrowed to *"verdicts gate, never upgrade"* in Aug 2026 and the ordering mandate was deliberately
+  removed. Citing it would re-assert a rule Victor retired.
+- **Rejected — fundamental → quant.** ⚠ Inverts the dependency: D-01's coverage is *conditioned on*
+  D-03's output, so running it first means analysing names the ranker would never surface — at
+  6.3–19 % of NAV.
+- **Rejected — leave the order undeclared.** `AC-6a.7` becomes untestable, and a phase order that is
+  merely emergent changes silently when the graph is edited.
+
+**`D2` — Exactly ONE predicate at `MS-6`: the volatility→horizon rule.** *(Resolves `Q2`.)*
+
+- **Decision:** ship the worked example alone. ⚠ `PG-9` requires every routing choice to record the
+  predicate that fired; a predicate set nobody has evaluated is a set of untested branches, and
+  `F7b` can only attribute an outcome difference to a rule that actually varied.
+- ★ **`AC-1.12`'s logic applied to predicates**: abstraction is earned. A second predicate arrives when
+  a measured need for it does — and `F2`'s `DecisionRecord.state` is already recording what the policy
+  saw, so the evidence for the next one accrues from day one.
+- **Rejected — a fuller predicate library at `MS-6`.** ⚠ Every unexercised branch is a path through
+  the control plane that `PG-9`'s replay has never covered.
+
+**`D3` — `AC-6a.10` binds BOTH, and the enforcement point is composition (D-12).**
+*(Resolves `Q3`.)*
+
+- **Decision:** the rule — *a combined verdict may never claim two independent views agree when one
+  configured the other* — is enforced **where the claim is constructed** (D-12 composition) and
+  **checked again** where it is rendered (D-09).
+- ★ **Why composition is the enforcement point:** if the claim is never *built*, no renderer can emit
+  it. Guarding only D-09 leaves a true-looking `agreement=True` sitting in the decision record for
+  `F5`, `F7b` and any future consumer to read.
+- ⚠ **Why D-09 still checks:** rendering is where a human sees it, and `PG-7.3` is about what the
+  reader is told. A single guard at composition would be correct and would still let a *report
+  template* phrase concurrence into existence.
+- **Rejected — rendering only.** Leaves the false claim in the data.
+- **Rejected — composition only.** ★ Cheaper, and it fails the one place the harm actually lands.
+
+## 8. Open questions
+
+> ✅ **All three are resolved** — adopted 2026-09-04. **No open questions remain.**
+> measured economics** — the running job graph implements it today.
+
+ (must resolve before/at implementation)
 
 - **Q1 — What is the declared phase order?** `AC-6a.7` needs one. Fundamental → quant, or the reverse,
   or a richer order? ⚠ The choice determines which seat can influence which, and it is an analytical

@@ -122,8 +122,8 @@ def test_ac_1_8_provenance_is_entry_derived_not_object_reported():
     r.register("greeter", "polite", Liar, version="1.0.0")
     p = r.provenance("greeter", "polite")
     assert (p.port, p.variant, p.version, p.experimental) == ("greeter", "polite", "1.0.0", False)
-    with pytest.raises(Exception):
-        p.version = "0.0.1"  # immutable
+    with pytest.raises((AttributeError, TypeError)):
+        p.version = "0.0.1"  # frozen + slots: immutable by construction
 
 
 def test_ac_1_11_experimental_flag_propagates():

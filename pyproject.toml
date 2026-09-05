@@ -1,3 +1,12 @@
+# ⚠ Dev tooling only. Runtime deps are declared upstream and arrive at MS-8.
+[project]
+name = "collective-investment-ai-assistant"
+version = "0.1.0"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.6", "PyYAML>=6.0"]
+
 [tool.pytest.ini_options]
 # ⚠⚠ The sibling path is LOAD-BEARING, not a convenience.
 # `src/shared/` was absorbed from ../ai-investment-pipeline on 2026-09-04
@@ -11,3 +20,79 @@
 # that a packaging decision caused it. See L3 DX-1/DX-2.
 pythonpath = [".", "../ai-investment-pipeline"]
 testpaths = ["tests", "tests_src"]
+
+# ── ruff ────────────────────────────────────────────────────────────────────
+# ⚠ line-length and target-version MATCH ../ai-investment-pipeline exactly.
+# At MS-8 the two trees merge into one; a lint config that disagreed would
+# reformat half the codebase on the first run after the merge (PG-8 — the
+# absorption is a move, not a rewrite).
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+# ⚠⚠ ABSORBED code is excluded from the STRICT rule set — and it is NOT exempt.
+# `tools/check_lint_baseline.py` holds it to a recorded count that may only fall.
+#
+# ★ Why not just lint it: upstream declared a ruff config and **never ran it**
+# (ruff is not installed there), so the inherited tree carries ~164 findings under
+# its OWN declared rules. Failing the build on them would either stop the build or
+# force a mass reformat — and `PG-8` says the absorption is a MOVE, not a rewrite.
+# A reformat would make every future merge a conflict.
+#
+# ⚠ Paths THIS repo authored inside those trees are NOT excluded — see the
+# negations. `src/data_engine/corporate_actions/` is F3's and is held to the
+# strict set like everything else we wrote.
+extend-exclude = [
+    "src/data_engine",
+    "src/fundamental",
+    "src/orchestration/jobs",
+    "src/orchestration/state",
+    "src/orchestration/contracts",
+    "src/orchestration/schedule",
+    "src/orchestration/entrypoint.py",
+    "src/orchestration/errors.py",
+    # ⚠⚠ The package's OWN __init__.py, not just its subdirectories. ruff
+    # reformatted this file's 11 re-exports before this line existed — a change
+    # to inherited code, which is precisely what these exclusions prevent. It was
+    # restored byte-for-byte from upstream's committed copy.
+    # ★ An exclusion list that covers `pkg/` but not `pkg/__init__.py` looks
+    # complete and is not.
+    "src/orchestration/__init__.py",
+    "src/data_engine/__init__.py",
+    "src/fundamental/__init__.py",
+    "src/shared/__init__.py",
+    "src/shared/llm",
+    "src/shared/money.py",
+    "src/shared/config.py",
+    "src/shared/errors.py",
+    "src/shared/secrets.py",
+    "src/shared/logging.py",
+    "tests_src",
+]
+
+[tool.ruff.lint]
+# ★ Deliberately NOT the full default set. Each rule here is one this codebase
+# would actually want to fail a build over; a lint that fires on style nobody
+# agreed to is a lint people learn to skip (same argument as DE-35).
+select = ["E", "F", "W", "I", "B", "UP", "C4", "SIM", "RET", "ARG", "PTH"]
+ignore = [
+    "E501",    # line length — enforced by the formatter, not by a second rule
+    "B008",    # function call in default arg: dataclass field(default_factory) idiom
+    "SIM108",  # ternary-vs-if is a readability judgement, not a defect
+    "RET504",  # a named return value is often the clearer form
+    "C408",    # ⚠ dict(a=1, b=2) reads better than {"a": 1, ...} for kwargs-style
+               # fixtures, which is most of this codebase's use of it
+]
+
+[tool.ruff.lint.per-file-ignores]
+# ⚠ Tests deliberately do things production code must not.
+# ⚠ PTH207: tests/structural/ globs with `glob.glob` deliberately — it takes the
+# same pattern strings ownership.yaml uses, so the test and the config agree by
+# construction rather than by translation.
+"tests/**" = ["ARG", "B011", "S101", "PTH207"]
+"tests_src/**" = ["ARG", "B011", "S101", "E402", "F401", "F811"]
+# ⚠ src/shared/ports/__init__.py is `__all__` + type aliases only (F1 AC-1.10).
+"src/shared/ports/__init__.py" = ["F401"]
+# ⚠ The PreToolUse hook's handlers share one signature; unused parameters are the
+# dispatch contract.
+".claude/hooks/*.py" = ["ARG001"]

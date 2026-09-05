@@ -1,0 +1,83 @@
+# MS-1.1 — CI. ⚠⚠ Read the SIBLING CHECKOUT note before changing anything here.
+#
+# ★ Nine guarantees were established between MS-1 and MS-7, and every one held
+#   because it was run by hand, once. This is what makes them properties.
+#
+# ⚠⚠ SIBLING CHECKOUT — the hard part, and the thing that will break first.
+#   `src` and `tests_src` are IMPLICIT NAMESPACE PACKAGES spanning BOTH repos
+#   (QR-22). This repo owns src/shared/, src/orchestration/, src/data_engine/,
+#   src/fundamental/; ai-investment-pipeline still owns src/quant/, src/models/,
+#   src/risk/, src/decision/, src/portfolio/, src/reporting/, src/recording/,
+#   src/feature_engineer/, src/experiments/ — and tests_src/architecture.py.
+#
+#   So CI MUST check out both, as SIBLING DIRECTORIES, or:
+#     · imports of the other repo's domains fail outright, and
+#     · ⚠ worse, tests that SCAN the filesystem and assert ABSENCE pass
+#       vacuously on the smaller tree. That is DX-9, and it is silent.
+#
+#   `test_the_graph_is_not_vacuous` is the guard: it FAILS when a domain prefix
+#   matches no files, so a missing sibling is loud rather than quietly green.
+#   ★ Do not "fix" a CI failure there by relaxing that test.
+#
+#   ai-investment-pipeline is PRIVATE (QR-12), so the checkout needs a token with
+#   read access to it: repository secret `UPSTREAM_REPO_TOKEN`.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v4
+        with:
+          path: collective-investment-ai-assistant
+
+      # ⚠ MUST be a sibling directory — see the note above.
+      - name: Check out ai-investment-pipeline (sibling)
+        uses: actions/checkout@v4
+        with:
+          repository: VictorTruong89/ai-investment-pipeline
+          token: ${{ secrets.UPSTREAM_REPO_TOKEN }}
+          path: ai-investment-pipeline
+
+      - uses: actions/setup-python@v5
+        with:
+          # ⚠ 3.10 matches the tf_gpu environment the pipeline contracts for.
+          python-version: "3.10"
+
+      - name: Install
+        working-directory: collective-investment-ai-assistant
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest ruff pandas pyarrow PyYAML numpy
+
+      - name: Confirm the two repos are siblings
+        run: |
+          test -d collective-investment-ai-assistant/src || exit 1
+          test -d ai-investment-pipeline/src || exit 1
+          test -f ai-investment-pipeline/tests_src/architecture.py || {
+            echo "⛔ upstream checkout is missing tests_src/architecture.py —"
+            echo "   the multi-root architecture rules (DX-3) cannot run."; exit 1; }
+          # ⚠ Neither repo may carry a root src/__init__.py (DX-1).
+          for f in collective-investment-ai-assistant/src/__init__.py \
+                   ai-investment-pipeline/src/__init__.py; do
+            test -e "$f" && {
+              echo "⛔ $f exists. A REGULAR package ends the import scan, so the"
+              echo "   other repo's domains become invisible (DX-1/DX-2)."; exit 1; }
+          done
+          echo "✅ sibling layout is correct"
+
+      - name: All checks
+        working-directory: collective-investment-ai-assistant
+        # ⚠ The real broker statements are not in git and never will be (DX-5).
+        # A clone is expected to SKIP those tests loudly, not fail.
+        env:
+          BMO_STATEMENTS_DIR: /nonexistent
+        run: python tools/check_all.py

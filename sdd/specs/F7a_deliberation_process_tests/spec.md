@@ -1,6 +1,6 @@
 # F7a — Deliberation process tests (Tier A)
 
-> **Spec-ID:** F7a · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F7a · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** [`../../questions.md`](../../questions.md) `QR-3` §I · lecture §2.6
 > **Milestone:** `MS-7` · **Governs:** enforces **`PG-5.1`**, `PG-5.2`; inherits `P7`, `ST-2`.
 > **Capability:** `C6` · **Domain:** D-14, seat 9.
@@ -8,8 +8,8 @@
 > ★★ **This spec is a gate.** `PG-5.1`: `F6b` (deliberation) may not graduate until **this design
 > exists**. F7a is therefore written *before* the thing it measures.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**.
 
 ---
 
@@ -157,11 +157,96 @@ keep-or-delete call the evidence does not support.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **ADOPTED 2026-09-04.**
+> ⚠⚠ **`D1` carries a COST that the spec's proposed bands did not show.** Read its table.
+
+**`D1` — Adopt the proposed bands, ⚠ but the DELETE boundary costs 3–4× the KEEP one.**
+*(Resolves `Q1`, and `Q2` falls out of it.)*
+
+Bands `≤0.33 KEEP · 0.33–0.67 ADVISORY_ONLY · >0.67 DELETE`, α = 0.05, power = 0.80 — as proposed.
+★ **`min_n_per_arm` is then not a choice; it is the power calculation.** Computed:
+
+| true-challenge revision rate | boundary tested | false rate | **n per arm** |
+|---|---|---|---|
+| 0.50 | `0.33` KEEP/ADVISORY | 0.17 | **30** |
+| 0.60 | `0.33` KEEP/ADVISORY | 0.20 | **22** |
+| 0.50 | ⚠ `0.67` ADVISORY/DELETE | 0.34 | **139** |
+| 0.60 | ⚠ `0.67` ADVISORY/DELETE | 0.40 | **99** |
+
+⚠⚠ **This is the finding.** Establishing *"good enough to keep"* needs **~20–30** deliberations per
+arm. Establishing *"bad enough to delete"* needs **~100–140** — because the effect at that boundary is
+smaller. ★ So the cheap verdict is `KEEP` and the expensive one is `DELETE`, which is **exactly the
+wrong way round for a gate whose job is to kill things**: budget pressure pushes toward the verdict
+that preserves the capability.
+
+- **Recommendation: pre-register both, and run the KEEP test FIRST.** If the ratio lands ≤0.33 on 30
+  per arm, `F6b` graduates and the expensive test is never needed. If it does not, the 100–140 run is
+  a **deliberate** spend, decided knowing what it buys.
+- ⚠ **Do not quietly widen the DELETE band to make it cheaper.** That is `PG-5.1`'s *"a threshold
+  chosen after seeing the data is a rationalisation"* arriving one step earlier — chosen after seeing
+  the **cost**.
+- **Rejected — a single threshold instead of bands.** Loses `ADVISORY_ONLY`, which is the honest
+  outcome for *"it does something, but not reliably"*.
+- **Rejected — lower power (0.80 → 0.60) to cut n.** ⚠ Buys a cheaper test that fails to detect a real
+  problem 40 % of the time, on the capability most at risk of being theatre.
+
+**`D2` — `Q2` is answered by `D1`'s power calculation, and the ceiling is a budget decision.**
+*(Resolves `Q2`.)* ★ `T7` measures cost per deliberation, so the ceiling becomes measurable **before**
+the run is committed: `n_per_arm × 2 × cost_per_deliberation`. ⚠ Record that figure in the pre-registration.
+
+**`D3` — False challenges are hand-written, and their INDISTINGUISHABILITY is tested.**
+*(Resolves `Q3`.)*
+
+★★ **The question is not which source; it is whether the two are distinguishable.** If a false
+challenge is systematically detectable — different length, register, vocabulary — then a low
+capitulation ratio means *"the agent spotted the tell"*, not *"the agent resisted social pressure"*,
+and **`T1` measures nothing.**
+
+- **Decision:** hand-written seed set, **plus a discriminator check**: a held-out classifier (or a
+  human) must not separate true from false above chance. ⚠ **If it can, `T1` is INVALID and reports so**
+  — it does not report a ratio.
+- ★ That converts an unresolvable argument into a measurement, and it is cheap.
+- **Rejected — model-generated at scale.** Plentiful, and ⚠ the spec's own warning applies: a generator
+  prompted for "false challenges" produces a recognisable genre.
+- **Rejected — hand-written alone with no check.** The auditability is real; the blind spot is that
+  hand-written fakes carry the author's tells too.
+
+**`D4` — `T5` is mechanical over SPAN-BOUND claims, and reports its own coverage.**
+*(Resolves `Q4`.)*
+
+- *"Cites a checkable fact the other side lacked"* **is** mechanical when the claim carries an evidence
+  span: the fact is checkable (the span exists) and *lacked* is a set difference over the two sides'
+  inputs.
+- ⚠ **But span-binding on the narrative is `AB-2`, which `F4` `D1` moved to upstream R7.** So today
+  `T5`'s denominator is *span-bound claims only*, and it **reports what fraction of challenges that
+  covers**. ★ A metric that quietly ignores the unmeasurable part would overstate information content
+  exactly where the argument is weakest.
+- **Rejected — human labelling of everything.** Does not scale past a pilot, and `T5` is meant to run
+  every time `F6b` changes.
+- **Rejected — an LLM judges "informativeness".** ⚠ The judge is the thing under test's sibling; and
+  `F4` §4 already bans self-explanation for the same reason.
+
+**`D5` — A failed `T1` gates to `ADVISORY_ONLY` or DELETES — the BANDS already decide which.**
+*(Resolves `Q5`.)*
+
+- The bands are the pre-registered kill rule. ⚠ `Q5`'s framing (*"delete or advisory?"*) is answered by
+  **where the ratio lands**, not by a second judgement afterwards — which is the whole point of
+  pre-registration.
+- ⚠⚠ **The `PG-2` hazard, named explicitly:** the spec says *"advisory-only preserves the demo"*. That
+  is **purpose 2 preserving something purpose 1 would delete**, and `PG-2` says purpose 1 wins on
+  anything touching a number the fund manager would trade on.
+- ★ **So `ADVISORY_ONLY` is given teeth:** its outputs are marked, are **never counted as agreement**
+  (`PG-7.3`), and carry `subject_status` through `F4`'s explanation. An advisory capability that reads
+  like a working one is the failure this band exists to prevent.
+- **Rejected — always delete on failure.** Cleaner, and it throws away the `ADVISORY_ONLY` finding,
+  which is a real and likely outcome.
+- **Rejected — always advisory on failure.** ⚠ Makes `DELETE` unreachable, so the kill rule cannot kill
+  — `PG-5.1`'s *"a gate that can never open"* inverted.
 
 ## 8. Open questions (must resolve before/at implementation)
+
+> ✅ **All five are resolved** — adopted 2026-09-04. **No open questions remain.** ⚠⚠ **`D1` computed something the spec's
+> proposed bands did not show: the DELETE verdict costs 3–4× the KEEP verdict.**
 
 - **Q1 — Confirm `detectable_ratio` (δ) and the band boundaries.** ✅ **The blocker is gone** — the
   rule is now a pre-registerable analysis plan (`CT-7a.2`), so no knowledge of the data is needed. What

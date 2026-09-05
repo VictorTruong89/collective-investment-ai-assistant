@@ -1,14 +1,14 @@
 # F9 — Thesis source port
 
-> **Spec-ID:** F9 · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F9 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` S4 ·
 > [`../../questions.md`](../../questions.md) `QR-20`, `QR-16`
 > **Milestone:** `MS-6` · **Governs:** inherits `P4`, `P5`, `AP-2`, upstream `RA-6`/`RA-9`,
 > `RA-67`/`RA-114`/`RA-144`, `AC-1.77`.
 > **Capability:** `C1` applied to seat 2 · `C8` provenance.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**; the rejected options are recorded there.
 
 ---
 
@@ -122,11 +122,51 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D3` ADOPTED 2026-09-04.**
 
-## 8. Open questions (must resolve before/at implementation)
+**`D1` — The relay envelope carries spans, and the port requires them from BOTH adapters.**
+*(Resolves `Q1`.)*
+
+- **Decision:** `ThesisSourcePort`'s contract requires an evidence span per factual claim. ⚠ **A port
+  whose two adapters make different guarantees is not one port** — callers would have to know which
+  variant answered, which is exactly what `F1`'s substitution contract forbids (`AC-1.9`).
+- ★ **The relay already re-verifies claims and raises on contradiction** (`QR-20`), so it has the
+  machinery; what `Q1` asks is whether the *envelope* carries them across the transport. It must.
+- ⚠ **Consequence to accept openly:** if the relay transport cannot carry spans for some answer, that
+  answer is **degraded** and must say so — it does not silently arrive span-less. ★ `QR-16`'s *"earn the
+  confidence back"* depends on the spans existing; without them there is nothing to earn it with.
+- **Rejected — spans optional on the relay path.** Produces two contracts wearing one name, and the
+  weaker one wins silently whenever the relay is used.
+- **Rejected — spans on the relay only** (API exempt). ⚠ Inverts the risk: the API path is the
+  **default** (`QR-20`), so exempting it exempts the common case.
+
+**`D2` — The API adapter uses the SAME prompt spec as the relay. One prompt, two transports.**
+*(Resolves `Q2`.)*
+
+- **Measured:** `L1-fundamental-analysis-master-prompt.md` is **1,952 lines** upstream. ★ `QR-20` framed
+  the relay as *"a change of transport, not a new architecture"* — `D2` holds the same line from the
+  other side.
+- ⚠ **Two prompts would make the two adapters incomparable.** `F5`'s golden-set regression and `F7b`'s
+  study both partition by variant; if the variants also differ in prompt, every measured difference is
+  confounded and no experiment separates transport from instruction.
+- **Rejected — a leaner prompt for the API path.** Tempting (cost), and it destroys comparability.
+  ★ If a leaner prompt is worth having, it is a **third variant** measured against the first — which is
+  what `F1`'s registry is for.
+
+**`D3` — Pull the cost report before `MS-6` closes, and record it as a `MetricResult`.**
+*(Resolves `Q3` — `QR-20`'s outstanding action.)*
+
+- **Decision:** the figure lands as an `F5` `CT-5.1` `MetricResult` with its `n` and `inputs_ref`, not
+  as a number in a document. ★ `QR-20` chose the API as default *partly on cost*; a decision made on a
+  cost estimate should carry the measured cost beside it.
+- ⚠ **`AC-5.2` then applies**: a cost figure without its sample size is not publishable, and
+  *"one week of runs"* is a very different claim from *"one run"*.
+- **Rejected — record it in prose in `questions.md`.** A number in a decision log is never revisited;
+  a `MetricResult` accrues a trend and reds when it moves.
+
+## 8. Open questions
+
+> ✅ **All three are resolved** — adopted 2026-09-04. **No open questions remain.**
 
 - **Q1 — Does the relay envelope carry source spans?** `QR-16`'s "earn the confidence back" option
   depends on the relayed report returning claims **with spans** so `ingest()` can verify every one.

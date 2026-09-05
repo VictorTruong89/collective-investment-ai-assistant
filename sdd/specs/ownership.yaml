@@ -129,6 +129,28 @@ map:
       an orchestration framework (QR-14, F2 AC-2.10). ⚠ Graduation gate satisfied by
       F7a; DEPLOYMENT mode is set by F7a's band verdict (spec §2.1).
 
+  # ═══ ABSORBED 2026-09-04 — MS-2.7. ⚠⚠ THIS ENTRY MUST STAY LAST OF THE
+  #     src/orchestration/ ENTRIES. First match wins, and this glob CONTAINS
+  #     four platform paths already governed above:
+  #         src/orchestration/trace/**        -> F2   (line ~68)
+  #         src/orchestration/policy/routing.py -> F6a (line ~93)
+  #         src/orchestration/control/**      -> F8   (line ~101)
+  #         src/orchestration/graph/**        -> F6b  (line ~125)
+  #     ★ This is the EXACT hazard L4 §5.1 was written for, arriving live at
+  #     MS-2.7 rather than at MS-8. If this entry were moved above them, the
+  #     inherited L1 spec would silently govern platform code, the gate would
+  #     still fire, and NOTHING would look broken. Enforced by MS-8 item 8.4a.
+  - globs:
+      - "src/orchestration/**"
+    spec: sdd/design/rel6_design/L1-orchestration.md
+    why: >
+      L1-orchestration (OR-nn, 76 definitions) — D-08: the job graph, run
+      manifest, locks, cadence, budget and retry policy. ⚠ ABSORBED 2026-09-04
+      (QR-22) after Victor SUSPENDED the daily run, which voided the only
+      objection to moving it. Upstream's copy of this spec is historical.
+      ⚠ RunManifest/RunOutcome/manifest_store are OR-13 append-only — F2 EXTENDS
+      them downward and must never write a second run-level record.
+
   # ⚠ F7a and F7b land inside src/evaluation/** which F5 already governs — no separate
   # glob. First matching entry wins, so F5's entry covers them.
   # First matching entry wins, so F5's entry covers it; F7a is cited from F5's ACs.

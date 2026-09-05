@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from tests.contracts.harness import PortContractSuite, assert_no_state_leak
 from tests.contracts.fixture_ports import LeakyGreeter, WarmupGreeter, build_registry
+from tests.contracts.harness import PortContractSuite, assert_no_state_leak
 
 
 class TestGreeterContract(PortContractSuite):

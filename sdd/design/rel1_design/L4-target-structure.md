@@ -258,6 +258,13 @@ now so the decision is not re-litigated later.
 `src/shared/upstream.py` shim.~~ **Struck 2026-09-04.** The shim presumes both trees are importable at
 once, which `QR-22` measured to be impossible for any domain both repos populate.
 
+⚠⚠ **The rule, stated once — it recurred three times before it was written down.**
+**EVERY top-level directory both repos populate must be a namespace package** (no `__init__.py` in
+either): `src/` (`DX-1`), `src/shared/` and the domains (`DX-2`), `tools/` (`DX-7`). A *regular*
+package found anywhere on `sys.path` **ends the import scan**, so one stray `__init__.py` makes the
+other repo's contents invisible — with a `ModuleNotFoundError` naming the submodule and no hint of the
+cause. ★ `DX-7`'s file was **untracked**, so `git status` could not show it either.
+
 ★ **Option D, concretely:** there is **no shim for an absorbed domain** — its imports are plain
 intra-repo imports from the day it arrives, because upstream's copy is gone. A shim survives only for
 reaching a domain this repo has **not** absorbed and does not intend to yet.

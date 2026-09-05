@@ -1,6 +1,6 @@
 # F5 — Evaluation harness
 
-> **Spec-ID:** F5 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
+> **Spec-ID:** F5 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §B.4 · lecture §3.6 ·
 > [`../../questions.md`](../../questions.md) `QR-13`, `QR-19`
 > **Milestone:** `MS-4` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
@@ -8,8 +8,9 @@
 > **Capability:** `C6` — ★ **without it, `C1`–`C5` are demonstrations rather than results.**
 > **Domain:** D-14 `src/evaluation/`, seat 9.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** `Q1`–`Q5` adopted as `D1`–`D5` (§7) — ★ **read §7 before changing §5 or
+> §6.** ⚠ `D2` is the one with a standing human obligation: **the fund manager establishes every golden
+> value**, and no pipeline component may appear in `established_by`.
 
 ---
 
@@ -132,9 +133,14 @@ eventually be trusted for the wrong reason.
 
 ## 6. Acceptance criteria (Given / When / Then → test tier)
 
-- **AC-5.1** *(★ every metric is checked against a known answer)* — **Given** any metric
-  implementation, **when** run on its fixture, **then** it returns the independently-derived expected
-  value within tolerance. → *golden / characterization, one per metric.* (`QR-13`)
+- **AC-5.1** *(★ every metric is checked against a known answer — `D2`)* — **Given** any metric
+  implementation, **when** run on its fixture, **then** it returns the expected value within tolerance;
+  **and** that fixture's `source` is non-empty and its `established_by` names **a person, never a
+  pipeline component**. → *golden / characterization, one per metric.* (`QR-13`, `D2`)
+  > ⚠⚠ **`D2`'s reason, because the alternative looks better.** Seeding golden values from the system's
+  > own output would give more cases and a permanently green suite — while **certifying the system
+  > against itself**, so any regression silently becomes the new gold. ★ For `thesis` the correct answer
+  > is a **judgement**, and the case records whose it was rather than pretending to objectivity.
 - **AC-5.2** *(★ `n` is never absent)* — **Given** any `MetricResult`, **when** emitted, **then** `n`
   is present and > 0, or `value` is null with an `insufficient_reason`. → *data contract.*
 - **AC-5.3** *(selection count travels with the figure)* — **Given** a subject chosen from `k > 1`
@@ -149,9 +155,22 @@ eventually be trusted for the wrong reason.
 - **AC-5.6** *(grounding rate is real)* — **Given** a thesis with bound and unbound claims, **when**
   grounding is computed, **then** the rate equals verified-claims ÷ factual-claims, and
   `unbound_claim_count` is reported alongside. → *unit.* (`AP-2`)
-- **AC-5.7** *(a prompt change reds the suite)* — **Given** a green regression baseline, **when** a
-  prompt's text changes such that behaviour changes on the golden set, **then** the suite fails and
-  names the diverging cases. → *integration.*
+- **AC-5.7** *(a prompt change reds the suite — `D5`)* — **Given** a green regression baseline, **when**
+  a prompt's text changes such that behaviour changes on the golden set, **then** the suite fails and
+  names the diverging cases — **replaying `F2`'s recorded responses, making no live call**.
+  → *integration.*
+  > ⚠ Live calls in CI were rejected: cost, flakiness, and **a suite that fails when a vendor is down
+  > teaches people to ignore red**, which destroys it permanently.
+- **AC-5.15** *(★ a study may not be imported — `D1`)* — **Given** the source tree, **when** CI runs,
+  **then** nothing imports `src/evaluation/studies/**`. → *invariant / property (structural).* (`D1`)
+  > ★ `D1`'s boundary is **consumption, not intent**: a metric is anything another decision reads. ⚠ The
+  > silent direction is a *study* acquiring a consumer and becoming load-bearing while still exempt —
+  > this is the check that catches it.
+- **AC-5.16** *(★ a non-recomputable figure says so — `D4`)* — **Given** a `MetricResult` whose inputs
+  have expired under `F2` `D2`, **when** it is read, **then** it is marked non-recomputable.
+  → *data contract.*
+  > ⚠ A figure nobody can re-derive must not look freshly checked — the same reasoning as `F2`'s
+  > `UNREPLAYABLE`.
 - **AC-5.8** *(calibration joins on `decision_id`)* — **Given** resolved outcomes linked by `F2`
   `CT-2.6`, **when** calibration is computed, **then** every bin's `observed_rate` derives from that
   join and no outcome is counted twice. → *data contract.*
@@ -159,9 +178,12 @@ eventually be trusted for the wrong reason.
   noise, **when** the deletion curve is computed, **then** removing top-`k` attributed features
   degrades performance no faster than removing random features, and the result is reported as
   unfaithful. → *unit.*
-- **AC-5.10** *(insufficient is loud)* — **Given** a metric requested on a sample below its stated
-  minimum, **when** computed, **then** `value` is null and `insufficient_reason` names the shortfall —
-  ⚠ **never a number computed on too little data**. → *unit.* (`P5`)
+- **AC-5.10** *(insufficient is loud — `D3`)* — **Given** a metric requested on a sample below its
+  **per-metric** minimum, **when** computed, **then** `value` is null and `insufficient_reason` names
+  the shortfall — ⚠ **never a number computed on too little data**. → *unit.* (`P5`, `CN-10`)
+  > ★ Each minimum is an **admitted floor** carrying a `CN-10` note saying who set it and on what
+  > basis, copying `src/quant/metrics/breadth.py::MIN_NAMES`. Upstream `CN-10`: *"'admitted guess' is
+  > an acceptable answer; **silence is not**."*
 - **AC-5.11** *(no re-implementation of upstream metrics)* — **Given** the source tree, **when** CI
   runs, **then** `src/evaluation/**` contains no independent computation of IC, breadth or the IC
   standard error; it imports them. → *invariant / property (structural).* (`P4`)
@@ -176,27 +198,104 @@ eventually be trusted for the wrong reason.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D5` ADOPTED 2026-09-04** (`D2` confirmed by Victor: *"fund manager decides what is
+> right"*). The ACs they touch were amended in the same change.
+> ★ **Three of the five were settled by finding the answer already in the inherited code** rather than
+> by reasoning — the `MS-2`/`MS-3` habit, applied again.
+
+**`D1` — The metric/study boundary: *does anything else consume it?*** *(Resolves `Q1`.)*
+
+**A metric** is anything whose output another decision, gate, report or test reads. It is
+spec-governed, lives in `src/evaluation/metrics/`, and needs `AC-5.1`'s known-answer fixture.
+**A study** is read once by a human and consumed by nothing. It is `P7`-exempt, lives in
+`src/evaluation/studies/`, and ⚠ **may not be imported by anything.**
+
+- ★ **The rule is enforceable rather than a judgement**, which is what `QR-13` asked for: *"is it
+  imported?"* is a grep, and `AC-5.12`'s import checker already runs it. **Consumption is the test, not
+  intent** — a study that acquires a consumer has become a metric and must move.
+- ⚠ **The drift `QR-13` feared runs the other way too.** A case-by-case rule lets everything slide into
+  the exempt side; this rule lets a *study* quietly become load-bearing. The import check catches the
+  second, which is the more dangerous direction because it is silent.
+- **Rejected — "exploratory means exempt".** Intent is unobservable and changes after the fact; every
+  metric began as an exploration.
+- **Rejected — everything under `src/evaluation/` is spec-governed.** ✗ Kills the exploration `P7`
+  exists to protect, and `QR-13` explicitly preserved it.
+
+**`D2` — A golden value is established by the fund manager, never by the system.** *(Resolves `Q2`.)*
+
+- `CT-5.2`'s `source` and `established_by` become **enforced**, not merely present: `established_by`
+  may not name any pipeline component, and `AC-5.1` fails on a golden case whose `source` is empty.
+- ⚠ **The circularity `Q2` names is real and not fully escapable for `thesis`.** Extraction and ranking
+  have objective answers (a filing says what it says). A thesis's "correct" answer is a judgement, so
+  the golden case records **the judgement and who made it** rather than pretending to objectivity.
+- ★ **Same shape as `DX-5`'s split**: where truth is external, keep it external and *say* it is a
+  judgement; do not synthesise something that looks like ground truth.
+- **Rejected — seed the golden set from the system's own best output.** ⚠⚠ Circular: the harness would
+  certify the system against itself and **regressions would become the new gold**. This is the single
+  most dangerous option on this page because it produces a green suite forever.
+- **Rejected — an LLM judges the golden answers.** Same circularity one level removed, plus
+  `Sharma et al. (2023)` sycophancy: the judge sees the candidate.
+- **Rejected — no golden set for `thesis`.** Gives up the only check on the most expensive output.
+
+**`D3` — Per-metric minimums, declared as ADMITTED FLOORS under `CN-10`.** *(Resolves `Q3`.)*
+
+★★ **The answer is already upstream.** `src/quant/metrics/breadth.py`:
+
+```python
+#: ⚠ Below this many names a pairwise-correlation average is dominated by its own
+#: sampling error. **An admitted floor** (CN-10) — nothing measured it; it exists
+#: so the function declines rather than returning a confident number from four
+#: observations.
+MIN_NAMES = 10
+```
+
+and on insufficiency it returns a `why` naming the shortfall. ★ **F5 adopts that shape verbatim** —
+per-metric constant, `CN-10` comment stating who set it and on what basis, and a refusal carrying its
+reason. Upstream `CN-10` says *"**'admitted guess' is an acceptable answer; silence is not**"*.
+
+- **Rejected — one global floor.** ⚠ ECE with 5 bins needs a different `n` from a grounding rate; a
+  single number is wrong for every metric except the one it was chosen for.
+- **Rejected — derive each floor from a power calculation.** ★ Correct in principle and **currently
+  undeliverable**: the effect sizes are unknown, which is what `F7a` exists to find out. `CN-10`'s
+  admitted floor is the honest interim, and it is revisable *because it is written down*.
+- **Rejected — no minimum; report `n` and let the reader judge.** ⚠ `AC-5.10` exists because a number
+  computed on 4 observations gets quoted without its `n`.
+
+**`D4` — Retention: `MetricResult` history is permanent; inputs follow `F2` `D2`.** *(Resolves `Q4`.)*
+
+- `Q4` says *"the same tiering question as `F2`'s `Q2`, and it should get the same answer"* — ★ agreed,
+  and `F2` `D2` already decided it: **records forever, raw payloads expire.** A `MetricResult` is
+  kilobytes and **is** the regression trend; the run payloads behind it are what expire.
+- ⚠ A metric whose inputs have expired stays valid **as a recorded figure** and becomes
+  **non-recomputable**. That distinction must appear in the record, exactly as `F2`'s `UNREPLAYABLE`
+  does — a figure nobody can re-derive should say so rather than look freshly checked.
+- **Rejected — expire old `MetricResult`s.** Destroys the trend, which is the only thing that makes a
+  regression suite more than a point check.
+
+**`D5` — CI runs the regression on RECORDED responses; live calls are opt-in.** *(Resolves `Q5`.)*
+
+- ★★ **Both halves of the mechanism already exist.** `F2` records every LLM request/response
+  (`CT-2.2`), and upstream already carries **4 `pytest.mark.live` tests** whose skip is loud. So the
+  golden-set regression replays `F2`'s recordings in CI, and a `live` marker re-runs against the real
+  vendor on demand.
+- ⚠ **This is what makes `AC-5.7` affordable at all** — *"a prompt change reds the suite"* cannot mean
+  an LLM call per case per commit.
+- ★ It also gives `F5` a real second consumer of `F2`, which is evidence the trace substrate was worth
+  building before the capabilities.
+- **Rejected — live calls in CI.** Cost, flakiness, and ⚠ a suite that fails when a vendor is down
+  teaches people to ignore red.
+- **Rejected — no CI regression, measure after each run only.** A prompt change would be caught
+  *after* it shipped, which is the wrong side of the change.
 
 ## 8. Open questions (must resolve before/at implementation)
 
-- **Q1 — ⚠ Where is the metric / study boundary?** `QR-13` flagged it and deferred it here. Metric
-  implementations are spec-governed; **one-off exploratory studies arguably stay `P7`-exempt like
-  D-10**. The boundary needs a rule, not a case-by-case judgement — otherwise everything drifts into
-  the exempt side. *Proposal to react to: anything another decision consumes is a metric; anything
-  read once by a human is a study.*
-- **Q2 — Who establishes a golden value, and how is it maintained?** `CT-5.2` requires a `source`, but
-  for a thesis fixture the "correct" answer is a judgement. ⚠ A golden set the system's own output
-  seeded is circular. Blocks `AC-5.1` for the `thesis` kind.
-- **Q3 — Minimum sample sizes.** `AC-5.10` needs a stated minimum per metric. ECE with 5 bins on 40
-  cases is not meaningful; where is the floor, and is it per-metric or global?
-- **Q4 — Storage and retention.** `MetricResult` history is what makes a regression *trend* visible
-  rather than a point check. Same tiering question as `F2`'s `Q2`, and it should get the same answer.
-- **Q5 — Does F5 run in CI, or after a run, or both?** `T1` and `T2` imply both, on different cadences.
-  ⚠ CI cannot call an LLM cheaply; the golden-set regression may need recorded responses from `F2`
-  rather than live calls.
+> ✅ **All five are resolved** — `D1`–`D5` in §7, adopted 2026-09-04. **No open questions remain.**
+
+- ~~**Q1 — Where is the metric / study boundary?**~~ → `D1` (consumption, not intent)
+- ~~**Q2 — Who establishes a golden value?**~~ → `D2` (**the fund manager**; never the system)
+- ~~**Q3 — Minimum sample sizes.**~~ → `D3` (per-metric admitted floors, `CN-10`)
+- ~~**Q4 — Storage and retention.**~~ → `D4` (results forever; inputs follow `F2` `D2`)
+- ~~**Q5 — Does F5 run in CI, after a run, or both?**~~ → `D5` (CI replays `F2`; live is opt-in)
 
 ## 9. Traceability (spec → test → code)
 
@@ -204,17 +303,26 @@ eventually be trusted for the wrong reason.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-5.1 | *(to be written — blocked Q2 for `thesis`)* | `src/evaluation/metrics/**` |
-| AC-5.2 | *(to be written)* | `src/evaluation/metrics/models.py` |
-| AC-5.3 | *(to be written)* | `src/evaluation/metrics/models.py` |
-| AC-5.4 | *(to be written)* | `src/evaluation/metrics/models.py` |
-| AC-5.5 | *(to be written)* | `src/evaluation/metrics/calibration.py` |
-| AC-5.6 | *(to be written)* | `src/evaluation/metrics/grounding.py` |
-| AC-5.7 | *(to be written — blocked Q5)* | `src/evaluation/regression/run.py` |
-| AC-5.8 | *(to be written)* | `src/evaluation/metrics/calibration.py` |
-| AC-5.9 | *(to be written)* | `src/evaluation/metrics/faithfulness.py` |
-| AC-5.10 | *(to be written — blocked Q3)* | `src/evaluation/metrics/models.py` |
-| AC-5.11 | *(to be written)* | `tools/check_no_metric_duplication.py` |
-| AC-5.12 | *(to be written)* | `tools/check_oneway_imports.py` |
-| AC-5.13 | *(to be written)* | `src/evaluation/metrics/models.py` |
-| AC-5.14 | *(to be written)* | `src/evaluation/studies/compare.py` |
+| AC-5.1 | `tests/unit/test_evaluation_metrics.py::test_ac_5_1_*` (4, incl. 5 forbidden establishers) | `src/evaluation/golden/models.py::GoldenCase` |
+| AC-5.2 | `::test_ac_5_2_a_figure_without_n_cannot_be_built` · `::test_ac_5_2_value_and_insufficiency_are_mutually_exclusive` | `metrics/models.py::MetricResult` |
+| AC-5.3 | `::test_ac_5_3_selection_count_travels_with_the_figure` · `::test_ac_5_3_selection_count_starts_at_one` | `metrics/models.py` |
+| AC-5.4 | `::test_ac_5_4_tier_must_be_declared_and_valid` · `tests/integration/test_evaluation_regression.py::test_ac_5_4_an_underpowered_comparison_is_insufficient_never_a_pass` | `metrics/models.py`, `studies/compare.py` |
+| AC-5.5 | `::test_ac_5_5_coverage_and_calibration_never_share_a_field_name` · `::test_ac_5_5_neither_is_derived_from_the_other` | `metrics/calibration.py::evidence_coverage` |
+| AC-5.6 | `::test_ac_5_6_grounding_rate_is_verified_over_factual` · `::test_ac_5_6_unbound_count_is_reported_beside_the_rate` | `metrics/grounding.py` |
+| AC-5.7 | `tests/integration/test_evaluation_regression.py::test_ac_5_7_*` (4) | `regression/run.py` |
+| AC-5.8 | `::test_ac_5_8_an_outcome_is_never_counted_twice` · `::test_ac_5_8_unresolved_predictions_are_excluded` | `metrics/calibration.py::_resolved` |
+| AC-5.9 | `::test_ac_5_9_*` (3) | `metrics/faithfulness.py::deletion_curve` |
+| AC-5.10 | `::test_ac_5_10_*` (3) | `metrics/models.py::MINIMUM_N`, `insufficient` |
+| AC-5.11 | `tests/structural/test_evaluation_boundaries.py::test_ac_5_11_*` (4) | `tools/check_evaluation_boundaries.py` |
+| AC-5.12 | `::test_ac_5_12_*` (2) | `tools/check_evaluation_boundaries.py::one_way_violations` |
+| AC-5.13 | `::test_ac_5_13_experimental_inputs_produce_an_experimental_figure` | `metrics/models.py` |
+| AC-5.14 | `tests/integration/test_evaluation_regression.py::test_ac_5_14_*` (3) | `studies/compare.py::ComparisonResult` |
+| AC-5.15 | `tests/structural/test_evaluation_boundaries.py::test_ac_5_15_*` (3) | `tools/check_evaluation_boundaries.py::study_consumer_violations` |
+| AC-5.16 | `::test_ac_5_16_a_figure_whose_inputs_expired_is_marked` | `metrics/models.py::MetricResult.recomputable` |
+
+✅ **All 16 ACs green, 2026-09-04** — **21 mutations run, all caught on the first pass.**
+
+⚠ **What is NOT covered, stated because a traceability table's job is to be honest:**
+`AC-5.1`'s golden set is **empty** — the machinery that refuses a circular golden value is tested, but
+**no real golden case exists yet**, because `D2` makes that the fund manager's work. The regression
+suite runs and reds correctly; it currently has nothing to red *about*.

@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import re
 import threading
-from typing import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 
 from src.shared import ports as _ports
 from src.shared.registry.errors import (

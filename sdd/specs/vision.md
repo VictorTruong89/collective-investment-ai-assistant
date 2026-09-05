@@ -190,10 +190,10 @@ of the platform*, not a feature of the investment strategy.
 | ID | Spec | Cap. | Home | Status |
 |---|---|---|---|---|
 | **F1** | Module protocol & registry (SPI) | C1 | D-00 | 🟢 **approved 2026-09-03** |
-| **F2** | Execution trace & replay | C7 | 7 | 🔵 idea |
+| **F2** | Execution trace & replay | C7 | 7 | 🟢 **approved 2026-09-04** |
 | **F3** | Corporate-action resolution agent | C2 | 8 (D-07) | 🔵 idea |
 | **F4** | Explainability contract | C3 | 6 (D-13) | 🔵 idea |
-| **F5** | Evaluation harness | C6 | 9 (D-14) | 🔵 idea |
+| **F5** | Evaluation harness | C6 | 9 (D-14) | 🟢 **approved 2026-09-04** |
 | **F6a** | Config-influence routing | C2·C5 | 7 | 🔵 idea |
 | **F6b** | Inter-agent messaging & deliberation | C2 | 7 | 🔵 idea — ★ **gated on `F7a`** (`PG-5.1`) |
 | **F7a** | ★ **Deliberation process tests (Tier A)** — capitulation on false challenges, effect size, direction, order-dependence, information content, termination, cost | C6 | 9 | 🔵 idea — **gates `F6b`** |

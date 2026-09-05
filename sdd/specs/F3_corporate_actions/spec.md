@@ -1,6 +1,6 @@
 # F3 — Corporate-action resolution agent
 
-> **Spec-ID:** F3 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
+> **Spec-ID:** F3 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §B.2 · upstream skill
 > `.claude/skills/ticker-went-silent/SKILL.md` · upstream `AB-18`, `AB-20`
 > **Milestone:** `MS-6` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
@@ -8,8 +8,8 @@
 > `DE-61`…`DE-68`.
 > **Capability:** `C2` — ★ **the single clearest case in the system where an agent earns its place.**
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**; the rejected options are recorded there.
 
 ---
 
@@ -169,11 +169,71 @@ requires ≥2 independent sources or one primary; `retired_side == true` require
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D5` ADOPTED 2026-09-04.**
+
+**`D1` — Search runs through the LLM gateway's server-side tool, not a separate API.**
+*(Resolves `Q1`.)*
+
+- ⚠ **`ST-5` decides this, not convenience:** *only the gateway calls an LLM.* A separate search API
+  reached from `src/data_engine/` would put a second external caller outside the one place budget,
+  retries, `model_id` and cost are recorded — and `F2` `CT-2.2` would stop seeing the call.
+- **Measured:** `src/shared/llm/gateway.py` already carries `Tier`, `Decoding`, `LLMCall`, `charge()`
+  and `spent_usd()`. ★ Adding a search-enabled tier extends that; it does not build a parallel path.
+- **Rejected — a dedicated search API** (Brave/Serper/Tavily). ⚠ A second vendor, a second key, a
+  second budget, and a call `F2` cannot replay.
+- **Rejected — scraping.** Fragile, and `PG-3` justifies an agent here precisely because *"the answer
+  is on the internet"* — not because we want an HTML parser.
+
+**`D2` — F3 spends the EXISTING per-job budget; it declares no new one.** *(Resolves `Q2`.)*
+
+- **Measured:** `src/orchestration/policy/budget.py` already has `Budgets.for_job` / `check_job` /
+  `check_run`. ★ F3's sweep is a **job**, so it inherits a budget the orchestrator already enforces.
+- ⚠ **The real control is scope, not spend:** `D3`'s severity cadence means a run sweeps only what is
+  *due*, so *"hundreds of searches"* is a property of sweeping everything every day — which `D3` stops.
+- **Rejected — a bespoke F3 cost cap.** A second budget that can disagree with the run's (`P4`), and
+  the failure mode is the worst kind: two limits, neither authoritative.
+
+**`D3` — Cadence is upstream `DE-72`'s severity schedule. F3 invents nothing.** *(Resolves `Q3`.)*
+
+★★ **Already answered upstream, and better than a cron period would be.** `L1-data-engine` `DE-72`:
+
+> *"Cadence follows **SEVERITY**, and staleness is measured from the refresh the store **RECORDED**.
+> A stale `BLOCK` can let a real split through unhandled; a stale `NOTE` costs a reader context — so
+> `BLOCK` is due after **1 day**, `FLAG` **7**, `NOTE` **30**."*
+
+- ⚠ `DE-72` also warns that measuring from *when the sweep was invoked* lets a sweep that covered
+  nothing reset the clock. F3 must read **recorded refresh time per name**, not run time.
+- ★ Upstream separately records that with `DE-72` in place *"the cron period — still Victor's — **no
+  longer blocks**"*, which is exactly why `Q3` can be closed without picking a number.
+- **Rejected — a single daily sweep of the universe.** ⚠ `DE-72`'s own argument: one interval either
+  hammers the rate limit for news or leaves splits unchecked for a week.
+
+**`D4` — F3 WRITES the finding; it never acts on it.** *(Resolves `Q4`.)*
+
+- **Decision: F3's output is a record, and the universe rule reads it.** ⚠ A resolver that also removed
+  a name would be deciding, and `PG-3`'s justification for an agent here is *resolution*, not action.
+- ★ The seam is already the right shape: `F2` records the finding with its `decision_id`, so whoever
+  acts does so **traceably** and the two halves can be evaluated separately.
+- **Rejected — F3 removes/flags the name directly.** Couples an agent to portfolio state, and an
+  agent that acts is one whose mistakes are not merely wrong but *executed*.
+
+**`D5` — `undetermined` is retried on the severity clock, with an attempt count and a ceiling.**
+*(Resolves `Q5`.)*
+
+- **Decision:** an `undetermined` finding is re-queued at its class's `DE-72` interval, carrying
+  `attempts`. After a declared ceiling it becomes **`permanently_unchecked`** — which `DE-72` already
+  treats as an **exempt** state, not an overdue one.
+- ⚠ **That last clause is the point:** `DE-72` warns that reporting a permanently-unresolvable class as
+  overdue daily *"would train a reader to ignore the whole report"* (`DE-35`). ★ An honest terminal
+  state protects the report's signal.
+- **Rejected — retry forever.** Produces a permanent backlog that readers learn to skip.
+- **Rejected — never retry.** ⚠ *"As more information becomes available"* is exactly why a first
+  `undetermined` is not final; a delisting rumour resolves in days.
 
 ## 8. Open questions (must resolve before/at implementation)
+
+> ✅ **All five are resolved** — adopted 2026-09-04. **No open questions remain.**
+> inherited code and specs** (`DE-72`, `policy/budget.py`), not by reasoning.
 
 - **Q1 — Which search tool?** Server-side web search through the gateway, or a separate search API?
   ⚠ Affects `AC-3.11`: replay requires the page contents to be *recorded*, which a server-side tool

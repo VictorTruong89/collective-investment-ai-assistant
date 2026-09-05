@@ -51,7 +51,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-12** | ★ **Publication model — how are all rights retained?** | platform | ✅ | [`../LICENSE`](../LICENSE) · `MS-9` |
 | **QR-13** | Does `src/evaluation/` get a spec, or stay gate-exempt? | D-14 · seat 9 | ✅ | `ownership.yaml` · `F5` |
 | **QR-14** | Is LangGraph confinement enforced by CI grep? | D-08 · seat 7 | ✅ | `A8` · `F2` ACs |
-| **QR-15** | Does `config/` merge cleanly at absorption? | platform | 🔵 | — |
+| **QR-15** | Does `config/` merge cleanly at absorption? | platform | ✅ *(measured 2026-09-04)* | `L3` `MS-8` item 8.2 |
 | **QR-16** | ★ **What is produced when asked about a name outside the top-1?** | D-09 · seat 8 | ✅ | `F8` · `F9` ACs |
 | **QR-17** | ★ **How are unpredictable human directives handled?** | D-08 · seat 7 | ✅ *(reframed 2026-09-01)* | `F8` §2.1 · `AC-8.12`–`AC-8.20` |
 | ~~QR-18~~ | *withdrawn — misread intent; ID retired, not reused* | — | ⊘ | — |
@@ -59,6 +59,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-20** | Is the API or the relay the default thesis source? | D-01 · seat 2 | ✅ | `F9` default variant |
 | **QR-21** | ★ **CAD/CDR positions — block, buy, or scope out?** | D-05 · seat 4 ⬆ | ✅ | ⬆ upstream `DN-39`/`RC-58` |
 | **QR-22** | ★★ **How do two repos that both root at `src/` coexist before absorption?** | platform | ✅ | `L3` `DX-1`/`DX-2` · `L4` §4 · `MS-2`/`MS-8` |
+| **QR-23** | ★ **May absorption touch domains the daily run depends on?** | platform | ✅ | `CLAUDE.md` · `L3` §2.2a · `MS-2.7` |
 | ⬆ | Upstream questions that block this repo | various | ⬆ | §9 |
 
 ---
@@ -232,6 +233,38 @@ thing you show**, and they leak nothing.
 keep. **Rejected:** AGPL as a "restrictive" choice — it is still an OSI grant, and its copyleft targets
 network distribution, which is not the concern here.
 
+## ✅ QR-23 — The daily run is suspended, so absorption may take any domain
+
+**Origin:** raised at `MS-2.7`, 2026-09-04 — absorbing `src/orchestration/` would make this repo
+**load-bearing for the daily run**, and I declined to assume that was acceptable.
+**Status:** ✅ decided 2026-09-04. **Binds:** `CLAUDE.md` · `L3` §2.2a · `MS-2.7`.
+
+**Victor's decision:** *"I have delayed daily running until we fully developed
+`collective-investment-ai-assistant/` and retire `ai-investment-pipeline/` and extensive E2E
+validation."*
+
+**Consequence.** The objection that gated `MS-2.7` is **void** — no live run can be broken by a move,
+so absorption may take **any** domain, including D-08. `MS-2.7` proceeded the same day.
+
+### ⚠ What this also changes, and should not be missed
+
+★ **It weakens the objection that rejected WHOLESALE absorption.** `L4` §4 option C was rejected as
+*"premature — the pipeline is still changing daily; a copy forks maintenance."* **The pipeline is no
+longer changing daily.** Combined with the `MS-2.5` rehearsal — which merged ~294 files with **one**
+filename collision and **zero** import conflicts — the case for finishing the absorption in fewer,
+larger steps is materially stronger than when `QR-22` was decided.
+
+⚠ **This is NOT a decision to do so, and `QR-22` still stands.** Per-domain absorption is still the
+default, because each step has been cheap and each has *found something* (`DX-3` at `src/shared/`, the
+`L4` §5.1 glob-ordering hazard at `src/orchestration/`). ★ **A larger step would have surfaced both at
+once, under more pressure, with more moving at the same time.** Recorded so the option is *available*
+rather than re-argued from scratch — see `L3` §2.2b.
+
+⚠ **The E2E validation is now a precondition for resuming real trading, not a milestone tick.**
+`MS-9`'s checklist (`L3` §7) is what carries it.
+
+---
+
 ## ★★ ✅ QR-22 — Absorb per-domain, early — two `src/` trees never coexist
 
 **Origin:** the `MS-1` build, 2026-09-03/04 — `L3` `DX-1` and `DX-2`, both found by *running the
@@ -314,9 +347,25 @@ experiment over the paragraph of reasoning, and record the experiment's output, 
 
 ---
 
-## 🔵 QR-15 — Does `config/` merge cleanly at absorption?
+## ✅ QR-15 — Does `config/` merge cleanly at absorption?
 
-**Origin:** `L4-target-structure.md` S-3. **Status:** 🔵 open. Low urgency until `MS-0` completes.
+**Origin:** `L4-target-structure.md` S-3. **Status:** ✅ **answered 2026-09-04 by the `MS-2.5`
+absorption rehearsal** — *measured*, not predicted. **Binds:** `L3` `MS-8` item 8.2.
+
+**Answer: yes — `config/` merges with zero collisions.** The rehearsal overlaid upstream's **34**
+config files onto this repo's and found **no overlapping filename**. No platform namespace
+(`config/platform/`) is needed.
+
+⚠ **But hold the answer at the confidence it deserves.** It is yes *today*, and the reason is partly
+that this repo has barely used `config/` — it holds exactly one file (`upstream_pin.json`, added at
+`MS-2.3`). The rehearsal proves there is **no collision now**; it does not prove none can arise.
+
+★ **What actually makes it safe is cheap and should be adopted regardless:** name platform config
+files distinctly (`upstream_pin.json`, not `pin.json`) so the namespace stays flat and collision-free
+by construction. A directory only needs partitioning once two things in it want the same name.
+
+⚠ **Re-check at `MS-8`**, since this repo's `config/` will have grown by then. The rehearsal is
+repeatable — that is its point.
 
 ---
 

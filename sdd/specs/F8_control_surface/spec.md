@@ -1,13 +1,13 @@
 # F8 — Human control surface
 
-> **Spec-ID:** F8 · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F8 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` S4 ·
 > [`../../questions.md`](../../questions.md) `QR-16`
 > **Milestone:** `MS-6` · **Governs:** enforces `PG-2`; inherits `P5`, `INV-6`, upstream `RC-*` (journal).
 > **Capability:** `C5` human-side · `C4` suspend/resume.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**; the rejected options are recorded there.
 
 ---
 
@@ -233,11 +233,92 @@ validation, once real directives exist to map.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D6` ADOPTED 2026-09-04.**
+> ⚠⚠ **`D3` (authentication) is the one that must not be waved through** — it is the only decision in
+> the whole corpus that, if wrong, is wrong *at the network boundary of a machine that trades*.
 
-## 8. Open questions (must resolve before/at implementation)
+**`D1` — A drill-down is a STEP inside the day's run, not a run of its own.** *(Resolves `Q2`.)*
+
+- Confirms the spec's own leaning, and `F2` `CT-2.7` already assumes it: a drill-down is
+  `attempt >= 2` on the **same `run_id`**, minting its own `decision_id`.
+- ★ **`INV-6` is the deciding argument** — one actionable recommendation per day is enforceable over
+  **one** boundary. Separate runs would make *"how many recommendations did today produce?"* a
+  question about how many processes started.
+- **Rejected — its own run.** ⚠ Would need its own manifest, cadence claim and lock (`OR-24`/`OR-46`),
+  and `INV-6` would have to be re-derived across runs. `AC-8.2`'s enforcement point would move from a
+  check to a join.
+
+**`D2` — The interpreter runs on the CHEAP tier, and refuses rather than guesses.**
+*(Resolves `Q7`.)*
+
+- **Decision:** mapping one line of English onto a **closed** effect vocabulary is a classification
+  task, not a reasoning one. ⚠ **The safeguard is not the tier, it is the closed set plus a refusal
+  path**: an unmapped directive returns *"I did not understand this"* and changes nothing.
+- ★ `PG-3` applies to the tier choice too — where the output space is bounded and known, the small
+  model is the right instrument, and the money saved is real at once-daily cadence.
+- **Rejected — the expensive tier for safety.** ⚠ Buys the *appearance* of care: a larger model
+  guessing plausibly at an ambiguous directive is **more** dangerous than a small one refusing, because
+  its guess reads as competent.
+
+**`D3` — ⚠⚠ Token required, bound to localhost/tailnet, and the surface REFUSES to start without it.**
+*(Resolves `Q3`.)*
+
+- **Decision:** a bearer token from the environment (never a literal), bound to loopback or the
+  tailnet interface, and ⚠ **the process fails to start if the token is unset** — it does not fall back
+  to open.
+- ⚠⚠ **"Single local user on a private network" is a statement about today, and it is the premise that
+  fails silently.** A tailnet is a network; a laptop joins other networks. The cost of the token is one
+  environment variable, and the cost of omitting it is an unauthenticated endpoint that can
+  **suspend, resume and designate** on a machine that trades real capital.
+- ★ **Fail-closed is the whole decision.** An auth check that can be skipped by not setting a variable
+  is not an auth check — it is a default, and defaults drift.
+- **Rejected — no auth while it is local-only.** The spec itself says *"do not defer this past the
+  first deployment"*; the first deployment is `MS-6`.
+- **Rejected — auth optional, on by default.** ⚠ Optional security is off in exactly the situation
+  where someone was in a hurry.
+
+**`D4` — "Materially stale" is a DATA-AS-OF change, not a clock or a price threshold.**
+*(Resolves `Q4`.)*
+
+- **Decision:** a suspended request is materially stale when the **`data_as_of` it was computed
+  against is no longer the current one** — i.e. new data landed. Time and price move continuously;
+  `data_as_of` moves exactly when the answer could have changed.
+- ★ **It reuses a field `RunManifest` already carries**, so staleness is checkable from the recorded
+  run rather than recomputed — and `RA-126` (*"an overdue relay is not a backlog item, it is a thesis
+  going stale"*) already supplies the expiry half.
+- **Rejected — a time threshold.** ⚠ Arbitrary, and wrong in both directions: 4 hours is stale over an
+  earnings release and fine over a quiet weekend.
+- **Rejected — a price threshold.** Requires a live quote to evaluate staleness, which makes the
+  *check* more expensive than the thing it guards, and re-introduces `RC-58`'s pricing problem.
+
+**`D5` — A revocation is a SECOND journal entry, never an amendment.** *(Resolves `Q5`.)*
+
+- Confirms the spec's parenthetical. ⚠ **Append-only is the same rule as `F2` `AC-2.8` and
+  `OR-13`** — *a record that can be edited is not evidence.* The designation happened; changing one's
+  mind is a new fact, not a correction of the old one.
+- ★ **The behavioural data is the point.** `F8` §4 already says the ask is recorded *"regardless of
+  outcome"* because *"over a year that is behavioural data about the manager's own discipline"*.
+  ⚠ Amending would delete exactly the pattern worth seeing: how often a designation is reversed.
+- **Rejected — amend in place.** Loses the reversal, which is the interesting half.
+
+**`D6` — `Q6` stays OPEN by Victor's decision; ⚠ it is now a gate on `MS-9`, not a loose end.**
+*(Records `Q6`.)*
+
+- Victor deferred the initial effect vocabulary (`CT-8.5`) to **E2E validation** — *"defined after
+  codes written, during E2E validation"*. ★ That is a sound sequence: the vocabulary should describe
+  effects the system actually has.
+- ⚠ **But `QR-23` made E2E a precondition for resuming real trading**, so this is no longer a note to
+  remember — **it is on the critical path to trading again.** Recorded here and in `L3` §7's E2E
+  checklist so it cannot be lost.
+- **Rejected — guess a vocabulary now to unblock `MS-6`.** ⚠ A closed set invented before the effects
+  exist would either be wrong or would *constrain the build to match the guess*.
+
+## 8. Open questions
+
+> ✅ **All six are resolved** — adopted 2026-09-04. **No open questions remain.**
+> ⚠⚠ **`D3` — authentication — is the one to read properly.** It is the only decision here that is
+> wrong *at the network boundary of a machine that trades*.
+> ⏳ **`Q6` stays open deliberately** (`D6`) and is now a gate on resuming trading (`QR-23`). (must resolve before/at implementation)
 
 - ✅ ~~**Q1 — what is a directive for?**~~ **Resolved 2026-09-01** — interpreted, not enumerated (§2.1).
 - **Q6 — ⏳ The initial effect vocabulary (`CT-8.5`) is deferred to E2E validation.** Victor:

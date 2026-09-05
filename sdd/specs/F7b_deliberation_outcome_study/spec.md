@@ -1,6 +1,6 @@
 # F7b — Deliberation outcome study (Tier B)
 
-> **Spec-ID:** F7b · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F7b · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** [`../../questions.md`](../../questions.md) `QR-3` §I
 > **Milestone:** `MS-7` onward — ★ **and then for years** · **Governs:** enforces `PG-5.1`, `PG-5.2`.
 > **Capability:** `C6` · **Domain:** D-14, seat 9.
@@ -8,8 +8,8 @@
 > ★★ **This study accrues from day one and NEVER GATES.** That is not a weakness of the design; it is
 > the design (`PG-5.1`).
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**.
 
 ---
 
@@ -122,11 +122,80 @@ the accrual record that makes a future answer possible.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **ADOPTED 2026-09-04.**
+> ⚠⚠ **`D2` is the one that changes what this study can claim.** It should be read before `D1`.
 
-## 8. Open questions (must resolve before/at implementation)
+**`D1` — The outcome is FORWARD RETURN at the model's own horizon, not realised P&L.**
+*(Resolves `Q1`.)*
+
+- **Decision:** forward return from the `decision_anchor`, over the horizon the ranker was fit for,
+  currency-explicit (`INV-5`).
+- ⚠ **Realised P&L is confounded by things deliberation did not touch**: position sizing (D-06),
+  execution timing, and the manager's own overrides. A study of *deliberation* that measures P&L is
+  measuring four things and attributing them to one.
+- ★ Horizon comes from the **model**, not from the study — otherwise the horizon becomes a free
+  parameter chosen after seeing outcomes, which is `PG-5.1`'s rationalisation failure.
+- **Rejected — realised P&L.** Confounded, as above.
+- **Rejected — "was the stop hit?".** A binary on a path-dependent quantity; discards magnitude, and
+  the stop is `D-05`'s policy rather than a property of the recommendation.
+
+**`D2` — ⚠⚠ Both arms are scored as PAPER outcomes, and `F7b` says so on every figure.**
+*(Resolves `Q2`.)*
+
+★★ **`Q2` names a genuine impossibility, and the honest response is a stated limit, not a clever fix.**
+The `pre` verdict was **never acted on**, so its realised outcome does not exist and cannot be
+recovered.
+
+- **Decision:** score **both** arms identically as *paper* forward returns — what each arm's
+  recommendation would have returned — **regardless of which was acted on.** Symmetric treatment is
+  what makes the comparison valid.
+- ⚠⚠ **The consequence must travel with every figure:** `F7b` measures whether deliberation improved
+  **the recommendation**, ★ *not* whether it improved **the portfolio**. Those are different claims,
+  and the second is the one a reader will assume. `PG-10` requires the artifact to say which it is.
+- ★ `F5` `CT-5.1` already carries the machinery — the figure goes out with its `n` and an explicit
+  scope, exactly as `F2` `D3` made replay's verdict carry `scope`.
+- **Rejected — compare the `post` arm's realised outcome with the `pre` arm's paper outcome.**
+  ⚠⚠ **Asymmetric**, and the asymmetry flatters deliberation: the acted arm carries execution and
+  sizing effects the paper arm cannot. This is the most dangerous option because it looks like using
+  the best available data.
+- **Rejected — restrict the study to decisions where deliberation changed nothing.** Then the study
+  can never observe the effect it exists to measure.
+- **Rejected — model the counterfactual.** Adds an unvalidated model between the data and the claim,
+  on a question already short of power.
+
+**`D3` — Report ANNUALLY until `F5`'s floor is met, then quarterly — and always publish `n`.**
+*(Resolves `Q3`.)*
+
+- ⚠ `Q3` is right that *"reporting `INSUFFICIENT` monthly for three years is noise"*. But suppressing
+  the report entirely hides the **accrual**, and at ~250 decisions a year the accrual **is** the
+  information: how far off sufficiency are we, and is that distance shrinking?
+- **Decision:** annual while insufficient, quarterly once `F5`'s per-metric floor (`F5` `D3`) is met.
+  ★ Every report carries `n` and the floor, so *"not yet"* is a measured statement rather than a
+  recurring shrug.
+- **Rejected — monthly.** Noise, as `Q3` says.
+- **Rejected — publish nothing until sufficient.** ⚠ Makes it impossible to notice that the study will
+  **never** reach power — which, given `PG-5.1`'s arithmetic, is a live possibility and itself a finding.
+
+**`D4` — ⛔ Tier B NEVER supersedes Tier A. A disagreement is a finding, not an override.**
+*(Resolves `Q4`.)*
+
+- ★★ **`PG-5.1` is explicit: *"Tier B accrues from day one and never gates."*** A thing that never gates
+  cannot supersede a thing that does.
+- ⚠ **`PG-5.1`'s reason still holds even if Tier B reaches power:** at ~250 decisions a year against an
+  underlying signal at **IC 0.0203, *t* = 1.42**, a Tier-B result is *"a second-order measurement on an
+  unestablished first-order one"* — and **more time does not fix it, because noise grows with the
+  sample.**
+- **Decision:** if Tier B reaches power **and** contradicts Tier A, that contradiction is escalated to
+  Victor as a **finding requiring a decision** — with both figures, both `n`s, and both scopes. ★ It
+  never silently overrides, and it is never silently discarded either.
+- **Rejected — Tier B wins once powered.** ⚠ Would let a weak outcome study revoke a process result,
+  reversing `PG-5.1` by accident.
+- **Rejected — ignore the disagreement.** Discards the most interesting thing the study could produce.
+
+## 8. Open questions
+
+> ✅ **All four are resolved** — adopted 2026-09-04. **No open questions remain.**
+> ⚠⚠ **`D2` changes what this study may CLAIM** — read it before `D1`. (must resolve before/at implementation)
 
 - **Q1 — ⚠ What is "the outcome"?** Forward return at the horizon? Realised P&L? Whether the stop was
   hit? Whether the thesis was falsified? **This is an investment judgement, not an engineering one, and

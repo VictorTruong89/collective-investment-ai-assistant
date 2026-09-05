@@ -1,6 +1,6 @@
 # F2 — Execution trace & replay
 
-> **Spec-ID:** F2 · **Status:** 🟡 draft *(has ACs; not yet approved)* · **Adopted:** —
+> **Spec-ID:** F2 · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` §D.1 · lecture §2.7 ·
 > [`../../questions.md`](../../questions.md) `QR-14`
 > **Milestone:** `MS-3` — [`../../design/rel1_design/L3-build-sequence.md`](../../design/rel1_design/L3-build-sequence.md)
@@ -8,8 +8,10 @@
 > and upstream **`OR-13` / `INV-005` / `INV-006`** (manifest immutability).
 > **Capability:** `C7` observability — the substrate `C2`, `C4`, `C5`, `C6` and `C8` all stand on.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** `Q1`–`Q6` adopted as `D1`–`D6` (§7) — ★ **read §7 before changing §5 or
+> §6**; the rejected options are recorded there and should not be re-argued.
+> ⚠ `D5` found that `RunManifest.seed` does **not** cover all randomness — **43 wall-clock call sites**
+> do not, which is why `AC-2.3` names what it cannot reproduce.
 
 ---
 
@@ -100,6 +102,12 @@ counterfactual arm permanently.
   by then the history is gone.
 - **Fail loud on incompleteness.** A run whose trace is partial is marked `INCOMPLETE`; ⚠ a partial
   trace that looks complete is worse than none (`P5`).
+- ★★ **A trace is EVIDENCE, not output** (`D6` note). Upstream `AnalysisRunLog` states
+  *"RECORD THAT IT FAILED; NEVER RECORD WHAT IT PRODUCED"* (`RA-111`/`AC-1.27`) — that rule stops a
+  **degraded LLM output being persisted and later rendered as if sound**. ⚠ It is not a ban on
+  recording payloads for evidence. **A trace record may never be a source from which a narrative is
+  rendered**; it exists to be read by a human or a replay. `AC-2.9` and `D4`'s export filter are what
+  keep it out of the output path. Without this sentence the two rules read as contradictory.
 - **Replay substitutes, never re-calls.** The engine re-executes the graph with every external call
   served from the recording. A replay that reaches the network has failed.
 
@@ -187,14 +195,35 @@ precede it. Minting at the start of the ticker's analysis removes the ordering p
 | `CT-2.6` outcome link | joins on it | outcomes attach to recommendations |
 | `F7b` `AC-7b.1` | joins on it | ★ the whole Tier-B study rests on this |
 
+**CT-2.8 — on-disk layout** (`D1`) — beside the existing run record, never replacing it:
+```text
+.state/runs/<run_id>/
+    manifest.json  outcome.json  ...   ← EXISTS (OR-13). F2 never writes here.
+    trace.jsonl                        ← one JSON object per line; `type` discriminates
+    trace/payloads/<call_id>.json      ← CT-2.2's request/response bodies
+    trace/EXPIRED                      ← ⚠ written when payloads are removed (D2)
+```
+Rules: `trace.jsonl` is **append-only** (`AC-2.8`); a `CT-2.2` record stores a `payload_ref`, not the
+body. ⚠ **Payloads are separate so `D2`'s expiry is a directory deletion** — inline bodies would make
+expiry a log rewrite, which append-only forbids.
+
 **CT-2.5 — `ReplayReport`:**
 ```json
-{ "run_id": "str", "verdict": "IDENTICAL | DIVERGED | UNREPLAYABLE",
-  "first_divergence": "object | null — ⚠ NULL when verdict is IDENTICAL",
+{ "run_id": "str", "verdict": "REPRODUCED | DIVERGED | UNREPLAYABLE",
+  "scope": "str — ALWAYS 'control flow and deterministic computation, given
+            recorded external responses'. ★ D3: the verdict travels into reports,
+            so its limit travels with it (PG-10's shape)",
+  "excluded_fields": ["str"],
+  "//excluded_fields": "D5 — wall-clock fields NOT compared. ⚠ PRINTED, never
+                        silently skipped: an invisible exclusion is a lie",
+  "first_divergence": "object | null — ⚠ NULL when verdict is REPRODUCED",
   "//first_divergence": {"step_id": "str", "field": "str",
                          "recorded": "object", "replayed": "object"} }
 ```
-- `UNREPLAYABLE` when the trace is `INCOMPLETE` or an external call lacks its response.
+- `UNREPLAYABLE` when the trace is `INCOMPLETE`, an external call lacks its response, **or payloads
+  have expired** (`D2`) — ⚠ in which case the reason names the expiry date.
+- ⚠ **`IDENTICAL` was renamed `REPRODUCED` by `D3`.** A field named *identical* over-claims exactly
+  where `PG-10` says a claim must carry its subject's status.
 
 **CT-2.6 — outcome link** (written weeks later, `T6`): `{ "decision_id": "str", "resolved_at":
 "iso8601", "outcome": "object" }` — append-only; ★ this is what makes a Tier-B study (`F7b`) possible
@@ -208,9 +237,14 @@ years after the decision.
 - **AC-2.2** *(every external call is captured, both halves)* — **Given** a run that makes LLM or tool
   calls, **when** the trace is read, **then** each call has a record with a non-null `request` **and**
   `response`, or an explicit `error`. → *invariant / property over call sites.*
-- **AC-2.3** *(★★ replay reproduces)* — **Given** a completed run's trace, **when** it is replayed,
-  **then** the run's deterministic outputs are reproduced and the verdict is `IDENTICAL` — **and no
-  network call is made**. → *integration.*
+- **AC-2.3** *(★★ replay reproduces CONTROL FLOW — `D3`, `D5`)* — **Given** a completed run's trace,
+  **when** it is replayed, **then** every output that does **not** depend on the wall clock is
+  reproduced, the verdict is `REPRODUCED`, `scope` states what that covers, `excluded_fields` lists
+  every wall-clock field not compared — **and no network call is made**. → *integration.*
+  > ⚠ **The old wording over-claimed.** *"The run's deterministic outputs are reproduced"* did not say
+  > which outputs are not deterministic — and `D5` measured **43 wall-clock call sites** across 8+
+  > modules that `RunManifest.seed` does not cover. An AC that cannot be satisfied honestly is worse
+  > than one that is merely narrow.
 - **AC-2.4** *(divergence is located, not just detected)* — **Given** a trace whose code has since
   changed, **when** replayed, **then** the verdict is `DIVERGED` and `first_divergence` names the
   **first** diverging step and field. → *integration.*
@@ -234,6 +268,22 @@ years after the decision.
 - **AC-2.9** *(⚠ no secret ever enters a trace)* — **Given** a run whose config or environment holds
   credentials, **when** any trace record is written, **then** no API key, token or password appears in
   it. → *invariant / property (security).*
+- **AC-2.14** *(★ positions are recorded in full, and filtered at EXPORT — `D4`)* — **Given** a trace
+  containing book positions or P&L, **when** it is written, **then** the values are present unredacted;
+  **when** it is exported for publication, **then** they are removed by the export filter.
+  → *invariant / property.* (`QR-12`)
+  > ★★ Redacting at write time would **break replay**, because positions are *inputs* to the decisions
+  > being replayed. Same shape as `DX-5`: keep the artifact complete, control its **distribution**.
+- **AC-2.15** *(★ expiry is recorded, never silent — `D2`)* — **Given** a run whose payloads have been
+  expired, **when** it is replayed, **then** the verdict is `UNREPLAYABLE` and the reason names the
+  expiry date. → *unit.* (`P5`)
+  > ⚠ A run that cannot be replayed *because we deleted something* must say so. Silence reads as
+  > corruption.
+- **AC-2.16** *(★ an excluded field is visible — `D5`)* — **Given** a replay that skips wall-clock
+  fields, **when** the `ReplayReport` is read, **then** every skipped field is listed in
+  `excluded_fields`. → *data contract.*
+  > ⚠ Never a blanket "ignore all datetimes": a decision timestamped in the wrong **order** is a real
+  > bug, and a blanket rule would swallow it.
 - **AC-2.10** *(`QR-14` framework confinement)* — **Given** the source tree, **when** CI runs, **then**
   any orchestration framework is imported **only** by `src/orchestration/graph/**`, and an import
   elsewhere fails the build. → *invariant / property (structural).* (`A8`, `QR-14`)
@@ -246,31 +296,171 @@ years after the decision.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **`D1`–`D6` ADOPTED 2026-09-04.** The ACs they touch were amended in the same change.
+>
+> ★ **Several were settled by measuring the inherited code rather than by reasoning** — `MS-2`'s
+> lesson, applied deliberately. Where that happened, the measurement is quoted.
+
+**`D1` — Storage: an append-only `trace.jsonl` per run, with payloads in a sibling directory.**
+*(Resolves `Q1`.)*
+
+```text
+   .state/runs/<run_id>/            ← EXISTS: manifest.json, outcome.json, thesis.json (~25 KB)
+       trace.jsonl                  ← NEW: one JSON object per line, `type` discriminates
+       trace/payloads/<call_id>.json ← NEW: the bulky halves of CT-2.2, by reference
+```
+
+- **Measured:** a run directory today is **~25 KB** (`manifest.json` 857 B–4 KB). `.state/` totals
+  **20 MB** for ~3 months. ⚠ A trace carrying full filing text and every LLM request is **orders of
+  magnitude larger than everything else in the directory combined** — so the layout has to survive that,
+  not merely accommodate it.
+- ★★ **The decisive argument is not size, it is `Q2`.** If payloads sit **inline** in the log, expiring
+  them later means **rewriting the log** — which `AC-2.8` (append-only) forbids. **Inline payloads make
+  tiered retention impossible without breaking immutability.** Separating them turns expiry into
+  deleting a directory, which append-only permits without qualification.
+- **Rejected — one JSON file per record type.** Matches the existing directory convention, but a
+  crashed run leaves a half-written array that does not parse; JSONL's last line is either whole or
+  visibly truncated, which `AC-2.12`'s `INCOMPLETE` needs.
+- **Rejected — Parquet** (upstream already uses it for `.state/events/events.parquet`, 3.2 MB). ★ Right
+  for *analytics across thousands of runs*, wrong for *appending during* one — it needs batching, and a
+  crash loses the batch. ⚠ Do not build it yet: `F5`/`F7b` can derive a Parquet projection when they
+  have a query. Building the analytics store before the query exists is the `P4` mistake.
+- **Rejected — SQLite.** Queryable and transactional, but introduces a schema migration story for a
+  record that is append-only and never updated. The cost lands before the benefit.
+
+**`D2` — Retention: records forever, payloads expire — and expiry is RECORDED.**
+*(Resolves `Q2`.)*
+
+- **Measured:** there is **no retention code upstream**. What exists is
+  `.state/runs-pruned-2026-08-28.tar.gz` — a **hand-made tarball**, done once. So this is a policy
+  being written, not inherited.
+- **The split follows what each is FOR.** Replay verifies a change *soon after* it is made; `F7b` joins
+  decisions to outcomes *years* later. So `DecisionRecord`, `CapabilityDelta` and the outcome link are
+  **permanent**; raw request/response payloads expire on a configured horizon (**default 12 months**).
+- ★★ **Expiry must be recorded, not merely happen.** When payloads are removed, a marker is written so
+  a later replay reports `UNREPLAYABLE: payloads expired <date>` instead of the file simply being
+  missing. ⚠ *A run that cannot be replayed because we deleted something must say so;* silence here
+  reads as corruption (`P5`).
+- **Rejected — keep everything forever.** ⚠ `.state/` is already 20 MB for three months of ~25 KB runs;
+  full payloads change the growth rate by orders of magnitude, and "we will deal with it later" is how
+  a disk fills at the worst moment.
+- **Rejected — tar.gz old runs** (what was done by hand). ◐ Preserves everything, but replay would need
+  to extract an archive, and the practice is manual — which is why it happened **once**.
+
+**`D3` — Replay proves control flow, and the verdict says so in its own name.**
+*(Resolves `Q3`.)*
+
+- **What replay establishes:** given the **recorded external responses**, the control flow and the
+  deterministic computation reproduce. **What it does not establish:** that a model would answer the
+  same way again. ⚠ That is unknowable and is not what replay is for.
+- ★ **Rename the verdict `IDENTICAL` → `REPRODUCED`**, and add a literal `scope` field to `CT-2.5`
+  carrying *"control flow and deterministic computation, given recorded external responses"*, so any
+  consumer that renders the verdict renders its limit with it.
+- ★★ **This is `PG-10`'s shape applied to replay** — *a claim carries its subject's status*. A field
+  named `IDENTICAL` invites precisely the over-claim `PG-10` exists to prevent, and it would be quoted
+  in the `MS-9` write-up, which is the highest-stakes place for it to mislead.
+- **Rejected — keep `IDENTICAL` and add a caveat in prose.** The caveat lives in the spec; the field
+  travels into reports. ⚠ **The name is what gets copied**, and a caveat that does not travel with the
+  value it qualifies is decoration.
+
+**`D4` — The trace is complete and LOCAL; redaction happens at export, never at write.**
+*(Resolves `Q4`.)*
+
+- Credentials are **never written at all** (`AC-2.9`, unchanged). Book positions, P&L and holdings are
+  **sensitive but not secret**: they are written in full, and `.state/` is git-ignored.
+- ★★ **Redacting positions at write time would break replay**, because positions are *inputs* to the
+  decisions being replayed. A trace redacted at the source is not evidence of the run that happened.
+- Publication is a **separate act**: `MS-9`'s mirror (`QR-12`, source-available) exports through a
+  documented filter. ⚠ Nothing publishes a trace by default.
+- ★ **Same shape as `DX-5`'s answer**: do not cripple the real artifact to make it safe to share —
+  keep it complete, and control its **distribution**. That parallel is deliberate.
+- **Rejected — redact at write.** Breaks replay, as above, and irreversibly: the unredacted value is
+  gone.
+- **Rejected — exclude positions from the trace.** Then `CapabilityDelta`'s `pre`/`post` cannot carry a
+  verdict that references a position, and `PG-5.2`'s counterfactual arm is hollow.
+
+**`D5` — ⚠ `seed` does NOT cover all randomness. The clock is the gap.**
+*(Resolves `Q5`.)*
+
+| Source | Measured | Verdict |
+|---|---|---|
+| `random.Random(seed)` in `src/fundamental/prompts/call.py` | **explicitly seeded**, seed threaded in | ✅ covered |
+| `uuid.uuid4()` in `contracts/manifest.py:155` | only to make `run_id` unique — and `run_id` is **recorded** | ✅ harmless |
+| ⚠ `datetime.now` / `utcnow` / `time.time()` | **43 call sites across 8+ modules** | ⛔ **NOT covered** |
+
+★ **So the honest answer to `Q5` is no**, and the gap is not the RNG everyone worries about — it is the
+wall clock, which nobody had counted.
+
+- **Proposal:** record the run's clock origin in the trace and inject it where platform code allows;
+  for inherited call sites, **exclude known wall-clock fields from the divergence comparison via an
+  explicit allowlist that is itself printed in the `ReplayReport`.** ⚠ An excluded field must be
+  **visible**, never silently skipped.
+- ⚠ **`AC-2.3` currently over-claims** — *"the run's deterministic outputs are reproduced"* — without
+  saying which outputs are not deterministic. It needs amending alongside this.
+- **Rejected — a `Clock` port every module must use.** Correct, and a refactor of **43 sites across
+  inherited domains** that `vision.md` §2 says change upstream. ★ Revisit per-domain as each is
+  absorbed (`QR-22`) — not as a precondition for `MS-3`.
+- **Rejected — ignore all datetime fields when comparing.** ⚠ Hides real divergences: a decision
+  timestamped in the wrong *order* is a genuine bug, and a blanket rule would swallow it.
+
+**`D6` — F2 records at job and external-call boundaries only.**
+*(Resolves `Q6`.)*
+
+- ★ **`QR-22` has already made this cheaper than when the question was written.** `src/orchestration/`
+  is absorbed **before** `MS-3` starts, so instrumenting D-08's job boundaries is an **intra-repo
+  change**, not an edit to a repo `vision.md` §2 says we do not touch.
+- **Rejected — instrument inherited domain internals.** ✗ Reaches inside D-01/D-03 logic that changes
+  upstream, and every such edit becomes a merge conflict at each absorption.
+- **Rejected — platform code only.** ⚠ Too little: the LLM calls that most need recording happen
+  *inside* D-01, and a trace that omits them cannot replay a run.
+- ★ **Extension point, not an obligation:** a decorator inherited domains *may* adopt for deeper steps
+  once absorbed. Offered, never required.
+
+### ⚠⚠ A conflict `Q1`–`Q6` did not name — found while measuring
+
+Upstream `src/fundamental/contracts/analysis_run.py::AnalysisRunLog` states its rule in a banner:
+
+```text
+RECORD THAT IT FAILED; NEVER RECORD WHAT IT PRODUCED.
+```
+
+It deliberately persists **call metadata only** — `call_id`, `step`, `tokens`, `attempts`, `outcome` —
+and explicitly **not** the payload, because `RA-111`/`AC-1.27` exist to stop a *degraded* LLM output
+being persisted and later rendered as if it were sound.
+
+⚠ **`CT-2.2` requires the full `request` and `response`.** Read side by side, the two rules appear to
+contradict. They do not — **a trace is evidence, not output** — but that distinction is currently
+nowhere in writing, and the next reader will have to re-derive it or will "fix" one of them.
+
+★ **Adopted — `F2` §4 states the distinction explicitly** — *a trace record may never be a source from
+which a narrative is rendered; it exists to be read by a human or a replay, and `AC-2.9`'s redaction
+plus `D4`'s export filter are what keep it out of the output path.* ⚠ This should be settled **before**
+`MS-3` writes record #1, not after.
 
 ## 8. Open questions (must resolve before/at implementation)
 
-- **Q1 — Storage location, format and size.** Alongside `manifest.json` in
+> ✅ **All six are resolved** — `D1`–`D6` in §7, adopted 2026-09-04. ★ `Q5` was answered by
+> **measuring the inherited code**, not by opinion: see `D5`'s table. **No open questions remain.**
+
+- ~~**Q1 — Storage location, format and size.** Alongside `manifest.json` in
   `.state/runs/<run_id>/`? One file per record type, or one append-only log? ⚠ **A trace containing
   full filing text plus every LLM request could be tens of MB per run** — the manifests are kilobytes.
   Blocks `CT-2.1`'s persistence and `Q2`.
-- **Q2 — Retention.** Traces are needed for `F7b` *years* later, but full-payload traces will not fit
+- ~~**Q2 — Retention.** Traces are needed for `F7b` *years* later, but full-payload traces will not fit
   indefinitely. Tiering (keep decisions and deltas forever, expire raw payloads after N months) is the
   obvious answer, ⚠ **but expiring payloads makes those runs unreplayable** — so the boundary is a
   real decision, not a cleanup detail.
-- **Q3 — ★ What does replay actually prove?** Substituting recorded responses verifies the **control
+- ~~**Q3 — ★ What does replay actually prove?** Substituting recorded responses verifies the **control
   flow and the deterministic computation**. It does **not** verify that a model would answer the same
   way again — that is unknowable and not what replay is for. ⚠ The wording of `AC-2.3` must not
   over-claim, and the divergence report must not imply otherwise.
-- **Q4 — Redaction boundary.** `AC-2.9` covers credentials, which is unambiguous. ⚠ Book positions,
+- ~~**Q4 — Redaction boundary.** `AC-2.9` covers credentials, which is unambiguous. ⚠ Book positions,
   P&L and holdings are *sensitive but not secret* — and `QR-12`'s public mirror makes this concrete.
   Are they redacted, excluded, or simply never published? Blocks `AC-2.9`'s scope.
-- **Q5 — Does the existing `seed` cover all randomness?** `RunManifest.seed` exists, which is
+- ~~**Q5 — Does the existing `seed` cover all randomness?** `RunManifest.seed` exists, which is
   promising. ⚠ Confirm there is no unseeded RNG, clock read or dict-ordering dependence before
   `AC-2.3` can pass. **This is a question about the inherited code and is answerable at `MS-2`.**
-- **Q6 — Does F2 trace the inherited pipeline's jobs, or only platform code?** Tracing D-01/D-03
+- ~~**Q6 — Does F2 trace the inherited pipeline's jobs, or only platform code?** Tracing D-01/D-03
   internals means touching inherited domains, which `vision.md` §2 says change upstream. **Boundary
   proposal:** F2 records at *job* and *external-call* boundaries, which are already D-08's territory,
   and does not reach inside an inherited domain's logic.
@@ -281,16 +471,29 @@ years after the decision.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-2.1 | *(to be written)* | `src/orchestration/trace/models.py` |
-| AC-2.2 | *(to be written)* | `src/orchestration/trace/record.py` |
-| AC-2.3 | *(to be written — blocked Q3, Q5)* | `src/orchestration/trace/replay.py` |
-| AC-2.4 | *(to be written)* | `src/orchestration/trace/replay.py` |
-| AC-2.5 | *(to be written)* | `src/orchestration/trace/record.py` |
-| AC-2.6 | *(to be written)* | `src/orchestration/trace/record.py` |
-| AC-2.7 | *(to be written)* | `src/orchestration/trace/outcomes.py` |
-| AC-2.8 | *(to be written)* | `src/orchestration/trace/store.py` |
-| AC-2.9 | *(to be written — blocked Q4)* | `src/orchestration/trace/redact.py` |
-| AC-2.10 | *(to be written)* | `tools/check_framework_confinement.py` |
-| AC-2.11 | *(to be written)* | `src/orchestration/trace/models.py` |
-| AC-2.13 | *(to be written)* | `src/orchestration/trace/models.py` |
-| AC-2.12 | *(to be written)* | `src/orchestration/trace/store.py` |
+| AC-2.1 | `tests/unit/test_trace.py::test_ac_2_1_every_record_carries_the_run_id_and_no_second_run_record` · `::test_ac_2_1_rejects_a_record_from_another_run` · `::test_ac_2_1_a_run_scoped_step_may_carry_no_decision_id` | `trace/models.py`, `trace/store.py` |
+| AC-2.2 | `tests/unit/test_trace.py::test_ac_2_2_*` (3) | `trace/models.py::ExternalCall`, `trace/store.py` |
+| AC-2.3 | `tests/integration/test_trace_replay.py::test_ac_2_3_*` (4) | `trace/replay.py::replay` |
+| AC-2.4 | `tests/integration/test_trace_replay.py::test_ac_2_4_divergence_names_the_first_step_and_field` | `trace/replay.py` |
+| AC-2.5 | `tests/unit/test_trace.py::test_ac_2_5_a_decision_record_is_complete` · `::test_ac_2_5_an_incomplete_decision_is_refused` (5 cases) | `trace/models.py::DecisionRecord` |
+| AC-2.6 | `tests/unit/test_trace.py::test_ac_2_6_a_delta_is_written_even_when_nothing_changed` | `trace/models.py::CapabilityDelta` |
+| AC-2.7 | `tests/integration/test_ms3_traced_run.py::test_ac_2_7_an_outcome_links_to_a_past_decision_without_re_deriving_the_id` · `::test_ac_2_7_an_outcome_may_not_be_silently_revised` | `trace/outcomes.py::OutcomeStore` |
+| AC-2.8 | `tests/unit/test_trace.py::test_ac_2_8_rewriting_a_record_id_raises_and_leaves_the_original` | `trace/store.py`, `trace/errors.py::TraceImmutableError` |
+| AC-2.9 | `tests/integration/test_trace_replay.py::test_ac_2_9_a_credential_never_reaches_the_disk` · `::test_redaction_leaves_ordinary_fields_alone` | `trace/redact.py::redact_secrets` |
+| AC-2.10 | `tests/structural/test_framework_confinement.py` (13, incl. one per framework) | `tools/check_framework_confinement.py` |
+| AC-2.11 | `tests/integration/test_ms3_traced_run.py::test_ac_2_11_a_step_that_resolved_a_variant_carries_provenance` | `trace/models.py::StepRecord.provenance` |
+| AC-2.12 | `tests/unit/test_trace.py::test_ac_2_12_an_unclosed_run_reads_as_incomplete` · `::test_ac_2_12_a_truncated_log_line_is_detected` · `tests/integration/…::test_ac_2_12_an_unclosed_run_is_unreplayable` | `trace/store.py::status` |
+| AC-2.13 | `tests/unit/test_trace.py::test_ac_2_13_*` (2) | `trace/models.py::mint_decision_id` |
+| AC-2.14 | `tests/integration/test_trace_replay.py::test_ac_2_14_*` (2) | `trace/redact.py::export_for_publication` |
+| AC-2.15 | `tests/integration/test_trace_replay.py::test_ac_2_15_*` (2) | `trace/store.py::expire_payloads` |
+| AC-2.16 | `tests/integration/test_trace_replay.py::test_ac_2_16_excluded_wall_clock_fields_are_listed` | `trace/replay.py` |
+
+| — | `tests/integration/test_ms3_traced_run.py::test_ms3_*` (6) | **`MS-3`'s done-when**: the real 13-job `DAILY_INFERENCE` graph, traced and replayed |
+
+✅ **All 16 ACs green, 2026-09-04**, every one mutation-verified (19 mutations; **4 survived on the
+first pass and were closed**).
+
+> ✏ **`AC-2.7` was wrongly deferred to `MS-4`.** Re-reading this spec settled it: `T6` names
+> `trace/outcomes.py::link` and `CT-2.6` defines the record — the outcome **link** is F2's, and only
+> the *metrics over* outcomes are `F5`'s (§2 non-goals). ★ The spec had the answer; the deferral came
+> from reading the milestone plan instead of the spec.

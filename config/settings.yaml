@@ -1,0 +1,531 @@
+anthropic:
+  api_key: "${ANTHROPIC_API_KEY}"   # Set env var ANTHROPIC_API_KEY
+
+google_api:
+  key: "${GOOGLE_API_KEY}"
+
+fmp:
+  api_key: "${FMP_API_KEY}"          # FMP Starter — set FMP_API_KEY in .env (source it before running)
+  cache_ttl_hours: 168               # 7 days — re-fetch after this
+  rate_limit_seconds: 0.35           # delay between API calls (Starter: 300/min)
+
+# Release 5 Feature 1 — unified market-data provider layer (pipeline/data_providers).
+# Single source of truth for OHLCV / fundamentals / news / consensus. FMP Starter
+# serves ~20yr split-adjusted OHLCV + ~10yr quarterly fundamentals in one call.
+# No fallback source: if FMP is unavailable, a loud WARNING is logged — re-run
+# once it recovers.
+market_data:
+  source: fmp                        # provider selector (only `fmp` is implemented)
+  fmp:
+    api_key: "${FMP_API_KEY}"
+    base_url_stable: "https://financialmodelingprep.com/stable"
+    rate_limit_seconds: 0.35         # 300/min Starter cap
+    cache_ttl_hours: 18              # recent OHLCV (re-pull on trading days)
+    fundamentals_cache_ttl_hours: 168
+    max_history_rows: 5000           # FMP per-call cap (~20yr daily)
+
+# Release 5 Feature 2 — unified pipeline (shared core in pipeline/core).
+feature_2:
+  enable_group_c: true               # add Buffett-derived formula features (graham ratio, moat quant) to training
+  # Feature 3-c §9: keep NaNs at train time (RF/HistGB/GBDTs handle them
+  # natively; Linear median-imputes). true (old behaviour) zero-filled at
+  # train but NOT at inference — a train/serve skew, and a mismatch with the
+  # CPCV protocol the production configs were tuned under.
+  fillna_zero: false
+# SignalEngine veto+escalate thresholds (rel5_features.md §2.5). Defaults shown.
+signal_engine:
+  enable_in_backtest: true           # fuse via SignalEngine in Phase 3a/3b (formula-only gates; LLM/DCF vetoes live-only)
+  margin_of_safety_floor: -0.30      # held name >30% above intrinsic → risk-trim
+  min_quality_gates: 1               # < this many of 4 gates passed → block buy
+  escalate_size_multiplier: 1.5      # STRONG_BUY size-up
+  max_weight_per_name: 0.34
+  trim_fraction: 0.5
+  # Release 5 Feature 3-b — soft blend (§3b.7): combine OHLCV ML + fundamental +
+  # technical into ONE rankable score; the sleeve policy takes the daily top-1.
+  # Weights are renormalised over whichever components are present (a missing
+  # fundamental/technical signal degrades gracefully to OHLCV-only).
+  blend:
+    ohlcv: 1.0                        # OHLCV ML opportunity (SleeveSelector blend)
+    fundamental: 0.5                  # fundamental quality/value/trend composite
+    technical: 0.0                    # entry-timing score (wire up when available)
+
+# Release 5 Feature 3-b — signal policy: daily top-1, 5 overlapping weekday
+# sleeves (rel5_features.md §3b). Supersedes the pre-3b ≤3-name daily policy.
+backtest:
+  # QA-50 (L1-quantitative-analysis §5.6a): backtests MUST account for cost.
+  # The prior `false` understated cost by 100%. Commission-only understates by
+  # 50-70% — strictly more accurate, and QA-49 (spread+slippage) stays open.
+  # The old comment "$20 round-trip immaterial at realistic capital" was FALSE
+  # at this repo's own capital: initial_capital is hard-coded to $20,000
+  # (backtester.py:107), where $20 is 50 bps of a 1w position and 210 bps of a
+  # 1m one. Pinned by tests/test_flat_trade_fee.py (QA-62 known-answer test).
+  charge_transaction_cost: true      # costs_charged = commission_only
+  weekly_observation: true           # §3b.6 — report non-overlapping weekly-lot Sharpe
+
+fundamental:
+  store_root: "data/fundamentals"
+  universe: "config/sp500_tickers.yaml"   # S&P 500 ticker list with sectors + CIKs
+  edgar:
+    user_agent_email: "tnqthang1989@gmail.com"
+    min_request_interval: 0.15    # SEC allows 10 req/sec; 0.15s is safe
+    timeout: 30
+    max_retries: 3
+  scheduler:
+    lookback_days: 3650
+    fetch_price_proxies: false
+
+pipeline:
+  # Sector-balanced large-cap training universe (123 names) — see
+  # config/universe_balanced.yaml and reports/experiments/feature3c_run_summary.md.
+  tickers:
+    - AAPL
+    - MSFT
+    - NVDA
+    - AVGO
+    - ORCL
+    - CRM
+    - AMD
+    - ADBE
+    - CSCO
+    - ACN
+    - INTC
+    - QCOM
+    - TXN
+    - IBM
+    - NOW
+    - INTU
+    - AMAT
+    - MU
+    - BRK-B
+    - JPM
+    - V
+    - MA
+    - BAC
+    - WFC
+    - GS
+    - MS
+    - AXP
+    - BLK
+    - C
+    - SCHW
+    - SPGI
+    - CB
+    - LLY
+    - UNH
+    - JNJ
+    - MRK
+    - ABBV
+    - TMO
+    - ABT
+    - DHR
+    - PFE
+    - AMGN
+    - ISRG
+    - BMY
+    - MDT
+    - GILD
+    - CAT
+    - GE
+    - HON
+    - UNP
+    - RTX
+    - BA
+    - UPS
+    - LMT
+    - DE
+    - ETN
+    - ADP
+    - NOC
+    - AMZN
+    - TSLA
+    - HD
+    - MCD
+    - NKE
+    - LOW
+    - SBUX
+    - BKNG
+    - TJX
+    - ORLY
+    - CMG
+    - MAR
+    - PG
+    - KO
+    - PEP
+    - COST
+    - WMT
+    - MDLZ
+    - PM
+    - MO
+    - CL
+    - KMB
+    - GOOGL
+    - META
+    - NFLX
+    - DIS
+    - CMCSA
+    - VZ
+    - T
+    - TMUS
+    - CHTR
+    - EA
+    - XOM
+    - CVX
+    - COP
+    - SLB
+    - EOG
+    - MPC
+    - PSX
+    - VLO
+    - OXY
+    - NEE
+    - DUK
+    - SO
+    - D
+    - AEP
+    - SRE
+    - EXC
+    - XEL
+    - LIN
+    - SHW
+    - APD
+    - ECL
+    - FCX
+    - NEM
+    - DOW
+    - DD
+    - PLD
+    - AMT
+    - EQIX
+    - WELL
+    - SPG
+    - PSA
+    - O
+    - CCI
+    # --- Practice-watchlist additions (2026-07-26) — pending RETRAIN + data verification ---
+    # These 7 were added so the curated practice_watchlist (below) can be scored.
+    # Data status before they will actually score:
+    #   SNDK, MRVL, PLTR  — in config/sp500_tickers.yaml (US filers) → just need OHLCV+fundamental pull.
+    #   POWL              — US 10-K filer, NOT in sp500_tickers.yaml → add CIK+sector there first.
+    #   ARM               — foreign (20-F ADR); CNQ, ENB — Canadian (40-F). NOT in sp500_tickers.yaml;
+    #                       need CIK+sector AND EDGAR/FMP data-availability check (foreign filers).
+    - SNDK
+    - MRVL
+    - PLTR
+    - POWL
+    - ARM
+    - CNQ
+    - ENB
+  # Curated PRACTICE WATCHLIST (F1 CT-1.5 / spec Q5). Distinct from the auto-populated
+  # data/buffett/watchlist.json. MUST be a subset of the scored universe above — an unknown
+  # name FAILS LOUD (P5). All 13 below are in `tickers` above; the 7 just-added score only
+  # AFTER a retrain + the data steps noted above.
+  # F1 AC-1.15 / F0 §12 D-17 — a curated name scoring on less than this fraction of the
+  # features its model was TRAINED on stays in the slate but cannot be the day's actionable
+  # pick. 0.80 is deliberately loose: normal names lose the odd feature to a late filing,
+  # while the real failure looks nothing like that (7 names at 14/61 = 23% on 2026-08-10).
+  # Set to 0 to disable the guard entirely -- deliberately, never by accident.
+  min_feature_coverage: 0.80
+  practice_watchlist:
+    - MSFT
+    - GOOGL
+    - NVDA
+    - MU
+    - SNDK
+    - ARM
+    - INTC
+    - AMD
+    - MRVL
+    - CNQ
+    - ENB
+    - POWL
+    - PLTR
+  start_date: "2015-01-01"
+  end_date: "2026-08-10"
+  train_cutoff_date: "2023-01-01"
+  horizons:
+    - "1w"
+    - "1m"
+
+# Trade-cost bps fields were removed: broker charges a flat $10/trade regardless
+# of size. See FLAT_TRADE_FEE_DOLLARS in pipeline/ohlcv/backtest/backtester.py.
+# Only cls_threshold_bps remains — it is the classifier's positive-label
+# threshold (minimum return needed to overcome trading friction), not a fee.
+costs:
+  cls_threshold_bps: 16
+
+# =================================================================
+# Model backend & hyperparameters (used by ModelFactory)
+# =================================================================
+models:
+  # PRODUCTION COMBINED BUNDLE — feature 3-c verdict
+  # (sdd/archive/rel5_feature3c_all_model_evaluation.md §9):
+  #   ranker     = RandomForest  (best RankIC 0.0257 / ICIR 0.123)
+  #   regressor  = ElasticNet    (best IC 0.0342, path-σ 0.0007)
+  #   classifier = HistGB        (best AUC 0.5190 — but its gate influence is
+  #                               disabled via allocation.prob_hurdle below)
+  # A single string ("lightgbm" | "xgboost" | "sklearn" | "sklearn_rf" |
+  # "linear" | "catboost") is still accepted and applies to all roles.
+  backend:
+    ranker: "sklearn_rf"
+    regressor: "linear"
+    classifier: "sklearn"
+
+  hyperparameters:
+    # Per-role overrides.  Keys here override the backend defaults.
+    # Any key not listed falls back to the backend's built-in default.
+    # Values = the CPCV-tuned winners (report Appendix B).
+    ranker:            # skrf_rk__mfsqrt_msl20_md8 (sweep 2026-06-24_19-32-47)
+      n_estimators: 500
+      max_features: "sqrt"
+      min_samples_leaf: 20
+      max_depth: 8
+      n_jobs: -1
+      random_state: 42
+    regressor:         # lin_reg__alph001_lr01 (sweep 2026-06-26_10-53-39)
+      alpha: 0.01
+      l1_ratio: 0.1
+      random_state: 42
+    classifier:        # skgb_cls__md5_lr01_mln31 (sweep 2026-06-26_23-02-34)
+      n_estimators: 300
+      max_depth: 5
+      learning_rate: 0.1
+      max_leaf_nodes: 31
+      min_samples_leaf: 20
+      max_features: 0.9
+      random_state: 42
+
+# =================================================================
+# Feature selection (used by FeatureSelector)
+# =================================================================
+features:
+  # "default"    : use 14 original OHLCV price features
+  # "include"    : use only the features listed below
+  # "exclude"    : use ALL_FEATURES minus the ones listed below
+  # "importance" : train once on all features, then retrain on top-K
+  mode: "default"
+
+  # Used when mode=include — explicit feature whitelist
+  include: []
+
+  # Used when mode=exclude — features to drop from ALL_FEATURES
+  exclude: []
+
+  # Used when mode=importance — keep top K features after first pass
+  importance_top_k: 10
+
+  # Print feature importance ranking after training
+  log_importance: true
+
+allocation:
+  cash_buffer: 0.1
+  cash_benchmark_score: 0.0
+  max_slots: 3                        # top-K for NDCG@K/eval only; the sleeve policy holds 1/sleeve
+  max_weight_per_name: 0.7
+  # Feature 3-c §9: the classifier head has no skill (AUC ≈ 0.51 across all 9
+  # families), so its hard eligibility gate is DISABLED (a veto with no skill
+  # can only cost opportunity). Restore ~0.55 only after the cls label rework.
+  prob_hurdle: 0.0
+  # (prob_hurdle_1w / prob_hurdle_1m removed 2026-07-05 — dead keys, read by nothing)
+  turnover_penalty_bps: 10
+  # Feature 3-b incumbency margin δ (§3b.3): a fresh top-1 must beat the held
+  # name's current combined score by more than δ to take over the sleeve.
+  # δ=0 ⇒ "always hold the current weekly top-1"; >0 buys lower whipsaw.
+  incumbency_margin_delta: 0.05
+
+# =================================================================
+# Buffett paradigm (pipeline/buffett/ + main_buffett.py)
+# =================================================================
+buffett:
+  # B3 fix (2026-07-05): the old hand-picked ~30-name basket was removed —
+  # a null universe makes BuffettPipeline/QualityScreener fall back to
+  # pipeline.tickers (the same 123-name universe the ML trains on), so the
+  # two worlds can no longer silently diverge. Set a list here only to
+  # deliberately screen a different basket.
+  universe: null
+  llm:
+    # INV-8 deep tier. Filing analysis is LOW-frequency (filing-aware cache, once per
+    # new 10-K per ticker) but quality-critical — moat_type/CompanyProfile feed the whole
+    # Buffett stack — so it belongs in the complex tier, not the cheap one.
+    model: "claude-opus-5"          # Anthropic model for filing analysis
+    # Opus 5 thinks by default and max_tokens caps thinking + answer TOGETHER —
+    # 4096 would truncate mid-answer. max_tokens is a ceiling, not a spend.
+    max_tokens: 16000
+    cache_filing_sections: true     # Server-side prompt caching (saves ~90% on re-runs)
+    retry_attempts: 3
+    retry_base_delay_seconds: 2
+  filings:
+    cache_dir: "data/buffett/filings"
+    max_tokens_per_section: 8000    # ~32K chars; caps cost per section
+    years_lookback: 3               # fetch last N annual 10-Ks per ticker
+  analysis:
+    cache_dir: "data/buffett/analysis"
+  watchlist_path: "data/buffett/watchlist.json"
+  portfolio_path: "data/buffett/portfolio.json"
+
+# =================================================================
+# News aggregator (used by infer mode + FastAPI infer endpoint)
+# FMP-first (MarketData.get_news) with keyless Yahoo RSS fallback — see
+# pipeline/buffett/etl/news_aggregator.py. The old 5-way free fan-out
+# (finnhub/marketaux/newsdata/alphavantage keys) was removed at rel5 close.
+# =================================================================
+news_apis:
+  lookback_hours: 3
+  max_items_per_source: 15
+  max_items_total: 20
+
+# =================================================================
+# Infer mode (lightweight on-demand signal: price + news + LLM)
+# =================================================================
+infer:
+  cache_ttl_minutes: 30
+  cache_dir: "data/buffett/infer"
+  # INV-8 cheap tier: news materiality + thesis invalidation are the high-frequency
+  # calls (every ticker, every run), so they run on Haiku 4.5.
+  llm_model: "claude-haiku-4-5-20251001"
+  llm_max_tokens: 512
+
+# =================================================================
+# News aggregation (NewsAggregator reads config['news_apis'])
+# =================================================================
+news_apis:
+  # Fix (2026-07-26): the code default was 3h, which returned 0 headlines for MU
+  # (FMP had 50 in a 168h window). 72h is a sane floor for the daily invalidation monitor.
+  lookback_hours: 72                   # was DEFAULT_LOOKBACK_HOURS=3 in code — far too short
+  max_items_total: 20
+  max_items_per_source: 15
+
+# =================================================================
+# Portfolio data plane + risk (F4 + F2 — resolved parameters 2026-07-26)
+# =================================================================
+portfolio:
+  base_currency: "CAD"                 # NAV / *_base reported in CAD (Victor's home currency)
+  fx_source: "FMP"                     # F4 Q-F4.2: USDCAD from FMP at run-time (same provider as price)
+  fx_pair: "USDCAD"
+  # F4 Q-F4.2 realized-P&L rule: keep realized P&L PER CURRENCY (never sum USD+CAD, INV-5);
+  # only market_value_base / NAV convert, at the run-time FX rate (stamped in fx_rate_used).
+  realized_pnl_per_currency: true
+  track_account: true                  # F4 Q-F4.1: keep the account dimension (needed for the TFSA flag)
+  # F4 Q-F4.3 idempotent re-ingest: dedupe transactions on this tuple (re-dropping an overlapping
+  # export must not double-count).
+  txn_dedupe_key: ["transaction_date", "settlement_date", "symbol", "activity", "quantity", "total_amount"]
+  theme_map_path: "config/theme_map.yaml"   # F4 Q-F4.4: symbol->theme; fallback = GICS sector from sp500_tickers.yaml
+  # Risk / discipline-gate parameters (F2):
+  pyramiding_threshold_pct: 15.0       # F2 Q-D5: a buy > +15% above avg cost flags "adding up" (severe band ≥ 50%)
+  theme_ceiling_pct: null              # F2 Q-D4: null = TRACK only, never block (concentration is intentional)
+
+# =================================================================
+# Daily brief delivery (F2 CT-2.3) — Gmail SMTP, HTML body, .md attachments.
+# Credentials come from the environment, NEVER from this file:
+#   GMAIL_SMTP_USER      the sending Gmail address
+#   GMAIL_APP_PASSWORD   a Google app-password (not the account password)
+# =================================================================
+delivery:
+  channel: "email"
+  smtp_host: "smtp.gmail.com"
+  smtp_port: 587
+  email_to: "tnqthang1989@gmail.com"
+  attach_markdown: true                # the full {TICKER}_report.md rides along
+
+# =================================================================
+# Synthesis layer (rel5 — cycle-aware analytical layer on top of pipeline data)
+# Used by --mode synthesis-report and the /synthesis/{ticker}/... FastAPI endpoints.
+# =================================================================
+synthesis:
+  cache_ttl_hours: 24
+  # Incremental refresh policy (F1 CT-1.6 / Q6 — resolved 2026-07-26):
+  refresh_hard_ttl_days: 7             # force a full REGENERATE (Opus) if cached report older than this
+  refresh_reuse_window_hours: 6        # < this AND no invalidation → REUSE unchanged (intraday dupes);
+                                       # the daily 09:35 run is ~24h later, so it always at least UPDATEs (fresh price)
+  cache_dir: "reports/llm_reports"     # unified report dir at project root (rel5 reorg)
+  # INV-8 deep tier: the Layer-C report is the expensive Opus + web-search call.
+  llm_model: "claude-opus-5"
+  # INV-8 cheap tier: the archetype classifier is a 256-token classification, not deep
+  # work — no reason to pay Opus for it.
+  llm_model_classifier: "claude-haiku-4-5-20251001"
+  llm_max_tokens: 32000              # full report composition + Opus-5 thinking headroom
+  llm_max_tokens_classifier: 256     # tiny call for archetype classifier
+  llm_max_tokens_section: 8000       # sections + Opus-5 thinking headroom
+  web_search_max_uses: 4             # cap web search per LLM call (cost control)
+
+  # Per-archetype valuation method weights (must sum to 1.0 per row).
+  # Used by ValuationReconciler.reconcile().
+  archetype_weights:
+    cyclical_commodity:
+      mid_cycle: 0.35
+      reverse_dcf: 0.25
+      peer_multiples: 0.20
+      standard_dcf: 0.15
+      graham: 0.05
+    compounder:
+      standard_dcf: 0.35
+      peer_multiples: 0.25
+      reverse_dcf: 0.20
+      mid_cycle: 0.15
+      graham: 0.05
+    secular_growth:
+      standard_dcf: 0.30
+      reverse_dcf: 0.30
+      peer_multiples: 0.20
+      mid_cycle: 0.15
+      graham: 0.05
+    regulated_utility:
+      standard_dcf: 0.40
+      peer_multiples: 0.25
+      mid_cycle: 0.20
+      reverse_dcf: 0.10
+      graham: 0.05
+    financial:
+      peer_multiples: 0.30
+      standard_dcf: 0.25
+      mid_cycle: 0.20
+      reverse_dcf: 0.15
+      graham: 0.10
+    biotech_or_binary:
+      reverse_dcf: 0.40
+      standard_dcf: 0.30
+      peer_multiples: 0.20
+      mid_cycle: 0.05
+      graham: 0.05
+
+  # Master driver name shown in the sensitivity table header (per archetype).
+  master_drivers:
+    cyclical_commodity: "Industry pricing / contract ASPs"
+    compounder: "Revenue growth rate"
+    secular_growth: "TAM penetration / customer growth"
+    regulated_utility: "Allowed ROE / rate base growth"
+    financial: "Net interest margin"
+    biotech_or_binary: "Pipeline probability of success"
+
+  # Normal P/E multiples applied to mid-cycle EPS by archetype.
+  normal_multiples:
+    cyclical_commodity: 12.0
+    compounder: 20.0
+    secular_growth: 25.0
+    regulated_utility: 16.0
+    financial: 12.0
+    biotech_or_binary: 18.0
+
+  # Verdict thresholds vs price (margin of safety bands).
+  verdict_thresholds:
+    buy_min_pct: 20.0                # margin ≥ +20% → BUY
+    sell_max_pct: -10.0              # margin ≤ -10% → SELL  (otherwise HOLD)
+
+# =================================================================
+# Web search (used by synthesis layer for supply-side, ETFs, cycle data)
+# provider: "anthropic_native" uses Claude's built-in web search tool.
+# =================================================================
+web_search:
+  provider: "anthropic_native"
+  max_uses_per_call: 4
+  cache_dir: "data/buffett/web_search_cache"
+  cache_ttl_hours: 24
+
+# =================================================================
+# FastAPI mobile UI (pipeline/api/app.py, served via Tailscale)
+# Set FAST_API_PASSWORD in the environment so the password is not committed.
+# =================================================================
+api:
+  host: "0.0.0.0"
+  port: 8000
+  username: "victor"
+  password: "${FAST_API_PASSWORD}"

@@ -1,6 +1,6 @@
 # F6b — Inter-agent messaging & deliberation
 
-> **Spec-ID:** F6b · **Status:** 🟡 draft · **Adopted:** —
+> **Spec-ID:** F6b · **Status:** 🟢 **approved** · **Adopted:** 2026-09-04
 > **Source discussion:** lecture §2.5–§2.6 · [`../../questions.md`](../../questions.md) `QR-3`, `QR-9`
 > **Milestone:** `MS-7` · **Governs:** enforces `PG-5.1`, `PG-5.2`, `PG-3`; inherits `P3`, `P5`,
 > `INV-014`/`ST-9`, `AP-3`.
@@ -10,8 +10,8 @@
 > may graduate. [`F7a`](../F7a_deliberation_process_tests/spec.md) exists as of 2026-09-01.
 > ⚠ **Deployment status is a separate matter** — see §2.1.
 >
-> ⚠ **No code exists yet** — `src/` is empty and this spec is unapproved. *(`PG-1`, which
-> formerly blocked implementation, was retired 2026-09-02; verification is now manual.)*
+> ✅ **Approved 2026-09-04.** Open questions adopted as decisions in §7 — ★ **read §7 before changing
+> §5 or §6**.
 
 ---
 
@@ -163,11 +163,76 @@ flow.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
-> ✅ **None yet.** When a question in §8 is decided, move it here with a `D<n>`, and keep the
-> **options that were rejected and why** — a later reader must be able to reconstruct the
-> argument without the conversation that produced it. Cite the `D<n>` from every AC it changed.
+> ✅ **ADOPTED 2026-09-04.**
+> ★ **Two are settled by the constitution rather than by preference** — `D3` by `P4`, `D4` by `PG-6`.
 
-## 8. Open questions (must resolve before/at implementation)
+**`D1` — `turn_budget = 2`: one challenge, one response.** *(Resolves `Q1`.)*
+
+- **Decision:** the minimum that permits an actual exchange. ⚠ `max_turns = 1` is request–response and
+  cannot show revision at all; `N` unbounded makes `T7`'s cost unbounded and gives `PG-3`'s
+  *deliberation theatre* room to accumulate transcript without changing a position.
+- ★ **`T6` is what raises it, not intuition.** It measures convergence rate and turns-vs-budget: if
+  deliberations routinely hit the budget without converging, that is measured evidence for 3 — and
+  `F2` records the turn count from day one, so the evidence accrues before the question is asked.
+- **Rejected — unbounded turns.** ⚠ Cost scales with the one failure mode we most expect.
+- **Rejected — 1 turn.** Not deliberation; there is nothing for `T1` to measure.
+
+**`D2` — "Material" is a DECLARED THRESHOLD on the challenger's own metric, recorded as the reason.**
+*(Resolves `Q2`.)*
+
+- **Decision:** the challenging seat declares a numeric trigger on a metric **it owns** (e.g. risk
+  contribution above a stated level), and that predicate is written into the `DecisionRecord.reason`
+  — exactly as `F6a` routing does.
+- ⚠ **Not a model judgement of materiality.** `PG-9`'s *"why did this happen?"* must have an answer
+  better than *"the model thought it mattered"*; and a model deciding when to object is a model
+  deciding how often it speaks.
+- **Rejected — an LLM decides materiality.** ⚠ Makes the objection *rate* itself unexplainable, and
+  `T2`'s effect size becomes uninterpretable: a change in rate could be the world or the model.
+- **Rejected — always challenge.** Guarantees `PG-3`'s theatre and maximises `T7`'s cost.
+
+**`D3` — ⛔ No `BLOCK` at `MS-7`.** *(Resolves `Q3`.)*
+
+- ★★ **`P4` decides it: D-12's gate algebra already blocks.** A challenge that forces rework would be a
+  **second gating mechanism**, and two gates that can disagree is precisely the defect the *"one
+  answer"* rule exists to prevent.
+- **Decision:** a challenge produces a **recorded objection** which D-12's existing algebra consumes.
+  ⚠ If the objection should stop a recommendation, that is a **gate**, and gates live in D-12.
+- **Rejected — reinstate `BLOCK`.** ⚠ It would let a deliberating agent halt a decision — an agent that
+  *acts* rather than advises, which is the same line `F3` `D4` holds for corporate actions.
+
+**`D4` — Deliberation runs BEFORE D-12 composes. It shapes inputs; it never touches the verdict.**
+*(Resolves `Q4`.)*
+
+- ★★ **`PG-6` decides it, and leaves no room:** the verdict algebra is *"a bounded meet-semilattice…
+  a **structural** guarantee, not a runtime check"*, and any agent-assisted combination is
+  *"**advisory alongside, never replacing**"*.
+- ⚠ **Running after composition would mean revising a composed verdict**, which is exactly the
+  replacement `PG-6` forbids — *"an unfalsifiable combination rule at the point where output becomes
+  action is the most expensive mistake available in this design."*
+- ★ Before-composition also makes `PG-5.2`'s two arms clean: `pre` is the seat's own output, `post` is
+  its output after deliberation, and **D-12 composes deterministically from whichever it is given** —
+  so the counterfactual is a property of the *input*, not of a re-run of the decision.
+- **Rejected — after composition.** Forbidden by `PG-6`, and it would make the `pre`/`post` arms
+  differ by a re-composition rather than by deliberation, confounding `F7b`.
+
+**`D5` — Only Risk initiates at `MS-7`. ⚠ The FIREWALL decides this, not preference.**
+*(Resolves `Q5`.)*
+
+- ★★ **`INV-014`/`ST-9`: D-01 and D-03 must not see each other's in-progress work.** Risk (D-05)
+  consumes both analysts' **published** outputs, so a Risk challenge crosses nothing. **A Research
+  challenge to Quant would be a firewall crossing** — and `PG-7` says the same thing from the other
+  side: once one seat shapes the other, their agreement stops being independent evidence.
+- ★ §4's asymmetry argument survives too: Risk's objections are checkable against arithmetic the
+  pipeline already computes, so `T5`'s *"cites a checkable fact"* has something to bind to.
+- **Rejected — any seat may challenge any other.** ⚠ Breaks the firewall, and `PG-7.3` would then have
+  to be enforced on every pair rather than on one edge.
+- **Rejected — the mediator (seat 6) initiates.** It composes; an initiator that also composes is the
+  `D3`/`P4` problem again in a different place.
+
+## 8. Open questions
+
+> ✅ **All five are resolved** — adopted 2026-09-04. **No open questions remain.** ★ `D3` and `D4` are settled by `P4` and
+> `PG-6` — they are not free choices. (must resolve before/at implementation)
 
 - **Q1 — What is `turn_budget`?** Lecture §2.5: `max_turns=1` is request-response; `N` is full
   deliberation. ⚠ Cost scales with turns (`F7a` T7) and so does sycophancy exposure. *Leaning: start
