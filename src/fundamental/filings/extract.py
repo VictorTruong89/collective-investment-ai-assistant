@@ -26,7 +26,12 @@ from src.fundamental.claims.models import EvidenceSpan
 from src.fundamental.claims.verify import VerificationReport, x01_verify_extraction
 from src.fundamental.errors import ExtractionKindError
 from src.fundamental.filings.models import (
-    CUMULATIVE_YTD, FOUND, NOT_FOUND, ExtractedItem, ExtractionResult, Period,
+    CUMULATIVE_YTD,
+    FOUND,
+    NOT_FOUND,
+    ExtractedItem,
+    ExtractionResult,
+    Period,
 )
 from src.fundamental.prompts.registry import PromptBlock
 
@@ -123,14 +128,19 @@ def run_extraction(seam, *, block_ids, bundle, run_id: str,
 def item(evidence_id: str, *, value: str, unit: str, quote: str,
          accession_id: str, offset, period_end: str | None = None,
          period_start: str | None = None, cumulative_ytd: bool = False,
-         note: str = "") -> ExtractedItem:
-    """Build a found item from the envelope's seven fields."""
+         note: str = "", qualifier: str = "") -> ExtractedItem:
+    """Build a found item from the envelope's seven fields.
+
+    ★ `qualifier` (`MP-18`) names WHICH ROW when one `evidence_id` legitimately
+    yields several — the segment for `E-01`. ⚠ It is not part of the id.
+    """
     start, end = offset
     return ExtractedItem(
         evidence_id=evidence_id, value=value, unit=unit,
         period=Period(period_start, period_end) if period_end else None,
         quote=quote, span=EvidenceSpan(accession_id, int(start), int(end)),
         status=FOUND, tags=(CUMULATIVE_YTD,) if cumulative_ytd else (), note=note,
+        qualifier=qualifier,
     )
 
 

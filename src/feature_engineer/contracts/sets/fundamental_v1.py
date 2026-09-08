@@ -17,7 +17,8 @@ from __future__ import annotations
 
 from src.feature_engineer.contracts.spec import FeatureContract, FeatureSpec
 from src.feature_engineer.fundamental.build import (
-    CHANGES, FEATURE_NAMES, POINTWISE, PRICED, SECTOR_Z, TRENDS,
+    FEATURE_NAMES,
+    PRICED,
 )
 
 _OWNER = "fundamental.build"

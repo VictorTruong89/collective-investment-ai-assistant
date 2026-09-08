@@ -20,7 +20,11 @@ from __future__ import annotations
 from datetime import date
 
 from src.fundamental.bundle.assemble import (
-    assemble, computed, filing, observables, profile,
+    assemble,
+    computed,
+    filing,
+    observables,
+    profile,
 )
 from src.fundamental.bundle.models import BundlePart
 from src.fundamental.errors import BundleInconsistentError

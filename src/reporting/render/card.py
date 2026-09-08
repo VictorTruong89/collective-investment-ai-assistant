@@ -17,10 +17,15 @@ from dataclasses import dataclass
 from datetime import date
 
 from src.reporting.errors import (
-    BareConfidenceError, StabilityMissingError, VerdictEscalatedError,
+    BareConfidenceError,
+    StabilityMissingError,
+    VerdictEscalatedError,
 )
 from src.reporting.render.classes import (
-    COMPUTATION, FACT, JUDGEMENT, RenderUnit,
+    COMPUTATION,
+    FACT,
+    JUDGEMENT,
+    RenderUnit,
 )
 from src.reporting.render.lint import enforce
 

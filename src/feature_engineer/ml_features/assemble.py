@@ -18,6 +18,7 @@ from src.feature_engineer.errors import AsOfRequiredError, CalendarHaltError
 from src.feature_engineer.technical import price as _price
 from src.feature_engineer.technical.momentum import mom_21, vol_21
 
+
 #: name -> callable(price_panel) -> Series. **One feature, one owning module**
 #: (FE-4): this table is the only place a feature name is bound to code, so two
 #: implementations of one concept cannot both be registered.

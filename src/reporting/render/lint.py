@@ -11,9 +11,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-
-from src.reporting.errors import ForecastVoiceError
-
 #: ★★ **RA-137 — D-01 DECLARES these; D-09 EXECUTES them.**
 #:
 #: ⚠ They used to be restated here, which is **FE-4's defect in another domain**:
@@ -26,6 +23,7 @@ from src.reporting.errors import ForecastVoiceError
 #: satisfy in CONTENT and D-09's to satisfy in RENDERING"*, and §3 already
 #: declares D-09 depends on D-01.
 from src.fundamental.monitor.lint import FORECAST_VOICE, LENGTH_CAPS
+from src.reporting.errors import ForecastVoiceError
 
 
 @dataclass(frozen=True, slots=True)

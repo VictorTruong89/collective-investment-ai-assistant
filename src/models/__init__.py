@@ -17,23 +17,46 @@ indistinguishable from a result*).
 """
 
 from src.models.artifact.manifest import (
-    FeatureContractRef, ModelArtifact, ModelManifest, RESEARCH, RESEARCH_HORIZON,
-    ROLES, SELECTION, TIMING,
+    RESEARCH,
+    RESEARCH_HORIZON,
+    ROLES,
+    SELECTION,
+    TIMING,
+    FeatureContractRef,
+    ModelArtifact,
+    ModelManifest,
 )
 from src.models.errors import (
-    AnchorMismatchError, ContractUnresolvableError, DefaultSubstitutedError,
-    HorizonRoleError, ModelError, NotEvaluatedError, ParityError,
+    AnchorMismatchError,
+    ContractUnresolvableError,
+    DefaultSubstitutedError,
+    HorizonRoleError,
+    ModelError,
+    NotEvaluatedError,
+    ParityError,
 )
 from src.models.governance.drift import DriftReport, drift
 from src.models.governance.parity import (
-    HALT, MIN_FEATURE_COVERAGE, PASS, ParityReport,
-    assert_some_name_is_actionable, check_parity,
+    HALT,
+    MIN_FEATURE_COVERAGE,
+    PASS,
+    ParityReport,
+    assert_some_name_is_actionable,
+    check_parity,
 )
 from src.models.governance.promotion import (
-    NOT_EVALUATED, PromotionRecord, REQUIRED_GATES, Registry, promote,
+    NOT_EVALUATED,
+    REQUIRED_GATES,
+    PromotionRecord,
+    Registry,
+    promote,
 )
 from src.models.infer.arbitrate import (
-    ArbitrationResult, DELAY, NOMINATE, VETO, arbitrate,
+    DELAY,
+    NOMINATE,
+    VETO,
+    ArbitrationResult,
+    arbitrate,
 )
 from src.models.infer.score import ScoreResult, score
 from src.models.train.fit import SELECTION_HORIZON_DAYS, TrainSpec, fit, select_best

@@ -22,7 +22,7 @@ a `Thesis` is a `Thesis` regardless of where it came from.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 
 #: RA-116 — D-09 RP-1's reliability classes gain a fourth. ⚠ *A reader must

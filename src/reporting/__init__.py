@@ -15,19 +15,39 @@ book can rewrite history to match what it printed.*
 
 from src.reporting.deliver.archive import assert_content_equivalent
 from src.reporting.deliver.email import (
-    Delivery, archive, build_message, deliver, delivery_id, digest, send,
+    Delivery,
+    archive,
+    build_message,
+    deliver,
+    delivery_id,
+    digest,
+    send,
 )
 from src.reporting.deliver.html import assert_self_contained, render_html
 from src.reporting.deliver.markdown import render_markdown
 from src.reporting.errors import (
-    ArchiveMismatchError, BareConfidenceError, DeliveryFailedError, ExternalRefError,
-    ForecastVoiceError, FreshnessUnstatedError, NoProducerError, RenderingsDivergedError,
-    ReportingError, ScriptPresentError, StabilityMissingError, UntaggedClassError,
+    ArchiveMismatchError,
+    BareConfidenceError,
+    DeliveryFailedError,
+    ExternalRefError,
+    ForecastVoiceError,
+    FreshnessUnstatedError,
+    NoProducerError,
+    RenderingsDivergedError,
+    ReportingError,
+    ScriptPresentError,
+    StabilityMissingError,
+    UntaggedClassError,
     VerdictEscalatedError,
 )
 from src.reporting.render.card import DisciplineCard, build_card
 from src.reporting.render.classes import (
-    CLASSES, COMPUTATION, FACT, JUDGEMENT, KNOWN_DEFECTS, RenderUnit,
+    CLASSES,
+    COMPUTATION,
+    FACT,
+    JUDGEMENT,
+    KNOWN_DEFECTS,
+    RenderUnit,
 )
 from src.reporting.render.lint import LintReport, enforce, lint
 

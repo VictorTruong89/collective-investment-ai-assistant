@@ -1,0 +1,17 @@
+# F5 CT-5.5 — THESIS golden cases.
+#
+# ⚠⚠ D2, and this file is the reason that decision has teeth: a thesis's
+#    "correct" answer is a JUDGEMENT, not ground truth. `GoldenCase.is_judgement`
+#    is True for this kind, and the harness records whose judgement it was rather
+#    than pretending to objectivity.
+#
+# ⚠ Do these LAST, and expect fewer of them. If you cannot state why you hold the
+#    view, the case is not ready — an unexplained golden value gets trusted for
+#    the wrong reason later (CT-5.2's `source` rule).
+cases: []
+#  - case_id: mu-2026q3-view
+#    input_ref: filings/MU_2026Q3_10Q.txt
+#    expected: {view: BUY, conviction: medium}
+#    source: "my own view, 2026-09-05: HBM mix shift is durable through FY27"
+#    established_at: "2026-09-05"
+#    established_by: "Victor Truong"

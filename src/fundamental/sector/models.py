@@ -25,10 +25,15 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from src.fundamental.errors import (
-    CapacityRowMutatedError, ConclusionFieldError, SourceListIncompleteError,
+    CapacityRowMutatedError,
+    ConclusionFieldError,
+    SourceListIncompleteError,
 )
 from src.fundamental.sector.schema import (
-    OMISSION_FIELDS_V1, RECORD_FIELDS_V1, SCHEMA_V1, assert_schema_current,
+    OMISSION_FIELDS_V1,
+    RECORD_FIELDS_V1,
+    SCHEMA_V1,
+    assert_schema_current,
 )
 
 #: RA-97 — the five the rule names, plus the near-synonyms the same field would

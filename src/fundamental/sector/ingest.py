@@ -13,7 +13,10 @@ from __future__ import annotations
 from datetime import date
 
 from src.fundamental.sector.models import (
-    Omission, SectorFile, SectorRecord, SourceList, assert_complete,
+    Omission,
+    SectorFile,
+    SourceList,
+    assert_complete,
 )
 from src.fundamental.sector.schema import SCHEMA_V1
 

@@ -6,7 +6,9 @@ import pandas as pd
 
 from src.feature_engineer.contracts.spec import FeatureContract
 from src.feature_engineer.errors import (
-    MissingFeatureError, RangeViolationError, UndeclaredColumnError,
+    MissingFeatureError,
+    RangeViolationError,
+    UndeclaredColumnError,
 )
 
 #: CT-2.2's envelope — the columns that are not features. Every one is required:

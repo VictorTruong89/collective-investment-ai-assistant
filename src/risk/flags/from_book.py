@@ -12,8 +12,11 @@ from __future__ import annotations
 
 from src.recording.book.lots import cost_changes, round_trips
 from src.risk.flags.behavioural import (
-    HoldingPeriods, REGISTERED_SHORT_HOLD_DAYS, premature_exit_flag,
-    pyramiding_flag, short_hold_flags,
+    REGISTERED_SHORT_HOLD_DAYS,
+    HoldingPeriods,
+    premature_exit_flag,
+    pyramiding_flag,
+    short_hold_flags,
 )
 
 

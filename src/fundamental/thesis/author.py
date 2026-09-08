@@ -36,7 +36,9 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from src.fundamental.errors import (
-    BearCaseNotSeparateError, PriorVerdictLeakError, UncommittedFalsifiersError,
+    BearCaseNotSeparateError,
+    PriorVerdictLeakError,
+    UncommittedFalsifiersError,
 )
 from src.fundamental.thesis.models import BearCase, Falsifier, Thesis
 

@@ -18,7 +18,10 @@ from datetime import date
 import pandas as pd
 
 from src.models.artifact.manifest import (
-    FeatureContractRef, ModelArtifact, ModelManifest, SELECTION,
+    SELECTION,
+    FeatureContractRef,
+    ModelArtifact,
+    ModelManifest,
 )
 from src.models.errors import DefaultSubstitutedError
 
@@ -69,7 +72,8 @@ def fit(spec: TrainSpec, *, panel: pd.DataFrame, labels: pd.DataFrame,
     (MT-35), and a test can fit a two-line stand-in without a GBDT.
     """
     from src.feature_engineer.contracts.labels import (
-        assert_no_lookahead, assert_single_anchor,
+        assert_no_lookahead,
+        assert_single_anchor,
     )
 
     features = tuple(feature_names)

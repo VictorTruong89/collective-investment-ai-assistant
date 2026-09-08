@@ -26,7 +26,9 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from src.fundamental.monitor.variance import (
-    K_STAB, PERTURBATION, StabilityResult, rm1_perturbation_probe,
+    K_STAB,
+    StabilityResult,
+    rm1_perturbation_probe,
 )
 
 #: ★★ **What this probe actually varies — and the list is short for reasons.**

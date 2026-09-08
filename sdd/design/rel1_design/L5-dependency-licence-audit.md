@@ -1,6 +1,8 @@
 # L5 — Dependency licence audit  ·  `MS-9.3`
 
 > **Tier:** release-scoped design record. **Status:** ✅ first pass 2026-09-04.
+> **Status:** ✅ **complete 2026-09-04** — every declared dependency audited, including the
+> `anthropic` transitive tree.
 > **Why it exists:** `MS-9.3` gates the **first publish** (`QR-12`). ⚠ This repo is
 > **source-available, all rights reserved** — it grants no rights — so a copyleft
 > dependency would be a genuine conflict, not a formality.
@@ -16,7 +18,54 @@
 | `pyarrow` | 19.0.0 | Apache-2.0 | ✅ permissive |
 | `pytest` | 8.3.4 | MIT | ✅ dev only |
 | `ruff` | 0.16.6 | MIT | ✅ dev only |
-| ⚠ `anthropic` | **not installed here** | MIT *(believed)* | ⛔ **UNVERIFIED — verify before publish** |
+| `anthropic` | 1.4.0 | **MIT** | ✅ **verified 2026-09-04** |
+
+### ✅ `anthropic`'s transitive tree — audited 2026-09-04
+
+★ **This is the half that a one-line licence check misses.** The SDK is MIT; what it *pulls in* is
+the actual question.
+
+| Package | Version | Licence | |
+|---|---|---|---|
+| `httpx` · `httpcore` · `idna` | — | BSD-3-Clause | ✅ |
+| `pydantic` · `pydantic_core` · `anyio` · `sniffio` · `jiter` · `h11` · `annotated-types` | — | MIT | ✅ |
+| `distro` | 1.9.0 | Apache-2.0 | ✅ |
+| `typing_extensions` | 4.16.0 | PSF-2.0 | ✅ |
+| ⚠ **`certifi`** | 2025.11.12 | **MPL-2.0** | ★ **see below** |
+
+#### ⚠ `certifi` is MPL-2.0 — and it does NOT constrain this project
+
+A keyword scan flags `MPL` as copyleft and **stops there**; that would be the wrong conclusion.
+
+- **MPL-2.0 is FILE-LEVEL (weak) copyleft.** It obliges you to share modifications **to the
+  MPL-licensed files themselves**. ⚠ It does **not** reach the surrounding project, unlike GPL/AGPL.
+- `certifi` is Mozilla's **CA root bundle**; MPL is the bundle's own licence.
+- ★ **This project does not modify it** — it arrives transitively through `httpx` and is used
+  unmodified. **Obligation: none beyond retaining its notice.**
+
+> ★★ **The lesson worth keeping.** The only non-permissive licence in the tree was **four levels
+> down**, in a package nobody chose, and it needed a **judgement about the KIND of copyleft** rather
+> than a match on the word. ⚠ An automated licence gate that fails on `MPL` would have blocked this
+> project on a CA certificate bundle.
+
+## ★ What licences THIS project may adopt
+
+Because **nothing in the dependency tree is strong copyleft**, the choice is **completely
+unconstrained** — no dependency forces or forbids any option below.
+
+| | Option | Grants | Fits `QR-12`? |
+|---|---|---|---|
+| ★ **1** | **All rights reserved / source-available** *(current)* | ⛔ none — readable only | ✅ **yes** — this is what *"review only, I keep all rights"* means |
+| **2** | **PolyForm Noncommercial** / **PolyForm Strict** | non-commercial or evaluation use | ✅ yes, if you want to grant *something* |
+| **3** | **BUSL-1.1** (Business Source Licence) | use now, converts to Apache-2.0 after N years | ◐ partly — the auto-conversion gives rights away on a timer |
+| **4** | **Elastic Licence 2.0** | use, except as a hosted service | ◐ aimed at SaaS competition, not at this |
+| **5** | **MIT / Apache-2.0 / BSD** | ⚠ everything | ✗ **no** — `QR-12` rejected these explicitly |
+| **6** | **GPL-3.0 / AGPL-3.0** | ⚠ everything, with copyleft | ✗ **no** — still an OSI grant |
+
+★ **Recommendation: stay on option 1.** `QR-12` decided it, nothing has changed, and it is the only
+row that grants **nothing**. ⚠ Options 2-4 are worth knowing only if you later want reviewers to
+*run* the code rather than read it — and **none of them is reversible in practice**, because a
+licence once granted cannot be withdrawn from copies already distributed.
 
 ★ **No copyleft anywhere in the declared set.** Nothing conflicts with an
 all-rights-reserved publication.
@@ -46,7 +95,7 @@ carried a `dev` extra only, while `MS-8` moved in 15 domains needing `pandas`,
 
 ## What to do before the first publish (`MS-9.1`)
 
-1. ⛔ **Install `anthropic` and verify — THREE things, not one:**
+1. ✅ **DONE 2026-09-04 — `anthropic` verified.** The check was three things, not one:
    - **(a) the SDK's own licence.** Expect MIT. ⛔ *GPL/AGPL/SSPL/Commons Clause* would conflict
      with all-rights-reserved publication.
    - ⚠⚠ **(b) its TRANSITIVE dependencies** — `httpx`, `pydantic`, `anyio`, `distro`, `sniffio`,
@@ -56,10 +105,9 @@ carried a `dev` extra only, while `MS-8` moved in 15 domains needing `pandas`,
      Anthropic's commercial terms**, which are a separate instrument. ⚠ Not a dependency-licence
      question — but it does bear on whether *model outputs* may be published.
 
-   ```bash
-   pip install anthropic
-   python3 -c "import importlib.metadata as m; print(m.metadata('anthropic').get('License'))"
-   pip install pip-licenses && pip-licenses --packages anthropic --with-system   # (b)
-   ```
+   ★ **Result:** SDK **MIT**; tree permissive except `certifi` (**MPL-2.0**, weak/file-level, used
+   unmodified — no obligation). ⚠ **(c) remains open and is NOT a licence question:** the SDK is MIT,
+   but **the API it calls is governed by Anthropic's commercial terms**, which bear on whether *model
+   outputs* may be published. That is worth reading before publishing anything the model wrote.
 2. ✅ Declare the runtime dependencies (done 2026-09-04 — see `pyproject.toml`).
 3. ⚠ Re-run this audit whenever a dependency is added. It is cheap and it is a gate.

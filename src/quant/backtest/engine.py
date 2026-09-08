@@ -13,7 +13,10 @@ from src.quant.backtest.costs import CostModel
 from src.quant.backtest.protocol import assert_no_leakage, make_folds
 from src.quant.contracts.backtest import BacktestResult, BacktestSpec
 from src.quant.gates.metric_gate import (
-    GateSet, assert_not_pooled, breadth_gate, cost_survival_gate,
+    GateSet,
+    assert_not_pooled,
+    breadth_gate,
+    cost_survival_gate,
     ic_significance_gate,
 )
 from src.quant.metrics.ic import rank_ic

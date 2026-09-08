@@ -21,8 +21,14 @@ from __future__ import annotations
 
 from src.feature_engineer.contracts.spec import FeatureContract, FeatureSpec
 from src.feature_engineer.technical.price import (
-    MACD_FORMULA_ID, MACD_WARMUP_SESSIONS, RANK_FORMULA_ID, RETURN_FORMULA_ID,
-    RSI_FORMULA_ID, SMA_FORMULA_ID, VOLUME_Z_FORMULA_ID, VOL_FORMULA_ID,
+    MACD_FORMULA_ID,
+    MACD_WARMUP_SESSIONS,
+    RANK_FORMULA_ID,
+    RETURN_FORMULA_ID,
+    RSI_FORMULA_ID,
+    SMA_FORMULA_ID,
+    VOL_FORMULA_ID,
+    VOLUME_Z_FORMULA_ID,
 )
 
 _OWNER = "technical.price"

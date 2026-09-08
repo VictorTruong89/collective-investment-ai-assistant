@@ -11,7 +11,11 @@ from __future__ import annotations
 from datetime import date
 
 from src.recording.book.models import (
-    BREAK, OK, RECONCILE_TOLERANCE, BookState, Break, Position,
+    BREAK,
+    OK,
+    RECONCILE_TOLERANCE,
+    BookState,
+    Break,
 )
 
 
@@ -97,7 +101,7 @@ def capital_base(book: BookState) -> float:
     ⚠ *Every percentage cost figure in this repository is a function of a number
     that is currently the literal `20000.0` at `backtester.py:107`.*
     """
-    from src.recording.errors import BookBreakError, CapitalBaseUnavailableError
+    from src.recording.errors import CapitalBaseUnavailableError
 
     assert_reconciled(book)
     if book.capital_base is None:

@@ -66,7 +66,7 @@ class JournalEntry:
         return obj
 
     @classmethod
-    def from_json_obj(cls, obj: dict) -> "JournalEntry":
+    def from_json_obj(cls, obj: dict) -> JournalEntry:
         return cls(
             date=date.fromisoformat(obj["date"]), ticker=obj["ticker"],
             action=obj["action"], rationale=obj["rationale"], author=obj["author"],

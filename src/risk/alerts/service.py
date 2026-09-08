@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from src.risk.contracts.alerts import COMPLETE, Alert, AlertSet, unchecked
+from src.risk.contracts.alerts import COMPLETE, AlertSet, unchecked
 from src.risk.errors import BlockAttemptedError, NoBookError, SuppressionAttemptedError
 
 NO_BOOK_REASON = (

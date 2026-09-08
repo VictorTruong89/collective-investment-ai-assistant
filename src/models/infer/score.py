@@ -12,7 +12,7 @@ BUY/HOLD/SELL and no conviction (L0 §3.1, INV-014).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 
 import pandas as pd
@@ -52,7 +52,8 @@ def score(artifact, panel: pd.DataFrame, *, contract, as_of: date,
     """MT-8/MT-29 — ★ parity runs **once, before scoring**; it halts, never
     degrades to a partial score."""
     from src.models.governance.parity import (
-        MIN_FEATURE_COVERAGE, check_parity,
+        MIN_FEATURE_COVERAGE,
+        check_parity,
     )
 
     artifact.assert_loadable_for_production()               # MT-33

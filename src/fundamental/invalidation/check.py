@@ -11,7 +11,10 @@ from __future__ import annotations
 from datetime import date, datetime, time, timezone
 
 from src.fundamental.invalidation.models import (
-    TIER_CHEAP, InvalidationCheck, InvalidationEvent, NewEvidenceItem, Triage,
+    TIER_CHEAP,
+    InvalidationCheck,
+    InvalidationEvent,
+    Triage,
 )
 
 

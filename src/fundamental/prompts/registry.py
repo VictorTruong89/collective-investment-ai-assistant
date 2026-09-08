@@ -91,7 +91,7 @@ class AlignmentCheck(Protocol):
     (the legacy checker predates the block split QR-5 requires).
     """
 
-    def __call__(self, block: "PromptBlock") -> None:
+    def __call__(self, block: PromptBlock) -> None:
         """Raise `PromptDriftError` if `block` has drifted; return otherwise."""
 
 

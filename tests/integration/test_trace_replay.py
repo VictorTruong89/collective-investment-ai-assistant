@@ -205,3 +205,95 @@ def test_redaction_leaves_ordinary_fields_alone():
     out = redact_secrets(obj)
     assert out["ticker"] == "NVDA" and out["reason"] == "vol > 0.45"
     assert out["api_key"] == REDACTED
+
+
+# --------------------------------------------------------------------------- #
+# AC-2.2 at CALL granularity — the gateway's vendor boundary
+# --------------------------------------------------------------------------- #
+def test_ac_2_2_a_gateway_transport_call_is_recorded_with_both_halves(tmp_path):
+    """★ `traced_transport` closes what `traced()` cannot see.
+
+    ⚠ Zero edits to the inherited gateway: `Gateway(config, transport=...)`
+    injects the vendor boundary, so wrapping the transport is enough.
+    """
+    from src.orchestration.trace import traced_transport
+
+    s = TraceStore(tmp_path / "runs", run_id=RUN)
+    calls = []
+
+    def transport(request):
+        calls.append(request)
+        return {"model": "claude-opus-5", "content": [{"text": "hi"}],
+                "usage": {"input_tokens": 12, "output_tokens": 3}}
+
+    wrapped = traced_transport(transport, s, step_id="job:thesis")
+    out = wrapped({"model": "claude-opus-5", "messages": [{"role": "user"}]})
+
+    assert out["content"][0]["text"] == "hi", "the transport's result passes through"
+    rec = [r for r in s.read_all() if r["type"] == "ExternalCall"][0]
+    assert rec["kind"] == "llm" and rec["model_id"] == "claude-opus-5"
+    assert rec["tokens"] == {"input": 12, "output": 3}
+    body = s.payload(rec["payload_ref"])
+    assert body["request"]["messages"] == [{"role": "user"}]
+    assert body["response"]["content"] == [{"text": "hi"}]
+
+
+def test_ac_2_2_a_failing_transport_is_recorded_AND_re_raised(tmp_path):
+    """⚠⚠ The gateway's own retry must still see the exception.
+
+    `EH-14` — only orchestration retries. A recorder that swallowed this would
+    change WHICH calls get retried, which is a recorder altering the run.
+    """
+    from src.orchestration.trace import traced_transport
+
+    s = TraceStore(tmp_path / "runs", run_id=RUN)
+
+    def boom(_request):
+        raise TimeoutError("vendor timeout")
+
+    wrapped = traced_transport(boom, s, step_id="job:thesis")
+    with pytest.raises(TimeoutError):
+        wrapped({"model": "claude-opus-5"})
+
+    rec = [r for r in s.read_all() if r["type"] == "ExternalCall"][0]
+    assert "TimeoutError" in rec["error"]
+    assert rec["payload_ref"], "the request is kept even though there is no response"
+
+
+def test_ac_2_9_a_credential_in_a_transport_request_is_redacted(tmp_path):
+    """The vendor boundary is exactly where an API key would appear."""
+    from src.orchestration.trace import traced_transport
+
+    s = TraceStore(tmp_path / "runs", run_id=RUN)
+    wrapped = traced_transport(lambda r: {"ok": True}, s, step_id="job:x")
+    wrapped({"headers": {"x-api-key": "sk-livesecret12345"}, "model": "m"})
+    assert "sk-livesecret12345" not in (s.log_path.read_text()
+                                        + (s.payload_dir / "job:x:llm:1.json").read_text())
+
+
+# --------------------------------------------------------------------------- #
+# ⚠⚠ regression — redaction must not eat usage accounting
+# --------------------------------------------------------------------------- #
+@pytest.mark.parametrize("key", ["tokens", "max_tokens", "input_tokens",
+                                 "tokens_in", "output_tokens", "token_count"])
+def test_ac_2_9_usage_fields_are_NOT_redacted(key):
+    """⚠⚠ `"token" in "tokens"` is True.
+
+    The substring form redacted **every usage and cost field in every traced
+    call** — `tokens`, `max_tokens`, `input_tokens` — and the trace would have
+    reported `<redacted>` where the accounting should be. ★ Caught only because
+    a call-level test asserted an exact token count.
+    """
+    assert redact_secrets({key: 42})[key] == 42
+
+
+@pytest.mark.parametrize("key", ["api_key", "x-api-key", "X-API-Key", "auth_token",
+                                 "authorization", "password", "client_secret",
+                                 "private_key", "bearer"])
+def test_ac_2_9_credential_shaped_keys_ARE_redacted(key):
+    """★ And the fix must not weaken the rule it was fixing.
+
+    `x-api-key` is the interesting one: the substring form MISSED it (hyphen vs
+    underscore) and was relying on the value regex to catch the leak.
+    """
+    assert redact_secrets({key: "hunter2"})[key] == REDACTED

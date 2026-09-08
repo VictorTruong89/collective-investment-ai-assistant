@@ -77,6 +77,25 @@ class ExtractedItem:
     status: str = FOUND
     tags: tuple[str, ...] = ()
     note: str = ""
+    #: `MP-18` — which ROW this item is, when one `evidence_id` legitimately
+    #: yields several: the segment name for `E-01`, and `""` everywhere else.
+    #: ⚠ It does NOT go in the `evidence_id`: `b43_v1.py` maps the published
+    #: rubric dimension `segments → "seg.revenue"` and `score.py` matches by set
+    #: membership on bare ids, so `seg.revenue.CNBU` would make the level
+    #: unavailable for a *naming* reason rather than an evidential one.
+    qualifier: str = ""
+
+    @property
+    def identity(self) -> tuple:
+        """`MP-18` — what must be unique within one `ExtractionResult`.
+
+        ★ Mirrors `withdraw_extractions`, which already keys on
+        `(evidence_id, period)` (`RA-138`).
+        """
+        # ⚠ A TUPLE, not `period.to_json_obj()` — that returns a dict, which is
+        # unhashable, and `__post_init__` puts these in a set.
+        return (self.evidence_id, self.qualifier,
+                (self.period.start, self.period.end) if self.period else None)
 
     def __post_init__(self) -> None:
         if self.status not in STATUSES:
@@ -114,6 +133,12 @@ class ExtractedItem:
             "quote": self.quote,
             "span": self.span.to_json_obj() if self.span else None,
             "status": self.status, "tags": list(self.tags), "note": self.note,
+            # ⚠⚠ MP-18. Omitting this made the discriminator invisible on the
+            # WIRE: `qualifier` lived on the dataclass but never reached the
+            # recorded payload, so two segment rows serialised identically and
+            # a replayed golden case could not tell CNBU from SBU. ★ Identity
+            # that does not survive serialisation is not identity.
+            "qualifier": self.qualifier,
         }
 
 
@@ -126,12 +151,27 @@ class ExtractionResult:
     items: tuple[ExtractedItem, ...]
 
     def __post_init__(self) -> None:
-        ids = [i.evidence_id for i in self.items]
-        if len(set(ids)) != len(ids):
+        # ✏ `MP-18` (2026-09-07) — identity is `(evidence_id, qualifier, period)`.
+        # ⚠⚠ The previous rule banned a repeated `evidence_id` outright, and
+        # `E-01` **cannot satisfy it**: it returns one item per reportable
+        # segment and every one is legitimately `seg.revenue`.
+        #
+        # ⚠ Its stated reason was also wrong. It claimed a duplicate
+        # "double-counts a rubric level's support", but `evidence_ids` is a
+        # frozenset and `coverage()` is `len(matched) / len(required)` over
+        # frozensets — duplicates collapse and cannot double-count. ★ The real
+        # hazard is AMBIGUITY: two items claiming one identity with different
+        # values, where nothing says which one a rubric cites. That is what is
+        # banned below, and it is why `qualifier` distinguishes rather than
+        # suppresses.
+        seen = [i.identity for i in self.items]
+        if len(set(seen)) != len(seen):
             raise ValueError(
-                f"{self.block_id}: duplicate evidence_id(s) in one extraction. "
-                f"`evidence_coverage` counts ids, so a duplicate double-counts a "
-                f"rubric level's support (MP-4, RA-65)"
+                f"{self.block_id}: two items share one identity "
+                f"(evidence_id, qualifier, period). ⚠ Nothing then says which "
+                f"one a rubric level cites, so the evidence is ambiguous. If "
+                f"these are different rows of one table (e.g. per-segment), set "
+                f"`qualifier` — do NOT suffix the evidence_id (MP-18, MP-4)"
             )
 
     @property

@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from src.risk.contracts.theme import UNCLASSIFIED, ThemeTaxonomy
-from src.risk.errors import FxUnavailableError, NoTaxonomyError, NotAggregatedError
+from src.risk.errors import FxUnavailableError, NotAggregatedError, NoTaxonomyError
 
 #: L0 §8 — reporting thresholds, every one of them (RK-2).
 CONCENTRATION_THRESHOLD_PCT = 25.0
@@ -135,7 +135,7 @@ def exposure(books, *, as_of: date, taxonomy: ThemeTaxonomy,
                 by_account.get(book.account_id, 0.0) + value)
 
     pct = (lambda d: {k: round(100.0 * v / total, 4) for k, v in sorted(d.items())}
-           if total else (lambda d: {k: 0.0 for k in sorted(d)}))
+           if total else (lambda d: dict.fromkeys(sorted(d), 0.0)))
     return ExposureView(
         as_of=as_of, base_currency=base_currency,
         by_name=pct(by_name), by_sector=pct(by_sector), by_theme=pct(by_theme),

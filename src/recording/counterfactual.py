@@ -75,7 +75,7 @@ class VetoedCandidate:
         }
 
     @classmethod
-    def from_json_obj(cls, obj: dict) -> "VetoedCandidate":
+    def from_json_obj(cls, obj: dict) -> VetoedCandidate:
         return cls(
             ticker=obj["ticker"], as_of=date.fromisoformat(obj["as_of"]),
             ranked_quantity=obj["ranked_quantity"], horizon=obj["horizon"],

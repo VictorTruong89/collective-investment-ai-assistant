@@ -171,7 +171,9 @@ def build_training_labels(prices, *, horizon_days: int, as_of: date):
     legitimate look-ahead in the system and the easiest to over-extend.
     """
     from src.feature_engineer.contracts.labels import (
-        LabelDef, assert_no_lookahead, build_labels,
+        LabelDef,
+        assert_no_lookahead,
+        build_labels,
     )
 
     label_def = LabelDef(
@@ -189,7 +191,9 @@ def evaluate(result, *, horizon_id: str, names: int, effective_breadth=None,
     gate D-03 never produces, and every artifact was refused.
     """
     from src.quant.gates.metric_gate import (
-        breadth_gate, cost_survival_gate, ic_significance_gate,
+        breadth_gate,
+        cost_survival_gate,
+        ic_significance_gate,
     )
 
     outcomes = {
@@ -372,7 +376,9 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
     from src.models.train.fit import TrainSpec, fit
     from src.models.zoo.gbdt import LightGBMRanker
     from src.quant.backtest.protocol import (
-        assert_no_leakage, derive_protocol, make_folds,
+        assert_no_leakage,
+        derive_protocol,
+        make_folds,
     )
     from src.quant.horizons.horizon_set import PRODUCTION_V1
     from src.quant.metrics.ic import rank_ic
@@ -417,7 +423,7 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
                          "test_rows": int(len(test))})
 
     if not predictions:
-        from src.quant.metrics.ic import ICResult, NOT_EVALUATED
+        from src.quant.metrics.ic import NOT_EVALUATED, ICResult
 
         return (ICResult(horizon_days=horizon_days, mean_ic=None, dates=0,
                          names_per_date=0.0, effective_n=None,
@@ -450,12 +456,13 @@ def gate_outcomes(ic_result, *, horizon_id: str, names: int,
     ⚠ MT-50: D-04 declaring its own list is how promotion came to demand a
     `stability` gate D-03 never produced, and every artifact was refused.
     """
-    from src.quant.gates.metric_gate import (
-        REQUIRED_GATES, breadth_gate, ic_significance_gate,
-    )
-
     from src.quant.backtest.costs import CostModel
-    from src.quant.gates.metric_gate import cost_survival_gate
+    from src.quant.gates.metric_gate import (
+        REQUIRED_GATES,
+        breadth_gate,
+        cost_survival_gate,
+        ic_significance_gate,
+    )
 
     outcomes = {
         "ic_significance": ic_significance_gate(ic_result, horizon_id=horizon_id),
@@ -549,7 +556,7 @@ def decide_promotion(artifact, *, ic_result, names: int, store,
 
 def d03_evaluate(*, universe, scored, simulation, breadth, horizon_days: int,
                  as_of: date, start: date, capital: float, contract,
-                 calendar_check_id: str) -> "object":
+                 calendar_check_id: str) -> object:
     """★★ **D-03 grades the model; D-04 consumes the verdict.**
 
     ⚠ *Found 2026-08-27 by the rule itself:* all three gates passed and promotion

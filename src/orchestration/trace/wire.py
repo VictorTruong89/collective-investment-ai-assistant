@@ -14,20 +14,21 @@ Editing the runner would put F2 inside D-08's retry/budget path, where a trace
 bug could change whether a job is retried. ★ A recorder that can alter the run it
 records is not an observer.
 
-⚠ **`ExternalCall` records are NOT emitted here.** They belong at the vendor
-boundary — the LLM gateway and the HTTP client — which the dispatch does not see.
-`traced()` gives job granularity; call granularity arrives when the gateway is
-wrapped, and until then `AC-2.2` is exercised by direct writes rather than by a
-real run. **Stated so the gap is visible in the trace, not discovered later.**
+★★ **`traced_transport()` below closes what `traced()` cannot see.** `traced()`
+gives **job** granularity; `AC-2.2` needs **call** granularity — the request and
+response of every LLM call. The gateway takes its `transport` as a constructor
+parameter (`Gateway(config, transport=...)`), so the vendor boundary is injected
+exactly like the job dispatch is, and wrapping it needs **no edit to the gateway**.
 """
 
 from __future__ import annotations
 
+import time
 from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any
 
-from src.orchestration.trace.models import StepRecord
+from src.orchestration.trace.models import ExternalCall, StepRecord
 from src.orchestration.trace.store import TraceStore
 
 
@@ -89,3 +90,86 @@ def replayable_invoke(records: list[dict]) -> Callable[..., Any]:
             raise KeyError(f"job {job_id!r} is not in the recording — the graph changed")
         return match
     return _invoke
+
+
+# --------------------------------------------------------------------------- #
+# AC-2.2 at CALL granularity — the vendor boundary
+# --------------------------------------------------------------------------- #
+def _tokens_of(response: dict | None) -> dict:
+    """⚠⚠ The gateway's transport speaks `tokens_in` / `tokens_out`.
+
+    ★ Found by writing a characterization test **after** building on this
+    contract: the first version of this wrapper read
+    `response["usage"]["input_tokens"]` — the Anthropic SDK's shape — and would
+    have recorded **0 tokens on every real call**. The unit test agreed with the
+    wrapper because both encoded the same assumption.
+
+    Both shapes are accepted: `tokens_in`/`tokens_out` is what
+    `src/shared/llm/gateway.py` passes through (frozen by
+    `tests/test_characterization_gateway.py`); `usage.*` is what a raw SDK
+    response carries, for a transport that returns one unwrapped.
+    """
+    r = response or {}
+    if "tokens_in" in r or "tokens_out" in r:
+        return {"input": int(r.get("tokens_in", 0)),
+                "output": int(r.get("tokens_out", 0))}
+    usage = r.get("usage") or {}
+    return {"input": int(usage.get("input_tokens", 0)),
+            "output": int(usage.get("output_tokens", 0))}
+
+
+def traced_transport(
+    transport: Callable[[dict], dict],
+    store: TraceStore,
+    *,
+    step_id: str,
+    kind: str = "llm",
+    call_id_of: Callable[[dict], str] | None = None,
+) -> Callable[[dict], dict]:
+    """Wrap a gateway transport so every vendor call becomes a `CT-2.2` record.
+
+    ★ **Why the transport and not the gateway.** `Gateway.__init__` takes
+    `transport: Callable[[dict], dict]` and calls it as `raw = self._transport(
+    request)`. That is the same injection seam `traced()` uses on the job
+    dispatch, and wrapping it means **zero edits to inherited D-00 code**
+    (`AC-2.1`, `P4`).
+
+    ⚠ **This is the half `Gateway._emit` deliberately does not do.** The
+    gateway's own log records `LLMCall` — call_id, tokens, cost, outcome — and
+    **not the payload**, because upstream `AnalysisRunLog` says *"RECORD THAT IT
+    FAILED; NEVER RECORD WHAT IT PRODUCED"* (`RA-111`). ★ That rule protects the
+    **output path**: a degraded response must not be persisted and later rendered
+    as sound. A trace is **evidence, not output** (§4), so F2 records both halves
+    — and `AC-2.9` redaction plus `D4`'s export filter are what keep it out of
+    anything published.
+
+    ⚠ A transport that raises is recorded with its `error` and **re-raised**: the
+    gateway's own retry logic must still see it (`EH-14` — only orchestration
+    retries). A recorder that swallowed it would change which calls are retried.
+    """
+    seq = {"n": 0}
+
+    def _transport(request: dict) -> dict:
+        seq["n"] += 1
+        call_id = (call_id_of(request) if call_id_of
+                   else f"{step_id}:{kind}:{seq['n']}")
+        t0 = time.perf_counter()
+        try:
+            response = transport(request)
+        except BaseException as exc:
+            store.append(ExternalCall(
+                run_id=store.run_id, step_id=step_id, call_id=call_id, kind=kind,
+                request=request, response=None,
+                model_id=request.get("model"),
+                latency_ms=int((time.perf_counter() - t0) * 1000),
+                error=f"{type(exc).__name__}: {exc}"))
+            raise                       # ⚠ the gateway's retry must still see it
+        store.append(ExternalCall(
+            run_id=store.run_id, step_id=step_id, call_id=call_id, kind=kind,
+            request=request, response=response,
+            model_id=(response or {}).get("model") or request.get("model"),
+            tokens=_tokens_of(response),
+            latency_ms=int((time.perf_counter() - t0) * 1000)))
+        return response
+
+    return _transport

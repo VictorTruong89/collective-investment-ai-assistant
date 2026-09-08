@@ -15,6 +15,8 @@ D-05's pass `UNCHECKED` and D-12's card informational, honestly and by name.
 
 from __future__ import annotations
 
+import os
+import re
 from datetime import date
 from pathlib import Path
 
@@ -23,19 +25,73 @@ from src.recording.errors import RecordingError
 from src.recording.orders.group import group_orders
 from src.recording.reconcile.ingest import parse_export
 
-#: The four registered accounts (RC-25) and their statement types.
-ACCOUNTS = (("RESP_1", "RESP"), ("RRSP_1", "RRSP"),
-            ("TFSA_1", "TFSA"), ("TFSA_2", "TFSA"))
+#: ★ RC-66 — the exports live OUTSIDE the spec tier.
+#:
+#: ⚠ This previously pointed at `sdd/design/rel6_design/samples/`: the **book of
+#: record** sat inside the tier that governs the code, in a **release-scoped,
+#: frozen** design directory, under a name that says *fixture*. `.state/` is
+#: already git-ignored, so real broker statements cannot enter history (DX-5).
+EXPORT_DIR = ".state/broker/bmo_investorline"
 
-EXPORT_DIR = "sdd/design/rel6_design/samples/bmo_investorline_transactions"
+#: ⚠ Read only if `EXPORT_DIR` is absent, so an unmigrated checkout degrades to
+#: WORKING rather than to an empty book.
+LEGACY_EXPORT_DIR = "sdd/design/rel6_design/samples/bmo_investorline_transactions"
+
+#: `H-5` — *registered status is not a field; the naming convention carries it.*
+_EXPORT_RE = re.compile(r"^TransactionHistory_(?P<account>[A-Z]+_\d+)\.csv$")
 
 
 def export_path(root, account_id: str) -> Path:
     return Path(root) / f"TransactionHistory_{account_id}.csv"
 
 
+def discover_accounts(root) -> tuple[tuple[str, str], ...]:
+    """★★ RC-65 — the account set comes from the DIRECTORY, never from a list.
+
+    ⚠ `ACCOUNTS` used to be a hardcoded 4-tuple. A fifth statement dropped into
+    the directory was **silently ignored**: not read, not refused, not
+    mentioned — the new portfolio simply did not exist, while `RK-5`'s
+    all-or-nothing aggregation still returned a book that looked healthy.
+    ★ `RRSP_2` (planned 2027) is now a file drop, not a code edit.
+
+    `H-5` already established that the filename carries the account, and the
+    registered TYPE is its prefix — so the directory is a sufficient source and a
+    second list in code could only disagree with it.
+
+    ⚠ Raises on an empty directory (`AC-11.48`): *"no accounts found"* and
+    *"this book holds nothing"* are different facts, and deriving the second from
+    the first would read as a healthy refusal rather than a missing input.
+    """
+    path = Path(root)
+    found = []
+    if path.is_dir():
+        for entry in sorted(path.iterdir()):
+            m = _EXPORT_RE.match(entry.name)
+            if m:
+                account_id = m.group("account")
+                found.append((account_id, account_id.rsplit("_", 1)[0]))
+    if not found:
+        raise RecordingError(
+            f"no broker exports found in {path} — expected files named "
+            "`TransactionHistory_<ACCOUNT>.csv` (RC-65, AC-11.48). ⚠ An empty "
+            "book is not the same answer as a missing input.")
+    return tuple(found)                       # sorted → INV-2 determinism
+
+
+def resolve_export_dir(root: str | None = None) -> str:
+    """`RC-66` — `$BMO_STATEMENTS_DIR`, then `.state/`, then the legacy path."""
+    if root is not None:
+        return root
+    override = os.environ.get("BMO_STATEMENTS_DIR")
+    if override:
+        return override
+    if Path(EXPORT_DIR).is_dir():
+        return EXPORT_DIR
+    return LEGACY_EXPORT_DIR if Path(LEGACY_EXPORT_DIR).is_dir() else EXPORT_DIR
+
+
 def load_books(*, as_of: date, prices=None, fetch=None, reported_nav=None,
-               sectors=None, root: str = EXPORT_DIR) -> tuple[tuple, str]:
+               sectors=None, root: str | None = None) -> tuple[tuple, str]:
     """Return `(books, unavailable_reason)`. ★ **Never a partial tuple.**
 
     ⚠ *A book-wide aggregate computed over the accounts that happened to price
@@ -44,6 +100,19 @@ def load_books(*, as_of: date, prices=None, fetch=None, reported_nav=None,
     the instruments, because a refusal that cannot say what it lacks is the
     defect RC-10 exists to prevent.
     """
+    root = resolve_export_dir(root)
+    # ⚠⚠ RC-65 vs RC-10, and BOTH are right — they belong at different layers.
+    # `discover_accounts` RAISES: at that level "no accounts" is an error, and
+    # returning () would let an empty book look derived (AC-11.48).
+    # `load_books` must NOT crash: its contract is "carry the refusal forward as
+    # a REASON" (RC-10, RK-5) — *a refusal that cannot say what it lacks is the
+    # defect RC-10 exists to prevent*. So it catches and names it.
+    # ★ Found by the fresh-clone check (DX-5): with no exports present, an
+    # orchestration job went SUCCESS -> FAILED.
+    try:
+        accounts = discover_accounts(root)
+    except RecordingError as exc:
+        return (), str(exc)
     prices = dict(prices or {})
     if fetch is not None:
         # ★ **D-11 decides WHAT to price; the caller only knows HOW.** ⚠ The
@@ -54,7 +123,7 @@ def load_books(*, as_of: date, prices=None, fetch=None, reported_nav=None,
         prices.update(quote_holdings(fetch, root=root))
 
     books, refusals = [], []
-    for account_id, account_type in ACCOUNTS:
+    for account_id, account_type in accounts:
         path = export_path(root, account_id)
         if not path.exists():
             refusals.append(f"{account_id}: no export at {path}")
@@ -81,8 +150,11 @@ def load_books(*, as_of: date, prices=None, fetch=None, reported_nav=None,
     return tuple(books), ""
 
 
-def held_instruments(*, root: str = EXPORT_DIR) -> tuple[str, ...]:
-    """Every instrument_id with a non-zero position, across all four accounts.
+def held_instruments(*, root: str | None = None) -> tuple[str, ...]:
+    """Every instrument_id with a non-zero position, across EVERY account present.
+
+    ✏ *"all four accounts"* until `RC-65` — the count is now whatever the export
+    directory holds.
 
     ★ **The book is priced from what it HOLDS, not from the trading universe.**
     ⚠ Relying on the overlap made `DELL` — an ordinary US common stock — report
@@ -90,8 +162,9 @@ def held_instruments(*, root: str = EXPORT_DIR) -> tuple[str, ...]:
     reason that conflates *"we did not fetch it"* with *"the plan will not sell
     it to us"* sends the reader to the wrong fix (DE-49, RC-10).
     """
+    root = resolve_export_dir(root)
     held: set[str] = set()
-    for account_id, _type in ACCOUNTS:
+    for account_id, _type in discover_accounts(root):
         path = export_path(root, account_id)
         if not path.exists():
             continue
@@ -103,7 +176,7 @@ def held_instruments(*, root: str = EXPORT_DIR) -> tuple[str, ...]:
     return tuple(sorted(held))
 
 
-def quote_holdings(fetch, *, root: str = EXPORT_DIR) -> dict:
+def quote_holdings(fetch, *, root: str | None = None) -> dict:
     """`{instrument_id: (price, currency)}` for the US common stock held.
 
     ⏸ **RC-58 — CDRs and CAD listings are deliberately not attempted.** They are

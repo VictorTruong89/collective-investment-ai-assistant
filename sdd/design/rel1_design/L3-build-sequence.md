@@ -50,46 +50,48 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — **MS-1 … MS-9 built**, updated 2026-09-04
+## 2.1 Current position — **MS-1 … MS-9 built**, updated 2026-09-05
 
 ```text
-   ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ─┐
-   │  ★★ 11 of 11 specs 🟢 APPROVED · 148 ACs · 50 decisions       │
-   │  vision · constitution (PG-2..10) · 23 QR · 14 DX             │
-   └───────────────────────────────────────────────────────────────┘
+   ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
+   │  ★★ 11 of 11 specs 🟢 APPROVED · 148 ACs · 50 decisions        │
+   │  vision · constitution (PG-2..10) · 23 QR · 14 DX              │
+   └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-1 … MS-7 · THE PLATFORM ─────────────────────── BUILT ────┐
-   │  F1 registry · F2 trace+replay · F5 eval · F4 explain         │
-   │  F3 corp-actions · F6a routing · F8 control · F9 source port  │
-   │  F7a Tier-A · F6b deliberation · F7b Tier-B                   │
+   ┌─ MS-1 … MS-7 · THE PLATFORM ─────────────────────── BUILT ─────┐
+   │  F1 registry · F2 trace+replay · F5 eval · F4 explain          │
+   │  F3 corp-actions · F6a routing · F8 control · F9 source port   │
+   │  F7a Tier-A · F6b deliberation · F7b Tier-B                    │
    │  ✅ CI + ruff · 7 guarantees automated (tools/check_all.py)    │
-   └───────────────────────────────────────────────────────────────┘
+   └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-8 · ABSORPTION ──────────────────────────── ONE TREE ─────┐
+   ┌─ MS-8 · ABSORPTION ──────────────────────────── ONE TREE ──────┐
    │  ✅ 15 domains · ~38,000 lines · upstream src/ is GONE         │
    │  ⛔ 8.9 retire the old repo — Victor's (outward-facing)        │
-   └───────────────────────────────────────────────────────────────┘
+   └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-9 · WRITE-UP ────────────────────────────────── BUILT ────┐
+   ┌─ MS-9 · WRITE-UP ────────────────────────────────── BUILT ─────┐
    │  ✅ essay · README · licence audit · mirror builder            │
    │  ⊘ 9.4 demo DESCOPED to 2027 · ⛔ publishing is Victor's       │
-   └───────────────────────────────────────────────────────────────┘
+   └────────────────────────────────────────────────────────────────┘
 ```
 
 | | Result |
 |---|---|
-| tests | **1,570 collected · 1,524 pass · 46 skip · 0 fail** |
-| ⚠ of those skips | **41 are `DX-12`** — external-truth tests that skip *everywhere*, fixable in one `cp` (§2.5 F1) |
+| tests | **1,649 collected · 1,644 pass · 5 skip · 0 fail** ★ +43 (`AC-5.17` store · `AC-5.18` replay+selector · `MP-18` identity · `DX-23` characterization) |
+| ⚠ the 5 skips | ★ **`DX-12` is closed** — you copied the 4 BMO statements on 2026-09-05, so the 41 external-truth tests run. The remaining 5 skip for reasons that are correct (no network, no key) |
 | lint | ruff clean on all code this repo authored; inherited code excluded, not exempt |
-| mirror | 103 files, **233 tests green**, 0 strategy files, no history — **built, not published** |
+| checks | **8 guarantees**, `tools/check_all.py` → `ALL CHECKS PASSED` |
+| mirror | **110 files, 259 tests green**, 0 strategy files, no `.pyc`, no history — ★ **and its own `check_all.py` now passes there** (`DX-22`) — **built, not published** |
+| findings | **27 `DX` logged — 26 closed, 🟨 `DX-27` paused.** ★ `DX-24`: the agent misread the filing while establishing case 1 — **`D2`, demonstrated** ⚠⚠ `DX-20` is the sharpest: an unfinished golden case loaded **and PASSED** |
 
 **⚠ What is NOT done, in one line each:**
 
-- ⚠⚠ **`DX-12`** — 41 external-truth tests dormant. **One `cp`.** §2.5 F1.
 - **`F7a` has never run.** The instrument exists; the experiment does not.
-- **`F5`'s golden set is empty.** `D2` makes filling it Victor's, deliberately.
-- ⚠ **`DX-11`** — ~38,000 inherited lines, **one** characterization test.
-- **`AC-2.2` at call granularity** — `traced()` records jobs, not LLM calls.
+- **`F5`'s golden set is empty** — but ★ **no longer blocked**: `A1` gave it a file format, a
+  loader and three templates on 2026-09-05. ★★ **This is now the single highest-value thing left**, and
+  §2.5 `F4` tells you exactly how.
+- **`AC-1.12`'s warning list** — `src/shared/ports/__all__` is still empty by design.
 - **Nothing is committed** in either repo; upstream has 201 uncommitted deletions.
 
 ★ **`MS-1`–`MS-9` are done.** ⚠ *"Done"* means the ACs are green and mutation-verified — **not**
@@ -190,21 +192,21 @@ blocks nothing.
 
 | | |
 |---|---|
-| Specs | **11 of 11 🟢 approved**, 148 ACs, 50 recorded decisions |
+| Specs | **11 of 11 🟢 approved**, 149 ACs (`AC-5.17` added by `F5` `A1`), 50 recorded decisions |
 | Code | ~38,000 lines, 15 domains, **one tree** |
-| Tests | **1,570 collected · 1,524 pass · 46 skip · 0 fail** |
-| Findings | **14 `DX` logged** — 12 closed, ⚠ `DX-11` partial, ⚠ `DX-12` open |
-| Guarantees | 7, automated by `tools/check_all.py` + CI |
+| Tests | **1,649 collected · 1,644 pass · 5 skip · 0 fail** |
+| Findings | **27 `DX` logged** — 26 closed; 🟨 **`DX-27`** — the live run, paused on a cost call |
+| Guarantees | **8**, automated by `tools/check_all.py` + CI |
 
 ### B. ✋ Things I CANNOT do on your behalf — and exactly why
 
 | # | Task | Why it is yours |
 |---|---|---|
-| **B1** | **Copy the real BMO statements** (`DX-12`) | They are personal financial data. ⚠ I excluded them from the `MS-8` copy deliberately; moving them is a decision about *your* data, not a build step |
+| ~~B1~~ | ✅ **Done 2026-09-05** — you copied the 4 statements to `.state/broker/bmo_investorline/`. `DX-12` closed; the 41 external-truth tests run | ⚠ Kept out of git by `.gitignore:32`. ★ Verify any time: `git status --short \| grep -i bmo` → no output |
 | **B2** | **Commit and review both repos** | House rule: *never `git commit` without review.* ⚠ Upstream holds **201 uncommitted deletions** with no tag to return to |
 | **B3** | **Publish the mirror** | Outward-facing and irreversible. A public repo cannot be un-published |
 | **B4** | **Archive `ai-investment-pipeline`** (`MS-8.9`) | Same reason, plus `8.1` (clean tree + tag) is unmet |
-| **B5** | **Establish `F5`'s golden values** (`D2`) | ⚠⚠ **The system may not do this.** Seeding from its own output would certify it against itself, and every regression would become the new expected value. `GoldenCase` **raises** if `established_by` names a pipeline component |
+| ~~B5~~ | ✅ **Cases 1 and 2 ESTABLISHED by Victor, 2026-09-07** — MU FY2025 Q3, CNBU segment revenue, discrete and cumulative. ★★ The live run independently reproduced **both**, including the period start the agent had misread. ⬜ Only `input_ref` remains, and that is mechanical | ⚠⚠ **The system may not do this.** Seeding from its own output would certify it against itself, and every regression would become the new expected value. `GoldenCase` **raises** if `established_by` names a pipeline component. ★ **Unblocked 2026-09-05** — until then there was nowhere to write a case. **Full instructions: §2.5 `F4`** |
 | **B6** | **Run `F7a`** | Needs hand-written false challenges, a live `F6b`, and real spend. ★ `D1`: **~23 deliberations/arm** for `KEEP`, **~99** for `DELETE` |
 | **B7** | **Add `UPSTREAM_REPO_TOKEN`** | ⊘ **Now obsolete** — `MS-8` merged the repos, so CI needs one checkout. Nothing to do |
 
@@ -212,18 +214,24 @@ blocks nothing.
 
 | # | Task | Notes |
 |---|---|---|
-| **C1** | **Verify `anthropic`'s licence** — `pip install anthropic`, read it **and its transitive deps** | The only ⛔ item in `L5-dependency-licence-audit.md` |
-| **C2** | **Finish `DX-11`** — characterization tests for the other inherited surfaces this repo relies on (`src/quant/metrics/`, the relay) | ~38,000 inherited lines currently carry **one** |
-| **C3** | **Wrap the LLM gateway** so `ExternalCall` records come from real runs | `MS-3`'s one stated gap: `traced()` gives **job** granularity, not call granularity |
-| **C4** | **Close `AC-1.12`'s warning list** — declare real ports in `src/shared/ports/__all__` | Currently empty by design; each real port needs its own spec first |
-| **C5** | **Reconcile ID families** (`MS-8.7`) | Upstream's `RA/QA/OR/DE/...` now live beside `PG/QR/F/MS/DX` in one repo |
-| **C6** | **Build the demo** (`9.4`) | ⊘ Descoped to 2027 by your decision |
+| ~~C1~~ | ✅ **`anthropic` licence verified 2026-09-04** — SDK **MIT**; whole transitive tree permissive. ⚠ `certifi` is **MPL-2.0** (weak/file-level, unmodified → no obligation) | `L5-dependency-licence-audit.md` now complete; ★ it also lists which licences **this project** may adopt |
+| ~~C2~~ | ✅ **`DX-11` closed 2026-09-04** — 2 characterization files freeze the 2 inherited contracts this repo actually relies on. ⚠⚠ The framing was **wrong**: `src/quant/metrics/` and the relay are **not consumed**, only mentioned in comments | ★★ Writing it caught **four** wrong assumptions in code already written — see `DX-11`'s note |
+| ~~C3~~ | ✅ **Gateway wrapped 2026-09-04** — `traced_transport()` closes `AC-2.2` at **call** granularity, with **zero edits** to inherited D-00 code | ★ Found `DX-16` on its first test |
+| **C4** | **Close `AC-1.12`'s warning list** — declare real ports in `src/shared/ports/__all__` | ⬜ Still open. Currently empty by design; each real port needs its own spec first |
+| ★★ **C12** | ⬜ **Record `cost_usd` in the trace** (`F2`) — `traced_transport` wraps the TRANSPORT, so it records `tokens` but **never** the gateway's computed cost; `cost_usd` is null on every record | ⚠⚠ Found the hard way: after ~$6 of live runs, *"what did this cost?"* could not be answered from the trace and had to be recomputed by `tools/spend_report.py`. ★ **A run whose cost nobody can state is a run nobody can budget for** — and `GW-20`'s budget cap is enforced in memory, so nothing on disk shows what was actually spent |
+| ~~C5~~ | ✅ **ID families reconciled 2026-09-04** (`MS-8.7`) — ⚠⚠ §1 was **~50 % incomplete**: 39 families in use, named nowhere (`DX-17`) | ★ Now **enforced** by `tools/check_id_families.py`, in `check_all.py` |
+| **C6** | **Build the demo** (`9.4`) | ⊘ Descoped to 2027 by your decision (`QR-24`) |
+| ~~C11~~ | ✅ **`MP-18` — the `evidence_id` convention, 2026-09-07.** Identity is now `(evidence_id, qualifier, period)`; the segment goes in `qualifier`, the id stays **bare** | ⚠⚠ Forced, not chosen: `b43_v1.py` maps `segments → "seg.revenue"` and `score.py` matches by **set membership on bare ids**, so a suffix breaks scoring *for a naming reason*. ★★ Resolving it found that **`E-01` could never have worked** — the old rule banned a repeated id, and E-01 returns one item per segment. Nobody noticed because nothing has ever run it (`DX-23`). ★ And the old rule's stated reason was **false**: coverage divides frozenset lengths, so duplicates cannot double-count. The hazard is *ambiguity*; the test is renamed to say so |
+| ~~C10~~ | ✅ **Cases 1 AND 2 drafted 2026-09-07** — case 2 is the SAME CNBU row read from the nine-month column, ★ the only case exercising the `cumulative_ytd` scar tag and the only one using `MP-18`'s `period` component. **Case 1 filled 2026-09-07** — MU FY2025 Q3, CNBU segment revenue, from the real 10-Q now saved at `tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt` (214 KB, EDGAR, provenance header) | ⚠ `established_by` deliberately left **blank** — filling it *is* the act of establishing (`D2`). ★★ `DX-24`: the agent misread the filing while preparing it and Victor caught it on first read — **`D2` demonstrated, not argued** |
+| ~~C9~~ | ✅ **Done 2026-09-05 — the golden case is now VISIBLE.** `tools/demo_golden_case.py` records a pretend extraction, passes a case against it, then reds on a drifted reading. `tools/review_golden_case.py` attacks the harness with four adversarial checks | ⚠ Built because three written explanations had not landed — ★ **the reason golden cases felt abstract was that none had ever run.** Both approved by Victor 2026-09-05 |
+| ~~C8~~ | ✅ **Done 2026-09-05 — `B5` unblocked.** `F5` `A1` added `CT-5.5` + `AC-5.17`: the golden set now has an on-disk format (`tests_src/fixtures/golden/<kind>.yaml`), a loader that validates on load, and three ready-to-edit templates | ⚠⚠ Found *because* I tried to write your `B5` instructions and could not: **a decision that assigns a human a task must leave them a way to do it.** ★ Also narrowed the mirror to withhold the golden set (`QR-12`), which surfaced `DX-19` |
+| ~~C7~~ | ✅ **Done 2026-09-05** — `RC-65`/`RC-66` amended into `L1-recording`, then implemented. `RRSP_2` is now a **file drop** | ★ Surfaced `DX-18`; `src/recording/**` was also **ungoverned** in `ownership.yaml` and now is |
 
 ### D. ⛔ What "publishing" actually involves — beyond the demo
 
 You asked what else is in it. Publishing is **five** things, and only one is the demo:
 
-1. **`9.1` the mirror** — ✅ builder written and verified: 103 files, **233 tests green**, 0 strategy
+1. **`9.1` the mirror** — ✅ builder written and verified: **110 files, 259 tests green**, 0 strategy
    files, no git history. ⛔ *Creating the public GitHub repo and pushing* is not done.
 2. **`9.2` `LICENSE` + README** — ✅ done. ⚠ The README opens with the `PG-10` disclosure.
 3. **`9.3` dependency-licence audit** — ✅ done **except `anthropic`** (⛔ `C1`).
@@ -234,37 +242,35 @@ You asked what else is in it. Publishing is **five** things, and only one is the
 and arguably should wait.** A mirror published now describes a system about to be rewritten, and a
 public repo's history is the one thing you cannot curate afterwards.
 
-### E. ⚠ Two open findings, in priority order
+### E. ✅ No open findings — all 26 `DX` closed, 2026-09-07
 
 | | |
 |---|---|
-| ⚠ **`DX-12`** | **41 external-truth tests skip everywhere**, including on your machine. One `cp` fixes it — see `B1`. ★ This is the highest-value item on the whole page: it restores verification you already had |
-| ⚠ **`DX-11`** | ~38,000 inherited lines, one characterization test. Constitution §5 item 3. Partially resolved, recorded rather than closed |
+| ~~`DX-12`~~ | ✅ Closed — you copied the statements; the 41 external-truth tests run again |
+| ~~`DX-15`~~ | ✅ Closed by `C7` — the loader **discovers** accounts from the directory, so `RRSP_2` in 2027 is a **file drop**, not a code change. ⚠ Surfaced `DX-18` on the way |
+| ~~`DX-19`~~ | ✅ Closed — the mirror's dropper now follows imports one hop, and no longer publishes `.pyc` |
+| ~~`DX-20`~~ | ✅ Closed — ⚠⚠ a golden case with an empty `expected` **loaded and PASSED**. Now refuses to load |
+| ~~`DX-21`~~ | ✅ Closed — `replay_response` implemented. ★ **Run `python3 tools/demo_golden_case.py`** to watch a case pass, then red on a drifted reading |
+| ~~`DX-22`~~ | ✅ Closed — ⚠⚠ the mirror shipped a **`check_all.py` that failed on first run**. The builder now *runs* it rather than guessing at dependencies |
+| ~~`DX-23`~~ | ✅ Closed — characterization + a runnable path. ★ **`python3 tools/run_extraction_once.py --dry-run`** is free and prints the plan; `--live` (~$0.40) produces the recording and prints the `input_ref` |
+
+★ **What remains is not a finding list — it is `B5`.** Everything else on this page is either done,
+yours-and-deferred (`B2`/`B3`/`B4`), or waiting on real spend (`B6`).
 
 ## 2.5 ⚠ STEP BY STEP — what Victor does, in order
 
-> ★ Ordered by value, not by effort. **F1 is worth more than everything else here.**
+> ★ Ordered by value, not by effort. ✏ **Updated 2026-09-05: `F1` and `F3` are done.**
+> ★★ **`F4` is now worth more than everything else here** — and it is the only item that is
+> *yours alone by design* rather than yours by circumstance.
 
-### F1 · ⚠⚠ Restore the 41 dormant tests — `DX-12` · **5 seconds**
+### ~~F1~~ · ✅ **DONE 2026-09-05** — the 41 dormant tests are running
 
-The 4 real BMO statements are **still in the old repo's working directory**. They were
-deliberately left out of the `MS-8` copy — moving personal financial data is your call, not mine.
+You copied the 4 statements to `.state/broker/bmo_investorline/`. `DX-12` closed.
+⚠ They are covered by `.gitignore:32` and cannot enter history — ★ confirm any time with
+`git status --short | grep -i bmo` → **no output**.
 
-```bash
-mkdir -p ~/Workspace/collective-investment-ai-assistant/sdd/design/rel6_design/samples/bmo_investorline_transactions
-cp ~/Workspace/ai-investment-pipeline/sdd/design/rel6_design/samples/bmo_investorline_transactions/*.csv \
-   ~/Workspace/collective-investment-ai-assistant/sdd/design/rel6_design/samples/bmo_investorline_transactions/
-cd ~/Workspace/collective-investment-ai-assistant && python3 -m pytest -q
-```
-
-**Expect: `1565 passed, 5 skipped`** (up from 1524/46).
-⚠ **Safe:** `.gitignore:48` already covers that path, so `git status` will not show them and they
-cannot enter history. ★ Verify with `git status --short | grep -i bmo` → **no output**.
-
-> ★★ **Why this is first.** Those 41 tests check derived cash **against your real broker
-> statements** — the only place in the system where a number is verified against external truth.
-> They are skipping *by design*, which means **nothing will ever alert you** that they stopped
-> running. `DX-12` exists because a correct mechanism produced a silent loss.
+★ `C7` then removed the hardcoded 4-account list: the loader now **discovers** accounts from that
+directory, so **`RRSP_2` in 2027 is a file drop** (`RC-65`/`RC-66`, `DX-15` closed).
 
 ### F2 · Commit and review both repos · **30-60 min of reading**
 
@@ -279,46 +285,373 @@ cd ~/Workspace/ai-investment-pipeline && git status --short               # 201 
 ★ Suggested: tag both **before** committing the deletions, so the pre-absorption state has a name
 (`git tag pre-absorption-2026-09-04`).
 
-### F3 · Verify `anthropic`'s licence · **2 minutes** — or ask me (`C1`)
+### ~~F3~~ · ✅ **DONE 2026-09-04** — licence audit complete (`C1`)
 
-⛔ The only unaudited entry. ⚠ *"MIT, I'm fairly sure"* is not an audit — `MS-9.3` is a **gate**.
+`anthropic` is **MIT**; the whole transitive tree is permissive. ⚠ One caveat worth remembering:
+**`certifi` is MPL-2.0** — weak, file-level copyleft, and since it is used unmodified it imposes no
+obligation. ★ `L5-dependency-licence-audit.md` also lists which licences **this project** may adopt.
 
-```bash
-pip install anthropic
-python3 -c "import importlib.metadata as m; print(m.metadata('anthropic').get('License') or \
-  [c for c in m.metadata('anthropic').get_all('Classifier') if 'License' in c])"
+### ★★ F4 · Establish `F5`'s golden values — `B5` · **an afternoon, then periodically**
+
+> ⚠⚠ **Read this section in full before writing a single case.** It is the only task left that
+> nobody else can do, and it is the one where doing it *slightly* wrong is worse than not doing it.
+
+#### What a golden case actually is
+
+A golden case is **one input, plus the answer you independently know is right, plus a record of how
+you came to know it.** It is not a snapshot of what the system produced. That distinction is the
+entire point, and `D2` puts it in code: `GoldenCase` **raises `CircularGoldenValue`** if
+`established_by` or `source` names a pipeline component.
+
+★★ **Why the check exists rather than a note in a doc.** The shortcut looks *better* than the real
+thing at every moment you would take it: run the system, save its output as expected, and you get 30
+cases in an afternoon and a permanently green suite. What you have actually built is a system
+certified against itself, where **every regression silently becomes the new expected value.** The
+suite would still be green the day the numbers went wrong. The check is in code because prose cannot
+stop you at 11pm.
+
+#### Where they live — new as of 2026-09-05
+
+⚠ Until this week `D2` assigned you this task and left **nowhere to put a case** — `GoldenCase` was a
+dataclass with no store, so the only way to add one was to edit Python literals. `F5` `A1` fixed that:
+
+```text
+tests_src/fixtures/golden/extraction.yaml   ← ★ start here
+tests_src/fixtures/golden/ranking.yaml
+tests_src/fixtures/golden/thesis.yaml
 ```
 
-**What to look for — three things, not one:**
+Three files, one per kind, plain YAML, version-controlled. **Each already exists** with `cases: []`
+and a commented-out worked example carrying the `D2` warning — you copy the example, uncomment it,
+and edit. ⚠⚠ **The golden set is excluded from the `MS-9.1` public mirror** (`QR-12`): `ranking` and
+`thesis` expected values *are* the strategy.
 
-1. **The SDK's own licence.** Expect **MIT**. ⛔ Anything with *GPL*, *AGPL*, *SSPL* or
-   *"Commons Clause"* conflicts with all-rights-reserved publication.
-2. ⚠⚠ **Its transitive dependencies** — `httpx`, `pydantic`, `anyio`, `distro`, `sniffio`,
-   `jiter`, `typing-extensions`. ★ **A package's own licence says nothing about what it pulls in**,
-   and this is where a real audit differs from reading one line.
-3. **Whether it is a *licence* or a *terms-of-service*.** The SDK is MIT; **the API it calls is
-   governed by Anthropic's commercial terms**, which are a separate question and are **not** a
-   dependency-licence matter. ⚠ They do bear on whether outputs may be published.
+#### The three kinds — do them in this order
 
-Then update `L5-dependency-licence-audit.md` — the file names the ⛔ explicitly.
+| kind | what *"correct"* means | how you establish it | difficulty |
+|---|---|---|---|
+| `extraction` | *"the FY2024 10-K reports revenue of $X"* | ★ **read the filing** | ★ easy — **do these first** |
+| `ranking` | *"given these inputs on this date, these names ranked in this order"* | recompute by hand / in a spreadsheet | moderate |
+| `thesis` | ⚠ **a judgement** — and recorded as one | your own reasoning, written down | hard, and honest about it |
 
-### F4 · ⚠⚠ Establish `F5`'s golden values — `D2` · **an afternoon, periodically**
+★ **Start with 10 `extraction` cases.** They are objective, they are checkable by anyone, and they
+are where the system's most mechanical failures live (⚠ the `fmp-api` skill's *"FMP guesses the
+quarter and got Micron wrong by 71 %"* is exactly an extraction defect). **Ten of these alone turn
+the regression suite from machinery into a measurement.**
 
-**Nobody else can do this, including me.** `GoldenCase` **raises `CircularGoldenValue`** if
-`established_by` names a pipeline component — the check is in code precisely because the shortcut
-looks better: seeding from the system's own output gives more cases and a permanently green suite,
-while certifying the system against itself.
+⚠⚠ **A `thesis` case is a judgement, and the code knows it** — `is_judgement` is derived from the
+kind, so simply putting a case in `thesis.yaml` marks it. ★ You cannot forget the flag, and you
+cannot dress a judgement up as ground truth by omitting it. That matters because recording an opinion
+as fact is the same category error as the circularity `D2` blocks — failing in the other direction,
+by overstating what you know rather than by asking the system to grade itself.
 
-**Aim for ~20-30 cases:**
+#### The fields — ⚠ there are exactly six, and every one is required
 
-| kind | what "correct" means | difficulty |
+```yaml
+cases:
+  - case_id: nvda-2026q2-revenue          # unique across ALL THREE files
+    input_ref: filings/NVDA_2026Q2_10Q.txt  # ★ a REFERENCE to the input, not the input
+    expected: {revenue_usd_m: 30040}      # ⚠ the value YOU established, never one the system produced
+    source: "10-Q page 4, 'Total revenue' line"
+    established_at: "2026-09-05"
+    established_by: "Victor Truong"
+```
+
+⚠⚠ **Do not add a `kind:` line** — the loader supplies it from the filename, and a second one is a
+`TypeError`. ⚠ There is **no `notes` field and no `is_judgement` field**: `is_judgement` is *derived*
+(`kind == "thesis"` → true), so a `thesis` case is a judgement by virtue of which file it is in.
+★ Anything you would put in `notes` belongs in `source`, where a reader will actually look.
+
+★★ **`source` is the field that does the work.** In two years you will not remember why a number is
+what it is, and a case you cannot re-derive is a case you cannot defend — which would defeat this
+project's stated purpose (*explain and defend every recommendation*). Write it for a reader who has
+never seen the case: the document, the page, the line.
+
+⚠ **`established_by` is checked against a word list** — `pipeline`, `system`, `model`, `llm`,
+`claude`, `gpt`, `agent`, `src.`, `auto`, `generated`, `gateway`. Both it **and `source`** are
+scanned. Put your own name there. ★ If you ever see `CircularGoldenValue`, the check is working, not
+breaking.
+
+#### The one judgement call you will hit
+
+⚠ Filings restate. When a later filing revises a number, **do not edit the case** — that is
+back-filling history, and it destroys the record of what was knowable when. Add a **second** case
+with its own `case_id` and a `source` naming the restatement, and let both stand. ★ This is the same
+point-in-time discipline the `fmp-api` skill carries, applied to your own fixtures.
+
+#### Do it, then check it
+
+```bash
+cd ~/Workspace/collective-investment-ai-assistant
+$EDITOR tests_src/fixtures/golden/extraction.yaml       # copy the commented example, edit, repeat
+
+python3 -c "from src.evaluation.golden.store import coverage; print(coverage())"
+python3 -m pytest -q tests/unit/test_golden_store.py
+```
+
+`coverage()` prints a count per kind. ⚠ **A malformed file raises; a file with `cases: []` returns an
+honest empty** — the loader will never quietly treat "I could not read this" as "there are none".
+
+**Target: ~20–30 cases total.** ★ But **10 `extraction` cases beat 30 rushed ones**, and this is
+explicitly a task you return to — add a case whenever you verify a number by hand anyway. The
+suite's value grows with the set, and nothing is waiting on it being finished.
+
+#### ★ Case 1 is drafted and waiting for you — `tests_src/fixtures/golden/extraction.yaml`
+
+I wrote it as a **commented block at the bottom of that file**, with every `___` marking something
+only you can supply. ⚠ It is commented out because a blank `expected` now *refuses to load*
+(`DX-20`) — and it refuses because it used to load **and pass**.
+
+**Why that case.** It targets the one extraction defect this project has already **measured** —
+`fmp-api` trap 1, *FMP guesses discrete-vs-YTD from the period end alone and got MU wrong by 71 %*
+(same class as `_cumulative_fys`: 41.5 % of TTM revenue, $379/share of fair value).
+
+★★ **And it is Q3 on purpose.** The skill's measured rows show why:
+
+| | cumulative | discrete | ratio |
+|---|---|---|---|
+| Q1 | 1,053 M | 1,053 M | **1.00×** ← ⚠ a Q1 case **passes under the bug** |
+| Q2 | 2,188 M | 1,135 M | 1.93× |
+| Q3 | 3,430 M | 1,242 M | **2.76×** ← maximum separation |
+
+**A Q1 case cannot fail, because year-to-date *is* the first quarter.** Choosing Q3 is the
+difference between a case that measures something and a case that decorates the suite — the same
+lesson as `AC-1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
+
+#### ⚠ Where a golden case runs — it is NOT in the pipeline
+
+★★ **A golden case never executes during a daily run.** It sits in the *measurement* lane (`F5`,
+D-14, seat 9), which `ST-2` keeps one-way: **the harness imports the domains; nothing imports the
+harness.** So a golden case cannot slow, alter, or break an analysis run — by construction.
+
+```text
+  ANALYSIS LANE (daily)                 MEASUREMENT LANE (CI / on demand)
+  ─────────────────────                 ────────────────────────────────
+  bundle ─► run_extraction()            extraction.yaml ─► load_kind()
+              │  E-01…E-13, LLM                              │
+              ▼                                              ▼
+        ExtractedItem[]  ─── recorded ──►  run_regression(cases, replay_response)
+              │  (F2 CT-2.2)                                 │
+              ▼                                       compares to `expected`
+        x01_verify_extraction()                              ▼
+              │  deterministic, ABORTS               RegressionReport PASS|FAIL
+              ▼
+        judgement (J-blocks)
+```
+
+⚠ **Two different checks, often confused.** `x01_verify_extraction` runs *inside* the analysis and
+asks *"is this quote actually in the bundle?"* — it catches hallucination, live, and aborts. A golden
+case runs *outside* and asks *"is this the same reading we established months ago?"* — it catches
+**drift**, which nothing in the analysis lane can see, because a confidently wrong reading verifies
+perfectly against the document it was invented from.
+
+#### ★★ First: watch one work. Two commands, ten seconds.
+
+⚠ Three written explanations of golden cases did not land, and the reason was not the writing —
+**none had ever run.** These two are approved and shipped:
+
+```bash
+python3 tools/demo_golden_case.py            # a case passes, then reds on a drifted reading
+python3 tools/review_golden_case.py          # 4 adversarial checks; --verbose for every artifact
+```
+
+★ The demo shows the mechanism. ⚠ But the same author wrote the harness *and* the demo — §5.1's
+named trap, *"the agent wrote both the code and the test, so of course they agree"* — so the
+reviewer exists to **attack** it:
+
+| | check | must |
 |---|---|---|
-| `extraction` | *"the 10-K says revenue was $X"* — objective, checkable | ★ easy, do these first |
-| `ranking` | *"on this date these names ranked in this order"* — objective given the inputs | moderate |
-| `thesis` | ⚠ **a judgement**, and recorded as one (`is_judgement == True`) | hard; it does **not** pretend to be ground truth |
+| A | identical response | PASS — proves the verdict is computed, not printed |
+| B | value changed | FAIL |
+| ★★ **C** | **value IDENTICAL, only `period.start` dropped** | **FAIL** |
+| D | recording deleted | RAISE — not skip, not pass |
 
-★ Start with 10 `extraction` cases. That alone turns the regression suite from *machinery* into a
-*measurement*.
+**C is the one that earns the harness its trust.** Measured: breaking the comparison so it reads
+only `value` leaves **A, B and D all green** — only C reds. A prompt change that keeps the headline
+number while dropping the period start is `Period`'s named failure, *"reintroducing FMP's guess
+inside D-01"*, and it is the class that cost 71 % on Micron.
+
+#### ★★ The live run — 11 attempts, what it proved, and what it cost
+
+*2026-09-07. `tools/spend_report.py` recomputes this from `F2`'s traces; ⚠ it is a **floor**, not a
+total (see below).*
+
+**★★ What it proved — the question worth asking, answered.** Run 5 returned 66 items, and the
+extraction reproduced **both golden values exactly**:
+
+| case | value | period | tag |
+|---|---|---|---|
+| 1 | `5,069` | 2025-02-28 → 2025-05-29 | — |
+| 2 | `14,028` | 2024-08-30 → 2025-05-29 | ★ `cumulative_ytd` |
+
+⚠⚠ Including `2025-02-28` — **the period start the agent misread and Victor corrected** (`DX-24`).
+★ The model agreeing establishes nothing (`D2` is unmoved); what it shows is that the extractor
+*currently* reads this filing the way the fund manager established it. **That is exactly the
+baseline a golden case exists to freeze.**
+
+**⚠ Every failure was in the agent's own wiring, and every one was caught by a guard that already
+existed.** Not one was a model error:
+
+| # | found by | what it was |
+|---|---|---|
+| 1 | `GW-23` | truncation at the output ceiling |
+| 2 | `X-01` | a prose sentence written into `value` — ★★ `MP-7` predicted it word for word: *an LLM with no stated way to say "I could not" will always find something to say*. The schema had no `not_found`. |
+| 3 | `MP-5` | `evidence_id` was a free string with a *description* saying "never invent one" — **all 56 items came back tagged `E-01`**, the block id. A description is prose; an `enum` is the API. |
+| 4 | `X-01` | curly-vs-straight quotes — ⚠ and the curly quotes came from **our own** `html.unescape` |
+| 5 | ⚠⚠ nothing | **a silent `max_tokens` clamp to 16,000**: the gateway asked for 20,000 then 32,000 and neither was ever sent, while `GW-23` reported *"hit max_tokens=32000"* — **a number never sent**. Cost two runs (~$1.56) chasing a ceiling not in force. |
+| 6 | `MP-5`, again | `quote` left out of `required` — the model returned a **found** item with no quote at all |
+
+★★ **Three of six are one mistake: describing a constraint instead of declaring it.** `MP-5` says
+the shape is enforced by the API, not by prose, and it was right every time.
+
+**★ Effort is the lever, not `max_tokens`.** Measured on one bundle:
+
+| effort | output tokens | latency | cost |
+|---|---|---|---|
+| `high` | 13,243 – 32,000 | 215-349 s | $0.71 - $1.18 |
+| **`medium`** | **2,595** | **33 s** | **$0.45** |
+
+⚠ Raising `max_tokens` buys more *thinking*, not more headroom — adaptive thinking expands into
+whatever budget it is given. Extraction is **transcription, not reasoning**; `high` stays right for
+judgement blocks.
+
+**⚠⚠ What it cost.** `python3 tools/spend_report.py` — **~$6.40 measured over 11 calls**, against a
+$0.39 first estimate. Where it went:
+
+- the estimator was **43 % low** (chars/4; this filing tokenises at **2.78 chars/token** — tables of
+  `|` separators and digits are far denser than prose). Recalibrated.
+- ~$1.56 wasted on the silent clamp.
+- ~$2.4 on `high` effort before measuring that `medium` does the job for $0.45.
+
+⚠ **It is a floor, not a total.** The `Brotli` run reached the vendor, ran **516 seconds**, and
+failed to *decode* locally — billed, with `tokens: {}` recorded. ★★ **A call that is served and then
+lost locally still costs money, and no trace can see it.** The Anthropic console is authoritative.
+
+#### ⚠ `DX-23` step 5 — decisions taken without you, and what was rejected
+
+*2026-09-07. You authorised the spend; ⛔ **the machine has no Anthropic credentials at all** — no
+`ANTHROPIC_API_KEY`, no `ANTHROPIC_AUTH_TOKEN`, no `ant` CLI, no `~/.config/anthropic/` — so the live
+call could not run and **$0 was spent**. Everything below was decided to keep moving.*
+
+| # | Decision | Rejected, and why |
+|---|---|---|
+| 1 | **Verify offsets and `tokens_in`/`tokens_out` against a stub** built from the SDK's documented shape, exercised over the **real 211,895-char filing** | ✗ *Wait for the key* — leaves the wiring wholly unverified; ✗ *a toy filing* — the offset arithmetic is only interesting at real scale and against real duplicated substrings |
+| 2 | **Split `to_transport_result()` out of the transport** so the mapping is testable without a network call | ✗ *Test through the client with a mock* — mocks the SDK's shape, which is the one thing a stub cannot establish; splitting at least makes the assumption explicit and one function wide |
+| 3 | **Compute character offsets in code, ask the model only for the `quote`** | ✗ *Ask for offsets too* — `RA-131`: the offset is the one part of a citation the model cannot also author, and asking spends tokens to manufacture a failure `X-01` would reject anyway |
+| 4 | **Whole filing as the bundle**, with `--segment-note-only` as an 18× cheaper option | ✗ *Default to the slice* — ⚠ a narrower bundle is a **different `bundle_hash`**, so a golden case recorded against one does not transfer. Cheap, but it silently splits the golden set |
+| 5 | **`llm.deep.temperature` deliberately ABSENT** from the config | ✗ *Set a temperature* — `GW-8a` treats its presence as the error and Opus 5 rejects it outright (400) |
+| 6 | **Budget cap $2/run** | ✗ *No cap* — the gateway raises rather than overspending; ✗ *$0.50* — too tight for one retry on a ~$0.40 call |
+
+★★ **The failed live attempts were worth more than the call would have been.** Reaching the vendor
+takes a working config, registry, bundle, seam, gateway and trace — and each attempt failed at the
+next link, finding **four real defects for $0**:
+
+1. **`Config`, not a dict** — the gateway calls `cfg.get_optional(...)`. ⚠ `DX-11` caught this exact
+   assumption once already and I repeated it.
+2. **`llm.deep.model_id`**, not `llm.model.deep`. ★ `CF-1` refused to invent a value, which is the
+   rule doing its job.
+3. **`CallResult.parsed` is the raw text string**, not a parsed object — `Gateway.complete` sets
+   `parsed = text` unless a schema is passed. My first test fed it an SDK `Message` and got a type
+   error, which is how the shape got pinned down rather than assumed.
+4. ⚠⚠ **`DX-26` — the trace lied.** Three attempts left ONE trace holding four sentinels reading
+   `SUCCESS, SUCCESS, FAILED, SUCCESS`, the last for a run that had just failed.
+
+#### ✅ `DX-21` closed — and ⚠ my earlier recommendation here was wrong
+
+I previously offered *"fixture now, recording later"* and recommended the fixture. **That option does
+not exist.** A filing is an *input*; comparing it to `expected` means *producing* an extraction from
+it — an LLM call — which `D5` forbids in CI. Only the recording is both a product of the system and
+available offline. `input_ref` is now `<run_id>/<call_id>` (`A3`, `AC-5.18`).
+
+★★ **Run this to see the whole mechanism in ten seconds:**
+
+```bash
+python3 tools/demo_golden_case.py
+```
+
+It records a pretend extraction, passes a case against it, then ships a "v2 prompt" that reads the
+YTD column instead — and reds. ⚠ Everything it writes is fake and thrown away.
+
+#### ⚠⚠ The consequence for case 1: its two halves land at different times
+
+| half | established by | when |
+|---|---|---|
+| `expected` · `source` | ★ **you, reading the filing** | **today** — it is a fact about the document and never changes |
+| `input_ref` | a recorded call | ⚠ **after the first real run** — `.state/` has no runs; `QR-23` suspends the daily one |
+
+★ **Write `expected` now anyway.** The truth is the scarce half, and establishing it while you have
+the filing open is the whole discipline; the wiring is mechanical and can follow. Leave the case
+commented out until its recording exists.
+
+**Target: ~20–30 cases total.** ★ But **10 `extraction` cases beat 30 rushed ones**, and this is
+explicitly a task you return to — add a case whenever you verify a number by hand anyway. The
+suite's value grows with the set, and nothing is waiting on it being finished.
+
+#### ★ Case 1 is drafted and waiting for you — `tests_src/fixtures/golden/extraction.yaml`
+
+I wrote it as a **commented block at the bottom of that file**, with every `___` marking something
+only you can supply. ⚠ It is commented out because a blank `expected` now *refuses to load*
+(`DX-20`) — and it refuses because it used to load **and pass**.
+
+**Why that case.** It targets the one extraction defect this project has already **measured** —
+`fmp-api` trap 1, *FMP guesses discrete-vs-YTD from the period end alone and got MU wrong by 71 %*
+(same class as `_cumulative_fys`: 41.5 % of TTM revenue, $379/share of fair value).
+
+★★ **And it is Q3 on purpose.** The skill's measured rows show why:
+
+| | cumulative | discrete | ratio |
+|---|---|---|---|
+| Q1 | 1,053 M | 1,053 M | **1.00×** ← ⚠ a Q1 case **passes under the bug** |
+| Q2 | 2,188 M | 1,135 M | 1.93× |
+| Q3 | 3,430 M | 1,242 M | **2.76×** ← maximum separation |
+
+**A Q1 case cannot fail, because year-to-date *is* the first quarter.** Choosing Q3 is the
+difference between a case that measures something and a case that decorates the suite — the same
+lesson as `AC-1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
+
+#### ⚠ Where a golden case runs — it is NOT in the pipeline
+
+★★ **A golden case never executes during a daily run.** It sits in the *measurement* lane (`F5`,
+D-14, seat 9), which `ST-2` keeps one-way: **the harness imports the domains; nothing imports the
+harness.** So a golden case cannot slow, alter, or break an analysis run — by construction.
+
+```text
+  ANALYSIS LANE (daily)                 MEASUREMENT LANE (CI / on demand)
+  ─────────────────────                 ────────────────────────────────
+  bundle ─► run_extraction()            extraction.yaml ─► load_kind()
+              │  E-01…E-13, LLM                              │
+              ▼                                              ▼
+        ExtractedItem[]  ─── recorded ──►  run_regression(cases, replay_response)
+              │  (F2 CT-2.2)                                 │
+              ▼                                       compares to `expected`
+        x01_verify_extraction()                              ▼
+              │  deterministic, ABORTS               RegressionReport PASS|FAIL
+              ▼
+        judgement (J-blocks)
+```
+
+⚠ **Two different checks, often confused.** `x01_verify_extraction` runs *inside* the analysis and
+asks *"is this quote actually in the bundle?"* — it catches hallucination, live, and aborts. A golden
+case runs *outside* and asks *"is this the same reading we established months ago?"* — it catches
+**drift**, which nothing in the analysis lane can see, because a confidently wrong reading verifies
+perfectly against the document it was invented from.
+
+#### ⬜ Then one decision from you — `DX-21`
+
+⚠ A case can now be **written** but not yet **run**: `run_regression` takes a `replay_response`
+callable and **no implementation exists**; nothing resolves an `input_ref`. There are also **zero
+recordings** (`.state/` holds only `broker/` — the daily run is suspended by `QR-23`). The spec and
+the code even disagree on what `input_ref` names:
+
+| | `input_ref` means | What it needs | Trade-off |
+|---|---|---|---|
+| ★ **A — filing fixture** (`CT-5.2`: *"the fixture"*) | a file in `tests_src/fixtures/filings/` | just the filing | ★ checkable offline, no run required, stable forever. ⚠ Grades extraction **logic**, not the live fetch |
+| **B — `F2` recording** (`run.py`: *"serves the recording"*) | a recorded response | a real run first | grades the **whole path** incl. the vendor. ⚠ Blocked on `QR-23`, and re-records on every change |
+
+★ **My recommendation: A now, B later** — they are not exclusive, and A is the half that works
+today. I left it open rather than guessing because it changes what `input_ref` is allowed to be, and
+that is a contract, not an implementation detail.
+
 
 ### F5 · Run `F7a` when you want the deliberation answer · **real spend**
 
@@ -337,6 +670,42 @@ When you do want it: `python3 tools/build_mirror.py` (dry-run) → review → `-
 this one.
 
 ---
+
+## 2.6 ⚠ Where the BMO statements should live — and why not where they are
+
+**Asked 2026-09-04:** *"I want to copy the 4 CSVs to some formal place, because that is how I will
+update the AI agent with my actual transactions at end of day."*
+
+### The current location is wrong for a book of record
+
+`src/recording/book/load.py` reads from
+**`sdd/design/rel6_design/samples/bmo_investorline_transactions/`**. Three things are wrong with it:
+
+| | |
+|---|---|
+| `sdd/` | the **spec tier** — authoritative documents. ⚠ A file you overwrite daily does not belong in the tier that governs the code |
+| `rel6_design/` | **release-scoped and frozen**. Release 6 is over; its design record should not keep changing |
+| `samples/` | says *fixture*. ⚠ These are the **live book of record** — the opposite of a sample |
+
+### ★ Recommended destination
+
+```text
+   .state/broker/bmo_investorline/TransactionHistory_<ACCOUNT>.csv
+```
+
+- ✅ **`.state/` is already git-ignored** — the data cannot enter history.
+- ✅ It is where run state already lives, so backups and retention already cover it.
+- ✅ It sits **outside** the spec tier, so `sdd/` stays documentation.
+- ✅ `$BMO_STATEMENTS_DIR` continues to override it for tests and one-off runs.
+
+### ⚠⚠ And it will not accept `RRSP_2` without a code change — `DX-15`
+
+`ACCOUNTS` is a hardcoded 4-tuple. A fifth statement dropped into the directory would be **silently
+ignored**: not read, not refused, not mentioned. ★ The fix is to **discover** accounts from the
+filenames rather than list them — which also removes the need to touch code in 2027.
+
+⚠ Both changes alter inherited D-11 behaviour and have **no covering AC**, so constitution §5.1
+requires amending `L1-recording` first. Recorded, not done unilaterally.
 
 ## 2.3 ★ Review sequence — governance first, then specs
 
@@ -904,7 +1273,7 @@ return to (`8.1` unmet). ★ Its `src/` is empty but its git history is intact, 
 
 | # | Item |
 |---|---|
-| 9.1 | 🟨 **`tools/build_mirror.py`** — positive allowlist, dry-run default, refuses on anything `.gitignore`d. Verified: **103 files, 233 tests green, 0 strategy files, no history.** ⛔ **NOT PUBLISHED** — publishing is Victor's |
+| 9.1 | 🟨 **`tools/build_mirror.py`** — positive allowlist, dry-run default, refuses on anything `.gitignore`d. Verified: **110 files, 259 tests green, 0 strategy files, no history — and the mirror's own `check_all.py` passes there (`DX-22`).** ⛔ **NOT PUBLISHED** — publishing is Victor's |
 | 9.2 | ✅ **`README.md`** — ⚠ opens with the `PG-10` status disclosure (IC 0.0203, *t* = 1.42) and a *What is deliberately not working* section |
 | 9.3 | ✅ **Dependency-licence audit** — `L5-dependency-licence-audit.md`. No copyleft; ⛔ `anthropic` UNVERIFIED (not installed). ★ Surfaced `DX-13` |
 | 9.4 | ⊘ **DESCOPED by Victor 2026-09-04** — *"I will not apply for any job in 2026, and lots of new improvement is expected in Q4 2026."* ★ A demo built now would demo a system about to change. ⚠ It is **deferred, not cancelled**: `MS-9.4` is the portfolio artifact for the 2027 transition |
@@ -1034,10 +1403,23 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-8** | 2026-09-04 | MS-6 | An absorption moves code, tests, globs and architecture rules (`DX-3`'s "four things") | ⚠ **There is a FIFTH: `config/`.** Absorbing `src/data_engine/` broke 2 tests here with `FileNotFoundError: config/sp500_tickers.yaml` — the domain's tests read config files that stayed upstream. ★ `QR-15` measured that `config/` **merges** cleanly; it never asked whether a domain's config must **travel** with it | `config/sp500_tickers.yaml` · `tests_src/test_data_engine_ingest.py` | ⚠ material | ✅ **resolved 2026-09-04** | The absorbed domain's config files copied with it. ★ **The rule is now FIVE things: code · tests · `ownership.yaml` globs · architecture rules · CONFIG** |
 | **DX-9** | 2026-09-04 | MS-6 | `DX-3`'s multi-root fix made the architecture rules span both trees | ⚠⚠ **It fixed the IMPORT-graph rules only. Tests that scan the FILESYSTEM narrowed silently.** `tests_src/test_data_source_precedence.py` sets `SCANNED = (Path("src"), Path("tools"))` — upstream's own tree — and asserts **absence** (`assert offenders == []`, the yfinance ban). ★★ **An absence assertion over a shrinking tree passes trivially**, so the ban stopped covering the absorbed domains **and nothing failed.** ⚠ One sibling test in the same file failed loudly only because it asserted *presence* (`assert "period" in seen`) — **that was luck, not design** | upstream `tests_src/test_data_source_precedence.py` | ⚠ material | ✅ **resolved 2026-09-04** | `SCANNED` now derives from `architecture.SRC_ROOTS`, so it spans both trees like the import rules; the EDGAR path test resolves its directory across roots. ★ **The generalised rule is in §6.5** |
 | **DX-10** | 2026-09-04 | MS-8 | Absorbing upstream's tests brings its coverage | ⚠⚠ **It also brings its PROCESS ASSUMPTIONS.** `tests/test_sdd_process.py` enforces upstream's SDD conventions against **this repo's** specs, and 4 of them are wrong here: (a) the AC regex `AC-\d+\.\d+` does not match `AC-6a.1` — the `F6a`/`F6b`/`F7a`/`F7b` split is **this repo's own**; (b) `test_code_governing_specs_have_globs` does not know `F7a`/`F7b` live under `F5`'s glob, which `ownership.yaml` records in a **comment**, not machine-readably; (c) ★★ `test_the_vision_is_release_independent` asserts the vision names *"Portfolio Manager"* — **upstream's FIVE-seat vocabulary**, which `CLAUDE.md` explicitly forbids carrying between the repos: *"Never carry a seat number between the two models."* **The absorbed test does exactly that** | `tests/test_sdd_process.py` | ⚠ material | ✅ **resolved 2026-09-04** | Regex widened to `AC-\d+[a-z]?\.\d+`; `F7a`/`F7b` given **real globs** ordered before `F5`'s broad one (`L4` §5.1), so the comment becomes machine-readable; the vision test now asserts **this repo's nine-seat** vocabulary with the `CLAUDE.md` warning quoted beside it |
-| **DX-11** | 2026-09-04 | MS-8 | Constitution §5 item 3: *relying on inherited behaviour ⇒ characterization test to freeze it before building near it* | ⚠⚠ **~17,000 lines were absorbed across `MS-2`/`MS-6`/`MS-8` and NOT ONE characterization test was written.** Upstream's own suite freezes that behaviour in effect — but it is not **labelled**, so the inventory is not greppable and nobody can tell which tests exist to freeze legacy behaviour rather than to assert it is correct. ★ Caught by upstream's own `test_characterization_tests_are_labelled`, which the absorption brought with it | constitution §5 item 3 · `tests/test_sdd_process.py` | ⚠ material | 🟨 **partially resolved** | One real characterization test written for the inherited contract this repo's **own** code depends on — `Orchestrator.run`'s `invoke` dispatch, which `F2`'s `traced()` wraps. ⚠ **Not a full inventory**: the other inherited surfaces this repo consumes (`src/quant/metrics/`, the relay) are still unfrozen. Recorded rather than closed |
-| **DX-12** | 2026-09-04 | MS-8 | `DX-5`'s loud skip means a clone reports honestly; the fund manager's machine still runs the external-truth tests | ⚠⚠ **After absorption they are DORMANT EVERYWHERE.** The real BMO statements were deliberately excluded from the `MS-8` copy (they are `.gitignore`d and must never enter history), so the merged repo has **no** path to them — **41 external-truth tests now skip on Victor's machine too.** ★ The merged tree therefore has *less* verification than upstream had, and the fresh-clone check is now **identical** to the normal run, which is why nothing looked wrong | `sdd/design/rel6_design/samples/bmo_investorline_transactions/` (absent) · `tests_src/broker_fixtures.py` | ⚠ material | 🔴 **open — one manual step** | **Copy the 4 real CSVs into `sdd/design/rel6_design/samples/bmo_investorline_transactions/`, or set `$BMO_STATEMENTS_DIR`.** ⚠ `.gitignore` already covers the path, so they stay out of history. ★ Recorded because the skip is *by design* and therefore invisible — nobody would notice the loss |
+| **DX-11** | 2026-09-04 | MS-8 | Constitution §5 item 3: *relying on inherited behaviour ⇒ characterization test to freeze it before building near it* | ⚠⚠ **~17,000 lines were absorbed across `MS-2`/`MS-6`/`MS-8` and NOT ONE characterization test was written.** Upstream's own suite freezes that behaviour in effect — but it is not **labelled**, so the inventory is not greppable and nobody can tell which tests exist to freeze legacy behaviour rather than to assert it is correct. ★ Caught by upstream's own `test_characterization_tests_are_labelled`, which the absorption brought with it | constitution §5 item 3 · `tests/test_sdd_process.py` | ⚠ material | ✅ **resolved 2026-09-04** | **Two** characterization files now freeze the two inherited contracts this repo's own code actually relies on: `Orchestrator.run`'s `invoke` dispatch (`traced()`) and the **LLM gateway's transport** (`traced_transport`). ★★ The framing was also **corrected**: an audit of our platform modules found they import almost nothing inherited — `src/quant/metrics/` and the relay are **not consumed**, only *mentioned in comments*, so §5 item 3 (*"relying on inherited behaviour"*) does not reach them. ⚠⚠ Writing the gateway one caught **four** wrong assumptions in code already written — see the note |
+| **DX-12** | 2026-09-04 | MS-8 | `DX-5`'s loud skip means a clone reports honestly; the fund manager's machine still runs the external-truth tests | ⚠⚠ **After absorption they are DORMANT EVERYWHERE.** The real BMO statements were deliberately excluded from the `MS-8` copy (they are `.gitignore`d and must never enter history), so the merged repo has **no** path to them — **41 external-truth tests now skip on Victor's machine too.** ★ The merged tree therefore has *less* verification than upstream had, and the fresh-clone check is now **identical** to the normal run, which is why nothing looked wrong | `sdd/design/rel6_design/samples/bmo_investorline_transactions/` (absent) · `tests_src/broker_fixtures.py` | ⚠ material | ✅ **resolved 2026-09-05** | Victor copied the 4 statements to **`.state/broker/bmo_investorline/`** (`RC-66`) and the resolver was repointed. ★★ **41 external-truth tests run again: 1,601 pass / 5 skip, from 1,550 / 46.** ⚠ Restoring the data immediately exposed **`DX-9` a FOURTH time** — two modules still named the old `sdd/` path directly, invisible while they were skipping |
 | **DX-13** | 2026-09-04 | MS-9.3 | The absorption checklist moves FIVE things (`DX-3` + `DX-8`) | ⚠⚠ **A SIXTH: runtime dependency DECLARATIONS.** `pyproject.toml` here declared a `dev` extra and **no runtime dependencies at all**, while `MS-8` moved in 15 domains needing `pandas`, `numpy`, `PyYAML`, `lightgbm` and `anthropic`. ★★ Worse: **`lightgbm` was never declared in EITHER repo** despite 3 import sites in `src/models/`. ⚠ Nothing failed because the dev machine already had everything installed — a clean environment would fail at import with no hint what to install, and `MS-9.1`'s mirror would have shipped a `pyproject.toml` that cannot build what it describes | `pyproject.toml` (both repos) · `src/models/zoo/gbdt.py` | ⚠ material | ✅ **resolved 2026-09-04** | Six runtime dependencies declared. ★ **The rule is now SIX things: code · tests · globs · architecture rules · config · dependency declarations.** Found by `MS-9.3`'s licence audit, which was looking for something else entirely |
 | **DX-14** | 2026-09-04 | MS-9.1 | The curated mirror (`QR-12`) ships the platform layers and withholds the strategy | ⚠⚠ **The mirror could not run its own test suite.** Six collection errors: `tests/` imports `src.orchestration.jobs`, `src.data_engine`, `src.recording` — domains the curation **deliberately removes**. ★★ A reviewer's first action on a source-available repo is `pytest`, so this would have been the **first impression**: a project whose central claim is verification discipline, shipping a suite that does not collect. ⚠ Found only by **building the mirror and running it** — the dry-run reported 108 files, no refusals, and looked correct | `tools/build_mirror.py` · `tests/` | ⚠ material | ✅ **resolved 2026-09-04** | The builder now **computes** which included tests import excluded modules and drops them, **reporting the count** rather than filtering silently. ★ A derived exclusion cannot drift from the allowlist the way a hand-kept list would |
+| **DX-15** | 2026-09-04 | — | Adding a 5th portfolio (`RRSP_2`, planned 2027) is a matter of dropping a 5th CSV into the statements directory | ⚠⚠ **It is a CODE CHANGE.** `src/recording/book/load.py:27` hardcodes `ACCOUNTS = (("RESP_1","RESP"), ("RRSP_1","RRSP"), ("TFSA_1","TFSA"), ("TFSA_2","TFSA"))` and `tests_src/test_recording_book_load.py:32` asserts exactly those four. A 5th statement would be **silently ignored** — the loader would not read it, `RK-5`'s all-or-nothing aggregation would still return a book, and the new portfolio would simply not exist. ★★ Separately, `EXPORT_DIR` points at **`sdd/design/rel6_design/samples/`** — the loader's book of record lives in the **spec tier**, inside a **release-scoped, frozen** design directory, under a name (`samples/`) that says *fixture* | `src/recording/book/load.py:27,31` · `tests_src/test_recording_book_load.py:32` | ⚠ material | ✅ **resolved 2026-09-05** | `L1-recording` amended first (`RC-65`, `RC-66`, `AC-11.47/48`), globs wired in the same change (§5 item 2), then implemented. ★ **Verified: dropping `TransactionHistory_RRSP_2.csv` in is picked up with no code change.** ⚠ A hardcoded `ACCOUNTS` also had to leave **three** test modules that had copied it |
+| **DX-16** | 2026-09-04 | — | `AC-2.9`'s redaction removes credentials from traces and leaves everything else | ⚠⚠ **It silently destroyed the cost accounting of every traced call.** `SECRET_KEYS` was matched as a **substring**, and `"token" in "tokens"` is `True` — so `tokens`, `max_tokens`, `input_tokens`, `tokens_in` all became `<redacted>`. ★★ Every `ExternalCall` would have recorded `<redacted>` where the usage numbers belong, and `F5`'s cost metrics would have had nothing to read. ⚠ The same looseness missed a real credential in the other direction: `x-api-key` did **not** match `api_key` (hyphen vs underscore) and was caught only by the value regex. ★ Found by a call-level test asserting an **exact** token count — a test asserting "not empty" would have passed | `src/orchestration/trace/redact.py` | ⚠ material | ✅ **resolved 2026-09-04** | Word-boundary matching on separator-normalised keys, so `x-api-key` matches and `tokens` does not. ⚠ Bare `token` stays ambiguous (`auth_token` vs `token_count`) and is disambiguated by a **short** quantity-word list — sized by the asymmetry that **over-redacting a count is recoverable and under-redacting a credential is not.** 16 regression cases, both directions |
+| **DX-17** | 2026-09-04 | MS-8.7 | Constitution §1 is the ID registry — *"read before inventing an ID"*, *"every family below is reserved"* | ⚠⚠ **After the merge it was ~50 % incomplete: 39 families in active use and named nowhere** — `SEAT`, `FR`, `X`, `V`, `CF`, `PD`, `FX`, `MP`, `K`, `H`, `MO`, `T`, `SC`, `PRC`, `WF` and 24 more. ★★ §1 had **already been corrected on 2026-09-02** for missing eleven, so this is the *second* time the registry was found half-written — which is the point: a list maintained by hand drifts, and one that reads as authoritative while half-written is how `M-n` (mandate) and `M<n>` (milestone) collided | `sdd/specs/constitution.md` §1 | ⚠ material | ✅ **resolved 2026-09-04** | All 39 declared, and ★ **enforced** by `tools/check_id_families.py` + 4 tests, now in `check_all.py`. ⚠ Two collisions documented rather than renamed: **`SEAT-n` is upstream's FIVE-seat model** beside this repo's nine (`CLAUDE.md` forbids carrying one between them — and an absorbed test already did, `DX-10`), and **`Q` now has four live meanings** |
+| **DX-18** | 2026-09-05 | C7 | `RC-65`'s *"an empty export directory raises"* is a clean rule | ⚠⚠ **It broke `load_books`' own contract.** That function documents *"Return `(books, unavailable_reason)`… carry the refusal forward as a **reason** rather than as a crash"* (`RC-10`, `RK-5`) — so raising turned an orchestration job from `SUCCESS` into `FAILED` on any tree without the exports. ★★ Caught by the **fresh-clone check** (`DX-5`'s `BMO_STATEMENTS_DIR=/nonexistent` run), which is the only check that exercises the no-data path — the normal suite has the data and never sees it | `src/recording/book/load.py` · `L1-recording` `AC-11.48` | ⚠ material | ✅ **resolved 2026-09-05** | **Split by layer, and both rules kept:** `discover_accounts` **raises** (at a query, "no accounts" is an error), `load_books` **catches and returns the reason** (*a refusal that cannot say what it lacks is the defect `RC-10` exists to prevent*). `AC-11.48` amended to name both halves. ★ The fresh-clone check earned its place twice in one session |
+| **DX-19** | 2026-09-05 | B5 | `DX-14`'s dropper removes every mirror test that reaches a withheld path — it scans each test file for imports of withheld modules **and** for path literals naming withheld directories | ⚠⚠ **It scans the test file only, and a test can reach a withheld directory through a constant it imports.** `test_golden_store.py` names no path at all: it does `from src.evaluation.golden.store import GOLDEN_DIR`, and `GOLDEN_DIR` is the withheld `tests_src/fixtures/golden`. The mirror shipped it and it failed there — **1 failed, 259 passed** — a public repo whose own suite is red on first clone. ★ Also found alongside: `_files_for` filtered `__pycache__` **only in the test scan**, so the mirror was publishing `.pyc` files — and a `.pyc` embeds the **absolute source path** it was compiled from, leaking `/home/<user>/Workspace/…` | `tools/build_mirror.py::unrunnable_tests` · `_files_for` | ⚠ material | ✅ **resolved 2026-09-05** | **Detector follows imports one hop:** for each first-party module a test imports, its source is appended to the text scanned for path literals. `.pyc`/`.pyo` and `__pycache__` excluded at the copy step, not just the scan. ★★ Both halves are the same shape as `DX-9` — *a check that stops checking* — but this is the first time it was the **indirection** rather than the shrinking tree that blinded it: the checker was correct about every file it read, and wrong about which files to read |
+| **DX-20** | 2026-09-05 | B5 | `CT-5.2` validates a golden case on construction — `case_id`, `input_ref`, `source` and `established_by` are all required, and `D2`'s circularity check runs — so a case that loads is a case that was established | ⚠⚠ **`expected` itself was never validated.** A half-written case — the field present but empty, which is exactly the state a case is in while the fund manager is still reading the filing — **loads as valid** with `expected is None`. ★★ And it does not merely load: `run_regression` compares with `==`, so when the system produces nothing (extraction returning `NOT_FOUND`, a stub, a failed call) the case **PASSES**. Measured: `verdict PASS, passed=('half-written',)`. ⚠ This is the worst instance of the *check that stops checking* family yet found, because every previous one went **red or silent — this one goes GREEN**, and a green regression is read as evidence | `src/evaluation/golden/models.py::GoldenCase.__post_init__` · `regression/run.py` | ⚠ material | ✅ **resolved 2026-09-05** | `CT-5.2` amended: **`expected` must be established** — `None` raises `ValueError` naming the case. ★ *Absent* remains expressible, but only **explicitly** (`expected: {status: NOT_FOUND}`), because *"the document does not say"* is a finding and *"I have not looked yet"* is not. ⚠⚠ Found while writing the **first real golden case** — the placeholder I was about to hand Victor would have loaded and passed |
+| **DX-21** | 2026-09-05 | B5 | With `CT-5.5` in place, a golden case can be written **and run** — `run_regression(cases, replay_response)` grades each case's `input_ref` against a recorded response | ⚠⚠ **`replay_response` has no implementation.** It is a `Callable` parameter, supplied only by fakes in tests; nothing anywhere resolves an `input_ref` to a real recording or fixture. ★ And there is nothing for it to resolve **to**: `.state/` holds only `broker/`, because the daily run is suspended (`QR-23`) and `F7a` has never run, so **zero recordings exist**. ⚠ Also a live spec/code disagreement on what `input_ref` even names — `CT-5.2` says *"the fixture"*, `run.py` says *"serves the recording"* | `src/evaluation/regression/run.py` · `CT-5.2` | ⚠ material | ✅ **resolved 2026-09-05** | ★★ **The third rung of the same ladder.** `B5` needed somewhere to write a case (`DX-19`'s `A1`), a refusal to accept an unestablished one (`DX-20`), and now something to grade it against. ⚠ Left open rather than guessed: the resolver's shape depends on whether cases grade against **filing fixtures** (`CT-5.2`'s reading — checkable, offline, no run needed) or **`F2` recordings** (`run.py`'s reading — needs a real run first). **Settled on the RECORDING** (`A3`, `AC-5.18`): a filing is an *input*, and producing an extraction from it would need an LLM call, which `D5` bans in CI — so the fixture reading was never implementable. `recorded_response()` resolves `<run_id>/<call_id>` from `F2`'s payload store; expiry, a missing recording and a malformed ref all raise rather than skip. ⚠⚠ My own earlier recommendation (*"fixture now, recording later"*) was **wrong** and is recorded here as such. ★★ And `OR-3` **caught the first attempt**: `replay.py` imported `TraceStore` directly. Two fences meet here and both bind — `OR-3` (no domain imports orchestration) and `ST-2` (nothing imports the harness) — so neither direction is legal and the adapter is wired by the **caller**, `tools/f2_payload_reader.py`. ★ That is right, not a workaround: the regression is CI's (`T1`), and must not be reachable from a production run. ⚠ Consequence for case 1: `expected` can be established today from the filing, but `input_ref` waits for the first real run (`QR-23`) |
+| **DX-22** | 2026-09-05 | 9.1 | `DX-14` taught the mirror to verify itself — it drops tests that import withheld domains, *"the mirror must be able to run its own suite"*, and the suite runs green there | ⚠⚠ **The suite is not the only thing that must run.** The mirror ships `tools/check_all.py` — the documented entry point, the one a reader runs first — and it invokes `tools/check_id_families.py`, which is **not in the allowlist**. A fresh clone of the public repo gets `⛔ 1 CHECK(S) FAILED: can't open file 'tools/check_id_families.py'`. ★★ The guard was written for **tests importing code**, and missed **a tool invoking a tool** — a second kind of dependency it never modelled. ⚠ Found only because I ran the mirror's `check_all.py` rather than its pytest | `tools/build_mirror.py` INCLUDE · `check_all.py` | ⚠ material | ✅ **resolved 2026-09-05** | `check_id_families.py` added to the allowlist, **and** the builder now **runs the mirror's own `check_all.py`** as a build step — the generalisation `DX-14` should have made. ★★ Third time in this family (`DX-14` tests, `DX-19` an imported constant, `DX-22` a subprocess): **every time the mirror's self-check was written against one kind of dependency, a second kind was already shipping broken.** The fix is no longer *"check the dependency I thought of"* but *"run the thing and see"* |
+| **DX-23** | 2026-09-05 | B5 | `F5`'s `extraction` golden cases grade the output of `run_extraction` — the E-block runner, `WF-1` step 2 — so that function is the producer the whole `extraction` kind is defined against | ⚠⚠ **`run_extraction` is called by NOTHING and exercised by NO TEST.** `grep` finds it in `extract.py` (its definition), `__init__.py` (its export) and one docstring — no job, no CLI, no test. ★★ Two consequences: (a) an `input_ref` **cannot exist**, because there is no runnable path from a filing to a recorded extraction, so case 1 can be *established* but not *wired*; (b) constitution §5 item 3 — *relying on inherited behaviour ⇒ characterization test first* — is unmet for the function `F5`'s extraction contract is built on. ⚠ Not found earlier because every golden-path test supplies its own recorded response and never asks who produces one | `src/fundamental/filings/extract.py::run_extraction` | ⚠ material | ✅ **resolved 2026-09-07** | ✅ **Characterization done** — `tests/test_characterization_extraction.py`, 4 tests, fake seam, **no spend**: one call per block, `RA-5` refuses a judgement block *before* the seam is reached, `X-01` aborts on a quote not in the bundle, and the two-row segment table survives (`MP-18` end to end). ★★ It immediately caught a wrong assumption of mine: `X-01` refuses a value *"assembled from two places"*, so cases 1 and 2 must cite the **whole CNBU row** — one quote containing both figures — and the quote canNOT distinguish the columns; only `period` does. ✅ **Steps 1-4 built, no spend:** `src/fundamental/prompts/e_blocks.py` registers `E-01 v1` **byte-identical to the spec** (guarded by `tests/structural/test_prompt_text_matches_spec.py` — ★ `block()`'s self-hash catches a later file edit but *cannot* catch code and doc disagreeing, since it only ever sees one of them); `tools/anthropic_transport.py` is the D-00 transport with `MP-5`'s `strict: true` tool schema; `tools/run_extraction_once.py` builds the bundle, computes offsets in code (`AP-5` — a model-supplied offset is a number it cannot verify and we can), wires `traced_transport` → `Gateway` → `AnalysisGateway`, and caps spend at $2. ⬜ **Step 5 is one command Victor runs** — `--live`, ~$0.40, and it prints the `input_ref` prefix for cases 1 and 2. ⚠⚠ It does **not** block `B5`'s human half: `expected` is established from the **filing**, not from a run, so the scarce judgement can be captured now and the wiring can follow |
+| **DX-24** | 2026-09-07 | B5 | While preparing case 1, the agent reported that MU's 10-Q *"never states the quarter's start date"*, and sourced `period.start` from SEC's XBRL instead — presenting it as the `fmp-api` skill's claim confirmed in a real document | ⚠⚠ **The claim was false, and the agent had already surfaced the disproof.** Item 2 (lines ~1996-2000) is introduced *"In the third quarter of 2025…"* and lists three contiguous fiscal months ending at the quarter end, so the start (2025-02-28) is in the text. ★★ An earlier `grep` in the same session **returned line 2000** and the agent dismissed it as *"the share repurchase table, not the fiscal quarter start"* — it saw the evidence and explained it away, then generalised a true statement about the DATA SOURCES (FMP exposes only the period end) into a false one about the DOCUMENT. ⚠ Caught by Victor on first read | `tests_src/fixtures/golden/extraction.yaml` note (b) | ⚠ material | ✅ **corrected 2026-09-07** | `period.start` now sourced to Item 2, with XBRL as **corroboration** rather than the source — which is strictly better provenance, since a human can now re-check the whole case from the document alone. ★★ **This is the single best argument for `D2` produced so far, and it is not an argument — it is an instance.** The agent reading a filing to establish a golden value made a confident, well-reasoned, wrong reading, and dressed it in a citation to a skill. ⚠ Had `established_by` been filled in automatically, that error would have entered the golden set as ground truth and every future extraction would have been graded against it |
+| **DX-25** | 2026-09-07 | B5 | `AC-5.18` wired `input_ref` → recorded response → `==` against `expected`, and the four adversarial checks in `review_golden_case.py` all pass | ⚠⚠ **The two granularities do not match.** ONE recorded `E-01` call returns EVERY segment row in BOTH columns; ONE golden case pins ONE item. `run_regression` compares the whole response with `==`, so a single-item `expected` can **never** match — measured: `produced` is a list of 4, `expected` is a dict, verdict FAIL forever. ★★ Invisible until now because every test and the demo recorded a response shaped like exactly one case — **the fixtures were built to the harness rather than to the producer**, which is the `DX-23` gap (`run_extraction` untested) showing up one layer out. ⚠ Also found alongside: `qualifier` was missing from `ExtractedItem.to_json_obj()`, so `MP-18`'s discriminator never reached the wire and two segment rows serialised identically | `regression/run.py` · `replay.py` · `filings/models.py` | ⚠ material | ✅ **resolved 2026-09-07** | `input_ref` gains an optional **selector fragment** — `<run_id>/<call_id>#<evidence_id>|<qualifier>|<start>:<end>` — and the selector **is `MP-18`'s identity**, so the golden set's granularity and the extraction's identity are the same thing rather than two conventions that must be kept in step. ⚠ No match or several matches raises `UnresolvableCase`; ★ a bare ref without `#` still compares the whole response, which is what a single-item block wants. `qualifier` now serialises, with a test — *identity that does not survive serialisation is not identity* |
+| **DX-26** | 2026-09-07 | DX-23 | `run_extraction_once.py --live` records the call and closes the trace, so `AC-2.12` can tell a finished run from a crashed one | ⚠⚠ **Three defects, all found by RUNNING it — three `--live` attempts left ONE trace holding FOUR `__run_closed__` records reading `SUCCESS, SUCCESS, FAILED, SUCCESS`, the last one for a run that had just failed.** (a) `finally: store.close("SUCCESS")` closed as SUCCESS **whatever happened** — the trace asserting success about a failure is the exact *trace-and-run-disagree* defect this project hit once before, in the recorder; (b) `run_id` was `run-<date>-e01`, **the same string all day**, so repeated runs appended to one trace instead of each getting their own; (c) `TraceStore.close()` accepts a **second** call and appends another sentinel — `AC-2.12` reads sentinel ABSENCE as INCOMPLETE, and contradictory sentinels are worse than none. ★★ None of this was visible from the test suite: every test closes once, on a fresh tmp_path, after a success | `tools/run_extraction_once.py` · `src/orchestration/trace/store.py::close` | ⚠ material | ✅ **resolved 2026-09-07** | Run id gets a **timestamp**; `close()` is called **once** with the real outcome; and `TraceStore.close()` now **raises on a second call** (`AC-2.8`'s append-only argument applied to the sentinel — a record that can be written twice is not append-only). ⚠⚠ Recorded as the cost of the credential gap being useful: **the run never reached the vendor and cost $0, yet found three defects** |
+| **DX-27** | 2026-09-07 | DX-23 step 5 | With the schema and budget corrected, one live `E-01` call over MU's 10-Q completes and gives `F5` cases 1 and 2 their `input_ref` | ⚠⚠ **Nine live runs, ~$6, and the pipeline still has not completed end to end** — though ★★ **run 5 proved the thing that mattered: the extraction reproduced BOTH golden values exactly** (`5,069` / 2025-02-28 and `14,028` / 2024-08-30, `cumulative_ytd` correctly tagged), including the period start the agent had misread and Victor corrected. Five defects were found, every one in the agent's own wiring and every one caught by a guard the project already had: `GW-23` truncation · `X-01` prose-in-`value` (`MP-7` predicted it word for word) · `X-01` typography · the `evidence_id` enum (`MP-5` — all 56 items came back tagged `E-01`) · and ⚠⚠ **a silent `max_tokens` clamp to 16,000 that made `GW-23` report a ceiling that was never sent**, costing two runs (~$1.56) chasing a number not in force | `tools/anthropic_transport.py` · `prompts/call.py::MAX_TOKENS` | ⚠ material | 🟨 **OPEN — paused deliberately** | ✅ Fixed: the clamp, the enum, the `not_found` path, optional `unit`, typographic normalisation in `X-01` (mutation-tested in **both** directions — it lost tolerance only for punctuation *our own converter* introduced). ⬜ **Remaining:** output spend measured at **13,243 → 32,000 tokens on identical input with no code change** — adaptive thinking is genuinely variable and expands into whatever budget it is given, so raising `max_tokens` is not the lever. ★ **Recommendation: drop `llm.deep.effort` from `high` to `medium`.** Extraction is transcription, not reasoning; effort is the documented first cost lever, and it bounds thinking directly rather than licensing more of it. ⚠ Paused for Victor's call rather than spending another ~$1.20/attempt |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >

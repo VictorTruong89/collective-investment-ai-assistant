@@ -32,7 +32,11 @@ import numpy as np
 import pandas as pd
 
 from src.feature_engineer.fundamental.ratios import (
-    _col, _ratio, gross_margin, net_margin, operating_margin,
+    _col,
+    _ratio,
+    gross_margin,
+    net_margin,
+    operating_margin,
 )
 
 #: Compare like with like. ⚠ A four-*filing* lag spans a different length of time

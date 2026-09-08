@@ -34,7 +34,7 @@ class ArbitrationResult:
                 "vetoed_by": self.vetoed_by, "why": self.why}
 
 
-def arbitrate(selection: "ScoreResult", timing=None, *,
+def arbitrate(selection: ScoreResult, timing=None, *,
               timing_threshold: float = 0.0) -> ArbitrationResult:
     """MT-31/MT-32 — ★ the timing leg **may never originate or substitute** a
     nomination.

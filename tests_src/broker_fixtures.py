@@ -43,17 +43,31 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 #: Tracked, synthetic, safe to publish. Every value is invented.
 SYNTHETIC = REPO / "tests_src" / "fixtures" / "broker_statements"
 
-#: The real exports. Untracked by design; present only on the fund manager's machine.
-REAL = REPO / "sdd" / "design" / "rel6_design" / "samples" / "bmo_investorline_transactions"
+#: ★ RC-66 — the real exports, outside the spec tier. Untracked by design.
+REAL = REPO / ".state" / "broker" / "bmo_investorline"
+
+#: ⚠ Read only if `REAL` is absent, so an unmigrated checkout degrades to
+#: WORKING rather than to a silently-skipped suite.
+LEGACY = REPO / "sdd" / "design" / "rel6_design" / "samples" / "bmo_investorline_transactions"
 
 
 def real_statements_dir() -> pathlib.Path | None:
-    """The real exports, or None. Override with `BMO_STATEMENTS_DIR`."""
+    """The real exports, or None. Override with `BMO_STATEMENTS_DIR`.
+
+    ⚠⚠ `DX-12`: after `MS-8` these files could not travel with the absorption
+    (they are `.gitignore`d, correctly), so the 41 external-truth tests skipped
+    **everywhere — including on the fund manager's own machine**. ★ The
+    fresh-clone check became identical to the normal run, which is exactly why
+    nothing looked wrong.
+    """
     override = os.environ.get("BMO_STATEMENTS_DIR")
     if override:
         p = pathlib.Path(override)
         return p if p.is_dir() else None
-    return REAL if REAL.is_dir() else None
+    for candidate in (REAL, LEGACY):
+        if candidate.is_dir() and any(candidate.glob("TransactionHistory_*.csv")):
+            return candidate
+    return None
 
 
 #: ⚠ Skips LOUDLY — the reason names what is missing and why it is not in git,

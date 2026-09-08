@@ -17,7 +17,10 @@ from __future__ import annotations
 
 from src.feature_engineer.contracts.spec import FeatureContract, FeatureSpec
 from src.feature_engineer.technical.momentum import (
-    FORMULA_ID, LOOKBACK_SESSIONS, VOL_FORMULA_ID, VOL_WINDOW_SESSIONS,
+    FORMULA_ID,
+    LOOKBACK_SESSIONS,
+    VOL_FORMULA_ID,
+    VOL_WINDOW_SESSIONS,
 )
 
 B3_MINIMAL_V1 = FeatureContract(

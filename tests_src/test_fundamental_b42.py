@@ -17,11 +17,29 @@ from pathlib import Path
 import pytest
 
 from src.fundamental import (
-    ASSUMPTION, Claim, ClaimSet, E_BLOCK_IDS, EvidenceSpan, ExtractionKindError,
-    ExtractionResult, FACT, INFERENCE, PromptRegistry, SpanMismatchError,
-    SpanUnresolvableError, UncitedClaimError, ValueNotInSpanError,
-    assert_extraction_block, assemble, block, filing, item, not_found, profile,
-    x01_verify_extraction, x02_verify_claims,
+    ASSUMPTION,
+    E_BLOCK_IDS,
+    FACT,
+    INFERENCE,
+    Claim,
+    ClaimSet,
+    EvidenceSpan,
+    ExtractionKindError,
+    ExtractionResult,
+    PromptRegistry,
+    SpanMismatchError,
+    SpanUnresolvableError,
+    UncitedClaimError,
+    ValueNotInSpanError,
+    assemble,
+    assert_extraction_block,
+    block,
+    filing,
+    item,
+    not_found,
+    profile,
+    x01_verify_extraction,
+    x02_verify_claims,
 )
 
 AS_OF = date(2026, 8, 23)
@@ -353,15 +371,137 @@ def test_evidence_ids_count_extracted_items_not_documents():
     assert "seg.assets" not in result.evidence_ids, "presence is not extraction (RA-66)"
 
 
-def test_duplicate_evidence_ids_would_double_count_a_rubric_level():
-    """MP-4 / RA-65 — `evidence_coverage` counts ids."""
-    with pytest.raises(ValueError, match="double-count"):
+def test_two_items_with_one_identity_are_ambiguous_evidence():
+    """MP-18 (was: MP-4 / RA-65 "double-count").
+
+    ✏ Renamed 2026-09-07. The BEHAVIOUR is unchanged — two items sharing an
+    identity still raise — but the old name asserted a reason that is not what
+    the code does. ⚠ `evidence_ids` is a frozenset and `coverage()` is
+    `len(matched)/len(required)` over frozensets, so a duplicate CANNOT
+    double-count. ★ The real hazard is ambiguity: nothing says which of the two
+    a rubric level cites.
+    """
+    with pytest.raises(ValueError, match="ambiguous"):
         ExtractionResult(block_id="E-01", bundle_hash="sha256:x",
                          items=(found(), found()))
 
 
+def test_mp_18_one_evidence_id_per_segment_is_legal_and_distinguished():
+    """★★ MP-18 — the case that forced the rule. E-01 returns ONE ITEM PER
+    SEGMENT and every one is legitimately `seg.revenue`.
+
+    ⚠ Under the old rule E-01 could not emit a segment table at all.
+    """
+    r = ExtractionResult(block_id="E-01", bundle_hash="sha256:x", items=(
+        found(value="5,069", qualifier="CNBU"),
+        found(value="1,451", qualifier="SBU"),
+        found(value="1,551", qualifier="MBU"),
+    ))
+    assert len(r.items) == 3
+    # ★ The rubric still matches on the BARE id — b43_v1 maps segments ->
+    #   "seg.revenue", and score.py does set membership. A suffix would break it.
+    assert r.evidence_ids == frozenset({"seg.revenue"})
+
+
+def test_mp_18_the_qualifier_may_not_be_smuggled_into_the_evidence_id():
+    """⚠ `seg.revenue.CNBU` makes the rubric level unavailable for a NAMING
+    reason rather than an evidential one — the wiring bug b43_v1's own comment
+    warns about."""
+    from src.fundamental.scorecard.rubrics.b43_v1 import E
+    r = ExtractionResult(block_id="E-01", bundle_hash="sha256:x", items=(
+        found(evidence_id="seg.revenue.CNBU", qualifier=""),
+    ))
+    assert E["segments"] not in r.evidence_ids, (
+        "a suffixed id no longer matches the published rubric dimension"
+    )
+
+
 def test_the_thirteen_deep_e_blocks_are_declared():
     """§1.1 — E-01…E-13 on the deep tier; E-14/E-15 are the cheap exceptions."""
-    assert E_BLOCK_IDS == tuple(f"E-{n:02d}" for n in range(1, 14))
+    assert tuple(f"E-{n:02d}" for n in range(1, 14)) == E_BLOCK_IDS
     from src.fundamental import CHEAP_E_BLOCKS
     assert set(CHEAP_E_BLOCKS).isdisjoint(E_BLOCK_IDS)
+
+
+def test_mp_18_same_id_same_qualifier_different_period_is_the_discrete_vs_ytd_pair():
+    """★★ MP-18's `period` component, and why it is load-bearing.
+
+    F5 golden cases 1 and 2 pin the SAME segment row from the two adjacent
+    columns of MU's FY2025 Q3 segment table: the discrete quarter and the
+    nine-month cumulative. They share `evidence_id` AND `qualifier` and differ
+    only by `period`.
+
+    ⚠⚠ Under the pre-MP-18 rule (bare `evidence_id`) this pair was impossible.
+    Under a `(evidence_id, qualifier)` identity it is STILL impossible. If
+    someone ever "simplifies" identity by dropping `period`, this test is what
+    says so — and the cumulative-vs-discrete pair is the project's most
+    expensive measured error class (ARM Q3 2.76x, MU TTM 71%).
+    """
+    discrete = found(value="5,069", qualifier="CNBU",
+                     period_start="2025-02-28", period_end="2025-05-29")
+    cumulative = found(value="14,028", qualifier="CNBU", cumulative_ytd=True,
+                       period_start="2024-08-30", period_end="2025-05-29")
+
+    result = ExtractionResult(block_id="E-01", bundle_hash="sha256:x",
+                              items=(discrete, cumulative))
+    assert len(result.items) == 2
+
+    # ★ A rubric still sees ONE bare id — b43_v1 maps segments -> "seg.revenue".
+    assert result.evidence_ids == frozenset({"seg.revenue"})
+
+    # ⚠ The tag drives "do not subtract" (D-02 owns that arithmetic, not E-01).
+    assert not discrete.is_cumulative_ytd
+    assert cumulative.is_cumulative_ytd
+
+    # ⚠⚠ The two differ ONLY by period — drop it from identity and they collide.
+    assert discrete.identity != cumulative.identity
+    assert (discrete.evidence_id, discrete.qualifier) == \
+           (cumulative.evidence_id, cumulative.qualifier), (
+        "if these ever differ by id or qualifier the test has drifted off the "
+        "case it was written for, and stops guarding the period component"
+    )
+
+
+def test_mp_18_the_qualifier_survives_serialisation():
+    """⚠⚠ MP-18 — identity that does not survive `to_json_obj()` is not identity.
+
+    The recorded payload a golden case replays against (F2 CT-2.2) is the
+    SERIALISED form. If `qualifier` is missing there, two segment rows are
+    indistinguishable on the wire and F5 cases 1 and 2 cannot be told apart —
+    however correct the in-memory dataclass is.
+    """
+    cnbu = found(value="5,069", qualifier="CNBU").to_json_obj()
+    sbu = found(value="1,451", qualifier="SBU").to_json_obj()
+    assert cnbu["qualifier"] == "CNBU"
+    assert cnbu != sbu
+    assert set(found().to_json_obj()) >= {
+        "evidence_id", "value", "unit", "period", "quote", "span",
+        "status", "tags", "note", "qualifier",
+    }, "a golden case's `expected` is written against this exact key set"
+
+
+def test_x01_accepts_a_value_differing_only_by_curly_quotes():
+    """⚠ MEASURED 2026-09-07 — the model returned straight quotes against a
+    fixture whose curly quotes came from OUR OWN html.unescape. Failing that
+    tests the converter, not the model."""
+    from src.fundamental.claims.verify import _assert_value_in_quote
+    quote = 'Compute and Networking Business Unit (“CNBU”): Includes memory'
+    _assert_value_in_quote(found(
+        value='Compute and Networking Business Unit ("CNBU")', quote=quote,
+        offset=(0, len(quote)),
+    ))  # must not raise
+
+
+def test_x01_still_refuses_a_fabricated_value_after_typographic_normalisation():
+    """★★ The guard must keep its teeth. ⚠ Normalising punctuation must not
+    become "is it close?" — a different word, a different number, or a value
+    assembled from two places still raises."""
+    from src.fundamental.errors import ValueNotInSpanError
+    from src.fundamental.claims.verify import _assert_value_in_quote
+    quote = 'Compute and Networking Business Unit (“CNBU”): Includes memory'
+    for bogus in ['Storage Business Unit ("SBU")',
+                  'Compute and Networking Business Unit ("CNBU") and Storage',
+                  '9,999']:
+        with pytest.raises(ValueNotInSpanError):
+            _assert_value_in_quote(found(value=bogus, quote=quote,
+                                         offset=(0, len(quote))))

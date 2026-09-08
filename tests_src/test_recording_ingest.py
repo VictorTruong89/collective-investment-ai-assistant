@@ -34,7 +34,7 @@ from src.recording.reconcile.ingest import (
     parse_export,
 )
 from src.recording.reconcile.opening import derive_positions
-from tests_src.broker_fixtures import requires_real_statements
+from tests_src.broker_fixtures import real_statements_dir, requires_real_statements
 
 # ⚠⚠ DX-5 — every test below reads the REAL BMO exports, which are NOT in git.
 # They check derived numbers against EXTERNAL TRUTH (CT-3.2) — which is exactly
@@ -49,7 +49,12 @@ pytestmark = requires_real_statements
 
 
 
-EXPORTS = Path("sdd/design/rel6_design/samples/bmo_investorline_transactions")
+#: ⚠⚠ RC-66 / DX-9 — resolved, never hardcoded. This module named the old
+#: `sdd/design/rel6_design/samples/` path directly, and because the whole module
+#: was SKIPPING (DX-12) the stale path was invisible: restoring the data is what
+#: revealed it. ★ `real_statements_dir()` handles $BMO_STATEMENTS_DIR -> .state/
+#: -> the legacy path, so a future move needs one edit, not four.
+EXPORTS = real_statements_dir()
 ACCOUNTS = ("TFSA_1", "TFSA_2", "RRSP_1", "RESP_1")
 
 #: ⚠ RC-48 — `TFSA_2`'s export carries one row from a **Joint** account. Skipping

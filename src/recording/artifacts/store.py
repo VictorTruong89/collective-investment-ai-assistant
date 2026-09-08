@@ -224,7 +224,7 @@ def record_run(*, run_id: str, root, manifest=None, outcome=None,
     return str(target)
 
 
-def rebuild_index(root) -> "object":
+def rebuild_index(root) -> object:
     """`runs.parquet` from the run directories — ★ **the index is derived.**
 
     CT-11.7: *a convenience, never the record.* Rebuilding from the directories

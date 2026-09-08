@@ -12,7 +12,7 @@ tests on another, which is leakage wearing a fold boundary.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import timedelta
 
 FORMULA_PURGE = "cv.purge_embargo.derived.v1"
 

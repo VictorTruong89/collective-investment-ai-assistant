@@ -37,6 +37,7 @@ import math
 import numpy as np
 import pandas as pd
 
+
 #: ★ The ranker's identity when a model produced the scores. ⚠ It is the
 #: artifact's own content hash, so `CT-3.4.model_artifact_id` names the exact
 #: fitted thing rather than a family or a version string (QA-121).

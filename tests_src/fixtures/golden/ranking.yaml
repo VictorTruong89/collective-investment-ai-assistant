@@ -1,0 +1,19 @@
+# F5 CT-5.5 — RANKING golden cases.
+#
+# ⚠⚠ D2: the fund manager establishes these. NEVER the system.
+#    `established_by` may not name a pipeline component — `GoldenCase` RAISES
+#    `CircularGoldenValue` if it does. Seeding these from the system's own output
+#    would certify the system against itself, and every regression would silently
+#    become the new expected value.
+#
+# ★ Start here: a ranking answer is objective GIVEN the inputs: record the as-of date and universe.
+#    `source` must let a future reader re-check it without asking you.
+#
+# Copy the commented block below, fill it in, delete the '#'s.
+cases: []
+#  - case_id: slate-2026-08-25-top3
+#    input_ref: runs/2026-08-25/features.parquet
+#    expected: {top3: [NVDA, MU, SNDK], as_of: "2026-08-25", universe: sp500}
+#    source: "recommendation.json from the 2026-08-25 run, checked by hand"
+#    established_at: "2026-09-05"
+#    established_by: "Victor Truong"

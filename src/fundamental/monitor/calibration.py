@@ -14,7 +14,10 @@ from __future__ import annotations
 from statistics import fmean
 
 from src.fundamental.monitor.registry import (
-    OK, WARN, MonitorResult, not_yet_calibrated,
+    OK,
+    WARN,
+    MonitorResult,
+    not_yet_calibrated,
 )
 
 #: Below this, a calibration curve is a story about a handful of names.

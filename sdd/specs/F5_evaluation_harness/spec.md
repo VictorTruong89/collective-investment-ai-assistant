@@ -107,12 +107,50 @@ Rules: `value` and `insufficient_reason` are mutually exclusive and one is alway
 **CT-5.2 — `GoldenCase`:**
 ```json
 { "case_id": "str", "kind": "extraction | thesis | ranking",
-  "input_ref": "str — the fixture", "expected": "object",
+  "input_ref": "str — '<run_id>/<call_id>', the F2 recording this case grades",
+  "expected": "object",
   "source": "str — how the expected value was established",
   "established_at": "iso8601", "established_by": "str" }
 ```
 ⚠ `source` is required: a golden value whose derivation is unrecorded cannot be re-checked, and will
 eventually be trusted for the wrong reason.
+
+⚠⚠ **`input_ref` names a RECORDING, not a filing** *(clarified `A3` 2026-09-05, `DX-21`)*. It read
+*"the fixture"*, which `run.py` had always read as *"the recording"* — and only one of those is
+implementable. ★ A filing is an **input**; comparing it to `expected` would mean *producing* an
+extraction from it, i.e. an LLM call, which `D5` forbids in CI. The recorded response is the only
+artefact that is both a product of the system and available offline.
+
+> ⚠ The filing still matters — it is how a **human** re-checks the case (`source` points at it, and
+> the text lives in `tests_src/fixtures/filings/`). It is simply not what the **runner** resolves.
+
+⚠⚠ **`expected` must be established — an empty one raises** *(added `A2` 2026-09-05, `DX-20`)*. A case
+whose `expected` is empty is one the fund manager has not finished writing, and it did not merely load:
+`run_regression` compares with `==`, so any run producing nothing matched it and the case reported
+**PASS**. ★ *Absent* stays expressible, but only **explicitly** — `expected: {status: NOT_FOUND}` —
+because **"the document does not say" is a finding; "I have not looked yet" is not.**
+
+**CT-5.5 — the golden set on disk** — added `A1` 2026-09-05:
+```text
+tests_src/fixtures/golden/<kind>.yaml       # extraction.yaml · ranking.yaml · thesis.yaml
+```
+```yaml
+cases:
+  - case_id: nvda-2026q2-revenue
+    input_ref: filings/NVDA_2026Q2_10Q.txt
+    expected: {revenue_usd_m: 30040}
+    source: "read from the 10-Q, page 4, 'Total revenue'"
+    established_at: "2026-09-05"
+    established_by: "Victor Truong"
+```
+Rules: **one file per `kind`**; `case_id` unique across the whole set; every field of `CT-5.2`
+required. ⚠ **Version-controlled** — a golden set that is not versioned cannot show drift, which is
+the only thing a regression suite measures.
+
+⚠⚠ **The golden set is EXCLUDED from the `MS-9.1` public mirror.** `expected` values for `ranking`
+and `thesis` are the fund's judgement, i.e. the strategy `QR-12` withholds. ★ Extraction cases are
+public facts, but splitting the directory by sensitivity would put the decision in a filename — so the
+whole set stays local and the mirror ships the machinery without the answers.
 
 **CT-5.3 — `CalibrationResult`** (extends `CT-5.1`):
 ```json
@@ -161,6 +199,29 @@ eventually be trusted for the wrong reason.
   → *integration.*
   > ⚠ Live calls in CI were rejected: cost, flakiness, and **a suite that fails when a vendor is down
   > teaches people to ignore red**, which destroys it permanently.
+- **AC-5.18** *(★ a golden case resolves to its recording — `A3`, `DX-21`)* — **Given** a case whose
+  `input_ref` is `<run_id>/<call_id>`, optionally with a selector
+  `#<evidence_id>|<qualifier>|<start>:<end>`, **when** the regression runs, **then** the recorded
+  response is served from `F2`'s payload store — and, with a selector, the ONE item matching that
+  identity is picked out of it — and compared to `expected`; **and** an expired payload, a missing
+  recording or a malformed `input_ref` **raises `UnresolvableCase`** rather than being skipped. → *unit.*
+  > ⚠⚠ Skipping is the tempting failure: it turns a broken baseline into a *smaller* baseline and
+  > still reports green. ★ Same shape as `DX-20` one layer up — **the golden set's job is to notice,
+  > so it may never quietly stop noticing.**
+  > ★ `D5` is enforced *structurally* here: the resolver only reads files, so the regression cannot
+  > reach a vendor even by mistake.
+  > ⚠⚠ `DX-25` — one recorded `E-01` call returns EVERY segment row in BOTH columns while one case
+  > pins ONE item, so a bare ref could never match a single-item `expected`. ★ The selector **is**
+  > `MP-18`'s identity, so the golden set's granularity and the extraction's identity are one thing
+  > rather than two conventions to keep in step. A vanished item raises — *the reading this case pins
+  > is gone* is the regression, not a missing fixture.
+- **AC-5.17** *(★ the golden set is loaded from disk, and validated on load — `A1`)* — **Given**
+  `tests_src/fixtures/golden/*.yaml`, **when** the set is loaded, **then** every case is constructed
+  through `CT-5.2`'s validation — so `D2`'s circularity check runs on **file** contents, not only on
+  values a programmer typed; **and** a duplicate `case_id` across files raises. → *unit.*
+  > ⚠ Before this, `GoldenCase` existed with no store: establishing a golden value meant editing
+  > Python, which is why the set stayed empty. ★ A rule nobody can act on is not enforced, it is
+  > merely stated.
 - **AC-5.15** *(★ a study may not be imported — `D1`)* — **Given** the source tree, **when** CI runs,
   **then** nothing imports `src/evaluation/studies/**`. → *invariant / property (structural).* (`D1`)
   > ★ `D1`'s boundary is **consumption, not intent**: a metric is anything another decision reads. ⚠ The
@@ -198,6 +259,16 @@ eventually be trusted for the wrong reason.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
+> ✏ **Amended `A3` 2026-09-05** — `AC-5.18` + `CT-5.2`: `input_ref` settled as the **recording**, and
+> `replay_response` implemented (`DX-21`). ⚠ Until this, `run_regression` took a callable nothing ever
+> supplied, so a golden case could be written and **never run** — the third rung of the same ladder as
+> `A1` (nowhere to write one) and `A2` (an unfinished one passing).
+>
+> ✏ **Amended `A1` 2026-09-05** — `CT-5.5` + `AC-5.17`: the golden set gained a **place to live**.
+> ⚠ `D2` made establishing golden values the fund manager's work, and then left nowhere to put one:
+> `GoldenCase` was a dataclass with no store, so the only way to add a case was to edit Python.
+> ★ **A decision that assigns a human a task must leave them a way to do it.**
+>
 > ✅ **`D1`–`D5` ADOPTED 2026-09-04** (`D2` confirmed by Victor: *"fund manager decides what is
 > right"*). The ACs they touch were amended in the same change.
 > ★ **Three of the five were settled by finding the answer already in the inherited code** rather than
@@ -319,6 +390,8 @@ reason. Upstream `CN-10` says *"**'admitted guess' is an acceptable answer; sile
 | AC-5.14 | `tests/integration/test_evaluation_regression.py::test_ac_5_14_*` (3) | `studies/compare.py::ComparisonResult` |
 | AC-5.15 | `tests/structural/test_evaluation_boundaries.py::test_ac_5_15_*` (3) | `tools/check_evaluation_boundaries.py::study_consumer_violations` |
 | AC-5.16 | `::test_ac_5_16_a_figure_whose_inputs_expired_is_marked` | `metrics/models.py::MetricResult.recomputable` |
+| AC-5.17 | `tests/unit/test_golden_store.py::test_ac_5_17_*` (6) | `golden/store.py::load_kind` · `load_all` · `coverage` |
+| AC-5.18 | `tests/unit/test_golden_replay.py::test_dx_21_*` (8) · `::test_dx_25_*` (5) | `regression/replay.py::recorded_response` · `_select` |
 
 ✅ **All 16 ACs green, 2026-09-04** — **21 mutations run, all caught on the first pass.**
 

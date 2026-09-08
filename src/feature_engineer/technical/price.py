@@ -38,7 +38,8 @@ import numpy as np
 import pandas as pd
 
 from src.feature_engineer.technical.momentum import (
-    open_to_open_return, realised_vol,
+    open_to_open_return,
+    realised_vol,
 )
 
 #: ★ Every formula identity in one place. **Changing the maths changes the id**

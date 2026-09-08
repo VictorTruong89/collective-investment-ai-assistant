@@ -17,34 +17,70 @@ head of B5 (**BS-15b**).
 
 from src.risk.alerts.daily import daily_book_pass
 from src.risk.alerts.service import daily_pass, emit, refuse_to_block, suppress
+from src.risk.contracts.alerts import COMPLETE, Alert, AlertSet, unchecked
 from src.risk.contracts.book_risk import (
-    BookRisk, VAR_OMITTED_REASON, VAR_REQUIRED_FIELDS,
+    VAR_OMITTED_REASON,
+    VAR_REQUIRED_FIELDS,
+    BookRisk,
 )
-from src.risk.contracts.theme import THEMES_V1, Theme, ThemeTaxonomy, UNCLASSIFIED
+from src.risk.contracts.theme import THEMES_V1, UNCLASSIFIED, Theme, ThemeTaxonomy
+from src.risk.errors import (
+    BlockAttemptedError,
+    FxUnavailableError,
+    NoBookError,
+    NotAggregatedError,
+    NoTaxonomyError,
+    RiskError,
+    SuppressionAttemptedError,
+    VarMethodUnstatedError,
+    VarWithoutConcentrationError,
+)
 from src.risk.exposure.aggregate import (
-    ALERT_LEVEL_2, CONCENTRATION_THRESHOLD_PCT, DIMENSIONS, ExposureView,
-    REPORTED_ONLY, SECTOR_MAX_PCT, THEME_REPORT_THRESHOLD_PCT, ThresholdCrossing,
-    UNCHECKED, assert_aggregated, exposure, thresholds_crossed,
+    ALERT_LEVEL_2,
+    CONCENTRATION_THRESHOLD_PCT,
+    DIMENSIONS,
+    REPORTED_ONLY,
+    SECTOR_MAX_PCT,
+    THEME_REPORT_THRESHOLD_PCT,
+    UNCHECKED,
+    ExposureView,
+    ThresholdCrossing,
+    assert_aggregated,
+    exposure,
+    thresholds_crossed,
 )
 from src.risk.flags.behavioural import (
-    Flag, HoldingPeriods, KINDS, PREMATURE_EXIT, PYRAMIDING,
-    REGISTERED_SHORT_HOLD_DAYS, SHORT_HOLD, acknowledge, premature_exit_flag,
-    pyramiding_flag, short_hold_flags,
+    KINDS,
+    PREMATURE_EXIT,
+    PYRAMIDING,
+    REGISTERED_SHORT_HOLD_DAYS,
+    SHORT_HOLD,
+    Flag,
+    HoldingPeriods,
+    acknowledge,
+    premature_exit_flag,
+    pyramiding_flag,
+    short_hold_flags,
 )
 from src.risk.metrics.drawdown import (
-    DrawdownState, MIN_SERIES, UNMEASURED, drawdown, unmeasured_factor,
+    MIN_SERIES,
+    UNMEASURED,
+    DrawdownState,
+    drawdown,
+    unmeasured_factor,
 )
 from src.risk.metrics.marginal import (
-    MarginalRisk, Unmeasured, hypothetical_book, marginal_risk,
+    MarginalRisk,
+    Unmeasured,
+    hypothetical_book,
+    marginal_risk,
 )
 from src.risk.stress.scenarios import (
-    NOT_A_PREDICTION, SEMI_2022, Scenario, StressResult, stress,
-)
-from src.risk.contracts.alerts import COMPLETE, Alert, AlertSet, unchecked
-from src.risk.errors import (
-    BlockAttemptedError, FxUnavailableError, NoBookError, NoTaxonomyError,
-    NotAggregatedError, RiskError, SuppressionAttemptedError,
-    VarMethodUnstatedError, VarWithoutConcentrationError,
+    NOT_A_PREDICTION,
+    SEMI_2022,
+    Scenario,
+    StressResult,
+    stress,
 )
 
 __all__ = [

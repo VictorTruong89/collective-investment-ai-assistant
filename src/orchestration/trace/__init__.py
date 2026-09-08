@@ -20,10 +20,10 @@ from src.orchestration.trace.outcomes import OutcomeStore
 from src.orchestration.trace.redact import export_for_publication, redact_secrets
 from src.orchestration.trace.replay import SCOPE, ReplayReport, replay
 from src.orchestration.trace.store import TraceStore
-from src.orchestration.trace.wire import replayable_invoke, traced
+from src.orchestration.trace.wire import replayable_invoke, traced, traced_transport
 
 __all__ = [
     "SCOPE", "CapabilityDelta", "DecisionRecord", "export_for_publication", "redact_secrets", "ExternalCall", "IncompleteTrace",
     "PayloadsExpired", "OutcomeStore", "ReplayReport", "StepRecord", "TraceError",
-    "TraceImmutableError", "TraceRecord", "TraceStore", "mint_decision_id", "replay", "replayable_invoke", "traced",
+    "TraceImmutableError", "TraceRecord", "TraceStore", "mint_decision_id", "replay", "replayable_invoke", "traced", "traced_transport",
 ]

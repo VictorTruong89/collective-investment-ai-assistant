@@ -15,9 +15,17 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 from src.models.train.run import (
-    DEFAULT_YEARS, SELECTION_HORIZON_DAYS, TrainingInputs, build_training_labels,
-    build_training_panel, default_window, elapsed, fetch_prices,
-    ingest_universe_facts, load_sp500, summarise,
+    DEFAULT_YEARS,
+    SELECTION_HORIZON_DAYS,
+    TrainingInputs,
+    build_training_labels,
+    build_training_panel,
+    default_window,
+    elapsed,
+    fetch_prices,
+    ingest_universe_facts,
+    load_sp500,
+    summarise,
 )
 
 EXIT_OK, EXIT_FAILED = 0, 1
@@ -124,8 +132,9 @@ def main(argv=None) -> int:
     print(f"  panel: {panel.shape} · contract {contract.name}@v{contract.version}"
           f"  [{elapsed(started)}]")
 
-    from src.data_engine import build_price_panel
     import pandas as pd
+
+    from src.data_engine import build_price_panel
 
     prices = build_price_panel(pd.concat(frames.values(), ignore_index=True),
                                (), as_of)
@@ -141,7 +150,9 @@ def main(argv=None) -> int:
         return EXIT_OK
 
     from src.models.train.run import (
-        feature_coverage, fit_selection_model, rank_ic,
+        feature_coverage,
+        fit_selection_model,
+        rank_ic,
     )
 
     coverage = feature_coverage(panel, contract.feature_names)

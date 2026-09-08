@@ -80,7 +80,6 @@ def _cached(bundle_hash: str, cache_root):
     ⚠ Returns `None` on any failure. A cache that raises turns a saving into an
     outage, and re-authoring is always correct — merely expensive.
     """
-    import dataclasses
     import importlib
 
     try:

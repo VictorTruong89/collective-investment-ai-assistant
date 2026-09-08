@@ -94,6 +94,52 @@ exactly this.
 | **`CT-<n>.<k>`** | Contract — a concrete data/API shape |
 | **`D-nn`** | Domain identifier (`D-00`…`D-14`) |
 
+
+### ⚠⚠ Absorbed at `MS-8` — found by `tools/check_id_families.py`, 2026-09-04
+
+★★ **`MS-8` merged two ID spaces into one tree, and this section was ~50 % incomplete.**
+**39 families were in active use and named nowhere here** — after §1 had *already* been corrected on
+2026-09-02 for missing eleven. ⚠ A registry that reads as authoritative while being half the story is
+how `M-n` (mandate) and `M<n>` (milestone) came to collide in the first place.
+
+★ It is now **enforced**: `tools/check_id_families.py` fails when a family with ≥20 uses is not
+declared below. ⚠ The check asks only *"is it written down?"* — meaning stays a human's job.
+
+| Family | Uses | Defined in | Meaning |
+|---|---|---|---|
+| **`SEAT-n`** | 216 | `L0-system-vision` | ⚠ Upstream's **five**-seat desk model. **NOT this repo's nine seats** — see the warning below |
+| **`FR-n`** | 168 | *(cross-cutting)* | Functional requirement |
+| **`X-nn`** | 108 | `L1-fundamental-analysis-master-prompt` | Extraction steps (`X-01` …) |
+| **`V-nn`** | 106 | `L1-fundamental-analysis-event-and-macro` | Event/macro validation rules |
+| **`CF-n`** | 98 | `L2-shared-infrastructure` | Config rules — `CF-4` immutability |
+| **`PD-n`** | 78 | `L2-signal-combination` | Prediction/combination rules |
+| **`FX-n`** | 78 | `L1-recording` | FX conversion rules — `FX-3` *no rate, no number* |
+| **`MP-nn`** | 76 | `L1-experiments-intent` | Master-prompt rules |
+| **`K-nn`** | 75 | `L1-data-engine` | Known-answer / calibration cases |
+| **`H-n`** | 73 | `L1-recording` · `L5-inherited-defects` | Hypotheses about the data — `H-0` *the broker is BMO* |
+| **`MO-n`** | 68 | `L2-shared-money` | Money rules — `MO-1` a bare value is not monetary |
+| **`T-n`** | 68 | `L0-system-vision` | Trigger/entry-point ids |
+| **`SC-n`** | 64 | `L2-shared-infrastructure` | Secrets/credential rules |
+| **`PRC-n`** | 64 | *(cross-cutting)* | Pricing rules |
+| **`WF-n`** | 55 | `L1-fundamental-analysis` | Workflow steps |
+| **`Q-n`** | 50 | `L0-system-vision` | ⚠ Open questions — **a fourth meaning of `Q`**; see below |
+| **`QP`/`QS`/`QK`/`QO`/`QC`/`QB`/`QX`-nn** | 20-44 | per-domain L1s | Domain open-question families (portfolio, strategy, knowledge, ops, recording, combination, experiments) |
+| **`DQ-nn`** | 39 | `L0-system-vision` | Data-quality questions |
+| **`IM-n`** | 38 | `L3-build-sequence` | Implementation-method rules |
+| **`LG-n`** | 37 | `L2-shared-infrastructure` | Logging rules |
+| **`SI-n`** | 36 | `L2-shared-infrastructure` | Shared-infrastructure rules — ★ `SI-1` is `DX-3`'s vacuous fence |
+| **`CI`/`VR`/`OB`/`ANO`/`VOL`/`OQ`/`DF`/`PE`/`BT`/`CAL`/`PA`/`DV`-n** | 20-30 | various | Smaller per-domain families; ⚠ reserved, do not reuse |
+
+> ⚠⚠ **`SEAT-n` is the sharpest entry on this page.** It is upstream's **five-seat** model.
+> `vision.md` §3 defines **nine** seats and `CLAUDE.md` says: *"Never carry a seat number between the
+> two repos."* ★ Now that both live in **one tree**, that warning is easier to violate and harder to
+> notice — an absorbed test asserted upstream's seat vocabulary against this repo's vision and had to
+> be corrected (`DX-10`).
+
+> ⚠ **`Q` now has four live meanings**: `Q-n` (upstream open questions), `QR-n` (this repo's register),
+> the per-domain `QQ`/`QD`/`QP`/`QS`/`QK`/`QO`/`QC`/`QB`/`QX` families, and a bare `Qn` inside a spec's
+> own §8. ★ They are distinguishable only by prefix length and context — **do not add a fifth.**
+
 ## 1.2 This repo's own families
 
 ★ **Against that space, this repo opens only fresh, non-colliding families.** Do not invent any other

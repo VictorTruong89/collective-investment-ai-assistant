@@ -9,7 +9,7 @@ needs no distribution assumption, and cannot be quietly wrong.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 
 from src.risk.errors import VarMethodUnstatedError, VarWithoutConcentrationError

@@ -21,9 +21,17 @@ from src.feature_engineer.contracts.registry import ContractRegistry
 from src.feature_engineer.contracts.sets.b3_minimal_v1 import B3_MINIMAL_V1
 from src.feature_engineer.contracts.spec import FeatureContract, FeatureSpec
 from src.feature_engineer.errors import (
-    AnalystDerivedInputError, AsOfRequiredError, CalendarHaltError, ContractMutatedError,
-    ContractUnknownError, DuplicateDefinitionError, FeatureError, LabelInContractError,
-    MissingFeatureError, RangeViolationError, UndeclaredColumnError,
+    AnalystDerivedInputError,
+    AsOfRequiredError,
+    CalendarHaltError,
+    ContractMutatedError,
+    ContractUnknownError,
+    DuplicateDefinitionError,
+    FeatureError,
+    LabelInContractError,
+    MissingFeatureError,
+    RangeViolationError,
+    UndeclaredColumnError,
 )
 from src.feature_engineer.ml_features.assemble import BUILDERS, build_panel
 

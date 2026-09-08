@@ -27,7 +27,6 @@ docstring said and its code did not (QA-50's neighbouring defect).
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 
 from src.quant.backtest.costs import CostModel

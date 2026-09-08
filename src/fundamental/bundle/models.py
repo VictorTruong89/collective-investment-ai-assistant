@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 
 #: §5's table — the five pinnable parts and what pins each. A part kind absent
@@ -165,7 +165,7 @@ class EvidenceBundle:
 
     # -- views ---------------------------------------------------------------- #
 
-    def redact(self, kinds=BLIND_WITHHELD_KINDS, *, view: str = "blind") -> "EvidenceBundle":
+    def redact(self, kinds=BLIND_WITHHELD_KINDS, *, view: str = "blind") -> EvidenceBundle:
         """RA-14 — a staged view with price, market cap and valuation withheld.
 
         ★ **A view is a NEW bundle with its own hash and a recorded parent**, not

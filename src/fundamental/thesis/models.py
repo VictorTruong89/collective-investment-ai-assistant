@@ -56,7 +56,7 @@ class Falsifier:
     about_business: bool = True    # False ⇒ a price level
 
     @classmethod
-    def from_json_obj(cls, payload: dict) -> "Falsifier":
+    def from_json_obj(cls, payload: dict) -> Falsifier:
         """★ Rehydrate. ⚠ `deadline` is a DATE — a string here would compare
         against `as_of` as text and RA-35's *"dated, not eventually"* would be
         satisfied by a value nothing can evaluate."""
@@ -122,7 +122,7 @@ class BearCase:
     run_id: str
 
     @classmethod
-    def from_json_obj(cls, payload: dict) -> "BearCase":
+    def from_json_obj(cls, payload: dict) -> BearCase:
         return cls(text=payload["text"],
                    falsification_condition=payload["falsification_condition"],
                    prompt_version=payload["prompt_version"],
@@ -180,7 +180,9 @@ class Thesis:
 
     def __post_init__(self) -> None:
         from src.fundamental.errors import (
-            NoFalsifierError, UncommittedFalsifiersError, VerdictNotEnumError,
+            NoFalsifierError,
+            UncommittedFalsifiersError,
+            VerdictNotEnumError,
         )
 
         if self.verdict not in VERDICTS:
@@ -213,7 +215,7 @@ class Thesis:
             )
 
     @classmethod
-    def from_json_obj(cls, payload: dict) -> "Thesis":
+    def from_json_obj(cls, payload: dict) -> Thesis:
         """★★ **Rehydration exists so RC-61's reuse is real.**
 
         ⚠ *Written 2026-08-26:* the cache was built first and every lookup

@@ -472,14 +472,14 @@ plus `D4`'s export filter are what keep it out of the output path.* ⚠ This sho
 | AC | Test (file::test) | Code module |
 |---|---|---|
 | AC-2.1 | `tests/unit/test_trace.py::test_ac_2_1_every_record_carries_the_run_id_and_no_second_run_record` · `::test_ac_2_1_rejects_a_record_from_another_run` · `::test_ac_2_1_a_run_scoped_step_may_carry_no_decision_id` | `trace/models.py`, `trace/store.py` |
-| AC-2.2 | `tests/unit/test_trace.py::test_ac_2_2_*` (3) | `trace/models.py::ExternalCall`, `trace/store.py` |
+| AC-2.2 | `tests/unit/test_trace.py::test_ac_2_2_*` (3) · ★ **call granularity**: `tests/integration/test_trace_replay.py::test_ac_2_2_a_gateway_transport_call_is_recorded_with_both_halves` · `::test_ac_2_2_a_failing_transport_is_recorded_AND_re_raised` | `trace/models.py::ExternalCall`, `trace/wire.py::traced_transport` |
 | AC-2.3 | `tests/integration/test_trace_replay.py::test_ac_2_3_*` (4) | `trace/replay.py::replay` |
 | AC-2.4 | `tests/integration/test_trace_replay.py::test_ac_2_4_divergence_names_the_first_step_and_field` | `trace/replay.py` |
 | AC-2.5 | `tests/unit/test_trace.py::test_ac_2_5_a_decision_record_is_complete` · `::test_ac_2_5_an_incomplete_decision_is_refused` (5 cases) | `trace/models.py::DecisionRecord` |
 | AC-2.6 | `tests/unit/test_trace.py::test_ac_2_6_a_delta_is_written_even_when_nothing_changed` | `trace/models.py::CapabilityDelta` |
 | AC-2.7 | `tests/integration/test_ms3_traced_run.py::test_ac_2_7_an_outcome_links_to_a_past_decision_without_re_deriving_the_id` · `::test_ac_2_7_an_outcome_may_not_be_silently_revised` | `trace/outcomes.py::OutcomeStore` |
 | AC-2.8 | `tests/unit/test_trace.py::test_ac_2_8_rewriting_a_record_id_raises_and_leaves_the_original` | `trace/store.py`, `trace/errors.py::TraceImmutableError` |
-| AC-2.9 | `tests/integration/test_trace_replay.py::test_ac_2_9_a_credential_never_reaches_the_disk` · `::test_redaction_leaves_ordinary_fields_alone` | `trace/redact.py::redact_secrets` |
+| AC-2.9 | `tests/integration/test_trace_replay.py::test_ac_2_9_*` (5 groups, 16 parametrised) — ⚠ incl. `::test_ac_2_9_usage_fields_are_NOT_redacted`, the `DX-16` regression | `trace/redact.py::redact_secrets`, `::_key_is_secret` |
 | AC-2.10 | `tests/structural/test_framework_confinement.py` (13, incl. one per framework) | `tools/check_framework_confinement.py` |
 | AC-2.11 | `tests/integration/test_ms3_traced_run.py::test_ac_2_11_a_step_that_resolved_a_variant_carries_provenance` | `trace/models.py::StepRecord.provenance` |
 | AC-2.12 | `tests/unit/test_trace.py::test_ac_2_12_an_unclosed_run_reads_as_incomplete` · `::test_ac_2_12_a_truncated_log_line_is_detected` · `tests/integration/…::test_ac_2_12_an_unclosed_run_is_unreplayable` | `trace/store.py::status` |

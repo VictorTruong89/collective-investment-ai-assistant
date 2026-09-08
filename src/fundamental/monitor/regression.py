@@ -22,7 +22,10 @@ from collections import Counter
 from dataclasses import dataclass
 
 from src.fundamental.monitor.registry import (
-    FAIL, OK, MonitorResult, not_yet_calibrated,
+    FAIL,
+    OK,
+    MonitorResult,
+    not_yet_calibrated,
 )
 
 #: ⚠ **An ADMITTED GUESS** (CN-10). RM-4 names *"a wording change that flips 30 %

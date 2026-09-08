@@ -26,7 +26,9 @@ import json
 from dataclasses import asdict, dataclass, field
 
 from src.feature_engineer.errors import (
-    AnalystDerivedInputError, DuplicateDefinitionError, LabelInContractError,
+    AnalystDerivedInputError,
+    DuplicateDefinitionError,
+    LabelInContractError,
 )
 
 #: Input namespaces a FeatureSpec may name (FE-21). D-07 fields and other D-02

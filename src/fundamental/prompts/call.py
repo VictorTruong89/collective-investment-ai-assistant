@@ -27,12 +27,14 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass
-from datetime import date, datetime, timezone
+from datetime import datetime, timezone
 
 from src.fundamental.bundle.models import EvidenceBundle
 from src.fundamental.contracts.analysis_run import AnalysisRun, AnalysisRunLog
 from src.fundamental.errors import (
-    BundleNotPinnedError, ConversationalStateError, DegradedCallError,
+    BundleNotPinnedError,
+    ConversationalStateError,
+    DegradedCallError,
 )
 from src.fundamental.prompts.registry import PromptBlock, PromptRegistry
 from src.shared.errors import LLMError
@@ -48,7 +50,30 @@ TIER = Tier.DEEP
 #: GW-7a — `max_tokens` per call site, never one global value. ⚠ *A single global
 #: value either starves the cheap calls or truncates the deep ones, and only the
 #: second is fatal.* Values reused from `settings.yaml` (QI-4, closed).
-MAX_TOKENS = {"extraction": 8000, "judgement": 16000}
+#: ⚠⚠ Raised 8000 -> 20000 for extraction on 2026-09-07, from a MEASURED
+#: truncation: E-01 over MU's 10-Q hit the 8000 cap and GW-23 correctly refused
+#: the half answer. ★ With adaptive thinking the response budget is max_tokens
+#: MINUS thinking (GW-7b), so a table of ~20 items each carrying a verbatim
+#: quote does not fit what 8000 leaves. Judgement is unchanged — it was not
+#: measured, and guessing a second number from one observation is how a limit
+#: becomes folklore.
+#:
+#: ✏ Raised again 20000 -> 32000, then MEASURED FIVE TIMES on one bundle:
+#:     14,165 · 16,000* · 16,000* · 13,243 · 32,000   (*a clamp, see below)
+#:
+#: ⚠⚠ Two separate causes were tangled here, and the first hid the second:
+#:   1. `anthropic_transport` silently clamped `max_tokens` to 16,000, so the
+#:      20,000 and 32,000 ceilings were never in force — and `GW-23` reported
+#:      "hit max_tokens=32000", a number that was never sent. Fixed.
+#:   2. ★ With the clamp gone, spend still ranged 13,243 -> 32,000 on the SAME
+#:      input with no code change between runs. Adaptive thinking's cost is
+#:      genuinely variable, and the tail is more than 2x the median.
+#:
+#: ⚠ So a ceiling chosen from one observation is a coin flip — but raising it
+#: is not obviously the fix either, because thinking expands into the budget it
+#: is given. The lever that actually bounds this is `llm.deep.effort`, not
+#: max_tokens. ⬜ Unresolved: see L3 §2.5 and DX-27.
+MAX_TOKENS = {"extraction": 32000, "judgement": 16000}
 
 
 @dataclass(frozen=True, slots=True)

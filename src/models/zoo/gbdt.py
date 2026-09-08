@@ -87,10 +87,10 @@ class LightGBMRanker:
                 "default-substituted defect wearing another hat")
         if tuple(x.columns) != self.feature_names_:
             raise ModelError(
-                f"the scoring frame's columns differ from the fitted ones. "
-                f"★ The estimator does not reorder or narrow — that is the "
-                f"parity gate's job, and an estimator that fixes it up quietly "
-                f"is `_select_features` reappearing (MT-6, D-17)")
+                "the scoring frame's columns differ from the fitted ones. "
+                "★ The estimator does not reorder or narrow — that is the "
+                "parity gate's job, and an estimator that fixes it up quietly "
+                "is `_select_features` reappearing (MT-6, D-17)")
         return self._model.predict(x)
 
     def framework(self) -> dict:

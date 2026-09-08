@@ -24,7 +24,10 @@ from dataclasses import dataclass
 
 from src.fundamental.errors import LevelUnavailableError, ScoreEmittedError
 from src.fundamental.scorecard.coverage import (
-    ConfidenceAssessment, CoverageReport, assess_confidence, coverage_report,
+    ConfidenceAssessment,
+    CoverageReport,
+    assess_confidence,
+    coverage_report,
 )
 from src.fundamental.scorecard.models import DIMENSIONS, Rubric, RubricLevel
 

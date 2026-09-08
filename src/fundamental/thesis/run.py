@@ -45,7 +45,7 @@ class ParsedVerdict:
     text: str
 
     @classmethod
-    def parse(cls, text: str) -> "ParsedVerdict":
+    def parse(cls, text: str) -> ParsedVerdict:
         from src.fundamental.errors import VerdictNotEnumError
 
         found = VERDICT_PATTERN.search(text or "")
@@ -120,7 +120,7 @@ UNMEASURED_CONFIDENCE = {
 }
 
 
-def author_once(*, bundle, gateway, run: "AuthoringRun", index: int,
+def author_once(*, bundle, gateway, run: AuthoringRun, index: int,
                 observables, deadline: date, run_id: str):
     """One full pass. ★ Returns `(ProbeRun, Thesis)` for `author_thesis`.
 
@@ -167,8 +167,8 @@ def author_once(*, bundle, gateway, run: "AuthoringRun", index: int,
         index=index, verdict=parsed.verdict, conviction=parsed.conviction,
         # ★ What the MODEL saw, which is the thing being perturbed.
         evidence_order=tuple(
-            (list(p.kind for p in bundle.parts)[rotation:]
-             + list(p.kind for p in bundle.parts)[:rotation])),
+            list(p.kind for p in bundle.parts)[rotation:]
+             + list(p.kind for p in bundle.parts)[:rotation]),
         option_permutation=verdict_call.run.option_permutation,
         run_ids=tuple(c.run.call_id for c in calls),
         tokens_in=sum(c.run.tokens_in or 0 for c in calls),

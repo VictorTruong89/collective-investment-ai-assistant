@@ -26,6 +26,7 @@ import argparse
 import pathlib
 import shutil
 import subprocess
+import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
 
@@ -44,21 +45,50 @@ INCLUDE = [
     "src/orchestration/trace/", "src/orchestration/control/",
     "src/orchestration/graph/", "src/orchestration/policy/routing.py",
     "src/evaluation/", "src/explain/",
+    # ⚠⚠ DX-22: `check_all.py` INVOKES these as subprocesses. A tool that
+    # invokes a missing tool ships a red check to a fresh clone — and the
+    # `DX-14` guard never saw it, because it models tests importing code, not
+    # a tool spawning a tool. ★ Verified now by RUNNING check_all in the mirror.
     "tools/check_all.py", "tools/check_framework_confinement.py",
     "tools/check_import_fences.py", "tools/check_evaluation_boundaries.py",
+    "tools/check_id_families.py",
     "tools/build_mirror.py",
-    "tests/", "tests_src/fixtures/", "tests_src/broker_fixtures.py",
+    # ★ The golden-case demo and its adversarial reviewer. `PG-5` calls the
+    # evaluation instinct the scarce skill; these are where it is legible.
+    "tools/demo_golden_case.py", "tools/review_golden_case.py",
+    "tools/f2_payload_reader.py",
+    "tests/",
+    # ⚠⚠ `tests_src/fixtures/broker_statements/` ONLY — NOT the whole fixtures
+    # directory. `tests_src/fixtures/golden/` holds the golden set, whose
+    # `expected` values for `ranking` and `thesis` ARE the fund's judgement, i.e.
+    # the strategy QR-12 withholds. ★ The mirror ships the machinery without the
+    # answers. (F5 CT-5.5.)
+    "tests_src/fixtures/broker_statements/", "tests_src/broker_fixtures.py",
     "tests_src/test_recording_ingest_synthetic.py",
     ".github/",
     ".claude/hooks/", ".claude/skills/",
     "sdd/specs/_templates/",
 ]
 
+#: ⚠⚠ Tests that assert about the FULL tree's composition. They are correct in
+#: this repo and meaningless in the mirror, which is a deliberately narrowed
+#: tree — e.g. `test_id_families` asserts `QA` (D-03 quant) is in heavy use, and
+#: `src/quant/` is withheld as strategy, so it counts 6 and fails.
+#:
+#: ★ Excluded EXPLICITLY here rather than taught to skip when the tree looks
+#: small. ⚠ "Skip when narrowed" is `DX-9` exactly — the shape where a check
+#: quietly stops checking. A named exclusion with a written reason cannot rot
+#: silently; a self-disabling assertion can.
+MIRROR_EXCLUDE_TESTS = (
+    "tests/structural/test_id_families.py",
+)
+
 #: ⚠ A second, independent check. Nothing matching these may appear in the output
 #: even if an INCLUDE entry would have carried it. Belt and braces on purpose:
 #: this is the one script where a mistake is irreversible.
 FORBIDDEN_FRAGMENTS = (
     "bmo_investorline", ".state", "trained_models", "reports/",
+    "fixtures/golden",   # ⚠ the golden set is the strategy (F5 CT-5.5)
     "/data/", ".env", "secrets", ".pkl", ".joblib", ".parquet",
 )
 
@@ -66,10 +96,14 @@ FORBIDDEN_FRAGMENTS = (
 def _files_for(entry: str) -> list[pathlib.Path]:
     p = REPO / entry
     if p.is_file():
-        return [p]
+        return [p] if p.suffix not in (".pyc", ".pyo") else []
     if p.is_dir():
+        # ⚠ __pycache__ is excluded here, not only in the test scan: a .pyc
+        # embeds the ABSOLUTE source path it was compiled from, so publishing one
+        # leaks `/home/<user>/Workspace/...` into a public repo.
         return [q for q in p.rglob("*")
-                if q.is_file() and "__pycache__" not in q.parts]
+                if q.is_file() and "__pycache__" not in q.parts
+                and q.suffix not in (".pyc", ".pyo")]
     return []
 
 
@@ -135,8 +169,19 @@ def unrunnable_tests(files: list[pathlib.Path]) -> list[pathlib.Path]:
         if any(not _module_is_included(m, included) for m in mods):
             bad.append(f)
             continue
-        # ⚠ and by filesystem path — DX-9's lesson applied here.
+        # ⚠⚠ and by filesystem path — DX-9's lesson, ONE HOP DEEP.
+        # A test can reach a withheld directory through a CONSTANT it imports
+        # (`from ...store import GOLDEN_DIR`), so scanning only the test file
+        # misses it. Found when `test_golden_store.py` shipped and failed in the
+        # mirror because `tests_src/fixtures/golden/` is withheld.
         src_text = f.read_text(encoding="utf-8")
+        for mod in mods:
+            if not mod.startswith("src."):
+                continue
+            for cand in (REPO / (mod.replace(".", "/") + ".py"),
+                         REPO / mod.replace(".", "/") / "__init__.py"):
+                if cand.exists():
+                    src_text += "\n" + cand.read_text(encoding="utf-8")
         for lit in _path_literals(src_text):
             stem = lit.rstrip("/*")
             if not stem or "*" in lit:
@@ -168,6 +213,8 @@ def collect() -> tuple[list[pathlib.Path], list[str]]:
     # ⚠ DX-14 — drop tests that cannot run without the withheld strategy, and SAY
     # how many. Publishing a suite that does not collect is worse than publishing
     # a smaller one.
+    kept = [f for f in kept
+            if str(f.relative_to(REPO)) not in MIRROR_EXCLUDE_TESTS]
     unrunnable = unrunnable_tests(kept)
     if unrunnable:
         print(f"  ⚠ dropping {len(unrunnable)} test file(s) that import withheld "
@@ -222,6 +269,22 @@ def main() -> int:
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(f, dest)
     print(f"  ✅ wrote {len(files)} files to {out}")
+
+    # ⚠⚠ DX-22 — the generalisation. Three times now the mirror's self-check was
+    # written against ONE kind of dependency and a second kind was already
+    # shipping broken (DX-14 tests importing code, DX-19 an imported constant,
+    # DX-22 a tool spawning a tool). ★★ So stop enumerating dependency kinds and
+    # RUN THE DOCUMENTED ENTRY POINT. Whatever it needs, it will say so itself.
+    print("\n  ── verifying the mirror can run its own checks (DX-22) ──")
+    proc = subprocess.run([sys.executable, "tools/check_all.py"], cwd=out,
+                          capture_output=True, text=True, timeout=900)
+    if proc.returncode != 0:
+        tail = (proc.stdout + proc.stderr).strip().splitlines()[-12:]
+        print("  ⛔ THE MIRROR'S OWN check_all.py FAILS — do not publish:")
+        for line in tail:
+            print(f"      {line}")
+        return 1
+    print("  ✅ the mirror's check_all.py passes in the mirror")
     print("  ⚠ NO git history. Do not `git push` this into a repo that has any.")
     return 0
 

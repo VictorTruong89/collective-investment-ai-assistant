@@ -18,18 +18,39 @@ analyst seats, exactly as D-02 is the neutral layer *upstream* of both.
 """
 
 from src.decision.algebra.verdict import (
-    ABSORBING, BUY, CONSERVATISM, FLAG, HOLD, IDENTITY, PASS, SELL, SEVERITY, VETO,
-    apply_gate, conservatism, is_no_more_aggressive_than, meet,
+    ABSORBING,
+    BUY,
+    CONSERVATISM,
+    FLAG,
+    HOLD,
+    IDENTITY,
+    PASS,
+    SELL,
+    SEVERITY,
+    VETO,
+    apply_gate,
+    conservatism,
+    is_no_more_aggressive_than,
+    meet,
 )
 from src.decision.attribute.binding import attribute
 from src.decision.compose.service import compose, enforce_inv6, veto_rate
 from src.decision.contracts.recommendation import (
-    Attribution, GateOutcome, Recommendation,
+    Attribution,
+    GateOutcome,
+    Recommendation,
 )
 from src.decision.errors import (
-    AbsentTreatedAsPassError, AnchorMismatchError, AttributionIncompleteError,
-    DecisionError, GateMissingError, GateUnavailableError, MultipleActionableError,
-    SellNotHeldError, VerdictOriginatedError, VerdictUpgradeError,
+    AbsentTreatedAsPassError,
+    AnchorMismatchError,
+    AttributionIncompleteError,
+    DecisionError,
+    GateMissingError,
+    GateUnavailableError,
+    MultipleActionableError,
+    SellNotHeldError,
+    VerdictOriginatedError,
+    VerdictUpgradeError,
 )
 
 __all__ = [

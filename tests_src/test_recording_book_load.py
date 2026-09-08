@@ -7,7 +7,8 @@ until the rest of the release is complete.
 from datetime import date
 
 from src.recording.book.load import (
-    ACCOUNTS, held_instruments, load_books, quote_holdings,
+    discover_accounts, held_instruments, load_books, quote_holdings,
+    resolve_export_dir,
 )
 from tests_src.broker_fixtures import requires_real_statements
 
@@ -27,9 +28,26 @@ pytestmark = requires_real_statements
 AS_OF = date(2026, 8, 25)
 
 
-def test_all_four_registered_accounts_are_loaded():
-    """RC-25 — ★ M-4 has no exempt population, so the loader has no short list."""
-    assert [a for a, _ in ACCOUNTS] == ["RESP_1", "RRSP_1", "TFSA_1", "TFSA_2"]
+def test_every_registered_account_present_is_loaded():
+    """RC-25 — ★ M-4 has no exempt population, so the loader has no short list.
+
+    ✏ **Rewritten 2026-09-04 (`RC-65`).** ⚠⚠ This test asserted
+    `[a for a, _ in ACCOUNTS] == ["RESP_1", "RRSP_1", "TFSA_1", "TFSA_2"]` —
+    **a short list** — while its own docstring argued that *the loader has no
+    short list*. ★ The docstring was right and the assertion contradicted it:
+    a hardcoded four made a fifth statement **silently invisible**, which is the
+    opposite of "no exempt population".
+
+    It now asserts what it always claimed: **whatever accounts are present are
+    loaded, and every one of them is registered.**
+    """
+    found = discover_accounts(resolve_export_dir())
+    assert found, "at least one export must be present for this test to mean anything"
+    # RC-25 — all account types in this book are REGISTERED. That is the real claim.
+    assert {t for _, t in found} <= {"RESP", "RRSP", "TFSA"}
+    # ⚠ and the four real ones are here today — stated as an observation of the
+    # data, NOT as a constraint on how many accounts may exist (RC-65).
+    assert {a for a, _ in found} >= {"RESP_1", "RRSP_1", "TFSA_1", "TFSA_2"}
 
 
 def test_held_instruments_spans_every_account():

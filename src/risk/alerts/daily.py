@@ -17,14 +17,16 @@ from __future__ import annotations
 from datetime import date
 
 from src.risk.alerts.service import emit
+from src.risk.contracts.alerts import Alert
 from src.risk.contracts.book_risk import BookRisk
 from src.risk.contracts.theme import ThemeTaxonomy
 from src.risk.errors import NoBookError
 from src.risk.exposure.aggregate import (
-    assert_aggregated, exposure, thresholds_crossed,
+    assert_aggregated,
+    exposure,
+    thresholds_crossed,
 )
 from src.risk.metrics.drawdown import drawdown, unmeasured_factor
-from src.risk.contracts.alerts import Alert
 
 #: Step 0's outcomes are binary and the ladder ends at the first one.
 STEPS = ("reconciled", "snapshot", "exposure", "metrics", "flags", "factors",

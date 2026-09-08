@@ -80,7 +80,25 @@ class TraceStore:
         self._keys.add(key)
 
     def close(self, status: str = "SUCCESS") -> None:
-        """Mark the run complete. ⚠ Its absence is `AC-2.12`'s INCOMPLETE."""
+        """Mark the run complete. ⚠ Its absence is `AC-2.12`'s INCOMPLETE.
+
+        ⚠⚠ `DX-26` — a **second** close raises. `AC-2.8`'s append-only argument
+        applies to the sentinel as much as to any record: one that can be
+        written twice is not append-only, and `status()` then reports whichever
+        copy it happens to read. Found for real — a `finally:` block plus an
+        error path wrote `SUCCESS, SUCCESS, FAILED, SUCCESS` into one trace, and
+        the last word was `SUCCESS` for a run that had just failed.
+
+        ★ **A trace that can disagree with its own run is worse than no trace**,
+        because it is trusted.
+        """
+        if any(r.get("type") == _SENTINEL for r in self._raw()):
+            raise TraceImmutableError(
+                f"{_SENTINEL}:{self.run_id} — this run is already closed. A "
+                "second sentinel would let status() report either answer "
+                "(AC-2.8, AC-2.12, DX-26). Close exactly once, with the outcome "
+                "that actually happened."
+            )
         with self.log_path.open("a", encoding="utf-8") as fh:
             fh.write(json.dumps({"type": _SENTINEL, "status": status}) + "\n")
 

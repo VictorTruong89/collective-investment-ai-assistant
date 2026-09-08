@@ -23,7 +23,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date
 
-from src.fundamental.contracts.gate import FLAG, GateVerdict, Grade, NO_THESIS, PASS, VETO
+from src.fundamental.contracts.gate import FLAG, NO_THESIS, PASS, VETO, GateVerdict, Grade
 from src.fundamental.errors import GateMappingError
 from src.fundamental.thesis.models import BUY, HOLD, INSUFFICIENT_DATA, SELL, Thesis
 

@@ -8,10 +8,13 @@ would have said* (RA-73).
 from __future__ import annotations
 
 import re
-from datetime import date, datetime
+from datetime import datetime
 
 from src.fundamental.calendar.models import (
-    SCOPE_BOOK, SCOPE_TICKER, CalendarEvent, OutcomeMapping, PreEventBrief,
+    SCOPE_BOOK,
+    SCOPE_TICKER,
+    CalendarEvent,
+    PreEventBrief,
 )
 from src.fundamental.errors import BriefMutatedError, BriefPredictsError
 from src.fundamental.monitor.lint import FORECAST_VOICE

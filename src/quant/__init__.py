@@ -1,21 +1,44 @@
 from src.quant.backtest.costs import (
-    COMMISSION_ONLY, CostModel, FLAT_COMMISSION, FULL,
+    COMMISSION_ONLY,
+    FLAT_COMMISSION,
+    FULL,
+    CostModel,
 )
 from src.quant.backtest.engine import evaluate, folds_for
 from src.quant.backtest.protocol import (
-    CVProtocol, Fold, assert_no_leakage, derive_protocol, group_key, make_folds,
+    CVProtocol,
+    Fold,
+    assert_no_leakage,
+    derive_protocol,
+    group_key,
+    make_folds,
 )
 from src.quant.contracts.backtest import (
-    BacktestResult, BacktestSpec, PINNED_FIELDS, assert_survivorship_stated,
+    PINNED_FIELDS,
+    BacktestResult,
+    BacktestSpec,
+    assert_survivorship_stated,
 )
 from src.quant.gates.metric_gate import (
-    FAIL, GateResult, GateSet, NOT_EVALUATED, PASS, assert_not_pooled,
-    breadth_gate, cost_survival_gate, ic_significance_gate,
+    FAIL,
+    NOT_EVALUATED,
+    PASS,
+    GateResult,
+    GateSet,
+    assert_not_pooled,
+    breadth_gate,
+    cost_survival_gate,
+    ic_significance_gate,
 )
 from src.quant.metrics.ic import (
-    ICResult, T_MULTIPLE_TESTING, assert_comparable, corrected_se, effective_n,
+    T_MULTIPLE_TESTING,
+    ICResult,
+    assert_comparable,
+    corrected_se,
+    effective_n,
     rank_ic,
 )
+
 """D-03 Quantitative Analysis — stateless calculation. SEAT-3.
 
 ★ **D-03 never emits a verdict** (QA-29). It ranks and it measures; gating is
@@ -25,12 +48,18 @@ holds fitted parameters, and none imports D-04.
 
 from src.quant.contracts.nomination import Candidate, Nomination
 from src.quant.errors import (
-    AdjustedLevelError, HorizonUnpinnedError, MethodMissingError, NominationContractError,
+    AdjustedLevelError,
+    HorizonUnpinnedError,
+    MethodMissingError,
+    NominationContractError,
     QuantError,
 )
 from src.quant.horizons.horizon_set import PRODUCTION_V1, Arbitration, Horizon, HorizonSet
 from src.quant.methods.registry import (
-    declared_formula_ids, formula_ids_referenced_in_src, method, missing_sections,
+    declared_formula_ids,
+    formula_ids_referenced_in_src,
+    method,
+    missing_sections,
 )
 from src.quant.signals.rank import FORMULA_ID as RANK_FORMULA_ID
 from src.quant.signals.rank import rank_candidates, rule_id, within_ticker_z

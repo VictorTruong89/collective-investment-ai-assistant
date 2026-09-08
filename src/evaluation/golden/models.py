@@ -64,6 +64,24 @@ class GoldenCase:
             )
         if not self.established_by.strip():
             raise ValueError(f"{self.case_id}: established_by is required (D2)")
+        if self.expected is None:
+            # ⚠⚠ DX-20. An `expected` left empty is a case the fund manager has
+            # not finished establishing — the state every case passes through
+            # while the filing is still open on the desk. It did not merely
+            # load: `run_regression` compares with `==`, so any run producing
+            # nothing (extraction NOT_FOUND, a stub, a failed call) matched
+            # `None` and the case reported **PASS**.
+            # ★ Every other check here guards a value that is WRONG. This one
+            #   guards a value that was never established at all — and it is the
+            #   only one whose failure mode is GREEN.
+            raise ValueError(
+                f"{self.case_id}: `expected` is empty (CT-5.2, DX-20) — an "
+                "unestablished case must not load: it would PASS whenever the "
+                "system produces nothing. ★ If the document genuinely does not "
+                "state the figure, say so explicitly (e.g. "
+                "`expected: {status: NOT_FOUND}`) — 'the document does not say' "
+                "is a finding; 'I have not looked yet' is not."
+            )
         low = f"{self.established_by} {self.source}".lower()
         for bad in FORBIDDEN_ESTABLISHERS:
             if bad in low:

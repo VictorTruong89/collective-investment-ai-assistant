@@ -26,7 +26,8 @@ from src.risk.flags.from_book import (
     behavioural_flags, m3_premature_exits, m3_pyramiding,
     m4_registered_short_holds,
 )
-from tests_src.broker_fixtures import requires_real_statements
+from src.recording.book.load import discover_accounts
+from tests_src.broker_fixtures import real_statements_dir, requires_real_statements
 
 # ⚠⚠ DX-5 — every test below reads the REAL BMO exports, which are NOT in git.
 # They check derived numbers against EXTERNAL TRUTH (CT-3.2) — which is exactly
@@ -41,8 +42,11 @@ pytestmark = requires_real_statements
 
 
 
-EXPORTS = "sdd/design/rel6_design/samples/bmo_investorline_transactions"
-ACCOUNTS = ("TFSA_1", "TFSA_2", "RRSP_1", "RESP_1")
+#: ⚠ RC-66 / DX-9 — resolved, never hardcoded. See test_recording_ingest.py.
+EXPORTS = str(real_statements_dir() or "")
+#: ⚠ RC-65 — DISCOVERED, not listed. A hardcoded set here would reintroduce the
+#: defect the loader just shed: a 5th account would be invisible to the flags.
+ACCOUNTS = tuple(a for a, _ in discover_accounts(EXPORTS)) if EXPORTS else ()
 AS_OF = date(2026, 8, 25)
 
 

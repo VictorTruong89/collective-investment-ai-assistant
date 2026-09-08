@@ -11,12 +11,20 @@ from __future__ import annotations
 from datetime import date
 
 from src.fundamental.errors import (
-    RelayContradictedError, RelayNotFreshError, RelayPartialError,
+    RelayContradictedError,
+    RelayNotFreshError,
+    RelayPartialError,
 )
 from src.fundamental.relay.compose import assert_prompt_attributed
 from src.fundamental.relay.models import (
-    CONTRADICTED, SESSION_FRESH, UNVERIFIABLE, VERIFIED, ClaimVerification,
-    RelayEnvelope, RelayReport, VerificationResult,
+    CONTRADICTED,
+    SESSION_FRESH,
+    UNVERIFIABLE,
+    VERIFIED,
+    ClaimVerification,
+    RelayEnvelope,
+    RelayReport,
+    VerificationResult,
 )
 
 #: Markers of a response that stopped early or declined. ⚠ **There is no

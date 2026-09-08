@@ -17,11 +17,19 @@ from dataclasses import dataclass
 from datetime import date
 
 from src.portfolio.contracts.sizing import (
-    APPLIED, MAX_POSITION_PCT, REPORTED_ONLY, UNAPPLIED, UNMEASURED, Factor,
-    RiskBudget, SizingAnswer, ThresholdCrossing,
+    APPLIED,
+    MAX_POSITION_PCT,
+    UNAPPLIED,
+    UNMEASURED,
+    Factor,
+    RiskBudget,
+    SizingAnswer,
+    ThresholdCrossing,
 )
 from src.portfolio.errors import (
-    NoStopError, ReserveUnavailableError, UnavailableInputError,
+    NoStopError,
+    ReserveUnavailableError,
+    UnavailableInputError,
 )
 from src.portfolio.sizing.stop_distance import implied_k
 

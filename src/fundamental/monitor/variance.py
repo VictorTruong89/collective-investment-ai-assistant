@@ -25,7 +25,11 @@ from collections import Counter
 from dataclasses import dataclass
 
 from src.fundamental.monitor.registry import (
-    FAIL, OK, WARN, MonitorResult, not_measurable,
+    FAIL,
+    OK,
+    WARN,
+    MonitorResult,
+    not_measurable,
 )
 
 #: RA-61 — **k stays at 3**; what varies is the input, not the sampler.
@@ -58,7 +62,7 @@ class StabilityResult:
     perturbations_applied: tuple[str, ...] = ()
 
     @classmethod
-    def from_json_obj(cls, payload: dict) -> "StabilityResult":
+    def from_json_obj(cls, payload: dict) -> StabilityResult:
         """★ RM-1's figure **as it was measured**. ⚠ Never recomputed from a
         single stored verdict — that would report `agreement = 1.00` for every
         cached thesis, which is a measurement of nothing."""

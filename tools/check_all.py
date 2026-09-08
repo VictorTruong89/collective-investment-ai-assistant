@@ -11,6 +11,7 @@
     5  AC-4.2/4.7  the analyst firewall at seat 6 (INV-014)
     6  AC-5.11/5.12/5.15  evaluation boundaries (ST-2, D1)
     7  ownership.yaml glob ordering + ST-8 stale globs (L4 §5.1)
+    8  MS-8.7  every ID family in use is declared in constitution §1
 
 ✏ **MS-8**: the upstream-suite and upstream-pin checks are gone — there is one
 tree now. ⚠ The fresh-clone check STAYS and matters more, not less: `DX-5`'s real
@@ -66,6 +67,7 @@ CHECKS = [
     "AC-2.10 framework confinement",
     "AC-4.2/4.7 analyst firewall",
     "AC-5.11/5.12/5.15 evaluation boundaries",
+    "MS-8.7 ID-family registry",
 ]
 
 
@@ -94,6 +96,7 @@ def main() -> int:
     results.append(run(CHECKS[3], [py, "tools/check_framework_confinement.py"], REPO))
     results.append(run(CHECKS[4], [py, "tools/check_import_fences.py"], REPO))
     results.append(run(CHECKS[5], [py, "tools/check_evaluation_boundaries.py"], REPO))
+    results.append(run(CHECKS[6], [py, "tools/check_id_families.py"], REPO))
 
     failed = results.count(False)
     print("──" * 20)

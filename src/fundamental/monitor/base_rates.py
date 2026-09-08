@@ -10,7 +10,10 @@ from __future__ import annotations
 from collections import Counter
 
 from src.fundamental.monitor.registry import (
-    OK, WARN, MonitorResult, not_yet_calibrated,
+    OK,
+    WARN,
+    MonitorResult,
+    not_yet_calibrated,
 )
 
 #: ⚠ **ADMITTED GUESSES** (CN-10). None was measured; each is a level at which a

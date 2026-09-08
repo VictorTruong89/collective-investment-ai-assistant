@@ -71,7 +71,9 @@ class RenderUnit:
 
     def __post_init__(self) -> None:
         from src.reporting.errors import (
-            FreshnessUnstatedError, NoProducerError, UntaggedClassError,
+            FreshnessUnstatedError,
+            NoProducerError,
+            UntaggedClassError,
         )
         if self.reliability not in CLASSES:
             raise UntaggedClassError(

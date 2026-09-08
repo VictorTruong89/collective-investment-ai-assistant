@@ -17,8 +17,13 @@ from src.decision.algebra.verdict import BUY, apply_gate, conservatism, meet
 from src.decision.attribute.binding import attribute
 from src.decision.contracts.recommendation import GateOutcome, Recommendation
 from src.decision.errors import (
-    AbsentTreatedAsPassError, AnchorMismatchError, GateMissingError,
-    MultipleActionableError, SellNotHeldError, VerdictOriginatedError, VerdictUpgradeError,
+    AbsentTreatedAsPassError,
+    AnchorMismatchError,
+    GateMissingError,
+    MultipleActionableError,
+    SellNotHeldError,
+    VerdictOriginatedError,
+    VerdictUpgradeError,
 )
 
 #: What D-03 nominating a top candidate means as a verdict. ★ D-03 never emits a

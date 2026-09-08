@@ -73,7 +73,7 @@ def render_html(card) -> str:
     gaps = "\n".join(f"      <li>{e(g)}</li>" for g in card.data_gaps) or \
         "      <li>none</li>"
     stubs = "".join(
-        f'\n    <h2>Stubs in this run</h2>\n    <ul>\n' +
+        '\n    <h2>Stubs in this run</h2>\n    <ul>\n' +
         "\n".join(f'      <li>{e(s["domain"])} <code>{e(s["job"])}</code>: '
                   f'{e(s["behaviour"])} — replaced at {e(s["replaced_at"])} '
                   f'({e(s["rule"])})</li>' for s in card.stubs) +

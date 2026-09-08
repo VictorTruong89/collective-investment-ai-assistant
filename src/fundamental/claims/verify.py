@@ -34,7 +34,9 @@ from decimal import Decimal, InvalidOperation
 
 from src.fundamental.claims.models import ASSUMPTION, FACT, INFERENCE, Claim, ClaimSet
 from src.fundamental.errors import (
-    SpanMismatchError, UncitedClaimError, ValueNotInSpanError,
+    SpanMismatchError,
+    UncitedClaimError,
+    ValueNotInSpanError,
 )
 
 #: Number-shaped tokens in a span: optional sign or parenthesis, digits with
@@ -45,7 +47,7 @@ _NUMBER = re.compile(r"\(?-?[\d][\d,  _]*(?:\.\d+)?\)?%?")
 #: "thousand", "million" — are deliberately absent: the envelope says the value
 #: is returned *"in the document's own units"* with a separate `unit` field, so
 #: rescaling here would let a value disagree with its own declared unit and pass.
-_FORMAT_CHARS = str.maketrans({c: "" for c in ",_  $€£¥ %"})
+_FORMAT_CHARS = str.maketrans(dict.fromkeys(",_\xa0\u202f$€£¥ %", ""))
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,12 +126,42 @@ def _assert_value_in_quote(item) -> None:
     value = str(item.value)
     if value in item.quote:
         return
+    # ⚠⚠ Typographic normalisation — added 2026-09-07 from a MEASURED failure,
+    # and deliberately narrow. The model returned
+    #     'Compute and Networking Business Unit ("CNBU")'
+    # against a document reading `(“CNBU”)`. The value IS in the document; only
+    # the quote characters differ.
+    #
+    # ★★ The curly quotes are an artefact of OUR OWN pipeline: the filing
+    # fixture was converted from HTML and `&#8220;` was unescaped into `“`.
+    # Failing an extraction over punctuation we introduced ourselves tests the
+    # converter, not the model.
+    #
+    # ★ This is the same CATEGORY as `_assert_span_resolves`'s existing
+    # whitespace collapse — rendering-level equivalence, not "is it close?".
+    # ⚠ It adds no tolerance for a different WORD, a different NUMBER, or a
+    # value assembled from two places; `test_x01_still_refuses_a_fabricated_
+    # value_after_typographic_normalisation` pins that.
+    if _normalise_typography(value) in _normalise_typography(item.quote):
+        return
     wanted = _as_number(value)
     if wanted is not None:
         for token in _NUMBER.findall(item.quote):
             if _as_number(token) == wanted:
                 return
     raise ValueNotInSpanError(item.evidence_id, value, item.quote)
+
+
+#: Characters that differ only by RENDERING. ⚠ Nothing semantic belongs here.
+_TYPOGRAPHY = str.maketrans({
+    "\u201c": '"', "\u201d": '"', "\u2018": "'", "\u2019": "'",
+    "\u2013": "-", "\u2014": "-", "\u2212": "-", "\u00a0": " ",
+})
+
+
+def _normalise_typography(text: str) -> str:
+    """Curly quotes, dashes and non-breaking spaces → their ASCII forms."""
+    return text.translate(_TYPOGRAPHY)
 
 
 def _as_number(text: str) -> Decimal | None:

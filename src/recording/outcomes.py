@@ -27,7 +27,7 @@ class Basis:
     anchor: str           # "open" | "close" — QA-71 makes this open
 
     @staticmethod
-    def assert_comparable(a: "Basis", b: "Basis") -> None:
+    def assert_comparable(a: Basis, b: Basis) -> None:
         """Raise unless two measurements may be differenced (DN-20)."""
         if a.horizon != b.horizon:
             raise OutcomeBasisMismatch(

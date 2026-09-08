@@ -11,7 +11,9 @@ from __future__ import annotations
 from datetime import date, datetime, timedelta, timezone
 
 from src.fundamental.calendar.models import (
-    SCOPE_BOOK, CalendarEvent, StalenessState,
+    SCOPE_BOOK,
+    CalendarEvent,
+    StalenessState,
 )
 
 #: L0 §config — RA-43's floor, unchanged. Now the *secondary* test.

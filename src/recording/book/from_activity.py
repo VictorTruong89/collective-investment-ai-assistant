@@ -26,7 +26,7 @@ from __future__ import annotations
 from collections import defaultdict
 from datetime import date
 
-from src.recording.book.models import BREAK, OK, BookState, Break, Position
+from src.recording.book.models import BREAK, OK, BookState, Position
 from src.recording.book.reconcile import compute_breaks
 
 #: RC-51 — what a book with no external balance to check against is called.

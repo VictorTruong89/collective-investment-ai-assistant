@@ -16,28 +16,60 @@ the alibi.**
 """
 
 from src.portfolio.contracts.sizing import (
-    APPLIED, Factor, MAX_POSITION_PCT, REPORTED_ONLY, RiskBudget, SizingAnswer,
-    ThresholdCrossing, UNAPPLIED, UNMEASURED,
+    APPLIED,
+    MAX_POSITION_PCT,
+    REPORTED_ONLY,
+    UNAPPLIED,
+    UNMEASURED,
+    Factor,
+    RiskBudget,
+    SizingAnswer,
+    ThresholdCrossing,
 )
 from src.portfolio.errors import (
-    NoStopError, PortfolioError, ReserveUnavailableError, TargetAllocationError,
+    NoStopError,
+    PortfolioError,
+    ReserveUnavailableError,
+    TargetAllocationError,
     UnavailableInputError,
 )
 from src.portfolio.pyramid.scale import (
-    HoldAlternative, PyramidCheck, TAX_EVENT, hold_alternative, pyramid_check,
+    TAX_EVENT,
+    HoldAlternative,
+    PyramidCheck,
+    hold_alternative,
+    pyramid_check,
 )
 from src.portfolio.scenario.whatif import (
-    FORBIDDEN_REQUESTS, NOT_A_PROPOSAL, ParityComparison, Scenario,
-    assert_not_a_target_request, risk_parity, scenario,
+    FORBIDDEN_REQUESTS,
+    NOT_A_PROPOSAL,
+    ParityComparison,
+    Scenario,
+    assert_not_a_target_request,
+    risk_parity,
+    scenario,
 )
 from src.portfolio.sizing.risk_based import (
-    CONCENTRATION_THRESHOLD_PCT, RiskBudgetState, SECTOR_MAX_PCT,
-    THEME_REPORT_THRESHOLD_PCT, account_risk, committed_risk, edge_factor,
-    implied_risk, n_reserve, risk_budget, size_for_stop,
+    CONCENTRATION_THRESHOLD_PCT,
+    SECTOR_MAX_PCT,
+    THEME_REPORT_THRESHOLD_PCT,
+    RiskBudgetState,
+    account_risk,
+    committed_risk,
+    edge_factor,
+    implied_risk,
+    n_reserve,
+    risk_budget,
+    size_for_stop,
 )
 from src.portfolio.sizing.stop_distance import (
-    DEFAULT_HORIZON_DAYS, DEFAULT_K, FORECAST, REALISED, StopDistance,
-    implied_k, stop_distance,
+    DEFAULT_HORIZON_DAYS,
+    DEFAULT_K,
+    FORECAST,
+    REALISED,
+    StopDistance,
+    implied_k,
+    stop_distance,
 )
 
 __all__ = [
