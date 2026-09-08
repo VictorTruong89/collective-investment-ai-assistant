@@ -125,6 +125,7 @@ def traced_transport(
     step_id: str,
     kind: str = "llm",
     call_id_of: Callable[[dict], str] | None = None,
+    cost_of: Callable[[str | None, dict], float | None] | None = None,
 ) -> Callable[[dict], dict]:
     """Wrap a gateway transport so every vendor call becomes a `CT-2.2` record.
 
@@ -146,6 +147,20 @@ def traced_transport(
     ⚠ A transport that raises is recorded with its `error` and **re-raised**: the
     gateway's own retry logic must still see it (`EH-14` — only orchestration
     retries). A recorder that swallowed it would change which calls are retried.
+
+    ⚠⚠ **`cost_of` — why this exists** (`C12`). This wrapper sees the transport,
+    not the gateway, so it recorded `tokens` and left `cost_usd` **null on every
+    record**. After ~$7 of live runs the trace could not answer *"what did this
+    cost?"*, and the figure had to be recomputed outside the system entirely.
+    `GW-20`'s budget cap is enforced in memory, so nothing on disk showed what
+    was actually spent. ★★ **A run whose cost nobody can state is a run nobody
+    can budget for** — and unlike tokens, cost cannot be recovered later once
+    the price list moves.
+
+    ★ It is injected rather than imported: pricing is **config** (`llm.pricing.*`),
+    and `D-08` may not reach into `D-00`'s config to read it. Passing `None`
+    keeps the old behaviour — an absent price is recorded as absent, never as 0,
+    because a free-looking call is worse than an unpriced one.
     """
     seq = {"n": 0}
 
@@ -164,11 +179,15 @@ def traced_transport(
                 latency_ms=int((time.perf_counter() - t0) * 1000),
                 error=f"{type(exc).__name__}: {exc}"))
             raise                       # ⚠ the gateway's retry must still see it
+        model_id = (response or {}).get("model") or request.get("model")
+        tokens = _tokens_of(response)
         store.append(ExternalCall(
             run_id=store.run_id, step_id=step_id, call_id=call_id, kind=kind,
             request=request, response=response,
-            model_id=(response or {}).get("model") or request.get("model"),
-            tokens=_tokens_of(response),
+            model_id=model_id, tokens=tokens,
+            # ⚠ `None` when no pricer was given — absent, never 0. A call
+            # recorded as free is worse than one recorded as unpriced.
+            cost_usd=cost_of(model_id, tokens) if cost_of else None,
             latency_ms=int((time.perf_counter() - t0) * 1000)))
         return response
 

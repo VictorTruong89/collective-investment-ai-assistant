@@ -10,7 +10,51 @@
 #    `source` must let a future reader re-check it without asking you.
 #
 # Copy the commented block below, fill it in, delete the '#'s.
-cases: []
+cases:
+  # ★★ ESTABLISHED by Victor Truong, 2026-09-07, from MU's FY2025 Q3 10-Q.
+  # ⚠ `expected` is a SUBSET: it asserts what he established and stays silent
+  #   about `quote`, `span` and `note`, which only the system can supply. A
+  #   snapshot would be circular in exactly the way D2 forbids.
+  - case_id: mu-fy2025q3-cnbu-revenue
+    input_ref: "run-2026-09-07T224505-e01/extract:E-01:llm:1#seg.revenue|CNBU|2025-02-28:2025-05-29"
+    expected:
+      evidence_id: seg.revenue
+      qualifier: CNBU
+      value: "5,069"
+      unit: millions of USD
+      status: found
+      tags: []                      # [] = the DISCRETE quarter
+      period: {start: "2025-02-28", end: "2025-05-29"}
+    source: >-
+      MU 10-Q, quarter ended 2025-05-29, filed 2025-06-26, accession
+      0000723125-25-000021, note 'Segment and Other Information', revenue table,
+      CNBU row, 'Quarter Ended May 29, 2025' column (col 1 of 4 - NOT the
+      nine-month columns 3-4). period.start from Item 2's repurchase table,
+      which lists the quarter's fiscal months beginning February 28, 2025.
+      https://www.sec.gov/Archives/edgar/data/723125/000072312525000021/mu-20250529.htm
+    established_at: "2026-09-07"
+    established_by: Victor Truong
+
+  # ★★ The SAME row, the OTHER column. Differs from case 1 ONLY by `period` —
+  #   which is why MP-18's identity carries it.
+  - case_id: mu-fy2025q3-cnbu-revenue-ytd
+    input_ref: "run-2026-09-07T224505-e01/extract:E-01:llm:1#seg.revenue|CNBU|2024-08-30:2025-05-29"
+    expected:
+      evidence_id: seg.revenue
+      qualifier: CNBU
+      value: "14,028"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]        # ★ the scar tag - "do not subtract"
+      period: {start: "2024-08-30", end: "2025-05-29"}
+    source: >-
+      Same filing and table, CNBU row, 'Nine Months Ended May 29, 2025' column
+      (col 3 of 4). period.start derived from the Consolidated Statements of
+      Changes in Equity, which open 'Balance as of August 29, 2024' - the prior
+      fiscal year end - so the nine months begin the following day.
+    established_at: "2026-09-07"
+    established_by: Victor Truong
+
 #  - case_id: nvda-2026q2-revenue
 #    input_ref: filings/NVDA_2026Q2_10Q.txt
 #    expected: {revenue_usd_m: 30040}
@@ -19,7 +63,11 @@ cases: []
 #    established_by: "Victor Truong"
 
 # ═══════════════════════════════════════════════════════════════════════════
-# ★★ CASE 1 — drafted 2026-09-05 for review. NOT YET ESTABLISHED.
+# ★★ CASE 1 — established by Victor Truong 2026-09-07.
+# ✏ C13 2026-09-07: the fixture was RE-RENDERED (see its provenance header), so
+#   this case's `quote` changed and its `bundle_hash` is new. ⚠ The VALUES did
+#   not change — 5,069 is what the filing says either way — which is the point:
+#   a golden value is a fact about the document, not about our rendering of it.
 #
 # ⚠ Commented out on purpose: `expected` is blank, and a blank `expected` now
 #   REFUSES to load (DX-20) — because it used to load and silently PASS.
@@ -67,11 +115,14 @@ cases: []
 #      period:
 #        start: "2025-02-28"     # ✏ IS in the filing text — Item 2, note (b)
 #        end:   "2025-05-29"
-#      quote: "____"             # ⚠⚠ Must contain THIS item's value. X-01
+#      quote: "CNBU | $5,069 | $2,573 | $14,028 | $6,495"
+#                                # ⚠⚠ Must contain THIS item's value. X-01
 #                                #   refuses a value "assembled from two places"
-#                                #   — arithmetic is D-02's. ★ Cite the WHOLE
-#                                #   CNBU row: it contains 5,069 AND 14,028, so
-#                                #   the same quote serves cases 1 and 2.
+#                                #   — arithmetic is D-02's. ★ The WHOLE CNBU
+#                                #   row contains 5,069 AND 14,028, so one quote
+#                                #   serves cases 1 and 2.
+#                                # ✏ C13 2026-09-07: was `CNBU | $ | 5,069 | ...`
+#                                #   before the fixture was re-rendered.
 #                                #   ⚠ The quote canNOT tell the columns apart —
 #                                #   only `period` does. That is why MP-18's
 #                                #   identity carries it.
@@ -233,7 +284,8 @@ cases: []
 #      period:
 #        start: "2024-08-30"     # see note (d) — WEAKER derivation than case 1
 #        end:   "2025-05-29"     # ★ SAME end as case 1. That is the whole trap.
-#      quote: "____"             # ★ the SAME whole-row quote as case 1 — it
+#      quote: "CNBU | $5,069 | $2,573 | $14,028 | $6,495"
+#                                # ★ the SAME whole-row quote as case 1 — it
 #                                #   contains 14,028 too. Only `period` differs.
 #      span:
 #        accession_id: "0000723125-25-000021"

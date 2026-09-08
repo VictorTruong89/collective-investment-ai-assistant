@@ -496,8 +496,8 @@ def test_x01_still_refuses_a_fabricated_value_after_typographic_normalisation():
     """★★ The guard must keep its teeth. ⚠ Normalising punctuation must not
     become "is it close?" — a different word, a different number, or a value
     assembled from two places still raises."""
-    from src.fundamental.errors import ValueNotInSpanError
     from src.fundamental.claims.verify import _assert_value_in_quote
+    from src.fundamental.errors import ValueNotInSpanError
     quote = 'Compute and Networking Business Unit (“CNBU”): Includes memory'
     for bogus in ['Storage Business Unit ("SBU")',
                   'Compute and Networking Business Unit ("CNBU") and Storage',
@@ -505,3 +505,41 @@ def test_x01_still_refuses_a_fabricated_value_after_typographic_normalisation():
         with pytest.raises(ValueNotInSpanError):
             _assert_value_in_quote(found(value=bogus, quote=quote,
                                          offset=(0, len(quote))))
+
+
+# ── C14 · MP-18's identity, corrected for narrative items ──────────────────
+
+def test_c14_three_distinct_notes_on_one_evidence_id_are_kept():
+    """★★ MEASURED: a real filing gave THREE `seg.basis_note` findings, all
+    `('seg.basis_note', '', period)`. ⚠ They are not duplicates — E-01 asks for
+    *any* statement that the segmentation changed — and refusing them lost real
+    evidence. A rubric citing the id wants them all."""
+    notes = []
+    for text in ("Business units reorganized effective Q4 2025.",
+                 "The changes will require us to recast our segment reporting.",
+                 "Certain reclassifications have been made to prior periods."):
+        notes.append(found(value=text, quote=text, offset=(0, len(text))))
+    result = ExtractionResult(block_id="E-01", bundle_hash="sha256:x",
+                              items=tuple(notes))
+    assert len(result.items) == 3
+    assert result.evidence_ids == frozenset({"seg.revenue"})
+
+
+def test_c14_the_numeric_guard_is_UNCHANGED():
+    """⚠⚠ The whole risk of C14: loosening identity for narrative items must
+    not loosen it for FIGURES. Two values on one (id, qualifier, period) is
+    exactly the ambiguity MP-18 exists to refuse — span or no span."""
+    a = found(value="5,069", quote="CNBU 5,069", offset=(0, 10), qualifier="CNBU")
+    b = found(value="9,999", quote="elsewhere 9,999", offset=(20, 35), qualifier="CNBU")
+    assert a.is_figure and b.is_figure
+    with pytest.raises(ValueError, match="ambiguous"):
+        ExtractionResult(block_id="E-01", bundle_hash="sha256:x", items=(a, b))
+
+
+def test_c14_is_figure_separates_measurements_from_narrative():
+    """The discriminator itself — negatives, percents and currency are figures;
+    a sentence is not."""
+    for v in ("5,069", "(9)", "16%", "$5,069", "-12.5"):
+        assert found(value=v, quote=f"x {v}", offset=(0, 4)).is_figure, v
+    for v in ("Compute and Networking Business Unit", "not disclosed"):
+        assert not found(value=v, quote=v, offset=(0, len(v))).is_figure, v

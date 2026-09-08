@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import pathlib
+import re
 import sys
 from datetime import date, datetime
 
@@ -34,6 +35,7 @@ from src.fundamental.filings.extract import (  # noqa: E402
     not_found,
     run_extraction,
 )
+from src.fundamental.filings.models import FOUND  # noqa: E402
 from src.fundamental.prompts.e_blocks import E01_ITEM_IDS, e01_v1  # noqa: E402
 from src.fundamental.prompts.registry import PromptRegistry  # noqa: E402
 
@@ -157,15 +159,79 @@ def parse_items(call, bundle_text: str | None = None) -> list:
                 f"{row.get('evidence_id')!r}: quoted text is not in the bundle — "
                 f"{quote[:60]!r}"
             )
+        value, unit = _split_currency(row.get("value", ""), row.get("unit", ""),
+                                     row["evidence_id"])
         out.append(item(
-            row["evidence_id"], value=row.get("value", ""),
-            unit=row.get("unit", ""),
+            row["evidence_id"], value=value, unit=unit,
             quote=quote, accession_id=ACCESSION, offset=(start, start + len(quote)),
             period_start=row.get("period_start"), period_end=row.get("period_end"),
             cumulative_ytd=bool(row.get("cumulative_ytd")),
             qualifier=row.get("qualifier", ""), note=row.get("note", ""),
         ))
+    return _dedupe_not_found(out)
+
+
+def _dedupe_not_found(items: list) -> list:
+    """Collapse repeated `not_found` claims that share one `MP-18` identity.
+
+    ⚠⚠ MEASURED: the model returned **five** `not_found` items for `seg.assets`
+    — one per segment — all with no qualifier and no period, so all five carried
+    the identity `('seg.assets', '', None)` and `ExtractionResult` refused them.
+
+    ★ It is right to refuse and right to collapse: with no qualifier and no
+    period the five are literally the same claim, `evidence_coverage` counts ids
+    as a SET so copies add nothing, and `RA-66` cares whether the figure was
+    extracted at all — not how many times its absence was asserted.
+
+    ⚠ **`found` items are NOT collapsed.** Two values sharing an identity is
+    real ambiguity about a number, which is exactly what `MP-18` exists to
+    surface — silently keeping the first would hide it.
+    """
+    seen, out = set(), []
+    for it in items:
+        if it.status == FOUND:
+            out.append(it)
+            continue
+        if it.identity in seen:
+            continue
+        seen.add(it.identity)
+        out.append(it)
     return out
+
+
+#: Currency marks that belong in `unit`, never in `value` (`C15`).
+_CURRENCY = {"$": "USD", "£": "GBP", "€": "EUR", "¥": "JPY"}
+
+
+def _split_currency(value: str, unit: str, evidence_id: str) -> tuple[str, str]:
+    """`C15` — the currency lives in `unit`; `value` is the bare figure.
+
+    ⚠⚠ Decided by the fund manager 2026-09-07: **`5,069` with unit
+    `millions of USD`**, not `$5,069`. Carrying the symbol in `value` AND the
+    currency in `unit` states it twice, and `MO-1` wants it stated once —
+    where a reader will look for it.
+
+    ★ Enforced here in code rather than asked for in the prompt (`AP-5`): the
+    symbol is a deterministic prefix, and this is the third time a constraint
+    left to prose came back wrong.
+
+    ⚠ If a symbol is present and `unit` does NOT name the currency, this
+    **raises**. It does not invent one — `$` is not always USD, and a guessed
+    currency on a money figure is exactly the silent default `P5` forbids.
+    """
+    stripped = value.strip()
+    symbol = stripped[:1] if stripped[:1] in _CURRENCY else ""
+    if not symbol:
+        return value, unit
+    bare = stripped[1:].strip()
+    iso = _CURRENCY[symbol]
+    if iso.lower() not in unit.lower() and symbol not in unit:
+        raise ValueError(
+            f"{evidence_id}: value {value!r} carries {symbol!r} but unit "
+            f"{unit!r} does not name a currency. MO-1 — a bare value is not "
+            f"monetary, and guessing {iso!r} here would be a silent default (P5)"
+        )
+    return bare, unit
 
 
 def _locate(haystack: str, needle: str) -> tuple[int, int]:
@@ -181,6 +247,17 @@ def _locate(haystack: str, needle: str) -> tuple[int, int]:
     resolves to the document's own characters — the normalisation is used to
     locate, never to rewrite.
     """
+    exact = haystack.find(needle)
+    if exact >= 0:
+        return exact, exact + len(needle)
+
+    # ⚠⚠ MEASURED: 66 of 67 items located; the one failure carried a LITERAL
+    # six-character `\u00a0` where the document has an actual non-breaking
+    # space. The model escaped the character into its JSON string instead of
+    # emitting it. ★ A serialisation artefact, not a hallucination — decoding it
+    # is the same category as the typography normalisation, and it still has to
+    # be FOUND in the document afterwards or this returns -1.
+    needle = _UNICODE_ESCAPE.sub(lambda m: chr(int(m.group(1), 16)), needle)
     exact = haystack.find(needle)
     if exact >= 0:
         return exact, exact + len(needle)
@@ -208,6 +285,9 @@ def _locate(haystack: str, needle: str) -> tuple[int, int]:
         return -1, -1
     return hay_idx[hit], hay_idx[hit + len(needle_n) - 1] + 1
 
+
+#: A literal `\uXXXX` the model wrote as TEXT rather than as the character.
+_UNICODE_ESCAPE = re.compile(r"\\u([0-9a-fA-F]{4})")
 
 #: Same set `X-01` normalises — rendering-level only, nothing semantic.
 _TYPO = {"\u201c": '"', "\u201d": '"', "\u2018": "'", "\u2019": "'",
@@ -275,9 +355,22 @@ def main() -> int:
 
     # ★ traced_transport wraps the vendor call, so CT-2.2 records the request
     #   and response with ZERO edits to inherited D-00 code (AC-2.1).
+    # ★ C12 — the pricer is injected, so the trace records what the call cost
+    #   at write time. ⚠ An earlier attempt to wire this silently no-opped
+    #   because the edit's anchor did not match, and `cost_usd` stayed null
+    #   through a whole live run. A replace that cannot fail is a change that
+    #   cannot be trusted.
+    def _cost_of(model_id, tokens):
+        rate_in = GATEWAY_VALUES.get(f"llm.pricing.{model_id}.input_per_mtok")
+        rate_out = GATEWAY_VALUES.get(f"llm.pricing.{model_id}.output_per_mtok")
+        if rate_in is None or rate_out is None:
+            return None          # ⚠ absent, never 0
+        return (tokens.get("input", 0) * rate_in / 1e6
+                + tokens.get("output", 0) * rate_out / 1e6)
+
     transport = traced_transport(
         anthropic_transport(tool=extraction_tool(E01_ITEM_IDS)), store,
-                                 step_id="extract:E-01")
+        step_id="extract:E-01", cost_of=_cost_of)
     gateway = Gateway(Config(GATEWAY_VALUES, sources=("tools/run_extraction_once.py",)),
                       transport=transport)
     seam = AnalysisGateway(gateway, registry)

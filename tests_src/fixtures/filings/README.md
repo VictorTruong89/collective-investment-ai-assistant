@@ -15,8 +15,13 @@ reds for reasons unrelated to the code teaches people to ignore red, which destr
    `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&ticker=<TICKER>&type=10-Q`.
    ⚠⚠ **Not from FMP.** FMP is a *subject* of these tests; a fixture taken from it would let the
    thing under test supply its own input (`F5` `D2`, in the input direction).
-2. Save the text as `<TICKER>_<FY><Q>_<FORM>.txt` — e.g. `MU_FY2025Q3_10Q.txt`.
-   ★ Plain text, not PDF: a fixture a reviewer cannot `grep` cannot be checked.
+2. **Convert it with `python3 tools/convert_filing.py IN.htm OUT.txt`** — do not
+   hand-roll it. ⚠⚠ The first conversion here was an inline script, and its output
+   caused **three of the six failures** in the `DX-23` live runs (~$7.88, no clean
+   recording): it split `$` and `%` into pipe-separated cells of their own, which
+   nothing can quote verbatim. ★★ **A fixture must be shaped for CITATION, not for
+   `grep`** — the extraction contract is built on `X-01`, and `X-01` is literal.
+   Save as `<TICKER>_<FY><Q>_<FORM>.txt`, e.g. `MU_FY2025Q3_10Q.txt`.
 3. ✏ **Keep the WHOLE document** *(revised 2026-09-05, on first real use — the earlier advice here
    said "trim to the statements you cite", and that was wrong.)* Three reasons: a trimmed fixture no
    longer **is** the filing; a second case about a different item (guidance, share count, debt
@@ -33,5 +38,9 @@ reds for reasons unrelated to the code teaches people to ignore red, which destr
 
 - ✗ **Do not edit a fixture to make a test pass.** That is the one move that converts this whole
   directory from evidence into decoration.
+- ⚠ **Re-rendering a fixture changes its `bundle_hash`.** A golden case recorded
+  against the old rendering does not transfer, and its `quote` must be re-checked.
+  ★ The *values* do not change — a golden value is a fact about the document, not
+  about our rendering of it (`C13`, 2026-09-07).
 - ✗ **Do not replace a fixture when a filing is restated.** Add a *second* fixture and a *second*
   case; both stand. Editing the first back-fills history and destroys what was knowable when.

@@ -44,10 +44,17 @@ FILING_TEXT = (REPO / "tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt").read_tex
 
 
 def _cnbu_row() -> str:
+    """The CNBU revenue row, found by its CONTENT not its punctuation.
+
+    ⚠ This matched `"CNBU | $ | 5,069"` until `C13` re-rendered the fixture and
+    the row became `CNBU | $5,069 | ...`. ★ Pinning the delimiter made the test
+    a hostage of the converter; pinning the two figures the golden cases are
+    about says what the test actually needs.
+    """
     for line in FILING_TEXT.splitlines():
-        if line.startswith("CNBU | $ | 5,069"):
+        if line.startswith("CNBU |") and "5,069" in line and "14,028" in line:
             return line
-    pytest.fail("the CNBU row is no longer in the fixture — the case is stale")
+    pytest.fail("the CNBU revenue row is no longer in the fixture — case stale")
 
 
 def _tool_use_message(items, *, tin=53_473, tout=4_211):
@@ -193,3 +200,25 @@ def test_the_transport_does_not_silently_lower_the_requested_max_tokens():
         mod.anthropic = real
     assert captured["max_tokens"] == 32_000, "the request was silently lowered"
     assert MODEL_MAX_OUTPUT == 128_000
+
+
+# ── C15 · the currency belongs in `unit`, not in `value` ───────────────────
+
+def test_c15_currency_symbol_is_moved_out_of_value():
+    """⚠ Victor's decision 2026-09-07: `5,069` with unit `millions of USD`.
+    ★ After C13 re-rendered the fixture the model began returning `$5,069`,
+    which would have carried the currency TWICE."""
+    from tools.run_extraction_once import _split_currency
+    assert _split_currency("$5,069", "millions of USD", "seg.revenue") == (
+        "5,069", "millions of USD")
+    # ★ untouched when there is no symbol
+    assert _split_currency("1,451", "millions of USD", "x") == (
+        "1,451", "millions of USD")
+
+
+def test_c15_a_currency_symbol_with_no_currency_in_unit_raises():
+    """⚠⚠ MO-1 / P5 — it must NOT invent 'USD'. `$` is not always USD, and a
+    guessed currency on a money figure is a silent default."""
+    from tools.run_extraction_once import _split_currency
+    with pytest.raises(ValueError, match="does not name a currency"):
+        _split_currency("$5,069", "millions", "seg.revenue")

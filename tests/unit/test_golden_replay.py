@@ -167,3 +167,40 @@ def test_dx_26_a_trace_cannot_be_closed_twice(tmp_path):
     with pytest.raises(TraceImmutableError, match="already closed"):
         store.close("SUCCESS")
     assert store.status() == "FAILED", "the first, true outcome must survive"
+
+
+# ── C12 · the trace must be able to state what a call cost ─────────────────
+
+def test_c12_cost_is_recorded_on_the_trace_record(tmp_path):
+    """⚠⚠ Before this, `cost_usd` was null on EVERY record: `traced_transport`
+    wraps the transport, so it saw tokens and never the gateway's cost. After
+    ~$7 of live runs the trace could not answer "what did this cost?".
+
+    ★★ A run whose cost nobody can state is a run nobody can budget for.
+    """
+    from src.orchestration.trace.wire import traced_transport
+
+    store = TraceStore(tmp_path, "r-cost")
+    priced = traced_transport(
+        lambda req: {"text": "ok", "tokens_in": 1000, "tokens_out": 200},
+        store, step_id="s",
+        cost_of=lambda model, tok: tok["input"] * 5 / 1e6 + tok["output"] * 25 / 1e6,
+    )
+    priced({"model": "claude-opus-5", "max_tokens": 8})
+    store.close()
+    (rec,) = [r for r in store.read_all() if r["type"] == "ExternalCall"]
+    assert rec["tokens"] == {"input": 1000, "output": 200}
+    assert rec["cost_usd"] == pytest.approx(1000 * 5 / 1e6 + 200 * 25 / 1e6)
+
+
+def test_c12_an_unpriced_call_records_absent_not_zero(tmp_path):
+    """⚠ No pricer ⇒ `cost_usd` is None. A call recorded as FREE is worse than
+    one recorded as unpriced — zero is a claim, null is an admission."""
+    from src.orchestration.trace.wire import traced_transport
+
+    store = TraceStore(tmp_path, "r-nocost")
+    traced_transport(lambda req: {"text": "ok", "tokens_in": 5, "tokens_out": 1},
+                     store, step_id="s")({"model": "m", "max_tokens": 8})
+    store.close()
+    (rec,) = [r for r in store.read_all() if r["type"] == "ExternalCall"]
+    assert rec["cost_usd"] is None

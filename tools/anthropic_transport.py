@@ -101,9 +101,27 @@ _EXTRACTION_TOOL_TEMPLATE = {
                         },
                         "value": {
                             "type": "string",
-                            "description": "Exactly as the document states it, in its own units.",
+                            "description": (
+                                "The figure as the document states it, WITHOUT "
+                                "a currency symbol: '5,069', not '$5,069'. Keep "
+                                "the document's own scale and its parentheses "
+                                "for negatives, e.g. '(9)'. "
+                                "FOR A TEXT ITEM (seg.name, seg.basis_note) the "
+                                "value must be a VERBATIM SUBSTRING of `quote` — "
+                                "copy the words, do NOT summarise or combine two "
+                                "sentences. A paraphrase is refused: it cannot be "
+                                "checked against the document."
+                            ),
                         },
-                        "unit": {"type": "string", "description": "Verbatim, e.g. 'millions of USD'."},
+                        "unit": {
+                            "type": "string",
+                            "description": (
+                                "Where the currency and scale go, e.g. "
+                                "'millions of USD'. MO-1: a bare value is not "
+                                "monetary, so a money figure MUST name its "
+                                "currency here."
+                            ),
+                        },
                         "period_start": {"type": "string", "description": "ISO date, or omit if the document does not give one."},
                         "period_end": {"type": "string", "description": "ISO date."},
                         "cumulative_ytd": {

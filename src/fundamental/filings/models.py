@@ -86,16 +86,54 @@ class ExtractedItem:
     qualifier: str = ""
 
     @property
+    def is_figure(self) -> bool:
+        """Is this item's value a stated NUMBER?
+
+        ⚠ Deliberately simpler than `verify._as_number`, which converts to
+        `Decimal` for comparison. Here only the question *"is this a
+        measurement or a narrative?"* is being asked, and duplicating the
+        conversion would give two places to disagree about what a number is.
+        """
+        cleaned = self.value.strip().strip("()").replace(",", "").rstrip("%")
+        cleaned = cleaned.lstrip("$£€¥").replace(".", "", 1).lstrip("-")
+        return cleaned.isdigit()
+
+    @property
     def identity(self) -> tuple:
         """`MP-18` — what must be unique within one `ExtractionResult`.
 
         ★ Mirrors `withdraw_extractions`, which already keys on
         `(evidence_id, period)` (`RA-138`).
+
+        ⚠⚠ **`C14`, 2026-09-07 — a narrative item also carries its SPAN.**
+        `MP-18` was derived from `seg.revenue` — numeric, per-segment,
+        per-period — and over-fitted it. `E-01` also asks for *"**any**
+        statement that the segmentation changed"*, and a real filing gave
+        **three**, all `('seg.basis_note', '', period)`:
+
+            "Business units reorganized effective Q4 2025…"
+            "The changes will require us to recast our segment reporting…"
+            "Certain reclassifications have been made to prior-period amounts…"
+
+        ★ They are not duplicates. A rubric citing `seg.basis_note` wants them
+        all, and `evidence_coverage` counts the id **once** either way — so
+        there is no ambiguity to guard against, and refusing them lost real
+        evidence.
+
+        ⚠ **The guard is unchanged where it matters.** For a FIGURE the span is
+        excluded, so two values claiming one `(id, qualifier, period)` still
+        collide — *"nothing then says which one a rubric cites"* is exactly the
+        numeric case, and it is still refused. Narrative items are
+        distinguished by **where they were found**, which is the only thing
+        that does distinguish them.
         """
         # ⚠ A TUPLE, not `period.to_json_obj()` — that returns a dict, which is
         # unhashable, and `__post_init__` puts these in a set.
-        return (self.evidence_id, self.qualifier,
+        base = (self.evidence_id, self.qualifier,
                 (self.period.start, self.period.end) if self.period else None)
+        if self.is_figure or self.span is None:
+            return base
+        return (*base, (self.span.accession_id, self.span.start, self.span.end))
 
     def __post_init__(self) -> None:
         if self.status not in STATUSES:
