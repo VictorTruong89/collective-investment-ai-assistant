@@ -102,10 +102,16 @@ _EXTRACTION_TOOL_TEMPLATE = {
                         "value": {
                             "type": "string",
                             "description": (
-                                "The figure as the document states it, WITHOUT "
-                                "a currency symbol: '5,069', not '$5,069'. Keep "
-                                "the document's own scale and its parentheses "
-                                "for negatives, e.g. '(9)'. "
+                                "If the value is a BARE FIGURE, give it without "
+                                "a currency symbol — '5,069', not '$5,069' — and "
+                                "put the currency in `unit`. Keep the document's "
+                                "own scale and its parentheses for negatives, "
+                                "e.g. '(9)'. ⚠ If the value is a PHRASE quoted "
+                                "from the document, copy it EXACTLY, symbol "
+                                "included: 'approximately $14 billion', never "
+                                "'approximately 14 billion'. Verbatim always "
+                                "wins — a value that cannot be found in its own "
+                                "quote is refused. "
                                 "FOR A TEXT ITEM (seg.name, seg.basis_note) the "
                                 "value must be a VERBATIM SUBSTRING of `quote` — "
                                 "copy the words, do NOT summarise or combine two "

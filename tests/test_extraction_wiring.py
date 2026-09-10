@@ -222,3 +222,26 @@ def test_c15_a_currency_symbol_with_no_currency_in_unit_raises():
     from tools.run_extraction_once import _split_currency
     with pytest.raises(ValueError, match="does not name a currency"):
         _split_currency("$5,069", "millions", "seg.revenue")
+
+
+def test_dx_33_the_currency_rule_is_scoped_to_BARE_FIGURES():
+    """⚠⚠ `DX-33` — the schema's *"without a currency symbol"* was written for
+    `E-01`'s table cells and applied to every block.
+
+    `E-02` guides in PHRASES: the filing says *"approximately $14 billion"* and
+    the model returned *"approximately 14 billion"* — obeying the schema and
+    thereby breaking the prompt's verbatim rule, so `X-01` refused it.
+
+    ★★★ For `'$5,069'` in a cell both instructions can hold. For a quoted phrase
+    only one can — so the schema must say which wins.
+    """
+    from src.fundamental.prompts.e_blocks import E01_ITEM_IDS
+    from tools.anthropic_transport import extraction_tool
+
+    desc = (extraction_tool(E01_ITEM_IDS)["input_schema"]["properties"]
+            ["items"]["items"]["properties"]["value"]["description"])
+    assert "BARE FIGURE" in desc, "the currency rule must be scoped, not general"
+    assert "Verbatim always" in desc, "the schema must say which rule wins"
+    assert "approximately $14 billion" in desc, (
+        "the worked example is the whole point — it is the case that failed"
+    )

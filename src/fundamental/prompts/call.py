@@ -73,7 +73,24 @@ TIER = Tier.DEEP
 #: is not obviously the fix either, because thinking expands into the budget it
 #: is given. The lever that actually bounds this is `llm.deep.effort`, not
 #: max_tokens. ⬜ Unresolved: see L3 §2.5 and DX-27.
-MAX_TOKENS = {"extraction": 32000, "judgement": 16000}
+#:
+#: ✏ **LOWERED 32000 -> 12000, 2026-09-08 (`DX-30`).** ⚠⚠ Not a performance
+#: tweak — an economic one. Every truncation ever recorded returned a
+#: **2-character payload**: adaptive thinking consumes the whole budget and the
+#: tool call is never emitted, so a truncated run yields **zero items at full
+#: price**. There is no partial answer to preserve by being generous.
+#:
+#: ★★ So the ceiling should sit just above the largest OBSERVED success, not at
+#: a comfortable round number. Measured successes: MU 2,595 / 7,119 / 9,865 and
+#: the AMD slice 7,401. 12,000 clears every one of them, and turns a failure
+#: from ~$1.18 into ~$0.68.
+#:
+#: ⚠ The trade, stated: only **21 % headroom** over MU's largest success. A
+#: filing needing 12,500 now fails where 32,000 would have served — but it would
+#: have served at DOUBLE the price of the failure, and `GW-23` refuses the
+#: half-answer either way. ★ Raise it only on evidence of a run that needed more
+#: AND completed.
+MAX_TOKENS = {"extraction": 12000, "judgement": 16000}
 
 
 @dataclass(frozen=True, slots=True)

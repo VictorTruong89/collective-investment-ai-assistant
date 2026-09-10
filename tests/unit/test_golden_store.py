@@ -165,3 +165,39 @@ def test_ac_5_17_absent_is_still_expressible_but_only_explicitly(tmp_path):
     ))
     (case,) = load_kind("extraction", tmp_path)
     assert case.expected == {"status": "NOT_FOUND"}
+
+
+def test_dx_28_a_placeholder_date_is_not_a_signature(tmp_path):
+    """⚠⚠ DX-28 — eight cases were signed with a real NAME and the template's
+    `____-__-__` still in `established_at`, and nothing objected. The set
+    reported ten established when eight were half done.
+
+    ★ A blank left in a template is exactly the state a signature ends, so the
+    field recording WHEN must refuse a blank as firmly as the one recording WHO.
+    """
+    _write(tmp_path, "extraction", (
+        "cases:\n"
+        "  - case_id: half-signed\n"
+        "    input_ref: r/c\n"
+        "    expected: {v: 1}\n"
+        "    source: '10-Q p.4'\n"
+        "    established_at: '____-__-__'\n"
+        "    established_by: 'Victor Truong'\n"
+    ))
+    with pytest.raises(GoldenSetError, match="established_at"):
+        load_kind("extraction", tmp_path)
+
+
+def test_dx_28_a_real_iso_date_is_accepted(tmp_path):
+    """★ The guard must not reject a properly signed case."""
+    _write(tmp_path, "extraction", (
+        "cases:\n"
+        "  - case_id: signed\n"
+        "    input_ref: r/c\n"
+        "    expected: {v: 1}\n"
+        "    source: '10-Q p.4'\n"
+        "    established_at: '2026-09-07'\n"
+        "    established_by: 'Victor Truong'\n"
+    ))
+    (case,) = load_kind("extraction", tmp_path)
+    assert case.established_at == "2026-09-07"

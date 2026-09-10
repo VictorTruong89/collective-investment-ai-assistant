@@ -1,0 +1,50 @@
+# ⏳ PENDING golden cases — NOT LOADED, NOT GRADED, NOT ESTABLISHED.
+#
+# ⚠⚠ WHY THIS FILE EXISTS. `load_kind` reads `<kind>.yaml` only, so nothing
+#    here is loaded by `load_all()` and nothing here can break a live case.
+#
+# ★★ It exists because `DX-28` closed a hole and opened another: a case whose
+#    `established_at` is still a blank REFUSES TO LOAD — correctly, a half-signed
+#    case is not a case. But that means an unsigned draft placed in the live file
+#    stops EVERY case loading, including filing 1's ten. And leaving it commented
+#    out inside the live file is what produced the "CASE 2 — NOT YET ESTABLISHED"
+#    contradiction that had to be cleaned up on 2026-09-07.
+#
+#    ==> So a case in preparation lives HERE until it is signed, and is then
+#        MOVED into extraction.yaml. Never copied — moved.
+#
+# ★ To promote one: fill every `____`, verify it against the FILING (not against
+#   the recording), then cut it into `extraction.yaml` and run
+#       python3 -m pytest -q tests/integration/test_golden_regression.py
+#
+
+# ⏳ (empty — filing 2's cases were promoted to extraction.yaml on 2026-09-08)
+
+# ⏳ (empty — the seg.basis_note cases were promoted 2026-09-09)
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳ E-02 (GUIDANCE) — CASES 21-28, prepared 2026-09-09, AWAITING SIGNATURE
+#
+# ★★ These are the FIRST cases for a second BLOCK. Everything before them
+#    grades `E-01` (segment tables). `E-02` reads NARRATIVE PROSE, which is why
+#    it found `DX-35` — a table never straddles a page break; a sentence does.
+#
+# ⚠⚠ WHAT YOU MUST DO. Fill `established_at` and `established_by` on each case
+#    you accept, having checked its value against the FILING — not against this
+#    file and not against the recording. `D2`: the system may never establish
+#    its own golden values, and `GoldenCase` raises `CircularGoldenValue` if
+#    `established_by` names anything that looks like a pipeline component.
+#
+#    Every quote below is reproduced verbatim so you can grep the fixture:
+#        grep -n "<a distinctive phrase>" tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt
+#
+# ✅ ALREADY VERIFIED MECHANICALLY (this is machinery, not establishment):
+#    all 8 selectors resolve, all 8 replay green, and all 8 go RED when
+#    mutated. A case that cannot go red is decoration.
+#
+# ★ Recording: run-2026-09-09T074110-mu-e02 — MU FY2025 Q3 10-Q,
+#   accession 0000723125-25-000021, E-02 v2, 51 items, $0.6377.
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⏳ (empty — the E-02 guidance cases 21-28 were all promoted to
+#    extraction.yaml on 2026-09-09)

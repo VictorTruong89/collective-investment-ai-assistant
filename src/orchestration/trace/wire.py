@@ -126,6 +126,7 @@ def traced_transport(
     kind: str = "llm",
     call_id_of: Callable[[dict], str] | None = None,
     cost_of: Callable[[str | None, dict], float | None] | None = None,
+    prompt_version: str | None = None,
 ) -> Callable[[dict], dict]:
     """Wrap a gateway transport so every vendor call becomes a `CT-2.2` record.
 
@@ -157,7 +158,11 @@ def traced_transport(
     can budget for** — and unlike tokens, cost cannot be recovered later once
     the price list moves.
 
-    ★ It is injected rather than imported: pricing is **config** (`llm.pricing.*`),
+    ★ `prompt_version` is passed in for the same reason: the transport sees a
+    composed payload, not the block that composed it, so only the caller knows
+    which version is in force.
+
+    ★ `cost_of` is injected rather than imported: pricing is **config** (`llm.pricing.*`),
     and `D-08` may not reach into `D-00`'s config to read it. Passing `None`
     keeps the old behaviour — an absent price is recorded as absent, never as 0,
     because a free-looking call is worse than an unpriced one.
@@ -185,6 +190,15 @@ def traced_transport(
             run_id=store.run_id, step_id=step_id, call_id=call_id, kind=kind,
             request=request, response=response,
             model_id=model_id, tokens=tokens,
+            # ⚠⚠ `CT-2.2` has carried this field all along and nothing filled
+            # it: the gateway's `request` dict holds model and payload, never
+            # the prompt id. So every recording said `prompt_version: None`.
+            # ★★ It matters the moment a prompt is versioned: `F5`'s golden
+            # cases grade a RECORDED call, and without this a case cannot tell
+            # whether it still grades the prompt this repo ships or a retired
+            # one. A regression suite pinned to a prompt nobody runs is worse
+            # than none — it reports green about the past.
+            prompt_version=prompt_version,
             # ⚠ `None` when no pricer was given — absent, never 0. A call
             # recorded as free is worse than one recorded as unpriced.
             cost_usd=cost_of(model_id, tokens) if cost_of else None,

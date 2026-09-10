@@ -76,7 +76,7 @@ the machinery that records what it changed.
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ ★★★ B5 · THE GOLDEN SET ────────────────────── MEASURING ─────┐
-   │  2 cases established by Victor · replayed vs a REAL recording  │
+   │  ★ 20 cases SIGNED · 2 filings · all 5 E-01 items · FREE replay│
    │  ✅ run_regression PASS · mutation-verified 4 ways · §2.7      │
    │  ⚠ the harness stopped being machinery and became a MEASUREMENT│
    └────────────────────────────────────────────────────────────────┘
@@ -84,12 +84,12 @@ the machinery that records what it changed.
 
 | | Result |
 |---|---|
-| tests | **1,665 collected · 1,660 pass · 5 skip · 0 fail** ★ +59 (`AC-5.17` store · `AC-5.18` replay+selector · `MP-18` identity · `DX-23` characterization) |
+| tests | **1,675 collected · 1,670 pass · 5 skip · 0 fail** ★ +64 (`AC-5.17` store · `AC-5.18` replay+selector · `MP-18` identity · `DX-23` characterization) |
 | ⚠ the 5 skips | ★ **`DX-12` is closed** — you copied the 4 BMO statements on 2026-09-05, so the 41 external-truth tests run. The remaining 5 skip for reasons that are correct (no network, no key) |
 | lint | ruff clean on all code this repo authored; inherited code excluded, not exempt |
 | checks | **8 guarantees**, `tools/check_all.py` → `ALL CHECKS PASSED` |
 | mirror | **110 files, 259 tests green**, 0 strategy files, no `.pyc`, no history — ★ **and its own `check_all.py` now passes there** (`DX-22`) — **built, not published** |
-| findings | **27 `DX` logged — ★ all 27 closed.** ★ `DX-24`: the agent misread the filing while establishing case 1 — **`D2`, demonstrated** ⚠⚠ `DX-20` is the sharpest: an unfinished golden case loaded **and PASSED** |
+| findings | **34 `DX` logged — ★ all 34 closed.** ★ `DX-24`: the agent misread the filing while establishing case 1 — **`D2`, demonstrated** ⚠⚠ `DX-20` is the sharpest: an unfinished golden case loaded **and PASSED** |
 
 **⚠ What is NOT done, in one line each:**
 
@@ -200,8 +200,8 @@ blocks nothing.
 |---|---|
 | Specs | **11 of 11 🟢 approved**, 149 ACs (`AC-5.17` added by `F5` `A1`), 50 recorded decisions |
 | Code | ~38,000 lines, 15 domains, **one tree** |
-| Tests | **1,665 collected · 1,660 pass · 5 skip · 0 fail** |
-| Findings | **27 `DX` logged** — ★ **all 27 closed** |
+| Tests | **1,675 collected · 1,670 pass · 5 skip · 0 fail** |
+| Findings | **34 `DX` logged** — ★ **all 34 closed** |
 | Guarantees | **8**, automated by `tools/check_all.py` + CI |
 
 ### B. ✋ Things I CANNOT do on your behalf — and exactly why
@@ -209,7 +209,7 @@ blocks nothing.
 | # | Task | Why it is yours |
 |---|---|---|
 | ~~B1~~ | ✅ **Done 2026-09-05** — you copied the 4 statements to `.state/broker/bmo_investorline/`. `DX-12` closed; the 41 external-truth tests run | ⚠ Kept out of git by `.gitignore:32`. ★ Verify any time: `git status --short \| grep -i bmo` → no output |
-| **B2** | **Commit and review both repos** | House rule: *never `git commit` without review.* ⚠ Upstream holds **201 uncommitted deletions** with no tag to return to |
+| ~~B2~~ | ✅ **DONE 2026-09-07** — Victor committed upstream at `1261b36` *"retire old pipeline in stage B2"*. Both repos clean | ★★ **374 of 375 upstream deletions verified present in this repo**; the one exception, `src/__init__.py`, was deliberately removed (PEP 420, `DX-1`/`DX-2`) and must exist in neither. ✅ Tags cut: `pre-absorption-2026-09-07` upstream, `golden-set-live-2026-09-07` here. ⚠ This repo is **clean**; upstream holds 375 deletions + 12 modifications + 2 untracked |
 | **B3** | **Publish the mirror** | Outward-facing and irreversible. A public repo cannot be un-published |
 | **B4** | **Archive `ai-investment-pipeline`** (`MS-8.9`) | Same reason, plus `8.1` (clean tree + tag) is unmet |
 | ~~B5~~ | ★★★ **CLOSED 2026-09-07 — the golden regression runs GREEN in CI.** Cases 1 and 2 established by Victor, wired to a real recorded `claude-opus-5` extraction, replayed with **no network call** (`D5`). ★ Mutation-verified: swapping the cumulative figure into the discrete case, dropping `cumulative_ytd`, nulling `period.start` or changing `unit` all turn it RED. ✏ was: **Cases 1 and 2 ESTABLISHED by Victor, 2026-09-07** — MU FY2025 Q3, CNBU segment revenue, discrete and cumulative. ★★ The live run independently reproduced **both**, including the period start the agent had misread. ⬜ Only `input_ref` remains, and that is mechanical | ⚠⚠ **The system may not do this.** Seeding from its own output would certify it against itself, and every regression would become the new expected value. `GoldenCase` **raises** if `established_by` names a pipeline component. ★ **Unblocked 2026-09-05** — until then there was nowhere to write a case. **Full instructions: §2.5 `F4`** |
@@ -1581,6 +1581,18 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-25** | 2026-09-07 | B5 | `AC-5.18` wired `input_ref` → recorded response → `==` against `expected`, and the four adversarial checks in `review_golden_case.py` all pass | ⚠⚠ **The two granularities do not match.** ONE recorded `E-01` call returns EVERY segment row in BOTH columns; ONE golden case pins ONE item. `run_regression` compares the whole response with `==`, so a single-item `expected` can **never** match — measured: `produced` is a list of 4, `expected` is a dict, verdict FAIL forever. ★★ Invisible until now because every test and the demo recorded a response shaped like exactly one case — **the fixtures were built to the harness rather than to the producer**, which is the `DX-23` gap (`run_extraction` untested) showing up one layer out. ⚠ Also found alongside: `qualifier` was missing from `ExtractedItem.to_json_obj()`, so `MP-18`'s discriminator never reached the wire and two segment rows serialised identically | `regression/run.py` · `replay.py` · `filings/models.py` | ⚠ material | ✅ **resolved 2026-09-07** | `input_ref` gains an optional **selector fragment** — `<run_id>/<call_id>#<evidence_id>|<qualifier>|<start>:<end>` — and the selector **is `MP-18`'s identity**, so the golden set's granularity and the extraction's identity are the same thing rather than two conventions that must be kept in step. ⚠ No match or several matches raises `UnresolvableCase`; ★ a bare ref without `#` still compares the whole response, which is what a single-item block wants. `qualifier` now serialises, with a test — *identity that does not survive serialisation is not identity* |
 | **DX-26** | 2026-09-07 | DX-23 | `run_extraction_once.py --live` records the call and closes the trace, so `AC-2.12` can tell a finished run from a crashed one | ⚠⚠ **Three defects, all found by RUNNING it — three `--live` attempts left ONE trace holding FOUR `__run_closed__` records reading `SUCCESS, SUCCESS, FAILED, SUCCESS`, the last one for a run that had just failed.** (a) `finally: store.close("SUCCESS")` closed as SUCCESS **whatever happened** — the trace asserting success about a failure is the exact *trace-and-run-disagree* defect this project hit once before, in the recorder; (b) `run_id` was `run-<date>-e01`, **the same string all day**, so repeated runs appended to one trace instead of each getting their own; (c) `TraceStore.close()` accepts a **second** call and appends another sentinel — `AC-2.12` reads sentinel ABSENCE as INCOMPLETE, and contradictory sentinels are worse than none. ★★ None of this was visible from the test suite: every test closes once, on a fresh tmp_path, after a success | `tools/run_extraction_once.py` · `src/orchestration/trace/store.py::close` | ⚠ material | ✅ **resolved 2026-09-07** | Run id gets a **timestamp**; `close()` is called **once** with the real outcome; and `TraceStore.close()` now **raises on a second call** (`AC-2.8`'s append-only argument applied to the sentinel — a record that can be written twice is not append-only). ⚠⚠ Recorded as the cost of the credential gap being useful: **the run never reached the vendor and cost $0, yet found three defects** |
 | **DX-27** | 2026-09-07 | DX-23 step 5 | With the schema and budget corrected, one live `E-01` call over MU's 10-Q completes and gives `F5` cases 1 and 2 their `input_ref` | ⚠⚠ **Nine live runs, ~$6, and the pipeline still has not completed end to end** — though ★★ **run 5 proved the thing that mattered: the extraction reproduced BOTH golden values exactly** (`5,069` / 2025-02-28 and `14,028` / 2024-08-30, `cumulative_ytd` correctly tagged), including the period start the agent had misread and Victor corrected. Five defects were found, every one in the agent's own wiring and every one caught by a guard the project already had: `GW-23` truncation · `X-01` prose-in-`value` (`MP-7` predicted it word for word) · `X-01` typography · the `evidence_id` enum (`MP-5` — all 56 items came back tagged `E-01`) · and ⚠⚠ **a silent `max_tokens` clamp to 16,000 that made `GW-23` report a ceiling that was never sent**, costing two runs (~$1.56) chasing a number not in force | `tools/anthropic_transport.py` · `prompts/call.py::MAX_TOKENS` | ⚠ material | ✅ **resolved 2026-09-07** | ✅ Fixed: the clamp, the enum, the `not_found` path, optional `unit`, typographic normalisation in `X-01` (mutation-tested in **both** directions — it lost tolerance only for punctuation *our own converter* introduced). ⬜ **Remaining:** output spend measured at **13,243 → 32,000 tokens on identical input with no code change** — adaptive thinking is genuinely variable and expands into whatever budget it is given, so raising `max_tokens` is not the lever. ★ **Recommendation: drop `llm.deep.effort` from `high` to `medium`.** Extraction is transcription, not reasoning; effort is the documented first cost lever, and it bounds thinking directly rather than licensing more of it. ✅ **Closed on run 16**: `medium` effort, the re-rendered fixture (`C13`), `MP-18` corrected for narrative items (`C14`), the currency moved to `unit` (`C15`), and subset comparison. **50 items extracted and verified, $0.5520.** ★★ `B5` closed — §2.7 |
+| **DX-28** | 2026-09-07 | B5 | `CT-5.2` validates a golden case on construction, and after `DX-20` the fields a human must supply — `source`, `established_by`, `expected` — all refuse a blank | ⚠⚠ **`established_at` did not.** Victor signed cases 3-10, and all eight kept the template's `____-__-__` in `established_at`; `load_all()` accepted every one and `coverage()` reported **ten established when eight were half done**. ★★ Exactly `DX-20`'s family — *a placeholder that validates is a placeholder that ships* — and the third time a required field turned out to be required in prose only. ⚠ Found because the agent **verified the claim** rather than taking *"signed all 10 cases"* at face value | `src/evaluation/golden/models.py::GoldenCase` | ⚠ material | ✅ **resolved 2026-09-07** | `established_at` must match `^\\d{4}-\\d{2}-\\d{2}$`, mutation-tested. ★ A blank left in a template is exactly the state a signature is supposed to end, so the field recording WHEN refuses a blank as firmly as the one recording WHO — a golden value nobody can date is one nobody can audit against the filing as it stood |
+| **DX-29** | 2026-09-07 | E-01 v2 | Bumping `E-01` `v1`→`v2` adds one paragraph requiring a verbatim value, and should change WHAT is returned, not what it costs | ⚠⚠ **The first `v2` run TRUNCATED at 32,000 output tokens.** Same bundle, same `effort: medium`: `v1` ran **2,595** and **7,119** output tokens; `v2` hit the **32,000** cap — >4.5x the larger `v1` run — for $1.17 and 341 s, and `GW-23` refused the half answer. ★ Plausible mechanism: requiring a value findable inside its own quote makes the model search and re-check spans instead of summarising. ⚠ **n=1, and adaptive thinking already varies 13,243→32,000 on identical input** (`DX-27`), so this is NOT yet distinguishable from variance | `prompts/call.py::MAX_TOKENS` · `E-01 v2` | ⚠ material | ✅ **resolved 2026-09-08 — the hypothesis was WRONG** | ★★ **Settled by a controlled A/B for $0.46** — same 15,163-char slice, same effort, only the prompt varying: `v1` **7,034** output tokens / $0.2111, `v2` **8,328** / $0.2441. ⚠ **1.18x, not 4x** — the 32,000 truncation was adaptive-thinking variance (`DX-27`), exactly as suspected but not assumed. ★★★ And the arms disagreed on OUTCOME, which the cost question had hidden: **`v1` FAILED and `v2` PASSED.** `v1` returned 49 items that collided on `MP-18` identity; `v2` returned **64 items, all identities unique, `X-01` verified every one**. ⚠⚠ So `v2` is not a compliance tax — it is **~18 % more output for a run that finishes instead of aborting**, and the agent's own "`v2` buys compliance, not correctness" framing was wrong twice over |
+| **DX-30** | 2026-09-08 | filing 2 | `GW-23` calls a truncated response *"a failure, not a short answer"*, which reads as a warning against USING the partial output | ⚠⚠ **There is no partial output.** Every 32,000-token truncation recorded — `v1`, `v2`/MU and `v2`/AMD alike — returned a payload of **2 characters**. Adaptive thinking consumes the whole budget and the tool call is never emitted: the run is **all-or-nothing**. ★★ So a truncation costs FULL PRICE for ZERO items — AMD's cost **$1.1825** and produced nothing — and `GW-23` is more right than it reads: there is no short answer to be tempted by | `shared/llm/gateway.py::GW-23` · `prompts/call.py::MAX_TOKENS` | ⚠⚠ **major** | ✅ **resolved 2026-09-08 — and the fix INVERTS the intuition** | ★ Raising `max_tokens` is known NOT to be the lever (`DX-27`: thinking expands into whatever budget it is given), and this finding explains WHY — the budget is spent on thinking, not on the answer. ⚠⚠ **The lever is `effort`.** At `medium`, MU succeeded 3 times (2,595 / 7,119 / 9,865 output) and failed once at the cap; AMD failed on its first attempt — plausibly because a **completed restatement plus nested sub-rows** is genuinely harder reasoning, which is exactly why AMD was chosen. ★★ Expected cost at `medium` is ~$1.00 per SUCCESS once failures are counted; `low` should cut both the thinking and the failure rate, and extraction is transcription rather than reasoning. ⚠⚠ **Tested and both hypotheses failed.** `effort: low` truncated on a 3,688-token input (`DX-31`), and `E-01 v3` — which demonstrably fixes the restatement trap on the slice (7,401 out, $0.20) — **still truncates on AMD's FULL filing** (2 for 2, $1.18 each). ★ So: MU-full completes, AMD-slice completes, **AMD-full does not**, under either prompt. AMD's full document carries a difficulty that is not the restatement clause and is **not yet identified**. ⛔ Stopped guessing at $1.18 per hypothesis. ★★★ **The structural mitigation is to make failure CHEAP rather than rare**: since a truncation yields zero items whatever the cap, `max_tokens` should be set just above the largest OBSERVED successful answer (MU used 9,865) rather than at a generous 32,000. A 12,000 cap fails at ~$0.68 instead of $1.18 and succeeds on everything that has ever succeeded — ★★★ **It DID fix AMD.** A controlled pair, same filing, same prompt `v3`, **identical 76,551 input tokens**, only the cap varying:  `cap=32,000 → 32,000 out, truncated, $1.1828, 246 s, ZERO items`  vs  `cap=12,000 → 7,584 out, COMPLETE, $0.5724, 67 s, 38 items verified`. ⚠⚠ **The generous cap CAUSED the failure.** `DX-27` had inferred that thinking expands into whatever budget it is given; this is the first controlled demonstration of it, and it means a larger ceiling is not insurance — it is a **risk**. ★★ Four AMD runs failed at 32,000; the first at 12,000 succeeded. The lever was never `effort` and never the prompt alone — it was the ceiling itself |
+| **DX-31** | 2026-09-08 | filing 2 | `DX-30` said a truncation means adaptive thinking spent the budget, so the lever is `effort` | ⚠⚠ **`effort: low` truncated too — on a 3,688-token input.** Verified from the recorded request: `effort: 'low'` was genuinely sent, `thinking: adaptive`, and the model still burned the full **32,000** output tokens in 241 s for **$0.8184** and produced nothing. ★★★ At that input size this is not tuning, it is pathological — and the cause is the PROMPT, not the setting: `E-01 v2` says *"If the company restated prior-period segments, return **BOTH** the as-originally-reported and the as-restated figures"*, AMD's filing states a retrospective restatement **and contains only the restated figures** — no *"as previously reported"*, no *"as originally"*, nothing. ⚠⚠ **The prompt demands something the document does not contain and offers no way to say so.** `MP-7` gives `not_found` per ITEM; *"both figures"* is a cross-cutting instruction with no escape, so the model cannot even reach the failure output — it thinks until the budget dies | `E-01` v2 · `L1-fundamental-analysis-master-prompt` §E-01 | ⚠ material | ✅ **resolved 2026-09-08 by `E-01 v3`** | ★★★ `MP-7`'s own principle failing one level up: *an LLM with no stated way to say "I could not" will always find something to say* — here it cannot even do that. ✅ **`E-01 v3` fixes it, measured**: the same slice that burned 32,000 tokens producing nothing under `v2` completed under `v3` in **7,401** output tokens, **$0.2037**, 63 s, with a full tool call. ★ The fix is two sentences — *"If the filing presents only ONE basis, return that basis and say which one it is in a `seg.basis_note`. Do not search for figures the filing does not contain."* ⚠ `v3` is a **CANDIDATE**: `E01_CURRENT_VERSION` still names `v2`, because shipping it retires filing 1's recording (`L7` §5). ★★ **This is precisely why filing 2 was chosen** — MU only ANNOUNCED a recast, so the clause was unreachable and the defect invisible |
+| **DX-32** | 2026-09-08 | filing 2 | `--segment-note-only` gives a cheap bundle carrying the segment table, so it is a fair stand-in for the filing when testing extraction | ⚠⚠ **It is not — it silently removes the evidence a PERIOD START is derived from.** Under `v3` the AMD slice returned 46 well-formed items and **every one had `period.start = None`**, so each segment's discrete and cumulative figures collapsed onto one `MP-18` identity — `Data Center 4,341` and `Data Center 11,255` both keyed `(seg.revenue, 'Data Center', (None, '2025-09-27'))`. ★★ The model was RIGHT not to invent the start: the slice contains only *"Three Months Ended"* headers, while the full filing also carries *"December 28, 2024"* and the equity statement's opening balance. `MU`'s slice happened to sit near Item 2 and the equity note, so filing 1 never exposed this | `tools/run_extraction_once.py` `--segment-note-only` | ⚠ material | ✅ **resolved 2026-09-08** | ★★★ **`MP-18` was RIGHT to refuse it** — those items genuinely are indistinguishable as returned, and a suite that accepted them would be recording the cumulative-vs-discrete trap as fact. ⚠ The flag is now documented as **diagnostic only**: it may be used to compare prompts or measure cost, and **never** to produce a recording a golden case grades. ★ A cheap bundle that changes the ANSWER is not a cheap bundle |
+| **DX-33** | 2026-09-09 | E-02 | The tool schema states the output contract for extraction, and `E-01`'s wording — *"the figure … WITHOUT a currency symbol: '5,069', not '\$5,069'"* — is the general rule | ⚠⚠ **It was written for ONE block and is applied to ALL of them.** `E-02` guides in PHRASES, not table cells: the filing says *"to be approximately \$14 billion"* and the model returned *"approximately 14 billion"* — obeying the schema and thereby **breaking the prompt's verbatim rule**, so `X-01` refused it. ★★★ The two instructions are **directly contradictory** for a quoted phrase: *strip the currency* vs *appear VERBATIM inside the quote*. For `'\$5,069'` in a table cell both can hold; for *"approximately \$14 billion"* only one can. ⚠ 2 of 44 items lost this way | `tools/anthropic_transport.py::extraction_tool` | ⚠ material | ✅ **resolved 2026-09-09** | ★ Proposed: scope the currency rule to a BARE FIGURE and let verbatim win otherwise — *if the value is a phrase quoted from the document, copy it exactly, symbol included*. ✅ **Applied**: the schema now scopes the currency rule to a BARE FIGURE and states which rule wins — *"If the value is a PHRASE quoted from the document, copy it EXACTLY, symbol included… Verbatim always wins."* ⚠ Unverified against a live call; the failing example is pinned as a test. ★★ **Only a second BLOCK could expose this** — two filings of `E-01` never could |
+| **DX-34** | 2026-09-09 | E-02 | `X-01` ② requires every value to appear verbatim in its own quote — the guard the whole `extraction` kind rests on | ⚠⚠ **`E-02` defines an item that is not quotable at all.** `gd.direction` is a CLASSIFICATION from a closed set — *raised | lowered | reaffirmed | initiated | withdrawn* — that the model **chooses**, not text it copies. Measured: `gd.direction` = `'reaffirmed'`, and the word does not appear in its cited span, or anywhere near it. `X-01` refused it, **correctly by its own rule**. ★★★ So the contract has an item that is structurally unverifiable: `RA-5` splits extraction (*what does this document say* — ground truth exists) from judgement (*is this good* — none exists), and `gd.direction` sits on the wrong side of that line while declared as extraction | `E-02` `gd.direction` · `claims/verify.py` | ⚠ material | ✅ **resolved 2026-09-09 by Victor — option (a)** | ★★ Three ways out, and it is the fund manager's call: **(a)** `gd.direction` is derived by `D-02` arithmetic from `gd.value` vs `gd.prior_value` — ★ `AP-5`, a computation not a judgement, and `MP-6` already says no prompt computes; **(b)** it stays a model output but is exempted from `X-01` ② and marked as an inference; **(c)** it is dropped from `E-02`. ⚠ (b) puts a hole in the hallucination guard and should be resisted. ✅ **Victor chose (a).** `E-02 v2` drops `gd.direction`; direction is derived by `D-02` from `gd.value` vs `gd.prior_value` with an arithmetic trail. ★★★ Better supported than first argued: **`MP-6` already forbade it** — *"No prompt in this file computes anything"* — and comparing two figures is a computation. The defect was latent only because nothing had ever run `E-02`. ⚠ `withdrawn` is the one state arithmetic cannot derive, so `v2` keeps it reportable through `gd.language_note` in the company's own words |
+| **DX-35** | 2026-09-09 | E-02 live | The filing fixture is the document a citation is checked against, so what the converter keeps is part of the contract (`C13`) | ⚠⚠ **A PAGE BREAK sits mid-sentence and the page furniture is still in the text.** MU reads *"…term sheet with the State of"* / `35 | 2025 Q3 10-Q` / `Table of Contents` / *"New York…"*. The model quoted the sentence **the way a human reads it** — correctly — and `X-01` refused it because that string is not in the document. ★★★ Because `X-01` ABORTS, four dead items took the other **47 with them**: a $0.6377 call parsed to nothing. ⚠ This is the **6th** failure traced to `convert_filing.py`, and the first that a second BLOCK was needed to expose — `E-01` reads tables, which never straddle a page | `tools/convert_filing.py` · `run_extraction_once.py::parse_items` | ⚠ material | ✅ **converter fixed 2026-09-09; fixtures NOT yet re-rendered — needs Victor** | ★ Page numbers are an artefact of PAGINATION, which the text rendering already discarded; keeping them keeps half a layout — `_merge_symbols`' argument about `$` cells, again. ✅ `strip_page_furniture()` deletes a line that is ENTIRELY furniture, anchored at both ends, and never edits a line carrying prose. ★★★ **Measured, and this is the number that matters:** 1,634 chars leave MU and 1,116 leave AMD, the 4 unlocatable items go to **0**, `X-01` ① is clean on all 51 — and **0 of the 95 already-recorded `E-01` quotes stop resolving.** The re-render `L7` §5 warns about is **free**; it needs no re-recording, only Victor's hand on the two fixture files |
+| **DX-36** | 2026-09-09 | B5 | `tools/promote_recording.py` states the request payload is *"replaced by its `bundle_hash`"* and that on a re-render the recording *"disagrees **loudly**"* — the guard that makes re-rendering safe | ⛔⛔ **No hash is written and nothing compares one.** It writes `{"__elided__": …, "chars": …}`; `grep bundle_hash tests/ tools/` returns the docstring and nothing else. **The drift detector existed only in the paragraph describing it** | `tools/promote_recording.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ `DX-12`'s shape one level up: not a check that skips, but a check **never written**, described in prose as though it had been — and prose is what I read when deciding whether `DX-35` was safe. ★★★ A hash would also be the WRONG guard: it fires on ANY byte change, so `DX-35` would have demanded ~$1.20 of re-recording to buy nothing. The question is not whether the bytes moved but whether the recording still **MEANS** what it meant. ✅ `test_every_recorded_quote_still_resolves_in_its_filing` asks exactly that, over every recording × every quote, and the false docstring is corrected |
+| **DX-37** | 2026-09-09 | E-02 live | `AP-5`/`RA-131` — the offset is the one part of a citation the model cannot author, so `parse_items` computes it: `start, end = _locate(...)` | ⚠⚠ **`_locate`'s `end` is DISCARDED.** The next line writes `offset=(start, start + len(quote))`. ★★ The two agree **only when the match was exact** — but `_locate` also matches under whitespace/typography normalisation, and there the document's span is a **different length** from the quote, so the span is cut short and `X-01` ① rejects a citation that is perfectly good, **blaming the model for our arithmetic**. Measured: document holds `'State of\n\n\nNew York'`, quote holds `'State of\nNew York'`, span ends 2 chars early on `'…provides fo'` | `tools/run_extraction_once.py::parse_items` | ⚠ material | ✅ **resolved 2026-09-09** | ★★★ **Found only because `DX-35`'s fix was verified with the REAL `x01_verify_extraction` instead of a hand-rolled whitespace comparison.** My simulation collapsed whitespace and passed; the real check resolves the SPAN first, and the span was wrong. ⚠ A simulation of a guard tests the simulation. ★ **Latent, not new** — 0 of MU's 60 and 0 of AMD's 41 recorded spans change, because only normalisation-matched quotes can differ in length, and `DX-35`'s strip is what creates the `\n\n\n` runs that expose it. ✅ Use `end`; pinned by `test_dx37_the_span_end_comes_from_the_locator_not_the_quote_length` |
+| **DX-38** | 2026-09-09 | B5 | `D2`/`AC-5.1` — the fund manager establishes every golden value, and `established_by` *"names a person, never a pipeline component"*. `DX-28` had already closed the identical hole on `established_at`: *"a placeholder that validates is a placeholder that ships"* | ⛔⛔ **The same hole was left open on `established_by`, ONE LINE ABOVE the fix.** The check is `if not self.established_by.strip()`, which passes ANY non-empty text — so the template's own blank, `'____'`, validated. ⚠ **Measured on live data:** Victor signed 5 of 8 prepared `E-02` cases and left 3 at `'____'` with a real `established_at`; all three constructed cleanly and would have graded as established. ★★★ **Two of the three were cases 21 and 23 — the cases pinning `DX-33` and `DX-35`, this session's own fixes** | `src/evaluation/golden/models.py::GoldenCase` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ `D2`'s circularity check could never have caught it: a placeholder names **neither a person nor a pipeline component**. It is not circular, it is **UNATTRIBUTED** — a second, independent route for an unestablished value to grade as gold, and `DX-20`'s family for the third time. ✅ `_is_placeholder()`: refuses a value with **no letters at all** (`____`, `---`, `???`) plus an exact-match word list (`TBD`, `pending`, `N/A`). ⚠⚠ Deliberately **no** *"does this look like a real name?"* step — `'张伟'`, `'O'Brien'`, `'M K'`, `'Ana'` all pass; a blank-detector that rejects real people makes signing feel arbitrary and gets worked around. ★ The check tests for the ABSENCE OF LETTERS, never for a name-like shape (`P5`: fail loud, not fail clever) |
+| **DX-39** | 2026-09-09 | B5 | `D2` — `established_by` may not name a pipeline component, and `GoldenCase` enforces it by substring-scanning `established_by` **and `source`** against `FORBIDDEN_ESTABLISHERS` (`pipeline`, `system`, `model`, `llm`, `claude`, `gpt`, `agent`, `src.`, `auto`, `generated`, `gateway`) | ⚠⚠ **`source` describes FILINGS, and ordinary filing prose is full of those words.** Measured — 5 of 6 realistic sources are REFUSED: *"Automotive segment revenue table"* (`auto`), *"cash generated from operations"* (`generated`), *"the company's business model"* (`model`), *"confirmed with the transfer agent"* (`agent`), *"the company's ERP system"* (`system`). ★ Found live: case 22 was refused because MY OWN template prose said *"the model's own note adds…"* | `src/evaluation/golden/models.py::__post_init__` | ⚠ material | ⬜ **OPEN — Victor's call, it touches `D2`** | ★★★ **The damage is not the refusal, it is the WORKAROUND.** The message names a word, so the natural fix is to write vaguer `source` text — and `source` exists precisely to be specific enough to re-check (`CT-5.2`: *"a golden value whose derivation is unrecorded… will eventually be trusted for the wrong reason"*). ⚠ **A guard that punishes specific prose trains people to write vague prose**, degrading the exact field it protects. ★ Word boundaries alone do NOT fix it — `generated`, `model`, `system`, `agent` appear as whole words in real filings. **Proposed:** keep full substring scanning on `established_by` (where these words can only mean the pipeline) and scan `source` for PROVENANCE PHRASES instead — *"generated by"*, *"pipeline output"*, *"the model said"*, *"auto-generated"*, plus the unambiguous vendor names. ⚠ Not applied unilaterally: constitution §5.1 — *the choice is genuinely the fund manager's ⇒ stop and ask* |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -1919,3 +1931,438 @@ the repo. Offsets move; the reading does not.
 - The `E-01` prompt still allows paraphrase in a narrative `value`; the tool
   schema now forbids it, and run 16 complied. ⬜ Whether that holds is one run's
   evidence, not a guarantee.
+
+## 2.8 ★ Cases 3–10 prepared, 2026-09-07 — chosen for POWER, not coverage
+
+Ten cases now, all grading the single recorded call. ⚠ 2 signed, **8 awaiting
+the fund manager**; the checklist is at the foot of `extraction.yaml`.
+
+| # | what | what it can catch that nothing else can |
+|---|---|---|
+| ★★ 3 | SBU op income `(9)` | **sign** — dropped parentheses turn a $9M loss into a profit |
+| 4 | SBU revenue | that `qualifier` actually discriminates |
+| 5 | EBU revenue YTD | the cumulative trap on a *different* segment — position vs reading |
+| 6 | CNBU op income | revenue and operating income being crossed |
+| 7 | MBU op income YTD | the scar tag on a non-headline figure |
+| ⚠ 8 | EBU op income YTD | 112 against a 98 quarter — looks wrong, is not |
+| ★★ 9 | `seg.assets` **not_found** | the system saying *"I could not"* instead of inventing |
+| 10 | `seg.name` narrative | `C14`'s identity fix, end to end |
+
+**⚠⚠ Two deliberate refusals, both `D2`:**
+
+1. **Values transcribed from the FILING, never from the recording.** Reading them
+   back from the system's own output would make the golden set certify the system
+   against itself — and from outside it would look identical.
+2. **Case 10 asserts no `value`.** The filing writes the segment name with
+   typographic quotes; pinning it would test our HTML converter rather than the
+   extraction. `C13` burned us there twice already.
+
+**★ One gap found while preparing them.** The selector grammar could not express
+*"this item has no period"*, so `not_found` and narrative items were
+**unaddressable** — exactly the `MP-7` and `C14` cases the golden set most needs,
+because they are where a system quietly says nothing at all. Fixed.
+
+**⚠ The honest limit: all ten grade ONE call.** Cheap, and correlated. They cannot
+show that a *second* filing reads correctly — that is the next real increment, and
+it costs one API call.
+
+## 2.9 ★★★ `E-01` `v1` → `v2`, and the A/B that corrected me — 2026-09-08
+
+**What `v2` adds.** One paragraph, +390 characters, nothing else:
+
+> *Every value must appear VERBATIM inside the quote you cite for it… For a text
+> item, the value must be words copied from the quote: never a summary of it,
+> never two sentences joined.*
+
+⚠ `v1` left "verbatim" to the tool schema's field description and a live run
+returned a **paraphrase**. ★★ `MP-5` puts SHAPE in the API — but *what counts as
+a value* is meaning, and no schema carries meaning. Hence a version bump
+(`RA-13`), not another schema tweak.
+
+**⚠⚠ I argued against `v2` twice, from one truncated run, and was wrong twice.**
+
+| my claim | measured |
+|---|---|
+| *"`v2` may cost ~4x `v1`"* | **1.18x** — 7,034 vs 8,328 output tokens |
+| *"`v2` buys compliance, not correctness"* | ★★ on the same bundle **`v1` FAILED** (49 items, `MP-18` collision) and **`v2` PASSED** (64 items, all unique, `X-01` clean) |
+
+★★★ **A controlled A/B settled both for $0.46** — same 15,163-char slice, same
+effort, only the prompt varying. The 32,000-token truncation that started the
+argument was adaptive-thinking variance (`DX-27` had already measured
+13,243→32,000 on identical input). ⚠ **Two cheap calls beat an argument that
+felt sound**, and the argument was mine.
+
+**Then the full filing under `v2`:** ✅ **59 items extracted and verified**,
+74,943 in / 9,865 out, **$0.6213**, 87 s — against a $1.18 estimate.
+
+**★ The golden set now grades the prompt this repo ships.** All 10 cases PASS
+against the `v2` recording, and ⚠ **not one `expected` value changed** — which
+is the point: `v2` changed how the model *cites*, not what the filing *says*.
+The retired-`v1` recording is deleted; the retired-prompt guard is green.
+
+**Two smaller findings from the same work:**
+
+- ⚠ `prompt_version` was `None` on **every** recording ever made — `CT-2.2`
+  carried the field and nothing filled it. Invisible until a prompt was
+  versioned; now it is what tells a golden case whether it grades what we ship.
+- ⚠ The job printed `block: E-01 v1` **while running v2** — a label hardcoded
+  beside the value it describes. ★ It is the printout a reader trusts, and it
+  drifted the moment the value changed. Now read from `E01_CURRENT_VERSION`.
+
+## 2.10 ⛔ Filing 1 is LOAD-BEARING — read `L7` before touching it
+
+> ★ **Studying rather than changing it?** The explanation — code path, prompt, ⚠ *why this is not
+> just an FMP call*, the run methodology and the open failure — is
+> [`docs/lectures/L7-edgar-extraction-as-built.md`](../../../docs/lectures/L7-edgar-extraction-as-built.md).
+> ⚠ Note the name collision: that is the **lecture**; `L7-golden-set-filing-1.md` in this directory
+> is the **guard rail**. One explains, the other forbids.
+
+★★ **[`L7-golden-set-filing-1.md`](L7-golden-set-filing-1.md)** is the provenance and guard-rail
+record for MU FY2025 Q3 and its ten cases. It exists for one reason:
+
+> ⚠⚠ **A fix for filing 2 must not change anything filing 1 depends on, unless filing 1 is
+> re-verified in the same change.**
+
+Filing 1 cost **$11.93 across 20 live calls and 29 findings**. ⚠ Almost every failure was in the
+**plumbing**, not the model — and several were caused by fixing something else. `L7` §5 lists the
+**blast radius**: eleven files and rules where a plausible-looking improvement silently breaks it,
+each one a defect already paid for.
+
+★ The free guard, before any such change:
+
+```bash
+python3 -m pytest -q tests/integration/test_golden_regression.py
+```
+
+It replays a recording — no network, no cost. Pointers to `L7` now sit at the top of
+`extraction.yaml`, `convert_filing.py` and the filings README, so an agent meets it before editing.
+
+### ★ Filing 2 — the ticker, and the rule that picks it
+
+⚠⚠ From the `fmp-api` skill: *"a first pass on MSFT · MU · ARM found the series identical … none of
+the three split in the window. One name that actually split reversed the conclusion completely.
+**Never generalise from names that did not experience the event.**"*
+
+So filing 2 is chosen for what it **experiences that MU does not** — not for being another
+semiconductor.
+
+| | | |
+|---|---|---|
+| ★★ **AMD / INTC** | **calendar fiscal year** (Q3 = Jul–Sep) | ★ Every period derivation in filing 1 was tuned against MU's Aug-30 / Feb-28 boundaries. This is the cheapest test that nothing is hardcoded to them — and it holds the **form**, and therefore the converter, constant |
+| **ARM** — filing 3 | the ticker where the cumulative-vs-discrete ratios were **measured** (Q3 2.76×, FY 3.30×) | ⛔ files **6-K/20-F**. ⚠ The converter caused 4 of 7 failures; do not vary the document form and the company in the same run |
+| ✗ NVDA | — | ⚠ its documented defect is **price-split adjustment**, not segments. It does not exercise this pipeline |
+
+⚠ **Not run.** Establishing filing 2's values is Victor's (`D2`); the call is ~$0.62.
+
+## 2.11 ✅ Filing 2 (AMD) — SOLVED by lowering the cap, 2026-09-08
+
+**Filing 2 has no recording.** Four live attempts, ~$4.20, no usable extraction. ⚠ Filing 1 is
+untouched and green throughout — `L7`'s guard rails held on every change.
+
+| run | prompt | bundle | result |
+|---|---|---|---|
+| 1 | v2 | full | truncated, $1.18, **zero items** |
+| 2 | v2 `effort:low` | slice | truncated, $0.82, **zero items** — ★ 3,688 input tokens |
+| 3 | **v3** | slice | ✅ **completed** — 7,401 out, $0.20, 46 items |
+| 4 | **v3** | full | truncated, $1.18, **zero items** |
+
+**★★ What is now known.** `E-01 v2` demanded both restatement bases whenever a restatement was
+mentioned; AMD states one and holds only the restated figures, so the demand was unsatisfiable with
+no exit, and the model spent its whole budget trying (`DX-31`). ★ **`v3` fixes that, measured** —
+the identical slice went from 32,000-and-nothing to 7,401-and-46-items.
+
+**⚠⚠ What is NOT known.** AMD's *full* filing truncates under both prompts. It is not the
+restatement clause — `v3` proves that on the slice. Both MU and AMD carry their segment table twice,
+so duplication is not the differentiator either. **The cause is unidentified, and four calls did not
+find it.**
+
+**★★★ The recommendation is to change the economics, not to keep guessing.** `DX-30` established
+that a truncation returns **zero items at full price**. So the cap should sit just above the largest
+*observed* successful answer — MU's was 9,865 — rather than at a generous 32,000:
+
+| `max_tokens` | cost of a failure | succeeds on |
+|---|---|---|
+| 32,000 (today) | ~$1.18 | everything that has ever succeeded |
+| **12,000** | **~$0.68** | ★ everything that has ever succeeded |
+
+⚠ It does not make AMD work. It stops AMD costing double to discover that it does not.
+
+**⬜ `v3` remains a CANDIDATE.** `E01_CURRENT_VERSION` is still `v2`, so filing 1's recording is not
+retired by a prompt that has never completed a full filing.
+
+### ★★★ The resolution — a smaller budget made it succeed
+
+| cap | output | outcome | cost | latency |
+|---|---|---|---|---|
+| 32,000 | 32,000 | ⛔ truncated, **zero items** | $1.1828 | 246 s |
+| **12,000** | **7,584** | ✅ **38 items verified** | **$0.5724** | 67 s |
+
+⚠⚠ Same filing, same `E-01 v3`, **identical 76,551 input tokens**. Only the ceiling differed.
+
+★★★ **A generous `max_tokens` was CAUSING the failure.** `DX-27` inferred that adaptive thinking
+expands into whatever budget it is given; this is the first controlled demonstration. **A larger
+ceiling is not insurance — it is a risk**, and four AMD runs at 32,000 failed before the first at
+12,000 succeeded.
+
+⚠ Note what this says about the four earlier hypotheses — `effort`, the restatement clause,
+duplicate tables, density. `E-01 v3` was a **real** fix (`DX-31`, proven on the slice), but it was
+never sufficient. **The binding constraint was the ceiling all along**, and it was the one variable
+I kept treating as a safety margin rather than as a parameter.
+
+## 2.12 ★★ Golden set — the complete record, 2026-09-08
+
+### ⛔ Is `extraction` complete? **NO.** Exactly what is and is not covered:
+
+| dimension | covered | ⚠ NOT covered |
+|---|---|---|
+| **kinds** | `extraction` **20** | ⛔ `ranking` **0** · `thesis` **0** — `CT-5.5` declares three; two are empty |
+| **E-blocks** | `E-01` only | ⛔ **14 of 15 have ZERO cases** — E-02 guidance, E-03 risk-factor delta, E-04 non-GAAP, E-05 concentration, E-06 debt, E-07 capital actions, E-08 insider, E-09 accounting change, E-10 dilution, E-11 litigation, E-12 priorities, E-13 competitor capacity, E-14/15 cheap tier |
+| **`E-01` item ids** | ✅ **ALL FIVE COVERED** — `seg.revenue` 8 · `seg.op_income` 6 · `seg.basis_note` **3** · `seg.assets` 2 · `seg.name` 1 | — |
+| **filings** | MU FY2025 Q3 · AMD FY2025 Q3 | ⚠ both **semiconductor**, both **US 10-Q**, both **Q3** |
+| **document forms** | 10-Q | ⛔ no 10-K; ARM (20-F/6-K) untested — ★ the ticker whose defect was *measured* |
+
+★★ **What 20 green cases license you to say:** *"`E-01` reads the segment tables of these two
+filings the way the fund manager established them, under `E-01 v3`."* ⚠ **Not** *"extraction works."*
+A reader will assume the stronger claim unless the write-up says otherwise.
+
+### The two filings
+
+| | filing 1 | filing 2 |
+|---|---|---|
+| filer | MICRON `0000723125` | ADVANCED MICRO DEVICES `0000002488` |
+| period ended | **2025-05-29** | **2025-09-27** |
+| chosen because | ★ FMP guessed its quarter wrong by **71 %** | ★ a **completed** retrospective restatement MU only announced |
+| recording | `run-2026-09-08T230439-mu-e01` — 57 items | `run-2026-09-08T222412-amd-e01` — 38 items |
+| cases | **11** | **9** |
+| ⚠ `period.start` from | **Item 2**, inside the filing | ⛔ **XBRL** — absent from the filing entirely |
+
+### ⚠⚠ Every issue encountered, and its fix
+
+| # | issue | fix |
+|---|---|---|
+| `DX-19` | mirror shipped a **red test** + `.pyc` leaking home paths | dropper follows imports one hop; no bytecode |
+| `DX-20` | ★★ an unfinished case **loaded and PASSED** | empty `expected` raises |
+| `DX-21` | `replay_response` had no implementation | `recorded_response` + `f2_payload_reader` |
+| `DX-22` | mirror shipped a `check_all.py` that **failed on first run** | the builder RUNS it |
+| `DX-23` | `run_extraction` called by nothing, tested by nothing | characterization tests + a runnable job |
+| `DX-24` | ★★ the agent **misread the filing** and explained away its own disproof | provenance re-sourced to Item 2 |
+| `DX-25` | one call returns many items; one case pins one | `#selector` = `MP-18` identity |
+| `DX-26` | the trace claimed **SUCCESS about a failed run** | `close()` once, truthfully; a second close raises |
+| `DX-27` | output spend varies 13k→32k on identical input | recorded; superseded by `DX-30` |
+| `DX-28` | 8 cases signed with a **placeholder date** | ISO-date guard |
+| `DX-29` | *"v2 costs 4x"* | ⛔ **false** — a $0.46 A/B measured 1.18x |
+| `DX-30` | ★★★ a truncation returns **ZERO items at full price** | **LOWER** `max_tokens` to 12,000 — and it made AMD *succeed* |
+| `DX-31` | `E-01` demanded figures a filing may not contain | `v3` adds a reachable exit |
+| `DX-32` | `--segment-note-only` strips the **period-start evidence** | marked diagnostic-only |
+| — | `golden_replay` used ONE bundle for all cases | `filing.json` per recording |
+| — | an unsigned case blocked the **whole file** | `extraction.pending.yaml` |
+| — | the retired-prompt guard punished preparation | checks only **referenced** recordings |
+
+### ★★★ The three lessons that cost the most
+
+1. ⚠⚠ **One sample is not evidence about a stochastic system.** It looked like a 4x cost regression
+   (`DX-29`, disproved for $0.46), and like `v3` breaking MU — **1 item, then 57 on retry**, a 57x
+   swing on the same prompt and filing.
+2. ⚠⚠ **A generous budget CAUSED failures.** `max_tokens` was raised twice *because* runs truncated,
+   which made every later run worse. Lowering it 32,000 → 12,000 turned AMD from `zero items, $1.18`
+   into `38 items, $0.57`.
+3. ★★ **A prompt must be proven on EVERY filing the set grades** — `v3` fixed what MU could not
+   expose and appeared to break what AMD could not expose.
+
+### Cost
+
+**$16.94 across 27 live calls** (`python3 tools/spend_report.py`) — ⚠ a **floor**; two calls reached
+the vendor and recorded no tokens. ★ Every replay since costs **$0**, forever.
+
+### ⬜ What "complete" would still require
+
+2. a **10-K** — different structure, annual periods
+3. **ARM** (20-F/6-K) — ⚠ a new document form; the converter has caused 5 failures
+4. a non-semiconductor filer
+5. `E-02`…`E-13` — twelve more blocks
+6. the `ranking` and `thesis` kinds — ⚠ `thesis` is a **judgement** and does not pretend to ground truth
+
+### ✅ 2026-09-09 — `seg.basis_note` covered; all five `E-01` item ids now have cases
+
+Three narrative cases, signed by Victor. ★ They assert **sentences**, not numbers, and each one
+records a fact no numeric case can:
+
+| case | asserts | ⚠ if it vanished |
+|---|---|---|
+| ★★★ 18 | AMD: *"All prior period segment data were retrospectively adjusted."* | a restated figure gets compared against an as-reported one and **nothing warns you** |
+| ★★ 19 | AMD: *"Neither of the Client and Gaming businesses qualify as a separate reportable operating segment…"* | nothing records **why** case 13 is `4,048` and not `2,750` — case 13 asserts the number, this asserts the **reason** |
+| 20 | MU: *"The changes will require us to recast … starting with our 2025 Annual Report"* | the difference between a **future** comparability break and a **past** one is erased |
+
+★ Cases 18 and 20 are a deliberate pair: AMD **has** restated, MU only **says it will**. A system
+reporting those identically would erase the distinction.
+
+**⚠⚠ A fragility recorded rather than hidden.** Narrative cases are addressed by `qualifier`, and
+unlike `CNBU` or `Data Center` — the company's own words — a basis-note qualifier is **invented by
+the model** (`restatement basis`, `future recast`, `sub-business disclosure`). A later run that
+labels the same sentence differently reds the case for a **relabel, not a misreading**. ⬜ Open
+design question; the alternative is no better — addressing by character span breaks on every
+re-render, and `C13` re-rendered twice.
+
+**Cost: $0.** Both recordings already held the items; the whole addition was replay.
+
+### ✅ 2026-09-09 — `E-02` declared, run, and two contract defects closed
+
+★★ **The harness generalises across BLOCKS**, which two filings of `E-01` could never show. `E-02`
+reused the bundle, gateway, trace, parse, `MP-18` identity and `X-01` unchanged — only the prompt and
+the item-id enum differ. **50 items, 41 of 44 passing `X-01`, $0.6440.**
+
+Both failures were **contract** defects, not model errors, and both needed a second block to surface:
+
+- ⛔ **`DX-33`** — the schema said *"the figure WITHOUT a currency symbol"*, written for `E-01`'s
+  table cells and applied to all blocks. `E-02` guides in PHRASES: *"approximately \$14 billion"*
+  became *"approximately 14 billion"*, obeying the schema and breaking the verbatim rule.
+  ★★★ For a cell both rules hold; for a phrase **only one can**. ✅ Scoped, and the failing example
+  pinned as a test.
+- ⛔ **`DX-34`** — `gd.direction` asked for a label the model **chooses**, not text it copies, so
+  `X-01` could never verify it. ✅ **Victor chose (a)**: removed in `v2`, derived by `D-02`.
+  ★★★ `MP-6` had forbidden it all along — *"No prompt in this file computes anything"*.
+
+⬜ Neither fix is verified against a live call. ★ One run (~$0.68) would test both and produce an
+`E-02` recording for cases.
+
+### ✅ 2026-09-09 — the `E-02 v2` live run: **both fixes held**, and a 6th converter defect
+
+★ **The run.** `E-02 v2` over MU, `effort=medium`: **74,986 in / 10,509 out, $0.6377, 103 s, 51
+items.** Cost to date **$18.22 over 29 calls**.
+
+**Verdict on the two fixes — measured against the recorded response, not asserted:**
+
+| | before | after | |
+|---|---|---|---|
+| `DX-33` currency vs verbatim | 2 of 44 items lost | **0 of 51** values fail `X-01` ② | ✅ held |
+| `DX-34` `gd.direction` | present, unverifiable | **absent** — 6 ids, not 7 | ✅ held |
+| quotes locating in the bundle | — | **47 of 51** | ⛔ `DX-35` |
+
+★★ Both defects that a second block was needed to expose are closed, and the fixes cost one run to
+confirm. ⚠ Neither could have been confirmed by reasoning: `DX-33` in particular was a **conflict
+between two instructions**, and only a phrase-shaped value shows which one the model obeys.
+
+### ⛔ The one failure, and why it is worth more than the successes
+
+All four remaining failures are **one quote**, shared by `gd.metric`, `gd.value`, `gd.period` and
+`gd.language_note` — and the quote is **correct**. MU's filing paginates mid-sentence:
+
+```
+We have also signed a non-binding term sheet with the State of
+35 | 2025 Q3 10-Q          <- page footer
+Table of Contents          <- running header
+New York that provides for up to $5.5 billion ...
+```
+
+The model read across the page break the way a person does. **We** kept the furniture. See `DX-35`.
+
+★★★ **Two things this exposed that the successes could not:**
+
+1. **`X-01` aborts, so one bad item costs the whole call.** 47 good items were discarded because 4
+   shared an unlocatable quote — `DX-30`'s shape (*zero items at full price*) from a new direction.
+   ⚠ The money was **not** lost: `D5` means the response is on disk and re-parsing is free. That is
+   the record/replay split earning its keep for the second time.
+2. **⛔⛔ The guard that would have made the fix safe did not exist (`DX-36`).** `L7` §5 says
+   re-rendering a fixture invalidates every recording; `promote_recording.py` said the `bundle_hash`
+   catches it *"loudly"*. **Neither a hash nor any comparison was ever written.** I was one docstring
+   away from either re-recording both filings for ~$1.20 or, worse, trusting a guard that was prose.
+
+### ★★ The measurement that turned a $1.20 decision into a $0 one
+
+Rather than accept `L7` §5's warning, the strip was applied **in memory** and the question asked
+directly — *do the recordings still resolve?*
+
+```
+MU : 211,618 -> 209,984 chars (1,634 removed)   E-01 recorded quotes that stop locating: 0
+AMD: 228,658 -> 227,542 chars (1,116 removed)   E-01 recorded quotes that stop locating: 0
+E-02 unlocatable items: 4 -> 0        X-01 ① span-vs-quote mismatches after the fix: 0
+```
+
+★ A recording is invalidated by a re-render **only if the re-render moves text the model quoted**.
+Furniture is text nobody quotes. `L7` §5's warning is right in general and wrong for this change —
+and the difference is measurable in about a minute, for nothing. ⚠ **`L7` §5 is amended, not
+repealed:** the rule is now *measure the blast radius, then re-render*, and the measurement is a
+committed test rather than a script somebody has to remember to run.
+
+### ⛔ `DX-37` — the defect that `DX-35`'s fix uncovered
+
+★★★ **The most important process lesson of the day.** I verified `DX-35` with a hand-rolled
+whitespace comparison and it passed. Then I ran the **real** `x01_verify_extraction`, and it failed:
+
+```
+gd.metric: the cited span does not contain the quoted text.
+  quoted:   'We have also signed a non-binding term sheet with the State of\nNew York that provides for '
+  document: 'We have also signed a non-binding term sheet with the State of\n\n\nNew York that provides fo'
+```
+
+⚠⚠ `parse_items` computes `start, end = _locate(...)` and then **throws `end` away**, writing
+`offset=(start, start + len(quote))`. Those agree only when the match was EXACT — and `_locate`
+deliberately matches under normalisation too, where the document's span is a different LENGTH. The
+span ends 2 characters early, and `X-01` blames the model for our arithmetic.
+
+★★ **A simulation of a guard tests the simulation.** The lesson is not "I made an arithmetic error";
+it is that a verification which does not call the real checker verifies nothing.
+★ The defect is **latent, not new** — 0 of MU's 60 and 0 of AMD's 41 recorded spans change, because
+only a normalisation-matched quote can differ in length, and `DX-35`'s strip is what creates the
+`\n\n\n` runs that expose it. **One fix uncovered a bug that had been there all along.**
+
+### ✅ End-to-end, against the REAL `X-01`
+
+With the strip applied in memory and `DX-37` fixed, the failed `$0.6377` call re-parses for **$0**:
+
+```
+parse_items : 51 items      (was: ValueError, 0 items)
+X-01 (REAL) : checked=49  facts=49  not_found=2
+```
+
+★ The 2 `not_found` are correct answers, not failures (`MP-7`).
+
+### ✅ Applied 2026-09-09
+
+- `tools/convert_filing.py` — `strip_page_furniture()`, line-granular and anchored at both ends.
+- `tools/run_extraction_once.py` — `DX-37`: the span end now comes from `_locate`.
+- `tests/integration/test_golden_regression.py` — `test_every_recorded_quote_still_resolves_in_its_filing`,
+  the drift detector `DX-36` only ever described.
+- `tests/unit/test_filing_fixture_rendering.py` — 6 new tests pinning `DX-35` and `DX-37`.
+- `tools/promote_recording.py` — the false docstring corrected, and it now says why a hash is the
+  wrong guard.
+
+### ✅ Closed out 2026-09-09 — fixtures re-rendered, recording promoted, cases prepared
+
+Victor ran `tools/rerender_fixtures.py --apply` (blast radius measured 0 first). **478 passed,
+1 skipped** — the two deliberate failures went green, which is exactly what they were for: a test
+whose job is to verify a manual step.
+
+- ✅ `E-02` recording promoted; the aborted `$0.6377` call re-parsed for **$0** — 51 items, `X-01`
+  checked 49, 2 `not_found`.
+- ✅ **8 `E-02` cases prepared** in `extraction.pending.yaml`, covering all six item ids. All 8
+  resolve, replay green, **and red under mutation** — verified before Victor sees them.
+- ⚠⚠ Fixed a trap on the way: `test_the_recording_is_not_from_a_RETIRED_prompt_version` compared
+  every recording against `E01_CURRENT_VERSION`. ★ Correct while one block existed; the moment
+  `E-02` earned a case it would have failed a **fresh `E-02 v2` recording for not being `E-01`'s
+  `v3`** — a stale-prompt alarm firing on the newest recording in the repo. It is now block-aware.
+- ✅ **All 8 signed by Victor and promoted.** The golden set is **28 cases — 20 `E-01`, 8 `E-02` —
+  replaying green.** `extraction.pending.yaml` is empty again.
+- ★★★ **`DX-35` verified PINNED**, not merely fixed: case 23 was replayed against a deliberately
+  regressed fixture (page furniture put back where `DX-35` found it) and the original failure
+  reproduced on demand — *"quoted text is not in the bundle"*. ⚠ That is the difference between a
+  fix and a fix that cannot be silently undone.
+- ⛔⛔ **`DX-38` found on the way** — 3 of 8 cases came back with `established_by: "____"` beside a
+  real date, and **all three constructed cleanly**. `DX-28` had fixed exactly this hole on
+  `established_at` one line below. ★ `D2`'s circularity check could never catch it: a placeholder
+  names neither a person nor a pipeline component — it is not circular, it is **unattributed**.
+  ✅ Closed; 21 tests.
+- ⬜ **`DX-39` open, Victor's call** — `D2` substring-scans `source`, which describes FILINGS, so
+  *"Automotive segment"*, *"cash generated from operations"* and *"transfer agent"* are all refused
+  (5 of 6 realistic sources). ⚠ The damage is the workaround: the error names a word, so the natural
+  response is vaguer `source` prose — degrading the field `CT-5.2` requires to be specific.
+
+### ⬜ What is still open — needs Victor
+
+1. ⛔ **Re-render the two fixtures** (`strip_page_furniture` over `MU_FY2025Q3_10Q.txt` and
+   `AMD_FY2025Q3_10Q.txt`). Measured safe, costs $0, but it rewrites version-controlled evidence and
+   is `L7` §5's load-bearing step, so it is not mine to take.
+2. ⬜ **Re-parse the `E-02` recording** — free, no new call — then promote it and establish `E-02`
+   cases. ★ `gd.value` 15, `gd.metric` 10, `gd.stated_on` 10, `gd.language_note` 8, `gd.period` 7,
+   `gd.prior_value` 1: enough for a `D2` sitting on all six ids.
+3. ⬜ `E-02` still has **zero** golden cases, so `extraction` remains 2 filings × 1 block.

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """EDGAR HTML → a filing fixture that can be CITED, not merely grepped (`C13`).
 
+⚠⚠ **Changing this file re-renders every fixture and INVALIDATES every recording**
+(a new `bundle_hash`). 4 of the 7 live-run failures came from here. Read
+`sdd/design/rel1_design/L7-golden-set-filing-1.md` §5 before touching it.
+
     python3 tools/convert_filing.py IN.htm OUT.txt
 
 ⚠⚠ **Why this exists as a tool.** The first conversion was an inline script, and
@@ -99,9 +103,52 @@ def convert(raw: str) -> str:
         cells = _merge_symbols(cells)
         lines.append(" | ".join(cells) if len(cells) > 1 else cells[0])
 
-    out = "\n".join(lines)
+    out = strip_page_furniture("\n".join(lines))
     out = re.sub(r"[ \xa0]{2,}", " ", out)
     return re.sub(r"\n{3,}", "\n\n", out)
+
+
+#: A printed page footer — `35 | 2025 Q3 10-Q`. ⚠ Anchored at both ends: a
+#: LINE that is nothing but page furniture. Nothing that carries prose matches.
+_PAGE_FOOTER = re.compile(r"^\s*\d+\s*\|\s*20\d\d\s+Q\d\s+10-[QK]\s*$")
+
+#: The running header EDGAR puts at the top of every page.
+_PAGE_HEADER = "Table of Contents"
+
+
+def strip_page_furniture(text: str) -> str:
+    """Delete whole lines that are printed page furniture, nothing else.
+
+    ⚠⚠ **MEASURED, `DX-35`.** MU's filing reads:
+
+        We have also signed a non-binding term sheet with the State of
+        35 | 2025 Q3 10-Q          <- page footer
+        Table of Contents          <- running header
+        New York that provides for ...
+
+    ★★ A sentence runs ACROSS a page break, and the furniture sits inside it.
+    The model quoted the sentence the way a human reads it — correctly — and
+    `X-01` refused the citation because the quote is not in the document. Four
+    `E-02` items died on one quote and, because `X-01` aborts, took the other
+    47 with them.
+
+    ★★★ **This is the converter testing itself, for the sixth time.** Page
+    numbers are an artefact of PAGINATION, which the text rendering has already
+    thrown away; keeping them is keeping half of a layout. Exactly `_merge_
+    symbols`' argument about `$` cells: the delimiter artefact was wrong, not
+    the reading.
+
+    ⚠ Deliberately line-granular and anchored. It removes a line that is
+    ENTIRELY furniture and never edits a line that carries prose, so it cannot
+    delete a sentence, a figure, or a table row.
+
+    ★ Measured on both fixtures 2026-09-09: 1,634 chars removed from MU and
+    1,116 from AMD, and **zero** of the 95 already-recorded `E-01` quotes
+    stopped resolving. The re-render `L7` §5 warns about was free.
+    """
+    return "".join(line for line in text.splitlines(True)
+                   if not _PAGE_FOOTER.match(line)
+                   and line.strip() != _PAGE_HEADER)
 
 
 def main() -> int:

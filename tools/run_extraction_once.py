@@ -36,13 +36,43 @@ from src.fundamental.filings.extract import (  # noqa: E402
     run_extraction,
 )
 from src.fundamental.filings.models import FOUND  # noqa: E402
-from src.fundamental.prompts.e_blocks import E01_ITEM_IDS, e01_v1  # noqa: E402
+from src.fundamental.prompts.e_blocks import (  # noqa: E402
+    BLOCKS,
+    e01_v2,
+)
 from src.fundamental.prompts.registry import PromptRegistry  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
-FILING = REPO / "tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt"
-ACCESSION = "0000723125-25-000021"
+
+#: ⚠⚠ `L7` §5 — MU is FILING 1 and it is load-bearing. It stays the DEFAULT and
+#: its constants keep their names, so nothing that imports `FILING` changes
+#: behaviour. A second filing is selected explicitly with `--filing`, never by
+#: editing these.
+FILINGS = {
+    "MU": {"path": "tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt",
+           "accession": "0000723125-25-000021", "as_of": date(2025, 6, 26),
+           # ⚠ the segment note's line range — it is NOT in the same place in
+           #   every filing, and a range tuned for one silently slices the wrong
+           #   text out of another.
+           "slice": (1060, 1240)},
+    "AMD": {"path": "tests_src/fixtures/filings/AMD_FY2025Q3_10Q.txt",
+            "accession": "0000002488-25-000166", "as_of": date(2025, 11, 5),
+            "slice": (500, 560)},
+}
+
+#: ★ Module-level defaults, unchanged: `golden_replay` and the wiring tests
+#: import `FILING`, and filing 1's cases resolve against it.
 TICKER = "MU"
+FILING = REPO / FILINGS[TICKER]["path"]
+ACCESSION = FILINGS[TICKER]["accession"]
+
+
+def _select(ticker: str) -> None:
+    """Point the module at another filing. ⚠ Explicit, never implicit."""
+    global TICKER, FILING, ACCESSION
+    TICKER = ticker
+    FILING = REPO / FILINGS[ticker]["path"]
+    ACCESSION = FILINGS[ticker]["accession"]
 
 #: ★ `claude-opus-5`, $5.00 / $25.00 per 1M tokens (input / output).
 PRICE_IN, PRICE_OUT = 5.00 / 1e6, 25.00 / 1e6
@@ -92,9 +122,10 @@ def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
         # ⚠ A narrower bundle is a DIFFERENT bundle_hash, so a golden case
         #   recorded against one does not transfer to the other.
         lines = text.splitlines()
-        text = "\n".join(lines[1060:1240])
+        lo, hi = FILINGS[TICKER]["slice"]
+        text = "\n".join(lines[lo:hi])
     return EvidenceBundle(
-        ticker=TICKER, as_of=date(2025, 6, 26),
+        ticker=TICKER, as_of=FILINGS[TICKER]["as_of"],
         parts=(BundlePart(kind="filing",
                           pins={"accession_id": ACCESSION, "form": "10-Q",
                                 "period_end": "2025-05-29"},
@@ -163,7 +194,17 @@ def parse_items(call, bundle_text: str | None = None) -> list:
                                      row["evidence_id"])
         out.append(item(
             row["evidence_id"], value=value, unit=unit,
-            quote=quote, accession_id=ACCESSION, offset=(start, start + len(quote)),
+            # ⚠⚠ `DX-37` — use `_locate`'s END, never `start + len(quote)`.
+            # ★★ The two agree only when the match was EXACT. `_locate` also
+            # matches under whitespace/typography normalisation, and there the
+            # document's span is a DIFFERENT LENGTH from the quote — so
+            # `start + len(quote)` cuts the span short and `X-01` ① rejects a
+            # citation that is perfectly good, blaming the model for our
+            # arithmetic. Measured on `DX-35`'s repaired sentence: the document
+            # holds `'State of\n\n\nNew York'` where the quote holds
+            # `'State of\nNew York'`, so the span ended 2 chars early on
+            # `'…provides fo'`.
+            quote=quote, accession_id=ACCESSION, offset=(start, end),
             period_start=row.get("period_start"), period_end=row.get("period_end"),
             cumulative_ytd=bool(row.get("cumulative_ytd")),
             qualifier=row.get("qualifier", ""), note=row.get("note", ""),
@@ -302,27 +343,65 @@ def main() -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--dry-run", action="store_true", help="★ free — plan + cost")
     g.add_argument("--live", action="store_true", help="⚠ SPENDS MONEY")
+    ap.add_argument("--block", default="E-01", choices=sorted(BLOCKS),
+                    help="which E-block to run (default E-01 = filing 1's)")
+    ap.add_argument("--prompt-version", default=None,
+                    choices=["v2", "v3"],
+                    help="⚠ v3 is a CANDIDATE; shipping it retires filing 1's "
+                         "recording (L7 §5), so it is opt-in")
+    ap.add_argument("--effort", default=None,
+                    choices=["low", "medium", "high", "xhigh", "max"],
+                    help="⚠ overrides llm.deep.effort. Extraction is "
+                         "transcription; thinking is what truncates a run")
+    ap.add_argument("--ticker", default="MU", choices=sorted(FILINGS),
+                    help="which filing (default MU = filing 1)")
     ap.add_argument("--segment-note-only", action="store_true",
-                    help="~18x cheaper bundle; ⚠ a different bundle_hash")
+                    help="⚠⚠ DIAGNOSTIC ONLY (DX-32) — never for a recording "
+                         "a golden case grades: the slice omits the evidence a "
+                         "PERIOD START is derived from, so discrete and "
+                         "cumulative figures collapse onto one MP-18 identity")
     args = ap.parse_args()
+    _select(args.ticker)
 
     if not FILING.exists():
         print(f"  ⛔ {FILING.relative_to(REPO)} is missing")
         return 1
 
+    if args.effort:
+        # ⚠ A copy — GATEWAY_VALUES is module state and a live run must not be
+        #   able to leave it changed for the next one.
+        globals()["GATEWAY_VALUES"] = {**GATEWAY_VALUES,
+                                       "llm.deep.effort": args.effort}
+        print(f"  ⚠ effort override: {args.effort}")
+
     registry = PromptRegistry()
-    registry.register(e01_v1())
+    factory, item_ids, block_version = BLOCKS[args.block]
+    if args.prompt_version is None:
+        args.prompt_version = block_version
+    # ⚠ E-01 keeps its v2 factory reachable for A/B work; every other block
+    #   ships exactly one version.
+    if args.block == "E-01" and args.prompt_version == "v2":
+        factory = e01_v2
+    registry.register(factory())
     bundle = build_bundle(whole_filing=not args.segment_note_only)
     chars = sum(len(p.content) for p in bundle.parts)
     # ⚠ MEASURED 2026-09-07: this filing tokenised at 2.78 chars/token, not the
     # 4.0 assumed here first — table text with `|` separators and digits is far
     # denser than prose, and the estimate came out 43% LOW.
     est_in = int(chars / 2.78) + 500
-    est_out = 32_000   # ⚠ the cap; adaptive thinking spends from it too
+    # ⚠ READ from the cap, never retyped beside it. This said 32,000 while the
+    #   cap was 12,000 — the same drift as the hardcoded "E-01 v1" label, in the
+    #   number a reader uses to decide whether to spend.
+    from src.fundamental.prompts.call import MAX_TOKENS
+    est_out = MAX_TOKENS["extraction"]
 
     print(f"  filing     : {FILING.relative_to(REPO)}")
     print(f"  bundle     : {chars:,} chars  (hash {bundle.bundle_hash[:16]}…)")
-    print(f"  block      : E-01 v1  ({len(registry.get('E-01', 'v1').text)} chars)")
+    # ⚠ The version is READ, not typed. This line said "E-01 v1" while running
+    #   v2 — a label hardcoded beside the value it describes drifts the moment
+    #   the value changes, and it is the printout a reader trusts.
+    print(f"  block      : {args.block} {args.prompt_version}  "
+          f"({len(registry.get(args.block, args.prompt_version).text)} chars)")
     print(f"  est tokens : ~{est_in:,} in / ~{est_out:,} out (incl. thinking)")
     print(f"  est cost   : ~${est_in * PRICE_IN + est_out * PRICE_OUT:.2f}")
 
@@ -349,7 +428,8 @@ def main() -> int:
 
     # ⚠ DX-26 — a date alone repeats all day, so two runs appended to ONE
     # trace. The seconds make each run its own record.
-    run_id = f"run-{datetime.now().strftime('%Y-%m-%dT%H%M%S')}-e01"
+    run_id = (f"run-{datetime.now().strftime('%Y-%m-%dT%H%M%S')}-"
+              f"{TICKER.lower()}-{args.block.lower().replace('-', '')}")
     store = TraceStore(REPO / ".state/runs", run_id)
     print(f"\n  ⚠ LIVE. run_id = {run_id}")
 
@@ -369,8 +449,12 @@ def main() -> int:
                 + tokens.get("output", 0) * rate_out / 1e6)
 
     transport = traced_transport(
-        anthropic_transport(tool=extraction_tool(E01_ITEM_IDS)), store,
-        step_id="extract:E-01", cost_of=_cost_of)
+        anthropic_transport(tool=extraction_tool(item_ids)), store,
+        step_id=f"extract:{args.block}", cost_of=_cost_of,
+        # ⚠⚠ Without this the trace records `prompt_version: None` — so a
+        # recording cannot say WHICH prompt produced it, and a golden case
+        # grading it cannot tell whether it still grades what we ship.
+        prompt_version=args.prompt_version)
     gateway = Gateway(Config(GATEWAY_VALUES, sources=("tools/run_extraction_once.py",)),
                       transport=transport)
     seam = AnalysisGateway(gateway, registry)
@@ -380,7 +464,7 @@ def main() -> int:
     # result, so the trace asserted success about a failed run. ★ A trace that
     # can disagree with its own run is worse than no trace.
     try:
-        result = run_extraction(seam, block_ids=[("E-01", "v1")], bundle=bundle,
+        result = run_extraction(seam, block_ids=[(args.block, args.prompt_version)], bundle=bundle,
                                 run_id=run_id,
                                 parse=lambda c: parse_items(c, bundle.parts[0].content))
     except Exception as exc:                       # noqa: BLE001

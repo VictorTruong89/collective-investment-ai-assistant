@@ -42,8 +42,13 @@ from collections.abc import Callable
 #: second run records a call under the same name.
 INPUT_REF_RE = re.compile(
     r"^(?P<run_id>[^/\s#]+)/(?P<call_id>[^/\s#]+)"
+    # ⚠⚠ `end` is `*`, not `+`: a trailing `|:` means **this item has no
+    # period**. Requiring an end date made periodless items unaddressable —
+    # and those are exactly the `not_found` items (`MP-7`) and the narrative
+    # ones (`C14`), i.e. the two kinds the golden set most needs to pin,
+    # because they are where a system quietly says nothing at all.
     r"(?:#(?P<evidence_id>[^|\s]+)\|(?P<qualifier>[^|]*)\|"
-    r"(?P<start>[^:\s]*):(?P<end>[^\s]+))?$"
+    r"(?P<start>[^:\s]*):(?P<end>[^\s]*))?$"
 )
 
 

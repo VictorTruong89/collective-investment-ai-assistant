@@ -57,7 +57,7 @@ class FakeSeam:
 
 def _registry(kind="extraction"):
     r = PromptRegistry()
-    r.register(block("E-01", "v1", kind, "Extract the reporting-segment table."))
+    r.register(block("E-01", "v2", kind, "Extract the reporting-segment table."))
     return r
 
 
@@ -74,7 +74,7 @@ def test_dx_23_run_extraction_calls_the_seam_once_per_block_and_verifies():
     """The runner's contract: one call per declared block, then X-01."""
     reg = _registry()
     seam = FakeSeam(reg)
-    result = run_extraction(seam, block_ids=[("E-01", "v1")], bundle=_bundle(),
+    result = run_extraction(seam, block_ids=[("E-01", "v2")], bundle=_bundle(),
                             run_id="run-1", parse=_parse_one)
 
     assert len(seam.calls) == 1
@@ -96,7 +96,7 @@ def test_dx_23_a_judgement_block_is_refused_before_any_call():
     reg = _registry(kind="judgement")
     seam = FakeSeam(reg)
     with pytest.raises(ExtractionKindError):
-        run_extraction(seam, block_ids=[("E-01", "v1")], bundle=_bundle(),
+        run_extraction(seam, block_ids=[("E-01", "v2")], bundle=_bundle(),
                        run_id="run-1", parse=_parse_one)
     assert seam.calls == [], "refused only AFTER calling the model — that costs money"
 
@@ -117,7 +117,7 @@ def test_dx_23_a_quote_not_in_the_bundle_aborts():
 
     reg = _registry()
     with pytest.raises(Exception) as exc:
-        run_extraction(FakeSeam(reg), block_ids=[("E-01", "v1")],
+        run_extraction(FakeSeam(reg), block_ids=[("E-01", "v2")],
                        bundle=_bundle(), run_id="run-1", parse=_parse_hallucinated)
     assert "9,999" in str(exc.value) or "span" in str(exc.value).lower()
 
@@ -148,7 +148,7 @@ def test_dx_23_the_segment_table_survives_the_runner_intact():
                             cumulative_ytd=cum, qualifier=qual))
         return out
 
-    result = run_extraction(FakeSeam(_registry()), block_ids=[("E-01", "v1")],
+    result = run_extraction(FakeSeam(_registry()), block_ids=[("E-01", "v2")],
                             bundle=_bundle(), run_id="run-1", parse=_parse_rows)
     (extraction,) = result.results
     assert len(extraction.items) == 2

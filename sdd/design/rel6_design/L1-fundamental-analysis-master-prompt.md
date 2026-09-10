@@ -437,7 +437,7 @@ in the document, or that you assembled from two places, is not.
 > project has actually made**, and an extractor that silently subtracts reproduces it inside the
 > LLM layer where no `TTM_SOURCE_TOLERANCE` check can see it.
 
-## E-01 · Segment revenue and operating income — `v1`
+## E-01 · Segment revenue and operating income — `v2`
 
 ```text
 From the filings in the bundle, extract the reporting-segment table for every
@@ -453,7 +453,61 @@ Items:
 
 If the company restated prior-period segments, return BOTH the as-originally-
 reported and the as-restated figures, each tagged, and never silently prefer one.
+
+Every value must appear VERBATIM inside the quote you cite for it. For a figure,
+quote the line that states it, and give the figure without a currency symbol —
+the currency belongs in the unit. For a text item, the value must be words
+copied from the quote: never a summary of it, never two sentences joined.
+A value that cannot be found in its own quote cannot be checked, and is refused.
 ```
+
+> ✏ **`v2`, 2026-09-07 (`RA-13`).** The final paragraph is new. ⚠ `v1` left
+> "verbatim" to the tool schema's field description, and a live run returned a
+> **paraphrase** as a `seg.basis_note` value — *"Business units reorganized
+> effective Q4 2025; segment reporting to be recast … into CMBU, CDBU, MCBU and
+> AEBU"* — while quoting the document's actual sentence. `X-01` refused it,
+> correctly. ★★ `MP-5` says the shape is enforced by the API, but *what counts
+> as a value* is meaning, not shape, and a schema cannot carry it. That belongs
+> in the prompt.
+
+## E-01 · Segment revenue and operating income — `v3`
+
+```text
+From the filings in the bundle, extract the reporting-segment table for every
+period the filings cover.
+
+Items:
+  seg.name          the segment name as the company defines it
+  seg.revenue       revenue for that segment, that period
+  seg.op_income     operating income or loss for that segment, that period
+  seg.assets        identifiable assets, if disclosed
+  seg.basis_note    any statement that the segmentation changed, was restated,
+                    or that a segment was renamed or merged
+
+If the company restated prior-period segments, return BOTH the as-originally-
+reported and the as-restated figures, each tagged, and never silently prefer one.
+If the filing presents only ONE basis, return that basis and say which one it is
+in a seg.basis_note. Do not search for figures the filing does not contain.
+
+Every value must appear VERBATIM inside the quote you cite for it. For a figure,
+quote the line that states it, and give the figure without a currency symbol —
+the currency belongs in the unit. For a text item, the value must be words
+copied from the quote: never a summary of it, never two sentences joined.
+A value that cannot be found in its own quote cannot be checked, and is refused.
+```
+
+> ✏ **`v3`, 2026-09-08 (`RA-13`) — CANDIDATE, not yet shipped.** Two sentences
+> added to the restatement clause. ⚠⚠ `v2` demanded *both* bases whenever a
+> restatement was mentioned, and AMD's FY2025 Q3 10-Q states a retrospective
+> adjustment **while containing only the restated figures**. The prompt asked
+> for something the document does not hold and gave no way to say so, so the
+> model spent **32,000 output tokens producing nothing** — at `effort: low`, on
+> a 3,688-token input (`DX-31`).
+>
+> ★★★ That is `MP-7`'s own principle one level up: *"an LLM with no stated way
+> to say 'I could not' will always find something to say"* — except a
+> cross-cutting instruction has no `not_found`, so it could not even do that.
+> **Every demand in a prompt needs a reachable exit.**
 
 **Why this one first:** a segment table is the cheapest available test of whether the story matches
 the accounts. It is also where a restatement hides — and a restated comparative is exactly the kind
@@ -477,6 +531,45 @@ Do not include analyst estimates, consensus figures, or any third-party forecast
 Do not include a figure the company described as an illustration or a scenario.
 `withdrawn` guidance is a high-value item — never drop it for being empty.
 ```
+
+## E-02 · Guidance, and its revision — `v2`
+
+```text
+Extract every forward-looking figure the COMPANY ITSELF stated, and only those.
+
+  gd.metric         what is being guided (revenue, gross margin, capex, …)
+  gd.value          the figure or range as stated
+  gd.period         the period guided
+  gd.stated_on      the filing/date it was stated in
+  gd.prior_value    the same guidance as previously stated, if the bundle
+                    contains an earlier statement of it
+  gd.language_note  verbatim hedging language attached to it
+
+Do not include analyst estimates, consensus figures, or any third-party forecast.
+Do not include a figure the company described as an illustration or a scenario.
+`withdrawn` guidance is a high-value item — never drop it for being empty: return
+gd.metric and gd.period with the company's own words about the withdrawal in
+gd.language_note.
+```
+
+> ✏ **`v2`, 2026-09-09 (`RA-13`) — `gd.direction` REMOVED.** *(Victor's decision;
+> `DX-34`.)* `v1` asked for a label from a closed set — *raised | lowered |
+> reaffirmed | initiated | withdrawn*. ⚠⚠ **That is a comparison of `gd.value`
+> against `gd.prior_value`, i.e. a COMPUTATION** — and `MP-6` already forbade it:
+> *"No prompt in this file computes anything."* The defect was latent only
+> because nothing had ever run `E-02`.
+>
+> ★★★ It also could not pass `X-01`. Measured 2026-09-09: `gd.direction` came
+> back `'reaffirmed'`, and that word appears nowhere in its cited span — because
+> the model **chose** it rather than copying it. `RA-5` splits extraction (*what
+> does this document say* — ground truth exists, verifiable) from judgement;
+> `gd.direction` sat on the judgement side while declared as extraction, so the
+> guard the whole kind rests on had to refuse it.
+>
+> ★ **The direction is now `D-02`'s**, derived by arithmetic from `gd.value` and
+> `gd.prior_value` with an arithmetic trail (`AP-5` — deterministic where a
+> computation applies). ⚠ `withdrawn` is the one state arithmetic cannot derive,
+> so the clause above keeps it reportable as the company's own words.
 
 ## E-03 · Risk-factor delta — `v1`
 

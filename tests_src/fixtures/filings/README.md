@@ -1,5 +1,9 @@
 # Filing fixtures — the documents golden `extraction` cases are established from
 
+> ⚠⚠ **Filing 1 (MU) is load-bearing.** Its provenance, the ten cases it supports,
+> and what a filing-2 fix could break are in
+> [`../../../sdd/design/rel1_design/L7-golden-set-filing-1.md`](../../../sdd/design/rel1_design/L7-golden-set-filing-1.md).
+
 A golden `extraction` case's `input_ref` names a file **in this directory**. `F5` `CT-5.2` calls it
 *"the fixture"*: the document whose text contains the answer.
 

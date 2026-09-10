@@ -223,3 +223,46 @@ def test_ac_5_1_a_thesis_golden_value_is_recorded_as_a_judgement():
                       source="fund manager's own view, 2026-09-04",
                       established_at="2026-09-04", established_by="Victor Truong")
     assert case.is_judgement is True
+
+
+@pytest.mark.parametrize("who", ["____", "---", "???", "...", "TBD", "tbd",
+                                 "pending", "N/A", "none", "Unknown", "xxx",
+                                 "FIXME", "anonymous"])
+def test_ac_5_1_a_placeholder_establisher_is_refused(who):
+    """⚠⚠ `DX-38` — the SECOND way an unestablished value grades as gold.
+
+    ★★★ `DX-28` fixed exactly this for `established_at` and left its twin open
+    ONE LINE ABOVE. The `established_by` check was `if not ...strip()`, which
+    passes any non-empty text — so the template's own blank, `____`, validated.
+
+    ⚠ Measured 2026-09-09: 3 of 8 prepared `E-02` cases carried
+    `established_by: '____'` beside a real `established_at`, and every one
+    constructed cleanly. **Two of the three were the cases pinning `DX-33` and
+    `DX-35`** — this session's own fixes, about to be graded as established by
+    nobody.
+
+    ★ `D2`'s circularity check could never catch it: a placeholder names neither
+    a person nor a pipeline component. It is not circular, it is UNATTRIBUTED —
+    and `AC-5.1` requires a PERSON.
+    """
+    with pytest.raises(ValueError, match="names nobody"):
+        GoldenCase(case_id="g1", kind="extraction", input_ref="f1",
+                   expected={"revenue": 100}, source="read from the 10-K",
+                   established_at="2026-09-09", established_by=who)
+
+
+@pytest.mark.parametrize("who", ["Victor Truong", "V. Truong", "Truong",
+                                 "O'Brien", "Jean-Luc", "M K", "Ana", "张伟"])
+def test_ac_5_1_a_real_name_is_never_mistaken_for_a_placeholder(who):
+    """⚠⚠ The half of `DX-38` that is easy to get wrong.
+
+    ★ A blank-detector that also rejects real people is worse than none: it
+    makes signing a case feel arbitrary, and the fund manager works around it.
+    Names are one-word, initialled, hyphenated, apostrophed and non-Latin —
+    so the check tests for the ABSENCE OF LETTERS, never for the presence of a
+    name-like shape. `P5`: fail loud, not fail clever.
+    """
+    case = GoldenCase(case_id="g1", kind="extraction", input_ref="f1",
+                      expected={"revenue": 100}, source="read from the 10-K",
+                      established_at="2026-09-09", established_by=who)
+    assert case.established_by == who

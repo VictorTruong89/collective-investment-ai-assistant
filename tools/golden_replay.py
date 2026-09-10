@@ -30,6 +30,11 @@ from src.evaluation.regression.replay import recorded_response
 from tools.f2_payload_reader import f2_payload_reader
 from tools.run_extraction_once import FILING, parse_items
 
+#: ⚠ The VERSION-CONTROLLED recordings, not `.state/runs/` — that is gitignored,
+#: so a golden case pointed at it runs on exactly one laptop (`DX-12`'s shape).
+REPO = pathlib.Path(__file__).resolve().parent.parent
+RECORDINGS = REPO / "tests_src/fixtures/recordings"
+
 
 def _as_recorded_items(bundle_text: str) -> Callable[[object], list]:
     """Recording → `ExtractedItem.to_json_obj()` list, the shape cases use."""
@@ -49,7 +54,7 @@ def _as_recorded_items(bundle_text: str) -> Callable[[object], list]:
     return parse
 
 
-def golden_replay(root: str | pathlib.Path,
+def golden_replay(root: str | pathlib.Path | None = None,
                   bundle_text: str | None = None) -> Callable[[str], object]:
     """The `replay_response` a golden case's `input_ref` resolves through.
 
@@ -57,7 +62,32 @@ def golden_replay(root: str | pathlib.Path,
     offsets and quotes are checked against it. Defaults to the filing fixture,
     which is what `run_extraction_once.py` sends.
     """
-    if bundle_text is None:
-        bundle_text = FILING.read_text(encoding="utf-8")
-    return recorded_response(f2_payload_reader(root),
-                             parse=_as_recorded_items(bundle_text))
+    if root is None:
+        root = RECORDINGS
+    root = pathlib.Path(root)
+
+    if bundle_text is not None:          # ★ explicit override, used by tests
+        return recorded_response(f2_payload_reader(root),
+                                 parse=_as_recorded_items(bundle_text))
+
+    # ⚠⚠ One bundle for every case was wrong the moment a SECOND filing joined
+    # the golden set: AMD's cases were parsed against MU's text and every quote
+    # "was not in the bundle". ★ Each recording states its own filing.
+    cache: dict[str, str] = {}
+
+    def _text_for(run_id: str) -> str:
+        if run_id not in cache:
+            manifest = root / run_id / "filing.json"
+            fixture = (json.loads(manifest.read_text())["fixture"]
+                       if manifest.exists() else str(FILING))
+            cache[run_id] = (REPO / fixture).read_text(encoding="utf-8")
+        return cache[run_id]
+
+    reader = f2_payload_reader(root)
+
+    def replay(input_ref: str):
+        run_id = input_ref.split("/", 1)[0]
+        return recorded_response(
+            reader, parse=_as_recorded_items(_text_for(run_id)))(input_ref)
+
+    return replay

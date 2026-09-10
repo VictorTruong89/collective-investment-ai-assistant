@@ -374,7 +374,7 @@ reason. Upstream `CN-10` says *"**'admitted guess' is an acceptable answer; sile
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-5.1 | `tests/unit/test_evaluation_metrics.py::test_ac_5_1_*` (4, incl. 5 forbidden establishers) | `src/evaluation/golden/models.py::GoldenCase` |
+| AC-5.1 | `tests/unit/test_evaluation_metrics.py::test_ac_5_1_*` (6, incl. 5 forbidden establishers, ★ 13 placeholder blanks and 8 real names — `DX-38`) | `src/evaluation/golden/models.py::GoldenCase` · `_is_placeholder` |
 | AC-5.2 | `::test_ac_5_2_a_figure_without_n_cannot_be_built` · `::test_ac_5_2_value_and_insufficiency_are_mutually_exclusive` | `metrics/models.py::MetricResult` |
 | AC-5.3 | `::test_ac_5_3_selection_count_travels_with_the_figure` · `::test_ac_5_3_selection_count_starts_at_one` | `metrics/models.py` |
 | AC-5.4 | `::test_ac_5_4_tier_must_be_declared_and_valid` · `tests/integration/test_evaluation_regression.py::test_ac_5_4_an_underpowered_comparison_is_insufficient_never_a_pass` | `metrics/models.py`, `studies/compare.py` |
@@ -395,7 +395,16 @@ reason. Upstream `CN-10` says *"**'admitted guess' is an acceptable answer; sile
 
 ✅ **All 16 ACs green, 2026-09-04** — **21 mutations run, all caught on the first pass.**
 
+✅ **The golden set is no longer empty — 25 cases, 2026-09-09.** 20 grade `E-01` (segment tables,
+MU + AMD) and 5 grade `E-02` (guidance, MU), every one established by the fund manager against the
+filing and every one verified to RED under mutation before it was signed.
+
 ⚠ **What is NOT covered, stated because a traceability table's job is to be honest:**
-`AC-5.1`'s golden set is **empty** — the machinery that refuses a circular golden value is tested, but
-**no real golden case exists yet**, because `D2` makes that the fund manager's work. The regression
-suite runs and reds correctly; it currently has nothing to red *about*.
+- **2 blocks of 15.** `E-03`…`E-15` have no cases at all, and `ranking` and `thesis` have none —
+  ★ `thesis` is the kind `D2` says is a judgement, and the most expensive output in the system.
+- **3 `E-02` cases remain unsigned** in `extraction.pending.yaml`, including the two that would pin
+  `DX-33` and `DX-35`. ⚠ Until signed, both fixes are in code but **ungraded**.
+- ⚠⚠ **`AC-5.1` was enforced weakly until `DX-38`** (2026-09-09): `established_by` refused an empty
+  string but accepted the template's own blank `'____'`, so an unsigned case could grade as
+  established. ★ `D2`'s circularity check could not catch it — a placeholder is not circular, it is
+  unattributed. Measured on 3 real cases before it was closed.

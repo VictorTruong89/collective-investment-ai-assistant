@@ -204,3 +204,23 @@ def test_c12_an_unpriced_call_records_absent_not_zero(tmp_path):
     store.close()
     (rec,) = [r for r in store.read_all() if r["type"] == "ExternalCall"]
     assert rec["cost_usd"] is None
+
+
+def test_a_recording_states_which_prompt_version_produced_it(tmp_path):
+    """⚠⚠ `CT-2.2` carried `prompt_version` and nothing ever filled it — every
+    recording said `None`.
+
+    ★★ It matters the moment a prompt is versioned (`E-01` v1 → v2): a golden
+    case grades a RECORDED call, and without this it cannot tell whether it
+    still grades what the repo ships. A suite pinned to a retired prompt
+    reports green about the past.
+    """
+    from src.orchestration.trace.wire import traced_transport
+
+    store = TraceStore(tmp_path, "r-ver")
+    traced_transport(lambda req: {"text": "ok", "tokens_in": 1, "tokens_out": 1},
+                     store, step_id="extract:E-01",
+                     prompt_version="v2")({"model": "m", "max_tokens": 8})
+    store.close()
+    (rec,) = [r for r in store.read_all() if r["type"] == "ExternalCall"]
+    assert rec["prompt_version"] == "v2"
