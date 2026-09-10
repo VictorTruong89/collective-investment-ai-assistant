@@ -690,44 +690,80 @@ html{scroll-behavior:smooth;scroll-padding-top:4rem}
     <p>The paywall bites hardest on the classic <em>Journal of Finance</em> / <em>Journal of Financial Economics</em> / <em>Review of Financial Studies</em> canon — which you will want. But note the shape of that problem: it is a <strong>bounded, known set of famous papers</strong>, not an ongoing discovery problem. Twenty or thirty PDFs fetched manually through the library over an afternoon largely closes it, and they stay closed.</p>
   </div>
 
-  <h4>(c) Publisher and institutional full text — where the uOttawa entitlement matters</h4>
+  <h4>(c) Publisher and institutional full text — <span style="color:var(--verd)">confirmed with the Library, 2026-09-09</span></h4>
+
+  <div class="col">
+  <p>Every row below is now an answer rather than a guess. uOttawa holds TDM agreements with <strong>all four</strong> of the publishers that matter here.</p>
+  </div>
 
   <div class="tablewrap">
   <table>
     <thead><tr><th>Route</th><th>Journals that matter here</th><th>How access actually works</th></tr></thead>
     <tbody>
-      <tr><td><strong><a href="https://dev.elsevier.com/">Elsevier / ScienceDirect API</a></strong></td><td><em>Journal of Financial Economics</em> · <em>Journal of Banking &amp; Finance</em> · <em>Journal of Empirical Finance</em></td><td>Free developer key for metadata. <strong>Full text requires institutional entitlement to resolve</strong> — in practice an on-campus or VPN IP, or an institutional token.</td></tr>
+      <tr><td><strong><a href="https://dev.elsevier.com/">Elsevier / ScienceDirect API</a></strong></td><td><em>Journal of Financial Economics</em> · <em>Journal of Banking &amp; Finance</em> · <em>Journal of Empirical Finance</em></td><td>★ <span class="pill ok">confirmed</span> Institutional login <em>plus</em> an API token — and it <strong>works off-campus without the VPN</strong>. <a href="https://dev.elsevier.com/sd_api_spec.html">Use cases</a> · <a href="https://dev.elsevier.com/api_key_settings.html">rate limits</a>. ⚠ Request a higher access level from Elsevier directly if retrieving full text at volume.</td></tr>
       <tr><td><strong><a href="https://dev.springernature.com/">Springer Nature API</a></strong></td><td>Quantitative finance, OR and applied-mathematics titles</td><td>Free key; metadata broadly, full text for open-access content.</td></tr>
-      <tr><td><strong><a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley Text and Data Mining API</a></strong></td><td><em>Journal of Finance</em> · <em>Mathematical Finance</em> · <em>Journal of Futures Markets</em></td><td>★ Requires a <strong>TDM token issued through your library</strong>. This is the single most valuable thing to ask for.</td></tr>
-      <tr><td><strong>Oxford University Press</strong> · <strong>Taylor &amp; Francis</strong></td><td><em>Review of Financial Studies</em> (OUP) · <em>Financial Analysts Journal</em> (T&amp;F / CFA Institute) · <em>Quantitative Finance</em> (T&amp;F)</td><td>TDM arrangements exist but are negotiated per institution. Ask the library rather than assuming.</td></tr>
+      <tr><td><strong><a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley Text and Data Mining API</a></strong></td><td><em>Journal of Finance</em> · <em>Mathematical Finance</em> · <em>Journal of Futures Markets</em></td><td><span class="pill ok">confirmed</span> Accept <strong>Wiley’s Text and Data Mining Agreement</strong> to receive an API token — <a href="https://www.onlinelibrary.wiley.com/library-info/resources/text-and-datamining">details here</a>.</td></tr>
+      <tr><td><strong>Oxford University Press</strong> · <strong>Taylor &amp; Francis</strong></td><td><em>Review of Financial Studies</em> (OUP) · <em>Financial Analysts Journal</em> (T&amp;F / CFA Institute) · <em>Quantitative Finance</em> (T&amp;F)</td><td><span class="pill ok">confirmed</span> Both covered by uOttawa licences. OUP: contact <code>data.mining@oup.com</code>. T&amp;F: contact <code>support@tandfonline.com</code>.</td></tr>
       <tr><td><strong>JSTOR</strong></td><td>Older finance and economics canon</td><td>⚠ JSTOR ran a TDM platform (<em>Constellate</em>) which I understand was discontinued around mid-2025. <strong>Verify current status</strong> rather than planning around it.</td></tr>
-      <tr><td><strong>WRDS</strong> — Wharton Research Data Services</td><td>CRSP · Compustat · IBES · TAQ</td><td>Data, not papers — but it is what turns "read the paper" into "replicate the paper." ★ Worth asking whether Telfer holds a subscription; many business schools do.</td></tr>
+      <tr><td><strong>WRDS</strong> — Wharton Research Data Services</td><td>CRSP · Compustat · IBES · TAQ</td><td>★ <span class="pill ok">confirmed — uOttawa has it</span> <a href="https://uottawa.libguides.com/financelab/access_descriptions">Access details</a>. Data, not papers — but it is what turns "read the paper" into <strong>"replicate the paper."</strong></td></tr>
       <tr><td><strong><a href="https://www.zotero.org/support/dev/web_api/v3/start">Zotero</a></strong></td><td>—</td><td>Not a source; the pragmatic <em>store</em>. Free, with a REST API and a local SQLite database a tool can read. Its browser connector handles the "I am already authenticated in this tab, save this paper" case, which is exactly the manual-acquisition path that stays inside every licence.</td></tr>
     </tbody>
   </table>
   </div>
 
-  <h3><span class="sn">6.4</span> The boundary that matters, and the one email that resolves it</h3>
+  <h3><span class="sn">6.4</span> The access policy — two modes, and why every database is open to us</h3>
 
   <div class="col">
-  <p>Institutional licences generally do permit text and data mining for research — <em>through the sanctioned route</em>. The unsanctioned route is scripting an EZproxy session to bulk-download PDFs, and it is worth being clear about why that is a bad idea beyond the abstract question of terms of service:</p>
+  <p>The Library's reply (2026-09-09) answered the access question and, in the process, dissolved a confusion that this section previously carried. The licence clauses the librarian quoted are real and specific — but they do <strong>not</strong> all attach to the same activity. Separating the two modes is what makes the whole catalogue usable without ambiguity.</p>
+  </div>
+
+  <div class="tablewrap">
+  <table>
+    <thead><tr><th></th><th>Mode A — <strong>reading</strong></th><th>Mode B — <strong>mining</strong></th></tr></thead>
+    <tbody>
+      <tr><td><strong>What it is</strong></td><td>Log in through the Library, open or download an article, read it, keep it in a reference manager</td><td>API or bulk retrieval of full text for automated computational processing</td></tr>
+      <tr><td><strong>Which rules apply</strong></td><td>Ordinary authorized-user terms. ★ This is what a library subscription <em>is</em>. Personal retention in Zotero is normal, expected, and not governed by the TDM clauses</td><td>The TDM agreement for that specific publisher — acknowledgment, no redistribution, storage constraints, deletion after analysis, no competing product</td></tr>
+      <tr><td><strong>Entry cost</strong></td><td>None. Already entitled</td><td>A per-publisher token and an accepted agreement</td></tr>
+      <tr><td><strong>Our default</strong></td><td>★★ <strong>Use every database, without restriction</strong></td><td>Entered deliberately, per publisher, when Mode A cannot answer the question</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">★ In-house rule — literature access</span>
+    <p><strong>1 · Mode A is the default and it is unrestricted.</strong> Elsevier, Wiley, OUP, Taylor &amp; Francis, Springer, JSTOR, Scopus, WRDS and every other licensed resource are read, downloaded and kept in the reference manager as ordinary graduate-student use. No tooling, no token and no special justification is required, and nothing in this lecture should be read as discouraging it.</p>
+    <p><strong>2 · Mode B is entered per publisher, on their terms.</strong> Accept the agreement, hold the token in the environment (never the repo), acknowledge the source in anything written up, do not redistribute, and treat harvested full text as <em>working storage</em> — see §6.6.</p>
+    <p><strong>3 · Prefer Mode A.</strong> Not for caution — because §6.7 is right: the goal is precision over roughly thirty papers read properly, and thirty papers is a Mode A problem. Mode B earns its token when a question genuinely requires scale.</p>
+  </div>
+
+  <h4>The project's standing, recorded rather than assumed</h4>
+
+  <div class="col">
+  <p>Elsevier's and OUP's grants are for <strong>non-commercial research and scholarly or educational use</strong>. That is a condition on the licence, so the project's position on it is worth writing down once, plainly, rather than leaving it to be re-derived under pressure:</p>
 
   <ul>
-    <li>At individual scale it gets the account suspended, which ends the research loop entirely.</li>
-    <li>⚠ At any noticeable scale, publishers respond by <strong>blocking the institution's whole IP range</strong>. The cost of that lands on several thousand other students and researchers who did nothing. This is not a hypothetical failure mode; it happens regularly enough that libraries have standing procedures for it.</li>
+    <li><strong>This is a personal project and the research is self-education.</strong> The literature work described in these lectures exists so the fund manager understands the mathematics he is implementing — quantitative method, risk, evaluation design. That is scholarly and educational use in the ordinary sense of both words.</li>
+    <li><strong>Nothing is sold, licensed or operated for anyone else.</strong> No third-party capital, no clients, no product, no service. Vision §1.1 purpose 2 is explicitly a learning and portfolio objective; vision §7 permanently forbids automatic execution and any path from a report to a broker order.</li>
+    <li><strong>The non-compete clause is satisfied on its face.</strong> Elsevier's condition is that the analysis must not compete with, substitute for or replicate <em>publisher products</em> — abstracting databases, indexes, full-text services. A private investment-method study produces none of those and could not substitute for one.</li>
+  </ul>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">⚠ Review trigger — the one condition that would change this</span>
+    <p>The paragraph above is a statement about <strong>today</strong>, 2026-09-09, and it is accurate today. If the system is ever operated on a third party's capital, sold, licensed, or turned into a service for anyone other than the fund manager, <strong>the non-commercial basis for Mode B access must be re-examined before any further Mode B retrieval</strong> — and the Library asked again.</p>
+    <p>Recording the trigger costs nothing now and is what keeps the position honest rather than convenient. It is the same instinct as the rest of this repository: <em>state the assumption, date it, and say what would falsify it.</em> Mode A is unaffected by any of this — a graduate student reading licensed articles remains a graduate student reading licensed articles.</p>
+  </div>
+
+  <h4>What stays out of bounds, regardless</h4>
+
+  <div class="col">
+  <p>One thing does not become acceptable under any framing, and it is worth keeping visible because it is the one that would actually cost something:</p>
+
+  <ul>
+    <li>⛔ <strong>Scripting an EZproxy session to bulk-download PDFs.</strong> At individual scale it gets the account suspended, ending the research loop. At any noticeable scale, publishers respond by blocking <strong>the institution's whole IP range</strong> — a cost borne by several thousand people who did nothing. The sanctioned API route now exists for all four publishers, so there is no longer any reason to reach for the unsanctioned one.</li>
   </ul>
 
-  <p><strong>The correct move is one email, and it costs an afternoon.</strong> University libraries employ scholarly-communication and research-data librarians whose actual job is this request. What to ask for:</p>
-
-  <ol>
-    <li>Does uOttawa hold <strong>TDM agreements</strong> with Wiley, Elsevier, OUP or Taylor &amp; Francis, and how does a graduate student obtain a token?</li>
-    <li>Is there an <strong>institutional entitlement for the Elsevier developer API</strong>, and what does it require — VPN, campus IP, institutional token?</li>
-    <li>What is the <strong>sanctioned method</strong> for programmatic access to licensed content, and what volumes are considered acceptable?</li>
-    <li>Does the institution subscribe to <strong>WRDS</strong>, and is graduate access available?</li>
-    <li>Is there a <strong>current-awareness / alerting</strong> service worth configuring, so new work in these areas arrives rather than being hunted?</li>
-  </ol>
-
-  <p>★ A companion draft of this email is filed alongside this lecture at <code>docs/lectures/L6-librarian-enquiry.md</code>. Send it early — institutional processes move on their own schedule, and this is the only item in the whole plan with an external dependency.</p>
+  <p>The Library also noted that <strong>publishers do not publish standard volume limits</strong> and do not disclose them to the institution. If a limit is not stated when access is granted, ask that publisher directly. ★ Asking is cheap; discovering the limit by tripping it is not.</p>
   </div>
 
   <h3><span class="sn">6.5</span> What the assistant can already do — the honest inventory</h3>
@@ -764,11 +800,19 @@ html{scroll-behavior:smooth;scroll-padding-top:4rem}
     <tbody>
       <tr><td>★ <strong>0</strong></td><td><strong>Nothing.</strong> Assistant + <code>curl</code> + OpenAlex / arXiv / Semantic Scholar + manual PDF fetches</td><td><span class="pill ok">zero</span></td><td>Everything, for a single brainstorm. <strong>Start here and find out whether it is already enough.</strong></td></tr>
       <tr><td><strong>1</strong></td><td>A thin search CLI: query three APIs in parallel, dedupe by DOI, rank by citation count / recency / venue, emit JSON + BibTeX</td><td>~half a day</td><td>Reproducibility and caching. The same search stops being re-issued and re-paid-for every session.</td></tr>
-      <tr><td><strong>2</strong></td><td>Acquisition: Unpaywall → OA PDF where legal; otherwise flag <code>needs-library</code>. PDFs in a cache directory with a DOI-keyed manifest and extracted text</td><td>~half a day + the library conversation</td><td>The durable corpus. Release 3 stops re-litigating release 2.</td></tr>
+      <tr><td><strong>2</strong></td><td>Acquisition with a <strong>storage split</strong> (see below): Unpaywall → OA PDF; Mode A fetches into the reference manager; Mode B output into a working directory that is cleared after the analysis</td><td>~half a day</td><td>The durable corpus — metadata, notes and OA full text persist; Release 3 stops re-litigating Release 2.</td></tr>
       <tr><td><strong>3</strong></td><td>Expose it as an MCP server: <code>lit_search</code>, <code>lit_get</code>, <code>lit_cited_by</code>, <code>lit_citing</code></td><td>~a day</td><td>Native in every session, including a fresh one, with no <code>curl</code> ceremony and no re-explanation.</td></tr>
       <tr><td><strong>4</strong></td><td>A local index over full text</td><td>~a day</td><td>⚠ <strong>Probably nothing.</strong> See §6.7.</td></tr>
     </tbody>
   </table>
+  </div>
+
+  <div class="callout key">
+    <span class="lbl">★ The Tier 2 storage split</span>
+    <p>The TDM clauses require that <em>mined</em> copies be deleted once the computational analysis is done. That constrains one shelf of the corpus, not the corpus:</p>
+    <p><strong>Durable, indefinitely:</strong> metadata and DOIs · your own notes and extracts · the citation graph · search results and their provenance · open-access full text · ★ anything obtained in Mode A and kept in the reference manager, which is ordinary personal retention.</p>
+    <p><strong>Working storage, cleared after the analysis:</strong> full text harvested through a publisher TDM API in Mode B.</p>
+    <p>So the durable corpus survives intact — the deletion rule bites on bulk-mined text, which is the shelf you were least likely to need twice anyway. Note Elsevier’s additional condition that mined copies be stored on a secure server <strong>in Canada</strong>: on a single-machine project in Ottawa that is satisfied by construction, but it is a reason never to sync that particular directory to an offshore cloud drive.</p>
   </div>
 
   <div class="callout">
@@ -792,6 +836,11 @@ html{scroll-behavior:smooth;scroll-padding-top:4rem}
     <span class="lbl">★ The best retriever in this domain is not a retriever</span>
     <p><strong>It is the citation graph.</strong> Starting from one seed paper you trust and walking <em>cited-by</em> forward and <em>references</em> backward gives higher precision than any embedding search over the same corpus — because <strong>every edge in that graph was placed there by a human being who read both papers</strong>. OpenAlex and Semantic Scholar both expose it in both directions, free.</p>
     <p>It also answers the question §6.2's rule demands and that similarity search is structurally bad at: <em>who disagreed with this?</em> Semantic Scholar's citation <em>contexts</em> take it further — the sentence in which a later paper cites an earlier one frequently contains the disagreement verbatim. That is a dissent-finding mechanism, not just a discovery one.</p>
+  </div>
+
+  <div class="col">
+  <p><strong>Two corroborations from the Library worth acting on.</strong> Asked what alerting to use, the librarian recommended <strong>Scopus alerts driven by a deliberately narrow query</strong> rather than a whole subject area — and explicitly advised <em>against</em> Google Scholar alerts, for exactly the reason this lecture keeps returning to: an over-broad query inundates you, and precision beats recall when a human has to read the results.</p>
+  <p>★ The second is <a href="https://www.researchrabbit.ai/"><strong>Research Rabbit</strong></a>, recommended for finding related work through <em>both</em> keywords and <strong>citation networks</strong>. That is §6.7's argument arriving independently from a professional librarian: the citation graph is the high-precision discovery mechanism in this domain, and the tools that expose it are the ones worth learning. Try it before building Tier 1 — it may close the gap on its own.</p>
   </div>
 
   <h3><span class="sn">6.8</span> Where such a tool lives — and why not in <code>src/</code></h3>
@@ -849,8 +898,8 @@ html{scroll-behavior:smooth;scroll-padding-top:4rem}
     <thead><tr><th>#</th><th>Do</th><th>Why in this position</th></tr></thead>
     <tbody>
       <tr><td>1</td><td>★ <strong>Write the citation rule (§6.2) into the design-tier template</strong></td><td>Free, today, and the largest single effect. Turns "read the literature" from an aspiration into a gate.</td></tr>
-      <tr><td>2</td><td><strong>Send the librarian enquiry</strong> (<code>L6-librarian-enquiry.md</code>)</td><td>The only step with an external dependency and its own timetable. Start it before it is needed.</td></tr>
-      <tr><td>3</td><td><strong>Run Tier 0 on one real question</strong> from the next release</td><td>You cannot specify the tool until you have felt the gap. One session answers whether Tier 1 is warranted.</td></tr>
+      <tr><td>2</td><td><span class="pill ok">done 2026-09-09</span> <strong>Librarian enquiry sent and answered.</strong> Follow-through: accept the Wiley TDM agreement, request the Elsevier token, and open a WRDS account — each only when a question needs it</td><td>All four publishers confirmed. The access question is closed; §6.4 records the policy that came out of it.</td></tr>
+      <tr><td>3</td><td><strong>Run Tier 0 on one real question</strong> from the next release — now with Research Rabbit and Scopus alerts in the loop</td><td>You cannot specify the tool until you have felt the gap. One session answers whether Tier 1 is warranted.</td></tr>
       <tr><td>4</td><td><strong>Decide on Tier 1</strong> — only after 3</td><td>Per the stop rule: a named search that Tier 0 could not perform, or it does not get built.</td></tr>
       <tr><td>5</td><td>Tier 2 (corpus) once a second release needs what the first found</td><td>The value is durability across releases, which cannot be demonstrated within one.</td></tr>
       <tr><td>6</td><td>Tier 3 (MCP) once Tier 1 has proved itself across several sessions</td><td>Packaging is worth doing to something that works. Not before.</td></tr>
@@ -895,6 +944,6 @@ html{scroll-behavior:smooth;scroll-padding-top:4rem}
 
     <p style="color:var(--ink-soft)"><strong>Endpoints and documentation.</strong> <a href="https://docs.openalex.org/">OpenAlex</a> · <a href="https://www.semanticscholar.org/product/api">Semantic Scholar API</a> · <a href="https://www.crossref.org/documentation/retrieve-metadata/rest-api/">Crossref REST API</a> · <a href="https://info.arxiv.org/help/api/index.html">arXiv API</a> · <a href="https://unpaywall.org/products/api">Unpaywall</a> · <a href="https://core.ac.uk/services/api">CORE</a> · <a href="https://econpapers.repec.org/">RePEc / EconPapers</a> · <a href="https://www.nber.org/papers">NBER</a> · <a href="https://osf.io/preprints/">OSF Preprints</a> · <a href="https://dev.elsevier.com/">Elsevier Developer Portal</a> · <a href="https://dev.springernature.com/">Springer Nature API</a> · <a href="https://onlinelibrary.wiley.com/library-info/resources/text-and-datamining">Wiley TDM</a> · <a href="https://www.zotero.org/support/dev/web_api/v3/start">Zotero Web API</a> · <a href="https://biblio.uottawa.ca/en">uOttawa Library</a>.</p>
 
-    <p style="color:var(--ink-faint);font-size:var(--fs-xs);margin-top:2rem">⚠ Status notes recorded 2026-09-03 and worth re-checking before relying on them: JSTOR's Constellate TDM platform is understood to have been discontinued around mid-2025; Semantic Scholar's unkeyed rate limits change periodically; and institutional entitlements vary by agreement, so §6.3(c) should be confirmed with the library rather than assumed.</p>
+    <p style="color:var(--ink-faint);font-size:var(--fs-xs);margin-top:2rem">★ <strong>Revised 2026-09-09</strong> against the uOttawa Library's reply. §6.3(c) is now confirmed rather than assumed — all four publishers hold TDM agreements, Elsevier works off-campus without VPN, and uOttawa has WRDS. §6.4 was rewritten as the two-mode access policy and now records the project's non-commercial standing with its review trigger; §6.6 gained the Tier 2 storage split. The full reply is filed in <code>L6-librarian-enquiry.md</code>.<br>⚠ Still worth re-checking: JSTOR's Constellate TDM platform is understood to have been discontinued around mid-2025; Semantic Scholar's unkeyed rate limits change periodically; and publishers do not publish standard volume limits — ask each one when access is granted.</p>
   </div>
 </footer>

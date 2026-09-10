@@ -1592,7 +1592,7 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-36** | 2026-09-09 | B5 | `tools/promote_recording.py` states the request payload is *"replaced by its `bundle_hash`"* and that on a re-render the recording *"disagrees **loudly**"* — the guard that makes re-rendering safe | ⛔⛔ **No hash is written and nothing compares one.** It writes `{"__elided__": …, "chars": …}`; `grep bundle_hash tests/ tools/` returns the docstring and nothing else. **The drift detector existed only in the paragraph describing it** | `tools/promote_recording.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ `DX-12`'s shape one level up: not a check that skips, but a check **never written**, described in prose as though it had been — and prose is what I read when deciding whether `DX-35` was safe. ★★★ A hash would also be the WRONG guard: it fires on ANY byte change, so `DX-35` would have demanded ~$1.20 of re-recording to buy nothing. The question is not whether the bytes moved but whether the recording still **MEANS** what it meant. ✅ `test_every_recorded_quote_still_resolves_in_its_filing` asks exactly that, over every recording × every quote, and the false docstring is corrected |
 | **DX-37** | 2026-09-09 | E-02 live | `AP-5`/`RA-131` — the offset is the one part of a citation the model cannot author, so `parse_items` computes it: `start, end = _locate(...)` | ⚠⚠ **`_locate`'s `end` is DISCARDED.** The next line writes `offset=(start, start + len(quote))`. ★★ The two agree **only when the match was exact** — but `_locate` also matches under whitespace/typography normalisation, and there the document's span is a **different length** from the quote, so the span is cut short and `X-01` ① rejects a citation that is perfectly good, **blaming the model for our arithmetic**. Measured: document holds `'State of\n\n\nNew York'`, quote holds `'State of\nNew York'`, span ends 2 chars early on `'…provides fo'` | `tools/run_extraction_once.py::parse_items` | ⚠ material | ✅ **resolved 2026-09-09** | ★★★ **Found only because `DX-35`'s fix was verified with the REAL `x01_verify_extraction` instead of a hand-rolled whitespace comparison.** My simulation collapsed whitespace and passed; the real check resolves the SPAN first, and the span was wrong. ⚠ A simulation of a guard tests the simulation. ★ **Latent, not new** — 0 of MU's 60 and 0 of AMD's 41 recorded spans change, because only normalisation-matched quotes can differ in length, and `DX-35`'s strip is what creates the `\n\n\n` runs that expose it. ✅ Use `end`; pinned by `test_dx37_the_span_end_comes_from_the_locator_not_the_quote_length` |
 | **DX-38** | 2026-09-09 | B5 | `D2`/`AC-5.1` — the fund manager establishes every golden value, and `established_by` *"names a person, never a pipeline component"*. `DX-28` had already closed the identical hole on `established_at`: *"a placeholder that validates is a placeholder that ships"* | ⛔⛔ **The same hole was left open on `established_by`, ONE LINE ABOVE the fix.** The check is `if not self.established_by.strip()`, which passes ANY non-empty text — so the template's own blank, `'____'`, validated. ⚠ **Measured on live data:** Victor signed 5 of 8 prepared `E-02` cases and left 3 at `'____'` with a real `established_at`; all three constructed cleanly and would have graded as established. ★★★ **Two of the three were cases 21 and 23 — the cases pinning `DX-33` and `DX-35`, this session's own fixes** | `src/evaluation/golden/models.py::GoldenCase` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ `D2`'s circularity check could never have caught it: a placeholder names **neither a person nor a pipeline component**. It is not circular, it is **UNATTRIBUTED** — a second, independent route for an unestablished value to grade as gold, and `DX-20`'s family for the third time. ✅ `_is_placeholder()`: refuses a value with **no letters at all** (`____`, `---`, `???`) plus an exact-match word list (`TBD`, `pending`, `N/A`). ⚠⚠ Deliberately **no** *"does this look like a real name?"* step — `'张伟'`, `'O'Brien'`, `'M K'`, `'Ana'` all pass; a blank-detector that rejects real people makes signing feel arbitrary and gets worked around. ★ The check tests for the ABSENCE OF LETTERS, never for a name-like shape (`P5`: fail loud, not fail clever) |
-| **DX-39** | 2026-09-09 | B5 | `D2` — `established_by` may not name a pipeline component, and `GoldenCase` enforces it by substring-scanning `established_by` **and `source`** against `FORBIDDEN_ESTABLISHERS` (`pipeline`, `system`, `model`, `llm`, `claude`, `gpt`, `agent`, `src.`, `auto`, `generated`, `gateway`) | ⚠⚠ **`source` describes FILINGS, and ordinary filing prose is full of those words.** Measured — 5 of 6 realistic sources are REFUSED: *"Automotive segment revenue table"* (`auto`), *"cash generated from operations"* (`generated`), *"the company's business model"* (`model`), *"confirmed with the transfer agent"* (`agent`), *"the company's ERP system"* (`system`). ★ Found live: case 22 was refused because MY OWN template prose said *"the model's own note adds…"* | `src/evaluation/golden/models.py::__post_init__` | ⚠ material | ⬜ **OPEN — Victor's call, it touches `D2`** | ★★★ **The damage is not the refusal, it is the WORKAROUND.** The message names a word, so the natural fix is to write vaguer `source` text — and `source` exists precisely to be specific enough to re-check (`CT-5.2`: *"a golden value whose derivation is unrecorded… will eventually be trusted for the wrong reason"*). ⚠ **A guard that punishes specific prose trains people to write vague prose**, degrading the exact field it protects. ★ Word boundaries alone do NOT fix it — `generated`, `model`, `system`, `agent` appear as whole words in real filings. **Proposed:** keep full substring scanning on `established_by` (where these words can only mean the pipeline) and scan `source` for PROVENANCE PHRASES instead — *"generated by"*, *"pipeline output"*, *"the model said"*, *"auto-generated"*, plus the unambiguous vendor names. ⚠ Not applied unilaterally: constitution §5.1 — *the choice is genuinely the fund manager's ⇒ stop and ask* |
+| **DX-39** | 2026-09-09 | B5 | `D2` — `established_by` may not name a pipeline component, and `GoldenCase` enforced it by substring-scanning `established_by` **and `source`** against `FORBIDDEN_ESTABLISHERS` (`pipeline`, `system`, `model`, `llm`, `claude`, `gpt`, `agent`, `src.`, `auto`, `generated`, `gateway`) | ⚠⚠ **`source` describes FILINGS, and ordinary filing prose is full of those words.** Measured — 5 of 6 realistic sources REFUSED: *"Automotive segment revenue table"* (`auto`), *"cash generated from operations"* (`generated`), *"the company's business model"* (`model`), *"confirmed with the transfer agent"* (`agent`), *"the company's ERP system"* (`system`). ★ Found LIVE, not by inspection: case 22 would not construct, because my own template `source` said *"the model's own note adds…"* | `src/evaluation/golden/models.py::__post_init__` | ⚠ material | ✅ **resolved 2026-09-09 — Victor approved the recommendation** | ★★★ **The damage was never the refusal, it was the WORKAROUND.** The message names a word, so the natural response is to write vaguer `source` text — and `CT-5.2` requires `source` to be specific enough to re-check, or the value *"will eventually be trusted for the wrong reason"*. ⚠ **A guard that punishes specific prose trains people to write vague prose, degrading the exact field it protects.** **Options weighed:** ⓐ *scan `established_by` only* — ⚠ rejected, a `source` reading *"taken from pipeline output"* would then pass, and that is genuinely circular; ⓑ *word-boundary matching* — ⚠ rejected, it fixes `auto`→*"Automotive"* but NOT `generated`/`model`/`system`/`agent`, which appear as WHOLE WORDS in real filings; ⓒ *drop the ambiguous words from the list* — ⚠ rejected, it weakens the `established_by` check where those words are unambiguous; ⓓ ✅ **CHOSEN — split the check by what the field IS.** `established_by` is a NAME, so a bare substring is right for it (nothing naming a person contains *"pipeline"*); `source` is PROSE, so it is scanned for **provenance phrases** instead — `generated by`, `pipeline output`, `the model said`, `auto-generated`, `run output`, plus vendor names. ★★ The distinction that makes it safe: *"cash generated from operations"* names a LINE ITEM; *"generated by"* names a PRODUCER — and `D2`'s concern is **who produced the value**, so the check now asks about provenance rather than vocabulary. ⚠⚠ Every phrase is multi-word or an unambiguous vendor name; **a single-word addition to that list should be assumed wrong**, because that is exactly how `DX-39` happened. ✅ 15 tests: 6 filing-prose sources that must pass, 9 provenance sources that must still fail, and `D2`'s original 5 forbidden establishers unchanged |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -2357,12 +2357,88 @@ whose job is to verify a manual step.
   (5 of 6 realistic sources). ⚠ The damage is the workaround: the error names a word, so the natural
   response is vaguer `source` prose — degrading the field `CT-5.2` requires to be specific.
 
-### ⬜ What is still open — needs Victor
+### ✅ `DX-39` — `D2`'s guard refused ordinary FILING prose
 
-1. ⛔ **Re-render the two fixtures** (`strip_page_furniture` over `MU_FY2025Q3_10Q.txt` and
-   `AMD_FY2025Q3_10Q.txt`). Measured safe, costs $0, but it rewrites version-controlled evidence and
-   is `L7` §5's load-bearing step, so it is not mine to take.
-2. ⬜ **Re-parse the `E-02` recording** — free, no new call — then promote it and establish `E-02`
-   cases. ★ `gd.value` 15, `gd.metric` 10, `gd.stated_on` 10, `gd.language_note` 8, `gd.period` 7,
-   `gd.prior_value` 1: enough for a `D2` sitting on all six ids.
-3. ⬜ `E-02` still has **zero** golden cases, so `extraction` remains 2 filings × 1 block.
+⚠ Found live: case 22 would not construct. `CircularGoldenValue` fired because my own template
+`source` read *"the **model**'s own note adds…"*. ★ The guard was RIGHT there — `source` must record
+how the value was established **from the filing**, and citing what the model said is exactly the
+provenance `D2` forbids. It was re-derived from the filing's own sentences, which turned out better:
+the filing states the components itself ($6.1bn + $275m), and **"$6.4 billion" is the company's own
+rounding**, not arithmetic this project performed.
+
+⚠⚠ But probing it exposed the general defect. `source` describes FILINGS, and **5 of 6 realistic
+sources were refused**: *"Automotive segment"* (`auto`), *"cash generated from operations"*
+(`generated`), *"the company's business model"* (`model`), *"the transfer agent's record date"*
+(`agent`), *"the company's ERP system"* (`system`).
+
+★★★ **The damage was never the refusal, it was the workaround.** The message names a word, so the
+natural response is to write vaguer `source` text — and `CT-5.2` requires `source` to be specific
+enough to re-check, or the value *"will eventually be trusted for the wrong reason"*. **A guard that
+punishes specific prose trains people to write vague prose, degrading the exact field it protects.**
+
+| | option | verdict |
+|---|---|---|
+| ⓐ | scan `established_by` only | ⚠ **rejected** — *"taken from pipeline output"* would pass, and that IS circular |
+| ⓑ | word-boundary matching | ⚠ **rejected** — fixes `auto`→*"Automotive"* only; `generated`, `model`, `system`, `agent` are whole words in real filings |
+| ⓒ | delete the ambiguous words | ⚠ **rejected** — weakens `established_by`, where those words are unambiguous |
+| ⓓ | **split the check by what the field IS** | ✅ **chosen by Victor, applied** |
+
+✅ **ⓓ.** `established_by` is a **name** — a bare substring is right, since nothing naming a person
+contains *"pipeline"*. `source` is **prose** — scanned for `SYSTEM_PROVENANCE_PHRASES` instead.
+★★ The distinction: *"cash generated from operations"* names a **line item**; *"generated by"* names
+a **producer**, and `D2`'s concern is *who produced the value*. ⚠⚠ Every phrase is multi-word or an
+unambiguous vendor name — **a single-word addition should be assumed wrong**, because that is
+exactly how `DX-39` happened.
+
+---
+
+## 2.13 ★★★ `B5` — where the golden set actually stands, 2026-09-09
+
+**28 cases, all established by the fund manager, all replaying green. 514 passed, 1 skipped.**
+
+| | |
+|---|---|
+| `extraction` | **28 cases** — 20 `E-01` (MU 11, AMD 9), 8 `E-02` (MU) |
+| blocks covered | **2 of 15** — `E-03`…`E-15` have none |
+| kinds covered | **1 of 3** — ⚠ `ranking` and `thesis` have **zero** cases |
+| recordings | 3, version-controlled, ~$1.86 of live calls preserved indefinitely |
+| total spend | **$18.22 across 29 calls** |
+
+### ★★ What this session proved, and what it did not
+
+✅ **Proved.** The harness generalises across **filings** (MU→AMD) and across **blocks**
+(`E-01`→`E-02`), reusing bundle, gateway, trace, parse, `MP-18` identity and `X-01` unchanged. Every
+new case reds under mutation, and `DX-35` was verified **pinned** by replaying case 23 against a
+deliberately regressed fixture — the original error reproduced on demand.
+
+⚠ **Not proved.** That it generalises to `ranking` or `thesis`. ★ `thesis` is the kind `D2` calls a
+**judgement**, on the most expensive output in the system — and it is the one with no cases at all.
+
+### ⚠⚠ The five defects this session closed, and the one thing they share
+
+| | defect | how it was found |
+|---|---|---|
+| `DX-33` | currency rule vs verbatim rule, contradictory for a phrase | ★ a live `E-02` run |
+| `DX-34` | `gd.direction` asked for a label the model CHOOSES | ★ `X-01` refusing it |
+| `DX-35` | page furniture inside a sentence | ★ a live `E-02` run |
+| `DX-36` | the drift detector existed only in a docstring | ★ **reading the guard before trusting it** |
+| `DX-37` | span end taken from `len(quote)`, not the locator | ★★ **running the REAL `X-01` instead of a simulation** |
+| `DX-38` | `established_by: "____"` validated | ★★ **the fund manager leaving 3 blanks** |
+| `DX-39` | `D2` refused ordinary filing prose | ★ **a case that would not construct** |
+
+★★★ **Not one was found by reasoning about the code.** Every one surfaced from running something
+real — a live call, the actual checker, a genuine half-finished signature. ⚠ `DX-36` and `DX-37` are
+the sharpest pair: a guard *described* but never written, and a guard *simulated* rather than called.
+**A comment claiming a check, and a test standing in for one, both read exactly like safety.**
+
+### ⬜ Open
+
+1. ⬜ `ranking` and `thesis` have **no golden cases**. ★ `PG-4` says the harness serves both lanes;
+   it currently serves one kind of one.
+2. ⬜ **Should `X-01` abort the batch or quarantine the item?** Four dead items discarded 47 good
+   ones; the same shape cost a full call's yield twice (`DX-30`, `DX-35`). ⚠ Replay makes it free to
+   recover, so this is a contract question, not an urgent one.
+3. ⬜ `E-02 v2`'s three prompt-quality findings (`L7` §10.6) — `gd.stated_on` returning *"Form 10-Q"*
+   ten times, a negative statement returned as guidance, and `gd.metric` not joining to its own
+   `gd.value`s. ★ Evidence for a `v3`, argued from a real run rather than from taste.
+4. ⬜ `gd.prior_value` needs a **multi-filing bundle** to exercise — a filing-3 question.

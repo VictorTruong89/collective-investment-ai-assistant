@@ -27,5 +27,5 @@ Not lectures, but filed here because a lecture depends on them.
 
 | File | Purpose |
 |---|---|
-| [`L6-librarian-enquiry.md`](L6-librarian-enquiry.md) | Draft enquiry to the university library — TDM tokens, API entitlements, sanctioned programmatic access. Referenced by lecture 06 §6.4. |
+| [`L6-librarian-enquiry.md`](L6-librarian-enquiry.md) | Enquiry to the university library — **sent and answered 2026-09-09**. Carries the verbatim licence snippets for Wiley, Elsevier, OUP and T&F, plus the WRDS and alerting answers. Source of the access policy in lecture 06 §6.4. |
 - **[L7 — EDGAR extraction, as built](L7-edgar-extraction-as-built.md)** — the code path, the prompt, ★★ *why this is not just an FMP call*, how filings 1 and 2 were run, and where it is stuck. Written after 24 live calls ($15.31).
