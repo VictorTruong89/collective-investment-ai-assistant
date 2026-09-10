@@ -217,3 +217,92 @@ def test_ac_7a_10_the_report_names_its_TIER_and_what_that_excludes():
     text = _report().to_report()
     assert "Tier A" in text
     assert "outcome" in text.lower()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# `DX-56` — ⚠⚠ `T7` reported a CONFIDENT ZERO from an unpopulated field.
+#
+# The first real `F7a` run (2026-09-10) returned `T7 tokens/deliberation =
+# 0.000` with `n=46`, which reads as *"deliberation is free"*. The true figure
+# was **$0.0177 per deliberation**, known from the run's own billing.
+#
+# ★★★ `T5` faced the identical situation — no `span_bound` data — and did the
+# right thing: it returned `INSUFFICIENT (n=0)` with its reason. **A metric that
+# reports a confident zero from a field nobody populated is worse than one that
+# refuses**, and `AC-5.10` exists to prevent exactly this: *"never a number
+# computed on too little data."* `T7` bypassed it by never asking whether its
+# input had been set.
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_dx56_t7_REFUSES_when_no_token_count_was_recorded():
+    """⚠⚠ `AC-5.10` / `P5` — an unpopulated input yields an insufficiency
+    naming the shortfall, **never a computed figure**."""
+    report = _report()                      # Challenges built with tokens=0
+    t7 = report.t7_tokens_per_deliberation
+    assert t7.value is None, "0.000 tokens is not a measurement, it is a blank"
+    assert t7.insufficient_reason
+    assert "token" in t7.insufficient_reason.lower()
+
+
+def test_dx56_t7_reports_a_real_average_when_tokens_ARE_recorded():
+    """★ The guard must not fire on real data, or it replaces one wrong answer
+    with another."""
+    challenges = [Challenge(f"c{i}", i % 2 == 0, i % 3 == 0, span_bound=True,
+                            order_index=i % 2, tokens=1_200)
+                  for i in range(40)]
+    report = _report(challenges=challenges)
+    assert report.t7_tokens_per_deliberation.value == 1_200.0
+
+
+def test_dx56_a_partially_recorded_run_still_measures():
+    """⚠ Only an ENTIRELY unpopulated field is a blank. ★ A run where some
+    deliberations genuinely used no tokens (below the declared trigger, so no
+    exchange happened) is REAL DATA and must still average.
+
+    ⚠ 24 challenges, not 3: `DEFAULT_MINIMUM_N` is 20, and a 3-sample version
+    of this test failed on `AC-5.10`'s own floor — correctly. ★ The floor and
+    the blank-field guard are different refusals and both must hold.
+    """
+    challenges = ([Challenge(f"paid{i}", i % 2 == 0, True, tokens=900,
+                             order_index=i % 2) for i in range(12)]
+                  + [Challenge(f"free{i}", i % 2 == 0, False, tokens=0,
+                               order_index=i % 2) for i in range(12)])
+    assert _report(challenges=challenges).t7_tokens_per_deliberation.value == 450.0
+
+
+# ── the delta must CARRY what T5 and T7 read ──────────────────────────────
+def _deliberation():
+    """One real `Deliberation` through `F6b`, for the delta tests below."""
+    from src.orchestration.graph.deliberation import ACTIVE, Message, deliberate
+    challenge = Message("CHALLENGE", "risk", "fundamental", "trigger",
+                        metric="risk_contribution", metric_value=0.9,
+                        threshold=0.5)
+    return deliberate(decision_id="r:MU:1", pre="BUY", challenge=challenge,
+                      respond=lambda m, p: ("HOLD", "CONVERGED"), mode=ACTIVE)
+
+
+def test_dx56_the_delta_carries_the_token_count():
+    """★ `CT-2.4` records what the capability COST. ⚠ Without it `T7` has
+    nothing to read and reports a confident zero."""
+    from src.orchestration.graph.deliberation import capability_delta as cd
+
+    assert cd(_deliberation(), is_valid=True, tokens=1_437)["tokens"] == 1_437
+
+
+def test_dx56_the_delta_carries_span_boundness_for_t5():
+    """★ `D4` — `T5`'s denominator is span-bound claims ONLY, and it reports
+    what fraction of challenges that covers."""
+    from src.orchestration.graph.deliberation import capability_delta as cd
+
+    d = _deliberation()
+    assert cd(d, is_valid=True, span_bound=True)["span_bound"] is True
+    assert cd(d, is_valid=True)["span_bound"] is False
+
+
+def test_dx56_the_binding_carries_tokens_through_to_the_study():
+    """★★ End to end: a delta with tokens reaches `T7` as a real average."""
+    from src.evaluation.studies.deliberation_tier_a import challenges_from_deltas
+    from src.orchestration.graph.deliberation import capability_delta as cd
+
+    got = challenges_from_deltas([cd(_deliberation(), is_valid=True, tokens=1_500)])
+    assert got[0].tokens == 1_500

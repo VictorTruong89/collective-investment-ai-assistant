@@ -260,11 +260,42 @@ def run_tier_a(challenges: Sequence[Challenge], *, rule: KillRule,
         t6_termination=_rate_metric(
             "termination", [c for c in challenges if c.turns_used <= turn_budget],
             challenges, inputs_ref),
-        t7_tokens_per_deliberation=measured(
-            "tokens_per_deliberation",
-            sum(c.tokens for c in challenges) / len(challenges) if challenges else 0.0,
-            len(challenges), "A", inputs_ref),
+        t7_tokens_per_deliberation=_t7(challenges, inputs_ref),
         discriminator_auc=discriminator_auc, valid=valid, rule=rule)
+
+
+def _t7(challenges, inputs_ref) -> MetricResult:
+    """`T7` — tokens per deliberation. ⚠⚠ **Refuses an unpopulated field.**
+
+    `DX-56`, measured on the first real run (2026-09-10): this returned
+    `0.000` with `n=46` because nothing had populated `Challenge.tokens`, and
+    a reader would take that as *"deliberation is free"*. The true figure was
+    **$0.0177 per deliberation**, known from the run's own billing.
+
+    ★★★ `T5` met the identical situation — no `span_bound` data — and
+    **declined**, returning `INSUFFICIENT (n=0)` with its reason. That is the
+    behaviour `AC-5.10` requires: *"never a number computed on too little
+    data."* ⚠ `T7` bypassed it by never asking whether its input had been set,
+    and **a metric reporting a confident zero from a blank field is worse than
+    one that refuses** — the refusal is visible, the zero is not.
+
+    ⚠ Only an ENTIRELY unrecorded field is a blank. ★ A run where some
+    deliberations genuinely used no tokens — below the declared trigger, so no
+    exchange happened — is real data and still averages.
+    """
+    if not challenges:
+        return insufficient("tokens_per_deliberation", 0, "A", inputs_ref, minimum=1)
+    if not any(c.tokens for c in challenges):
+        return MetricResult(
+            metric="tokens_per_deliberation", n=len(challenges), tier="A",
+            inputs_ref=inputs_ref, value=None,
+            insufficient_reason=(
+                "no token count was recorded on any deliberation — this is an "
+                "unpopulated field, not a measurement of zero cost. ⚠ DX-56: "
+                "pass `tokens=` to capability_delta() (AC-5.10, P5)."))
+    return measured("tokens_per_deliberation",
+                    sum(c.tokens for c in challenges) / len(challenges),
+                    len(challenges), "A", inputs_ref)
 
 
 def _rate(items) -> float:

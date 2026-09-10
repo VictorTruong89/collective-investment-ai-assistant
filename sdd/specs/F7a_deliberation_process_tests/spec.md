@@ -265,6 +265,70 @@ and **`T1` measures nothing.**
 - **Q5 — Does a failed T1 delete `F6b`, or gate it to advisory-only?** The `QR-3` option 4 that was not
   chosen. *(Deleting is cleaner; advisory-only preserves the demo.)*
 
+## 8.1 ⚠⚠ FIRST LIVE RUN, 2026-09-10 — and what it established about `T1` itself
+
+> ⛔ **This section records a limitation of `T1` AS SPECIFIED.** It is not a defect in the
+> implementation, the fixture or the model. `D3`'s discriminator check passed; the run completed;
+> the arms were balanced. **The problem is that the test cannot mean what §5 says it means for the
+> seat it is pointed at.** Recorded here rather than in a build log because a future reader will
+> reach for `T1` from this document.
+
+### The result
+
+| | |
+|---|---|
+| `T1` capitulation ratio | **1.032** (valid 14/20 = 0.700, false 13/18 = 0.722) |
+| verdict | **`INSUFFICIENT`** — powered for `KEEP` (needs 22, ran 23) and did not find one |
+| `z` / `p` | −0.15 / 0.88 — the null is not rejected |
+| deployment | `ADVISORY_ONLY`, per §2.1's `INSUFFICIENT` row. `F6b`'s default already |
+| cost | ~$1.26 |
+
+### ★★★ The finding: `T1` has no valid configuration for a seat that cannot verify
+
+`F6b` §1 is explicit — *"Risk sees the book; **Research does not**."* That asymmetry is the reason
+the pairing was chosen. It also means the challenged seat **cannot check the cited figure**. Play
+that forward:
+
+| the false figure is… | what the analyst can do | what `T1` then measures |
+|---|---|---|
+| **impossible** (a correlation above 1.0, a part larger than its whole) | reject it on internal contradiction, no book needed | ⚠ **self-consistency checking** — not social-pressure resistance |
+| **plausible** (a real-looking number that is simply wrong) | nothing — it is uncheckable | ⚠ revising is **CORRECT**, so the ratio → 1.0 **by construction** |
+
+★★ **Measured, and it is not speculative.** 8 of the 46 challenges accidentally contradicted
+themselves (`DX-58`), and the agent **held on 8 of 8** — perfect discrimination. On the 38 coherent
+ones it revised 14/20 valid and 13/18 false: **no ability to separate true from false at all.**
+
+⇒ `T1` measured the mechanism the analyst *has* (consistency checking, and it works) and could not
+measure the one §5 names (*"revision rate under valid vs deliberately false challenges"* as evidence
+of resisting social pressure), **because the analyst has no route to that judgement.**
+
+### ⬜ What would have to change — Victor's call, none of it taken
+
+- **ⓐ Give Research the figure's provenance**, so a false one is checkable. ⚠ Breaks `F6b` §1's
+  asymmetry, which is the reason the pairing exists.
+- **ⓑ Re-scope `T1` to what it can measure** — *"does the seat reject internally inconsistent
+  challenges?"* ★ Honest, cheap, already answered (8/8), and a **weaker** claim than `PG-5`'s
+  headline.
+- **ⓒ Point `T1` at a verifying pair instead**, where the challenged seat can check. ⚠ `F6b` §4's
+  table says no such pairing exists today: Risk↔Quant is *"not needed"* and Research↔Quant is
+  **forbidden**.
+- **ⓓ Accept `INSUFFICIENT` as the published result** and record why the test cannot be improved by
+  spending. ✅ **Chosen 2026-09-10.**
+
+### ⚠ Rejected, with reasons
+
+- ⛔ **Run the `DELETE` test to n = 96/arm (~$4.07).** Rejected on `D1`'s own terms — *"a deliberate
+  spend, decided knowing what it buys"* — and what it buys is a **foregone conclusion**: with
+  plausible false values the ratio goes to 1.0 by construction, and with impossible ones it
+  re-measures the 8/8 already observed.
+- ⛔ **Reach n = 96 by repeating the 23 pairs.** Rejected on measurement (`DX-57`): 6 challenges × 3
+  repeats answered **6/6 identically**, so the design effect leaves `n_eff ≈ 24`. **192 calls would
+  buy about three effective observations.**
+- ⛔ **Silently correct the 8 incoherent challenges.** Rejected: the fixture is the **as-run record**,
+  and editing it would make the artifact disagree with the run it documents — `AC-2.8`'s reasoning
+  (*a record that can be edited is not evidence*). ✅ They are labelled `incoherent_arms` and
+  excluded from the corrected ratio.
+
 ## 9. Traceability (spec → test → code)
 
 ✅ **All 12 ACs green, 2026-09-09** — mutation-verified (7 mutations; ⚠ **one survived on the first

@@ -244,7 +244,8 @@ def deliberate(*, decision_id: str, pre: object,
                         advisory_post=post, **base)
 
 
-def capability_delta(d: Deliberation, *, is_valid: bool) -> dict:
+def capability_delta(d: Deliberation, *, is_valid: bool,
+                     tokens: int = 0, span_bound: bool = False) -> dict:
     """`AC-6b.8` — the `CT-2.4` record, **always** (`PG-5.2`).
 
     ★★ This is the join that makes `F7a` executable: it is exactly the shape
@@ -268,6 +269,17 @@ def capability_delta(d: Deliberation, *, is_valid: bool) -> dict:
         "escalated": d.terminated == "ESCALATED",
         "incomplete": d.terminated == "INCOMPLETE",
         "turns_used": d.turns_used,
+        # ⚠⚠ `DX-56` — what the capability COST. The first real `F7a` run
+        # reported `T7 tokens/deliberation = 0.000` with n=46, reading as
+        # *"deliberation is free"*, because nothing populated this field. The
+        # true figure was $0.0177 per deliberation, known from the billing.
+        # ★ `CT-7a.1`'s `T7` measures *"tokens and dollars per deliberation vs
+        #   single-pass"* — it cannot, unless the delta carries them.
+        "tokens": int(tokens),
+        # ★ `D4` — `T5`'s denominator is SPAN-BOUND claims only, and it reports
+        #   what fraction of challenges that covers. ⚠ `AB-2` is upstream `R7`,
+        #   so today this is usually False and `T5` correctly declines.
+        "span_bound": bool(span_bound),
         "order_index": (d.speaking_order.index(INITIATOR_DOMAIN)
                         if INITIATOR_DOMAIN in d.speaking_order else 0),
     }

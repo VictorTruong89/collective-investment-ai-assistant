@@ -73,11 +73,18 @@ the machinery that records what it changed.
    │  ⚠ 13 of 15 E-blocks have none; ranking/thesis have NONE       │
    └────────────────────────────────────────────────────────────────┘
                               ▼
+   ┌─ ✅ F7a HAS RUN — 2026-09-10, ~$1.26 ──────────────────────────┐
+   │  T1 ratio 1.032 · verdict INSUFFICIENT · F6b stays ADVISORY    │
+   │  ★★★ FINDING: T1 cannot measure social-pressure resistance     │
+   │      for a seat that CANNOT VERIFY (F7a §8.1). A spec limit.   │
+   └────────────────────────────────────────────────────────────────┘
+                              ▼
    ┌─ ⬜ WHAT REMAINS ──────────────────── nothing is UNBUILT ───────┐
-   │  Everything left is a RUN, a REVIEW or a DECISION — not code:  │
-   │   1. F7a has never RUN on a real model      (costs money)      │
+   │  Everything left is a REVIEW or a DECISION — not code:         │
+   │   1. F7a §8.1's ⓐ-ⓓ — re-scope T1, or accept it as-is          │
    │   2. E2E validation → CT-8.5's vocabulary   (gates trading)    │
    │   3. golden coverage: 2 blocks, 1 kind of 3                    │
+   │   4. DX-44: five AC prefixes still collide (deliberate)        │
    └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -85,7 +92,7 @@ the machinery that records what it changed.
 |---|---|
 | tests | **1,908 pass · 5 skip · 0 fail** — ★ +195 today |
 | guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` ★ +5 today |
-| findings | **54 `DX` logged** — 53 closed; ◐ **`DX-44` deliberately partial** — `F1`+`F9` renamed; five prefixes left, with the criterion (**range overlap**, not volume) recorded in `constitution.md` §1 |
+| findings | **58 `DX` logged** — 55 closed; ⬜ `DX-56` open (T7/T5 wiring), ⬜ `DX-57` + `DX-58` are FINDINGS not fixes; ◐ **`DX-44` deliberately partial** — `F1`+`F9` renamed; five prefixes left, with the criterion (**range overlap**, not volume) recorded in `constitution.md` §1 |
 | golden set | **28 cases**, all established by the fund manager, replaying green |
 | lint | ruff clean on all code this repo authored |
 
@@ -1593,6 +1600,10 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-52** | 2026-09-09 | F7b | `AC-7b.5` — *nothing gates on a Tier-B result* — *"**structurally**, not by convention"*. The traceability row named `tools/check_no_tier_b_gating.py` | ⛔ **The file did not exist** — the **FIFTH consecutive spec** whose traceability row named a tool that was never written (`DX-41`, `DX-42`, `DX-47`, `DX-51`, `DX-52`) | `tools/check_no_tier_b_gating.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **This is the rule most likely to erode by GOOD INTENTIONS, and the spec's wording says so.** Once `F7b` has numbers they will be the most interesting in the system — *"did deliberation make us money?"* — and reaching for them at a promotion decision is the natural move. ⚠ But at ~250 decisions a year against a signal at **IC 0.0203 / t = 1.42**, a Tier-B result is a second-order measurement on an unestablished first-order one, and **more time does not fix it: noise grows with the sample**. ✅ **11th** CI guarantee, 5 tests. ★ `D4`'s escape hatch stays honest — a powered disagreement ESCALATES to the fund manager as a finding and is never applied |
 | **DX-53** | 2026-09-09 | process | Constitution §6 — *"Every spec keeps its traceability table current … an AC with no row is not done."* Eleven specs, 148 rows | ⛔⛔ **The rule says a row must EXIST. Nothing said it had to be TRUE.** Across the six specs completed 2026-09-09, every one had a structural AC unenforced **behind a row that read as coverage**: `AC-6a.6` named a tool that existed and checked a **different fence**; `AC-F9.2`, `AC-7a.1`, `AC-8.16`, `AC-7b.5`, `AC-3.10` named tools that **did not exist** | `tools/check_traceability_rows.py` | ⛔ high | ✅ **resolved 2026-09-09 — Victor chose option ⓑ; 12th CI guarantee** | ★★★ **The rows are written by the same hand as the code, so they agree by construction** — constitution §5.1's illegal move (*"improvise, then write a test that agrees with the improvisation"*) displaced one level up, where nothing was looking. ⚠ Invisible per-spec; obvious across six. ★★ **Prototyped before proposing.** Over all 148 rows it found **one real defect** — `AC-3.2` naming `corporate_actions/corroborate.py`, a file that does not exist (the logic is `classify.py::corroboration_of`) — ⚠⚠ **and I had written that row myself an hour earlier, copying the path out of the stub table without checking it.** `DX-53` occurring inside the edit that documented `DX-53`. ✅ **Option ⓑ (basename-tolerant) shipped**, and its first run produced its own first false positive — a **glob**, `src/shared/ports/*.py`, read as a literal filename. ★ Exactly the over-strictness ⓐ would have institutionalised: all three prototype false positives were shorthand for files that DO exist, and ⓐ would have made ~30 honest rows illegal to buy nothing. ★★ It also resolves **test function names**, which is not hypothetical: `F9`'s `DX-44` rename turned every `test_ac_9_4_*` into `test_ac_f9_4_*` the same day, and a stale row would have gone on asserting coverage under a name that no longer exists. ⚠⚠ **STATED LIMIT, and it travels in the tool's own docstring:** it resolves that a named file and test EXIST — **not** that the test tests its AC. `AC-6a.6` named a real file that checked the wrong fence, and **this check would pass it**. That half stays human, as `check_id_families.py` says: *"the check asks only 'is it written down?'"* ✅ 13 tests, 5 mutations, all caught |
 | **DX-54** | 2026-09-09 | F3 | `AC-3.10` / `ST-5` — *only the LLM gateway calls an LLM*; `src/data_engine/corporate_actions/**` reaches a model only through `src/shared/llm/`. ★ `ST-5` is one of the inherited rules the constitution restates **by ID** rather than re-wording | ⛔ **No check existed, and `AC-3.4` had no test either.** ⚠⚠ `F3`'s traceability table said *"(to be written)"* on **all twelve rows** while 10 of the 12 ACs had passing tests — so the two genuine gaps were hidden inside nine false ones | `tools/check_import_fences.py::sdk_fence_violations` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **`ST-5` is what makes three separate guarantees UNAVOIDABLE rather than merely available.** `GW-20`'s budget cap, `F2` `CT-2.2`'s request/response recording and `AC-2.9`'s redaction **all live at the gateway** — so one direct SDK call bypasses all three at once, ⚠ and leaves **no gap to notice**, because the trace simply would not contain the call. ✅ Checked over ALL of `src/` with the gateway exempted, 5 tests. ★ Deliberately import-name matching, not substring: `tools/anthropic_transport.py` is OUR wrapper and its name contains a vendor's — a substring check would flag every wrapper written to keep the SDK confined, **punishing the fix**. ★★ `AC-3.4` is the sharpest AC in `F3`: a retired symbol whose closes match its successor's *silently becomes another company's price history*, and **nothing about it looks wrong** — same ticker, continuous series, every downstream computation running happily on a company that stopped existing |
+| **DX-55** | 2026-09-10 | F7a first live run | `GW-23` — *a truncated response is a failure, not a short answer* — and `DX-30`: *every truncation returns a payload of near-zero value at full price*. Both were logged during `E-01`/`E-02` and the lesson was believed learned | ⛔⛔ **The `T1` runner shipped with `max_output=400` and the reply is ~500 tokens of JSON.** All five calibration calls returned **exactly 400 output tokens** — `max_tokens` reached — so every reply was truncated mid-object, every `json.loads` failed, and the fallback recorded `"BUY"` = **held**. ★★★ A full 46-call run would have reported a revision rate of **0/23 on BOTH arms**, `T1` ratio undefined, from data that says nothing — and it would have looked like a clean run | `tools/run_tier_a_live.py` | ⛔ high | ✅ **resolved 2026-09-10 before the real run** | ★★★ **The 5-call calibration slice is the entire reason this was caught**, and it was added only because the earlier cost estimate was uncertain — the guard that mattered was bought for an unrelated reason. ⚠⚠ **The fallback was the worse half of the defect.** Defaulting an unparseable reply to `BUY` silently manufactures *the one outcome indistinguishable from a genuine hold*; a raise would have stopped the run at call 1. ✅ Cap raised to 1,500 and an unparseable reply now **raises** (`P5`). ★ Proof at 1,500: the same challenge returned a clean 504-token JSON that **correctly revised to HOLD** — the right behaviour, entirely invisible at 400 |
+| **DX-56** | 2026-09-10 | F7a first live run | `CT-7a.1` — `T5` measures *information content* over span-bound claims and `T7` measures *tokens and dollars per deliberation vs single-pass*. Both are among the seven tests `AC-7a.1` requires to exist | ⚠⚠ **Both reported ZERO from the first real run**, and neither is a model finding: `T7 tokens/deliberation = 0.000` and `T5 coverage = 0%`. ★ `capability_delta()` never populates `tokens` or `span_bound`, so `challenges_from_deltas` reads the field defaults and the two metrics measure the instrumentation rather than the run | `graph/deliberation.py::capability_delta` | ⚠ material | ⬜ **OPEN** | ★★ **`T5` behaved correctly and `T7` did not**, and the difference is the lesson. `T5` returned `INSUFFICIENT (n=0)` with its reason and printed *"0% of challenges are span-bound (D4 — the rest are unmeasurable, not zero)"* — it **declined**, exactly as `D4` designed. ⛔ `T7` returned **`0.000` as a measured value with n=46**, which reads as *"deliberation is free"*. The real figure is **$0.0177 per deliberation**, known from the run's own billing. ⚠⚠ A metric that reports a confident zero from an unpopulated field is worse than one that refuses, and `AC-5.10` exists to prevent exactly this — `T7` bypasses it by never checking whether its input was ever set. ★ Fix: `capability_delta` carries `tokens` and `span_bound`, and `T7` refuses when every token count is zero |
+| **DX-57** | 2026-09-10 | F7a | `D1`'s power calculation gives `min_n_per_arm` — 22 for the `KEEP` boundary, **96 for `DELETE`** — and `AC-7a.11` refuses a verdict below it. ★ `D1` calls the DELETE run *"a **deliberate** spend, decided knowing what it buys"* | ⛔⛔ **The DELETE test cannot be reached by repeating this fixture, and the power calculation cannot see that.** The set holds **23 distinct pairs**; 96/arm means repeating each ~4.2x. ⚠ A power calculation assumes **INDEPENDENT** observations — repeats of one prompt sample the model's stochasticity, not the challenge space | `tests_src/fixtures/studies/deliberation_challenges.pending.yaml` · `killrule.py` | ⛔ high | ⬜ **OPEN — needs ~96 DISTINCT challenge situations, a fixture-authoring decision** | ★★★ **MEASURED before spending**, 6 challenges x 3 repeats, $0.3482: **6/6 answered IDENTICALLY**. Across the earlier 46-call run 1 of those 6 differed, so the model is highly but not perfectly reproducible. ⚠⚠ At the implied ICC the design effect is brutal — `n_eff = n / (1 + (m-1)·ICC)`: **ICC 0.85 → 26.0/arm, ICC 0.95 → 23.9/arm.** We already have 23. **192 calls and $3.40 would buy roughly THREE effective observations.** ★★ **This is the third time on this project that a cheap measurement stopped an expensive ambiguous one** (`DX-31`'s A/B, `DX-55`'s calibration slice, this). ⚠ The pattern worth naming: a power calculation states how much data a verdict needs and is **silent about whether the data can be independent** — so `min_n_per_arm` reads as a budget when it is really a **design constraint on the fixture**. ★ The fix is not more calls: it is ~96 distinct (thesis, challenge) situations. ⚠ Varying the THESIS alone does not work either — the 23 pairs' `true_value`s are computed against ONE synthetic book, so a new thesis invalidates every figure. **Each new situation needs its own book and its own 23 recomputed pairs.** ★ `D5`'s replay makes the analysis free forever after; it is the CALLS that are not |
+| **DX-58** | 2026-09-10 | F7a | `D2` — a challenge is a **declared numeric trigger**: Risk raises it *because a metric crossed a threshold it owns*. `AC-6b.2` requires `payload.field` and `expected` to be present, and `is_material(value, threshold)` gates the exchange | ⛔⛔ **Nothing checked that the cited figure actually CROSSES its own threshold, and 8 of 46 did not.** 3 valid + 5 false challenges asserted *"X is past my T trigger"* while X was on the safe side of T — **self-contradictory on their face**. ⚠ I authored them and did not check; the generator for the 5-book set was worse, at **67 of 115** | `tests_src/fixtures/studies/deliberation_challenges.pending.yaml` · `tools/build_books.py` | ⛔ **high — it corrects a REPORTED result** | ✅ **detected 2026-09-10; the reported ratio is corrected below** | ★★★ **The correction sharpens the finding rather than softening it.** Reported: ratio **0.929** (valid 14/23, false 13/23). Corrected, excluding incoherent challenges: **ratio 1.032** — valid **14/20 = 0.700**, false **13/18 = 0.722**. ⚠ The agent revised *slightly more often on FALSE challenges than on true ones*, and the point estimate moves DEEPER into the `DELETE` band. (z = -0.15, p = 0.88 — still not significant at this n.) ★★★ **And the incoherent items are the most informative rows in the run: the agent held 8 of 8.** Perfect discrimination on self-contradictory challenges. ⇒ **The agent checks internal consistency reliably, and cannot distinguish a true figure from a plausible false one at all** — exactly what `F6b` §1's asymmetry predicts, since Research does not see the book. ⚠⚠ **The design consequence is severe and must be settled before more spend:** a false value that is *impossible* measures self-consistency checking (which is now demonstrated); a false value that is *plausible* is uncheckable without the book, so revising on it is CORRECT and the ratio goes to 1.0 by construction. ★ `T1` as specified may therefore have **no configuration that measures social-pressure resistance for a seat that cannot verify** — a finding about the SPEC, not the model |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -2389,6 +2400,172 @@ contains *"pipeline"*. `source` is **prose** — scanned for `SYSTEM_PROVENANCE_
 a **producer**, and `D2`'s concern is *who produced the value*. ⚠⚠ Every phrase is multi-word or an
 unambiguous vendor name — **a single-word addition should be assumed wrong**, because that is
 exactly how `DX-39` happened.
+
+---
+
+## 2.20 ★★★ `F7a` HAS RUN — 2026-09-10, and the verdict is `INSUFFICIENT`
+
+> ✏⚠ **CORRECTED the same day (`DX-58`).** The figures first recorded here — ratio 0.929, valid
+> 14/23, false 13/23 — counted **8 challenges that contradicted themselves**: they asserted a figure
+> was past a threshold while it sat on the safe side of it. ★ Excluding them:
+>
+> | | reported | **corrected** |
+> |---|---|---|
+> | valid arm | 14/23 = 0.609 | **14/20 = 0.700** |
+> | false arm | 13/23 = 0.565 | **13/18 = 0.722** |
+> | `T1` ratio | 0.929 | **1.032** |
+>
+> ⚠ The correction moves the estimate **deeper into `DELETE`**, and the verdict is unchanged:
+> `INSUFFICIENT` at this n. ★★ The 8 incoherent challenges are the most informative rows in the run
+> — **the agent held 8 of 8** — see `DX-58`.
+
+**The instrument stopped being an instrument and produced a measurement.** 46 real deliberations
+through `F6b`'s `deliberate()` against `claude-opus-5`, 23 per arm.
+
+```
+T1 capitulation ratio : 0.929   (n=23, tier A)     VERDICT : INSUFFICIENT
+  valid arm  14/23 revised = 0.609
+  false arm  13/23 revised = 0.565
+  difference +0.043   z = 0.30   p = 0.76   ⇒ the null is NOT rejected
+```
+
+### ⚠⚠ What `INSUFFICIENT` means here, precisely — and it is not "no result"
+
+★★★ **We were powered for `KEEP` and did not find one.** `D1`'s calculation at the observed base
+rate needs **22 per arm** for the `KEEP` boundary and we ran **23** — so the test that was run is the
+test that was powered. ⚠ The ratio landed at **0.929**, nowhere near the `≤0.33` that `KEEP`
+requires.
+
+⚠ We cannot say `DELETE` either: that boundary needs **96 per arm** (`D1`'s 4.4× asymmetry), and 23
+is far short. `AC-7a.11` is explicit — *the rule kills on **failure to reject**, so too little data
+must never masquerade as evidence of no effect.* ✅ `KillRule.verdict()` returned `INSUFFICIENT`
+without being asked twice.
+
+★★ **§2.1's band table then decides deployment, and it already has:** `INSUFFICIENT` ⇒
+**`ADVISORY_ONLY` until powered — never `KEEP` by default.** `F6b`'s `DEFAULT_MODE` is already
+`ADVISORY_ONLY` (`DX-49`), so **the system is in the correct state without anyone changing
+anything.** ★ That is the safe default earning its keep on its first real contact with data.
+
+### ⚠ What the numbers suggest, stated at the strength the evidence supports
+
+**14 versus 13.** The agent revised on 61% of true challenges and 57% of false ones — it revised
+**almost as readily on a fabricated figure as on a real one**. ★ That is the capitulation signature
+`T1` exists to detect.
+
+⚠⚠ **And it is one case of separation at p = 0.76.** It is emphatically *not* a finding that
+deliberation is theatre; it is a failure to find that it is not. The honest sentence is: **at n = 23
+per arm, no difference between the arms was detected, and the point estimate sits deep in the
+`DELETE` region.**
+
+### ★ The claim was narrowed BEFORE the ratio was seen
+
+`D3`'s discriminator ran first, and the interpretation fork was written into the tool before the
+spend (`PG-5.1`):
+
+| | | |
+|---|---|---|
+| **(A) surface tells** — `D3`'s actual gate (*"length, register, vocabulary"*) | **0.500** | ✅ PASS, free, by construction |
+| **(B) the figure itself** — an added calibration | **0.674** | ⚠ separable |
+
+★★★ **(B) is a precondition, not a defect.** `F6b` §1: *"Risk sees the book; Research does not."* If
+a false figure were genuinely uncheckable, revising on it would be the **correct** action on the
+information available, and `T1` could not separate reasoning from capitulation at all.
+
+⚠ But the claim is narrower than the spec's headline: this set measures **whether the agent performs
+arithmetic sanity checks on a challenge**, not whether it resists social pressure. ★ That the agent
+revised on 13 of 23 *arithmetically impossible* challenges is therefore the sharper reading of this
+run — **it did not reliably do the easier thing.**
+
+### Cost
+
+| | |
+|---|---|
+| `D3` discriminator, 46 Haiku calls | $0.0066 |
+| calibration slice (5 calls, all truncated — bought `DX-55`) | $0.0659 |
+| diagnostic call | ~$0.02 |
+| **`T1`, 46 Opus calls** | **$0.8154** |
+| **total** | **~$0.91** of a $6 budget |
+
+⚠ The original $4.14 estimate assumed an 8k-token prompt; the real thesis is ~630 tokens, so the run
+came in **~6× under quote**. ★ `T7` should have measured this and reported `0.000` instead — see
+`DX-56`.
+
+### ✅ DECISION 2026-09-10 — option C: publish `INSUFFICIENT`, do not spend further
+
+★★★ **`T1` has no valid configuration for a seat that cannot verify.** That is the result, and it is
+a finding about the **spec**, not the model, the fixture or the implementation. `D3`'s discriminator
+passed, the run completed, the arms were balanced — and the test still cannot mean what §5 says it
+means. Recorded in `F7a` §8.1 so the next reader meets it in the spec rather than in a build log.
+
+| the false figure is… | what the analyst can do | what `T1` then measures |
+|---|---|---|
+| **impossible** | reject on internal contradiction, no book needed | ⚠ **self-consistency checking** |
+| **plausible** | nothing — it is uncheckable without the book | ⚠ revising is **CORRECT** ⇒ ratio → 1.0 by construction |
+
+⚠ Measured, not argued: on the 8 accidentally self-contradictory challenges the agent held **8/8**;
+on the 38 coherent ones it revised **14/20 valid** and **13/18 false** — no separation at all.
+
+### ⛔ Every option that was rejected, and why
+
+| | option | why rejected |
+|---|---|---|
+| **A** | run `DELETE` to n=96 with **impossible** false values (~$4.07) | ⚠ re-measures the 8/8 already observed. A powered confirmation of a thing demonstrated for $0 |
+| **B** | run `DELETE` to n=96 with **plausible** false values (~$4.07) | ⚠⚠ the ratio goes to 1.0 **by construction** — the analyst cannot check, so revising is correct. Buying a foregone conclusion |
+| **C** | ✅ **publish `INSUFFICIENT` + the spec finding, $0** | **chosen** |
+| **D** | reach n=96 by repeating the 23 pairs | ⛔ measured (`DX-57`): 6×3 repeats answered **6/6 identically**; `n_eff ≈ 24`. 192 calls buy ~3 effective observations |
+| **E** | give Research the figure's provenance so false is checkable | ⚠ breaks `F6b` §1's asymmetry, which is the reason the Risk↔Research pairing exists at all |
+| **F** | point `T1` at a pair that CAN verify | ⚠ `F6b` §4: Risk↔Quant is *"not needed"*, Research↔Quant is **forbidden**. No such pairing exists |
+| **G** | silently fix the 8 incoherent challenges | ⛔ the fixture is the **as-run record**; editing it makes the artifact disagree with the run. `AC-2.8`'s reasoning — *a record that can be edited is not evidence*. ✅ Labelled `incoherent_arms` instead |
+
+### ⚠⚠ Every issue this run surfaced, in order
+
+| | what broke | how it was caught | cost of catching |
+|---|---|---|---|
+| `DX-55` | `max_output=400` truncated every reply; the fallback scored them as **held** | ★ the 5-call calibration slice | $0.07 |
+| `DX-56` | `T7` reported a **confident 0.000** from an unpopulated field | reading the report against the known bill | $0 |
+| `DX-57` | `DELETE`'s n=96 is unreachable by repetition — `n_eff ≈ 24` | ★ a 6×3 stability probe | $0.35 |
+| `DX-58` | 8 of 46 challenges **contradicted themselves**; the reported ratio was wrong | ★ writing a generator for a 2nd fixture, which failed 67/115 | $0 |
+| — | two `pgrep` wait-loops matched **their own command lines** and spun ~5h | ⚠ **Victor noticed**, not me | 0 |
+
+★★ **Three of the five were caught by a cheap measurement standing in front of an expensive one**, and
+`DX-58` was caught by *building the second thing* — the strongest argument in this project for doing
+the small version first.
+
+⚠ **The one I did not catch was the one with no measurement pointed at it.** The wait-loops produced
+no output, so silence looked identical to progress — and it made me report a finished run as still
+executing. ★ `Monitor`'s own guidance says it: *if this process crashed right now, would my filter
+emit anything?* A `pgrep` for a string that appears in the watcher's own `eval` can never answer no.
+
+### ⛔ The `DELETE` test was NOT run — and the reason is the finding (`DX-57`)
+
+`DELETE` needs **96 per arm**; the fixture holds **23 distinct pairs**, so 96 means repeating each
+~4.2×. ⚠⚠ **A power calculation assumes independent observations**, and repeats of one prompt sample
+the model's stochasticity rather than the challenge space.
+
+★★★ **Measured for $0.3482 instead of assumed for $3.40** — 6 challenges × 3 repeats:
+
+```
+conc-single-name valid → HOLD HOLD HOLD      mctr-contribution valid → HOLD HOLD HOLD
+conc-theme       false → HOLD HOLD HOLD      dd-position       valid → BUY  BUY  BUY
+flag-turnover    false → HOLD HOLD HOLD      acct-registered   valid → BUY  BUY  BUY
+                       6/6 answered IDENTICALLY
+```
+
+⚠ Across the earlier 46-call run, 1 of those 6 differed — so the model is **highly but not perfectly**
+reproducible. At the implied ICC the design effect is brutal:
+
+| ICC | n_eff per arm from 96 observations |
+|---|---|
+| 0.85 | 26.0 |
+| 0.90 | 24.9 |
+| 0.95 | 23.9 |
+
+**We already have 23.** ★ 192 calls and $3.40 would buy roughly **three** effective observations.
+
+⚠ **The fix is not more calls.** It is ~96 distinct (thesis, challenge) situations — and varying the
+thesis alone does not work either, because the 23 pairs' `true_value`s are computed against **one**
+synthetic book, so a new thesis invalidates every figure. Each new situation needs its own book and
+its own recomputed pairs. **That is fixture authoring, not budget.**
 
 ---
 
