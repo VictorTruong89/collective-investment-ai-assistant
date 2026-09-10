@@ -25,13 +25,20 @@ from src.reporting.render.classes import (
     COMPUTATION,
     FACT,
     JUDGEMENT,
+    RELAYED_JUDGEMENT,
     RenderUnit,
 )
 from src.reporting.render.lint import enforce
 
 #: Ordering is an argument (**RP-15**): the falsifier renders ABOVE the verdict.
 #: *What would prove this wrong, before what we think.*
-FIELD_ORDER = ("falsifier", "verdict", "analyst_verdict", "stability", "confidence",
+#: ⚠ `thesis_source` sits IMMEDIATELY AFTER `analyst_verdict` (`F9` `AC-9.6`).
+#: ★ It qualifies that verdict and nothing else: how far the transport can be
+#: trusted is unreadable once separated from the judgement it applies to. Placing
+#: it lower — beside `confidence`, say — would let a reader take the analyst's
+#: verdict at face value and meet its provenance a screen later.
+FIELD_ORDER = ("falsifier", "verdict", "analyst_verdict", "thesis_source",
+               "stability", "confidence",
                "rank", "ranked_quantity", "alerts", "deferral")
 
 #: D-12's conservatism order, restated for the escalation check only. D-09 does
@@ -99,13 +106,41 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
               f"{rec.verdict_nominated}" if rec.was_downgraded else "composed (DN-1)"),
     ))
 
+    # ★ F9 AC-9.6 — WHICH SOURCE produced the thesis, and how far to trust the
+    # transport. ⚠ Read once here so the verdict unit below and the source unit
+    # cannot disagree about it.
+    thesis_variant = _thesis_variant(rec)
+    analyst_class = (RELAYED_JUDGEMENT if thesis_variant != "api" and rec.thesis_ref
+                     else JUDGEMENT)
+
     # ★ §8Z / RP-8 — the ANALYST's own verdict renders BESIDE the composed one,
     # never instead of it. Divergence is information, not a layout problem.
     if grade.get("verdict") is not None:
         units.append(RenderUnit(
-            field="analyst_verdict", value=grade["verdict"], reliability=JUDGEMENT,
+            field="analyst_verdict", value=grade["verdict"],
+            reliability=analyst_class,
             source="D-01", as_of=as_of,
             note="the analyst's own verdict, shown beside the composed one (RP-8)",
+        ))
+
+    # ★★ F9 `AC-9.6` — the card states its source, on BOTH paths.
+    # ⚠ A provenance field that appeared only on the relay path would teach a
+    # reader that its ABSENCE means "fine", and then a missing provenance and an
+    # API thesis look identical (`AP-2`, `DC-1`).
+    if rec.thesis_ref:
+        units.append(RenderUnit(
+            field="thesis_source", value=thesis_variant,
+            # ⚠ `source` names the producing DOMAIN, never a spec id. D-09's own
+            # `AC-9.6` asserts every field starts with `D-` (`RP-6`/`DC-1`:
+            # *a field D-09 could compute itself is one it must not*), and the
+            # thesis — whichever transport carried it — is D-01's.
+            # ★ Caught by that existing test on the first run of this code.
+            reliability=analyst_class, source="D-01", as_of=as_of,
+            note=("relayed through a human transport: the evidence bundle does "
+                  "not exist here and the numbers are mostly unverifiable "
+                  "against data we hold (RP-48, RA-118)"
+                  if analyst_class is RELAYED_JUDGEMENT else
+                  "authored through the Anthropic API, the default source (QR-20)"),
         ))
 
     units.append(_stability_unit(grade, rec, as_of))
@@ -198,6 +233,21 @@ def _confidence_unit(grade, rec, as_of) -> RenderUnit:
         )
     return RenderUnit(field="confidence", value=value, reliability=JUDGEMENT,
                       source="D-01", as_of=as_of)
+
+
+def _thesis_variant(rec) -> str:
+    """`AC-9.6` — which `thesis_source` variant authored this thesis.
+
+    ⚠⚠ **`"unknown"`, never `"api"`, when provenance is absent.** The tempting
+    default is `api`, because `QR-20` makes it the common case — and that would
+    render an unprovenanced thesis as the **most** trustworthy source available.
+    ★ A defaulting rule must fail toward the weaker claim (`P5`, `AP-2`), so an
+    unknown source also renders at `RELAYED_JUDGEMENT`, the lowest assurance
+    class (`ASSURANCE_ORDER`).
+    """
+    if not rec.thesis_ref:
+        return "none"
+    return (rec.thesis_ref.get("provenance") or {}).get("variant") or "unknown"
 
 
 def _falsifier_text(rec) -> str:

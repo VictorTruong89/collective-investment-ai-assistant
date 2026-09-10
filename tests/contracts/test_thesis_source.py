@@ -151,3 +151,69 @@ def test_ac_9_10_both_are_traced_identically():
     assert {p.port for p in provs} == {"thesis_source"}
     assert [p.variant for p in provs] == ["api", "relay"]
     assert all(p.experimental is False for p in provs)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-9.4 — ★★ de-rating is UNCHANGED through the wrapper.
+#
+# ⚠⚠ `AC-1.77` records that the relay's whole safety case rests on `RA-67`'s
+# coverage de-rating firing **unchanged**. F9 §2 puts it in the non-goals:
+# *"✗ Changing the confidence rules."* ★ A wrapper is exactly the place a
+# de-rating quietly stops applying — and it would look like nothing at all.
+# ═══════════════════════════════════════════════════════════════════════════
+
+from src.fundamental.scorecard.coverage import (  # noqa: E402
+    CONFIDENCE_FLOOR,
+    CONFIDENCE_HOLD_CAP,
+    assess_confidence,
+)
+
+
+@pytest.mark.parametrize("coverage", [
+    0.0, 0.05,
+    CONFIDENCE_FLOOR - 0.001, CONFIDENCE_FLOOR, CONFIDENCE_FLOOR + 0.001,
+    CONFIDENCE_HOLD_CAP - 0.001, CONFIDENCE_HOLD_CAP, CONFIDENCE_HOLD_CAP + 0.001,
+    0.9, 1.0,
+])
+def test_ac_9_4_de_rating_through_the_adapter_equals_calling_it_directly(
+        adapter_cls, coverage):
+    """`AC-9.4` — the characterization that pins `RA-67` across the wrapper.
+
+    ★ Both boundary values are exercised on BOTH sides of the threshold, because
+    a de-rating defect shows up at the boundary or nowhere: an adapter that
+    rounded, clamped or defaulted would agree everywhere in the middle.
+    """
+    direct = assess_confidence(coverage)
+    # ★ The adapter is handed the SHARED function, exactly as production wires it.
+    wired = adapter_cls(author_fn=lambda t, a, c: _raw(),
+                        assess_confidence=lambda raw: assess_confidence(
+                            coverage).to_json_obj())
+    thesis = wired.author("MU", "2026-09-09", {})
+    assert thesis.confidence == direct.to_json_obj()
+    assert thesis.confidence["cap"] == direct.cap
+    assert thesis.confidence["basis"] == "evidence_coverage"
+
+
+def test_ac_9_4_the_two_adapters_de_rate_identically(monkeypatch):
+    """⚠⚠ `D1` — *"a port whose two adapters make different guarantees is not
+    one port."* ★ If the relay path de-rated differently from the API path, the
+    caller would have to know which answered, which is precisely what `F1`
+    `AC-1.9`'s substitution contract forbids.
+    """
+    results = {}
+    for cls in ADAPTERS:
+        wired = cls(author_fn=lambda t, a, c: _raw(),
+                    assess_confidence=lambda raw: assess_confidence(0.42).to_json_obj())
+        results[cls.variant] = wired.author("MU", "2026-09-09", {}).confidence
+    assert results["api"] == results["relay"]
+
+
+def test_ac_9_4_an_adapter_may_not_substitute_its_own_floor():
+    """⚠ `C3` / `RA-67` — an adapter that scores its own output is grading its
+    own homework. ★ `SourcedThesis` refuses a confidence whose `basis` says the
+    adapter produced it."""
+    wired = ApiAdapter(author_fn=lambda t, a, c: _raw(),
+                       assess_confidence=lambda raw: {"basis": "adapter",
+                                                      "value": 0.99})
+    with pytest.raises(ValueError, match="assess_confidence"):
+        wired.author("MU", "2026-09-09", {})

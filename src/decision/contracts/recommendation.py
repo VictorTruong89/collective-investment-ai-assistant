@@ -66,6 +66,13 @@ class Recommendation:
     thesis_ref: dict | None = None
     deferral: dict | None = None
     stubs: tuple[dict, ...] = field(default_factory=tuple)
+    #: ★ `PG-7.3` / `F6a` `AC-6a.10` — `"independent"` | `"cross-configured"`.
+    #: ⚠⚠ The STATUS TRAVELS IN THE FIELD, not in a caveat elsewhere. `F2` `D3`
+    #: renamed `IDENTICAL` → `REPRODUCED` for exactly this reason: *"the name is
+    #: what gets copied"*, and a caveat that does not travel beside the value it
+    #: qualifies is decoration. A reader of the stored JSON can therefore never
+    #: mistake an echo for concurrence between independent views.
+    concurrence: str = "independent"
 
     @property
     def was_downgraded(self) -> bool:
@@ -90,6 +97,7 @@ class Recommendation:
             # ★ DN-25 — the flag is ON the block, so a reader of the stored JSON
             # cannot mistake a transported number for one the algebra used.
             "grade": {"consumed_by_algebra": False, **self.grade},
+            "concurrence": self.concurrence,
             "deferral": self.deferral,
             "actionable": self.actionable,
             "not_actionable_reason": self.not_actionable_reason,

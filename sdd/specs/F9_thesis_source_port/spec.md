@@ -180,12 +180,43 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 10 ACs green, 2026-09-09** — every one mutation-verified (6 mutations on the three ACs
+completed today; **all caught on the first pass**).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-9.1, AC-9.7 | *(to be written)* | `tests/contracts/test_thesis_source.py` |
-| AC-9.2 | *(to be written)* | `tools/check_no_reimplementation.py` |
-| AC-9.3, AC-9.4 | *(to be written — blocked Q1)* | `src/fundamental/source/relay_adapter.py` |
-| AC-9.5, AC-9.8 … AC-9.10 | *(to be written)* | `src/fundamental/source/` |
-| AC-9.6 | *(to be written)* | `src/reporting/render/` |
+| AC-9.1 | `tests/contracts/test_thesis_source.py::test_ac_9_1_*` (3, parameterised over BOTH variants) | `source/adapters.py::_BaseAdapter` |
+| AC-9.2 | ★ `tests/structural/test_no_reimplementation.py::test_ac_9_2_*` (6) | `tools/check_no_reimplementation.py::reimplementation_violations` |
+| AC-9.3 | `tests/contracts/test_thesis_source.py::test_ac_9_3_c2_a_contradicting_claim_RAISES_and_is_never_de_rated` | `source/adapters.py::_check_claims` |
+| AC-9.4 | ★ `::test_ac_9_4_*` (3, incl. 10 coverage values across both floors) | `scorecard/coverage.py::assess_confidence` injected into `_BaseAdapter` |
+| AC-9.5 | `::test_ac_9_5_c4_provenance_is_on_every_thesis` | `source/adapters.py::SourcedThesis` |
+| AC-9.6 | ★ `tests/unit/test_card_states_its_source.py::test_ac_9_6_*` (7) | `reporting/render/card.py::_thesis_variant` · `FIELD_ORDER` |
+| AC-9.7 | `tests/contracts/test_thesis_source.py::test_ac_9_7_depth_parity_the_two_produce_the_same_shape` | `source/adapters.py::SourcedThesis` |
+| AC-9.8 | `::test_ac_9_8_the_api_is_the_registry_default` | `source/adapters.py::ApiAdapter` |
+| AC-9.9 | `::test_ac_9_9_c5_an_unresolvable_ticker_raises` | `source/errors.py::UnresolvableTicker` |
+| AC-9.10 | `::test_ac_9_10_both_are_traced_identically` | `source/adapters.py` · `orchestration/trace/` |
+
+### ⚠⚠ What completing this spec exposed — three findings, 2026-09-09
+
+1. **`AC-9.2` was enforced by nothing (`DX-42`).** The traceability row named
+   `tools/check_no_reimplementation.py` — ⛔ **and the file did not exist.** F9's *first* non-goal
+   (*"✗ Re-implementing prompt composition, ingest, verification or de-rating"*) had no check at all.
+   ★★ The same shape as `DX-41` one spec earlier: **a traceability row naming a plausible tool reads
+   exactly like coverage.** ✅ Built, wired into `check_all.py` as the **8th** guarantee.
+   ⚠ The check is deliberately about **definitions, not names**: an adapter *taking*
+   `assess_confidence` as an injected dependency is how `C3` is satisfied, so only a `def` or a
+   threshold assignment counts as ownership. ★ It also catches a copied `CONFIDENCE_FLOOR` **constant**
+   — which is how a duplicated floor actually arrives: one plausible line, not a function anyone
+   notices in review, and `AC-1.77` says the relay's whole safety case rests on that floor firing
+   unchanged.
+2. **`RELAYED_JUDGEMENT` existed and nothing used it (`DX-43`).** The fourth reliability class — glyph
+   `◌⇄`, label *"RELAYED JUDGEMENT (unverified transport)"* — has been in `render/classes.py` since
+   2026-08-25, added because `AC-1.79` requires the class **in every medium**. `build_card()` never
+   assigned it. ⚠ `RP-48` is explicit that it is **more provisional than `JUDGEMENT`, never a footnote
+   on it**; rendering a relayed thesis as an ordinary judgement tells the reader the two are equally
+   checkable.
+3. **⚠⚠ An ID collision, live (`DX-44`).** F9's `AC-9.6` (*the card states its source*) and D-09's
+   `AC-9.6` (*every card field names a producing domain*) are **both `AC-9.6`, and both about the
+   discipline card**. ★★ The collision bit immediately: the first implementation set `source="F9"`,
+   which D-09's `AC-9.6` fails — *a field D-09 could compute itself is one it must not* (`RP-6`/`DC-1`).
+   ✅ Corrected to `source="D-01"`: whichever transport carried it, the thesis is D-01's.

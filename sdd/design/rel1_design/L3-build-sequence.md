@@ -1593,6 +1593,14 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-37** | 2026-09-09 | E-02 live | `AP-5`/`RA-131` — the offset is the one part of a citation the model cannot author, so `parse_items` computes it: `start, end = _locate(...)` | ⚠⚠ **`_locate`'s `end` is DISCARDED.** The next line writes `offset=(start, start + len(quote))`. ★★ The two agree **only when the match was exact** — but `_locate` also matches under whitespace/typography normalisation, and there the document's span is a **different length** from the quote, so the span is cut short and `X-01` ① rejects a citation that is perfectly good, **blaming the model for our arithmetic**. Measured: document holds `'State of\n\n\nNew York'`, quote holds `'State of\nNew York'`, span ends 2 chars early on `'…provides fo'` | `tools/run_extraction_once.py::parse_items` | ⚠ material | ✅ **resolved 2026-09-09** | ★★★ **Found only because `DX-35`'s fix was verified with the REAL `x01_verify_extraction` instead of a hand-rolled whitespace comparison.** My simulation collapsed whitespace and passed; the real check resolves the SPAN first, and the span was wrong. ⚠ A simulation of a guard tests the simulation. ★ **Latent, not new** — 0 of MU's 60 and 0 of AMD's 41 recorded spans change, because only normalisation-matched quotes can differ in length, and `DX-35`'s strip is what creates the `\n\n\n` runs that expose it. ✅ Use `end`; pinned by `test_dx37_the_span_end_comes_from_the_locator_not_the_quote_length` |
 | **DX-38** | 2026-09-09 | B5 | `D2`/`AC-5.1` — the fund manager establishes every golden value, and `established_by` *"names a person, never a pipeline component"*. `DX-28` had already closed the identical hole on `established_at`: *"a placeholder that validates is a placeholder that ships"* | ⛔⛔ **The same hole was left open on `established_by`, ONE LINE ABOVE the fix.** The check is `if not self.established_by.strip()`, which passes ANY non-empty text — so the template's own blank, `'____'`, validated. ⚠ **Measured on live data:** Victor signed 5 of 8 prepared `E-02` cases and left 3 at `'____'` with a real `established_at`; all three constructed cleanly and would have graded as established. ★★★ **Two of the three were cases 21 and 23 — the cases pinning `DX-33` and `DX-35`, this session's own fixes** | `src/evaluation/golden/models.py::GoldenCase` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ `D2`'s circularity check could never have caught it: a placeholder names **neither a person nor a pipeline component**. It is not circular, it is **UNATTRIBUTED** — a second, independent route for an unestablished value to grade as gold, and `DX-20`'s family for the third time. ✅ `_is_placeholder()`: refuses a value with **no letters at all** (`____`, `---`, `???`) plus an exact-match word list (`TBD`, `pending`, `N/A`). ⚠⚠ Deliberately **no** *"does this look like a real name?"* step — `'张伟'`, `'O'Brien'`, `'M K'`, `'Ana'` all pass; a blank-detector that rejects real people makes signing feel arbitrary and gets worked around. ★ The check tests for the ABSENCE OF LETTERS, never for a name-like shape (`P5`: fail loud, not fail clever) |
 | **DX-39** | 2026-09-09 | B5 | `D2` — `established_by` may not name a pipeline component, and `GoldenCase` enforced it by substring-scanning `established_by` **and `source`** against `FORBIDDEN_ESTABLISHERS` (`pipeline`, `system`, `model`, `llm`, `claude`, `gpt`, `agent`, `src.`, `auto`, `generated`, `gateway`) | ⚠⚠ **`source` describes FILINGS, and ordinary filing prose is full of those words.** Measured — 5 of 6 realistic sources REFUSED: *"Automotive segment revenue table"* (`auto`), *"cash generated from operations"* (`generated`), *"the company's business model"* (`model`), *"confirmed with the transfer agent"* (`agent`), *"the company's ERP system"* (`system`). ★ Found LIVE, not by inspection: case 22 would not construct, because my own template `source` said *"the model's own note adds…"* | `src/evaluation/golden/models.py::__post_init__` | ⚠ material | ✅ **resolved 2026-09-09 — Victor approved the recommendation** | ★★★ **The damage was never the refusal, it was the WORKAROUND.** The message names a word, so the natural response is to write vaguer `source` text — and `CT-5.2` requires `source` to be specific enough to re-check, or the value *"will eventually be trusted for the wrong reason"*. ⚠ **A guard that punishes specific prose trains people to write vague prose, degrading the exact field it protects.** **Options weighed:** ⓐ *scan `established_by` only* — ⚠ rejected, a `source` reading *"taken from pipeline output"* would then pass, and that is genuinely circular; ⓑ *word-boundary matching* — ⚠ rejected, it fixes `auto`→*"Automotive"* but NOT `generated`/`model`/`system`/`agent`, which appear as WHOLE WORDS in real filings; ⓒ *drop the ambiguous words from the list* — ⚠ rejected, it weakens the `established_by` check where those words are unambiguous; ⓓ ✅ **CHOSEN — split the check by what the field IS.** `established_by` is a NAME, so a bare substring is right for it (nothing naming a person contains *"pipeline"*); `source` is PROSE, so it is scanned for **provenance phrases** instead — `generated by`, `pipeline output`, `the model said`, `auto-generated`, `run output`, plus vendor names. ★★ The distinction that makes it safe: *"cash generated from operations"* names a LINE ITEM; *"generated by"* names a PRODUCER — and `D2`'s concern is **who produced the value**, so the check now asks about provenance rather than vocabulary. ⚠⚠ Every phrase is multi-word or an unambiguous vendor name; **a single-word addition to that list should be assumed wrong**, because that is exactly how `DX-39` happened. ✅ 15 tests: 6 filing-prose sources that must pass, 9 provenance sources that must still fail, and `D2`'s original 5 forbidden establishers unchanged |
+| **DX-40** | 2026-09-09 | F6a | `F6a` `AC-6a.8` — every routing selection is recorded as a `CT-2.3` `DecisionRecord`. Two specs say where that record comes from | ⚠⚠ **They disagree.** `F2` §4: *"a decision record is **written by the routing function itself**, carrying the reason it already returns."* `F6a` §2 non-goals: *"✗ **Recording.** F6a returns the reason; F2 persists it."* ★ Read literally, one requires `routing.py` to write to a store and the other forbids it | `F2` §4 · `F6a` §2 · `policy/routing.py` · `trace/wire.py` | ⚠ material | ✅ **resolved 2026-09-09 — in `F6a`'s favour** | ★★★ **`AC-6a.2` breaks the tie**: `select()` must perform *no I/O, read no clock, consume no randomness*, and a module that writes files **cannot be proven pure by structure** — `test_ac_6a_2_select_performs_no_io` would have to start mocking a store. ★ The specs' shared intent is that the record **originates from the routing choice** rather than from a separate observer that can drift out of step; that is satisfied by passing the `Routing` to F2, and nothing in `F2` §4 actually requires the import to point the other way. ✅ `trace/wire.py::record_routing(store, routing, …)`, beside `traced()` and `traced_transport()` — the seams that already do exactly this job. ⚠ `decision_id` is **required and referenced, never minted** (`CT-2.7`): minting one per routing choice would fan `F7b`'s outcome join out across every selection in a run |
+| **DX-41** | 2026-09-09 | F6a | `AC-6a.6` — `src/fundamental/**` and `src/quant/**` may not import each other (`ST-9`, `INV-014`). `F6a` §4 calls it *structural*, and `tools/check_import_fences.py` exists, is named for it, and is wired into `check_all.py` | ⛔⛔ **It checks a DIFFERENT fence.** `firewall_violations()` walks `src/explain/` and asks whether **seat 6** reached into a walled domain — that is `AC-4.2`. ★★ The fence `AC-6a.6` names — the two analysts importing **each other** — had **no code at all**, and the spec's traceability row said `tools/check_import_fences.py` as though it did | `tools/check_import_fences.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **A tool with the right name, in the right place, wired into CI, reads exactly like coverage** — and this one was three-quarters of an alibi. ⚠ The traceability row pointed at it, which is how the gap survived a spec review. ★ The harm is specific and silent: a direct import is a channel through which one seat can condition the other **with no `influenced_by` recorded anywhere**, so `PG-7` is defeated without leaving a trace — strictly worse than being defeated loudly. ✅ `peer_to_peer_violations()` added, wired into `all_violations()` and `main()`, 5 tests incl. both directions and the ALLOWED cases (orchestrator types, intra-domain). ⚠ Deliberately stricter than the seat-6 fence: `_is_published` does **not** apply, because the two analysts are meant to be independent of each other, not merely of each other's internals. ★ The live tree passes — the fence was being honoured, just not enforced |
+| **DX-42** | 2026-09-09 | F9 | `AC-9.2` — `src/fundamental/source/**` contains no prompt composition, claim verification or confidence logic of its own; it calls `relay/`. F9's traceability row names `tools/check_no_reimplementation.py` | ⛔⛔ **The file did not exist.** F9's *first* non-goal — *"✗ Re-implementing prompt composition, ingest, verification or de-rating"* — was enforced by nothing, and the spec table named a tool that was never written | `tools/check_no_reimplementation.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ **`DX-41`'s shape one spec later: a traceability row naming a plausible tool reads exactly like coverage.** Two consecutive specs, same failure — ⚠ a row is a CLAIM, and nothing in this repo checked that the module it names exists. ✅ Built and wired into `check_all.py` as the **8th** guarantee, 6 tests. ★ Deliberately about **definitions, not names**: an adapter *taking* `assess_confidence` as an injected dependency is how `C3` is satisfied, so only a `def` or a threshold assignment counts as ownership — a check that banned the name would ban the injection. ★★★ It also catches a copied `CONFIDENCE_FLOOR` **constant**, which is how a duplicated floor actually arrives: one plausible line, not a function anyone notices in review. `AC-1.77` says the relay's whole safety case rests on that floor firing unchanged, so a local copy fires **instead of** the real one |
+| **DX-43** | 2026-09-09 | F9 | `AC-9.6` — a card whose thesis came from the relay says so. `RP-48`/`AC-1.79` added a FOURTH reliability class, `RELAYED_JUDGEMENT`, on 2026-08-25: glyph `◌⇄`, label *"RELAYED JUDGEMENT (unverified transport)"* | ⚠⚠ **The class existed, fully specified, and `build_card()` never assigned it.** Every thesis rendered as an ordinary `JUDGEMENT` whatever its transport, and no card field named its source at all | `src/reporting/render/card.py` | ⚠ material | ✅ **resolved 2026-09-09** | ★★ `RP-48` is explicit that `RELAYED_JUDGEMENT` is **more provisional than `JUDGEMENT`, never a footnote on it** — a relay report is *"a judgement whose bundle does not exist and whose numbers are mostly unverifiable against data we hold"*. Rendering it as an ordinary judgement tells the reader the two are **equally checkable**, which is what `AP-2`/`DC-1` exist to prevent. ✅ `thesis_source` renders on BOTH paths — ⚠ a field appearing only on the relay path teaches readers that its absence means *fine*, so a missing provenance and an API thesis would look identical. ★★★ An unprovenanced thesis renders `"unknown"` at the **weakest** class, never defaulting to `api`: the tempting default is the common case (`QR-20`), and it would render the least-known thesis as the **most** trustworthy source available. A defaulting rule must fail toward the weaker claim (`P5`). ★ Position is load-bearing too — `thesis_source` sits immediately after `analyst_verdict`, because how far to trust the transport is unreadable once separated from the judgement it qualifies |
+| **DX-44** | 2026-09-09 | F9 · D-09 | Constitution §1 reserves ID families and warns *"two live meanings for one ID"* is a real defect — `AP-n` had to be renamed out of `P1`–`P6`, and `M<n>`→`MS-n` for the same reason | ⚠⚠ **`AC-9.6` has TWO live meanings, and both are about the discipline card.** F9 `AC-9.6`: *the card states its source*. D-09 `AC-9.6`: *every card field names a producing domain*. ★ Not a near-miss — `grep AC-9.6` returns both, and `grep AC-9.2` additionally returns D-09's unrelated `AC-9.24a` | `sdd/specs/F9_*/spec.md` · `tests_src/test_reporting_b3.py` | ⚠ material | ⬜ **OPEN — naming is Victor's call** | ★★★ **The collision bit within minutes of being noticed.** The first `AC-9.6` implementation set `source="F9"` on the new card field — which D-09's `AC-9.6` fails, since it asserts every field's source starts with `D-`: *a field D-09 could compute itself is one it must not* (`RP-6`/`DC-1`). ✅ Corrected to `source="D-01"` — whichever transport carried it, the thesis is D-01's. ⚠ The existing suite caught it on the first run, which is the argument for `AC-9.2`-style structural checks generally. ★ The clash is structural, not accidental: `AC-<n>.<k>` numbers by SPEC, and F9 (a spec id) collides with D-09 (a domain id) because both render as `9`. **Options:** ⓐ leave it and rely on context — ⚠ these two share a subject, which is the worst case for context-disambiguation; ⓑ qualify F9's ACs as `AC-F9.6`; ⓒ renumber D-09's to `AC-D9.6`, ⚠ touching a large upstream body. ★ Recommend ⓑ — F9 is this repo's own spec and the smaller surface |
+| **DX-45** | 2026-09-09 | F7a | Constitution §6 — *"Every test docstring names the `AC-<n>.<k>` it satisfies. Every spec keeps its traceability table current. **An AC with no row is not done, however green the test is** — because nobody can find it later."* | ⛔⛔ **`F7a` had 22 passing tests and ZERO AC references.** Every docstring cited a DECISION (`D1`, `D3`, `D5`) instead. `grep 'def test_ac_7a_'` returned **nothing**, and the spec's traceability table said *(to be written)* on every row | `tests/unit/test_deliberation.py` · `F7a` §9 | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **The tests were good and the coverage was invisible.** A decision-named test proves the decision was honoured; it cannot tell you which acceptance criterion is unmet — so the spec read *0 of 12 done* while ~9 were. ⚠ That is worse than an honest gap: it makes the remaining work unfindable and invites re-implementing what exists. ★★ Mapping the 22 onto the ACs is exactly what exposed the **three with no code at all** (`AC-7a.5`, `.6`, `.10`) and the two only half-implemented (`.1`, `.4`). ✅ 8 docstrings annotated, 12 rows filled, 3 gaps closed |
+| **DX-46** | 2026-09-09 | F7a | `CT-7a.2` defines a `KillRule` as a **pre-registered analysis plan**: `null_hypothesis`, `statistic`, `alpha`, `power`, `detectable_ratio`, `min_n_per_arm`, `bands`, `registered_at`, `registered_by`. `AC-7a.4` is emphatic — ⚠ *"a rule naming ONLY A BARE THRESHOLD is rejected"* | ⛔⛔ **`KillRule` WAS a bare threshold**: two band edges, an expected rate and a date. It could not state its own null hypothesis, statistic, `detectable_ratio` or `min_n_per_arm`, and carried no registrant. ★ `assert_pre_registered` checked the TIMESTAMP and nothing else, so the *plan* half of pre-registration existed only in the spec's prose | `src/evaluation/studies/killrule.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **The half that was missing is the half that gets chosen after the data.** `PG-5.1`: pre-registration fixes the **analysis**, not a constant — a rule that states only where the bands sit leaves the null, the statistic and the required `n` to be settled once the numbers are visible, which is the rationalisation the whole mechanism exists to prevent. ✅ Completeness is checked at **CONSTRUCTION** (`IncompletePlan`), not at use: a partly-stated plan must not be *buildable*. ⚠ Two existing rules in the suite were incomplete and had to be given a registrant — the check caught them immediately. ★ `min_n_per_arm` and `detectable_ratio` are **derived properties**, never fields, so `D1`'s power calculation cannot be overridden by hand |
+| **DX-47** | 2026-09-09 | F7a | `AC-7a.1` / `PG-5.1` — ★★ *"this spec is a GATE: `F6b` may not graduate until this design exists."* The traceability row named `tools/check_gate_ordering.py` | ⛔ **The file did not exist** — the THIRD consecutive spec whose traceability row named a tool that was never written (`DX-41` wrong tool, `DX-42` no tool, `DX-47` no tool). ⚠ The gate lived entirely in a spec header | `tools/check_gate_ordering.py` | ⚠ material | ✅ **resolved 2026-09-09** | ★★★ **A gate in a header is enforced by whoever remembers it at the moment they are most motivated to forget.** `PG-5.1` names `F6b` the capability *most at risk of being theatre*, and the natural sequence — build the interesting thing, measure it later — is exactly what the gate exists to interrupt. ✅ Wired as the **9th** `check_all.py` guarantee; verifies `T1`–`T7` are defined, the plan is CONSTRUCTIBLE (not merely described), and `F6b`'s spec references `F7a`. ★★ It also asserts `D1`'s cost asymmetry stays ≥3×, because *"do not quietly widen the DELETE band to make it cheaper"* is `PG-5.1`'s rationalisation arriving one step earlier — a threshold chosen after seeing the **cost** rather than the data |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -2389,6 +2397,173 @@ contains *"pipeline"*. `source` is **prose** — scanned for `SYSTEM_PROVENANCE_
 a **producer**, and `D2`'s concern is *who produced the value*. ⚠⚠ Every phrase is multi-word or an
 unambiguous vendor name — **a single-word addition should be assumed wrong**, because that is
 exactly how `DX-39` happened.
+
+---
+
+## 2.16 ✅ `F7a` COMPLETE — 12 of 12 ACs, 2026-09-09
+
+**Third spec closed today.** `F7a` read *0 of 12 traced* and was in fact ~9 built. **1,796 tests
+pass, 9 guarantees green** (up from 8). 7 mutations, ⚠ **one survived** — and it found a defect in
+the code, not the test.
+
+| AC | was | now |
+|---|---|---|
+| `.2`, `.3`, `.7`–`.9`, `.11`, `.12` | ✅ built, ⛔ **no AC named anywhere** | ✅ traced |
+| `.1` the gate check | ⛔ tool did not exist | ✅ `check_gate_ordering.py`, guarantee #9 |
+| `.4` the plan is complete | ⚠ half — timestamp only | ✅ `IncompletePlan` at construction |
+| `.5` no outcomes consulted | ⛔ no test | ✅ structural — no channel exists |
+| `.6` arms from `CapabilityDelta` | ⛔⛔ **no binding at all** | ✅ `challenges_from_deltas()` |
+| `.10` the report stands alone | ⛔ no code | ✅ `TierAReport.to_report()` |
+
+### ★★★ `DX-45` — the tests were good and the coverage was invisible
+
+22 passing tests, **zero AC references**. Every docstring cited a decision (`D1`, `D3`, `D5`).
+⚠ A decision-named test proves the decision was honoured; it cannot tell you which acceptance
+criterion is unmet — so the spec read *0 of 12* while ~9 were done.
+
+★★ **That is worse than an honest gap**: it makes the remaining work unfindable and invites
+re-implementing what already exists. Mapping the 22 onto the ACs is exactly what exposed the three
+with **no code at all**.
+
+### ⚠⚠ `DX-46` — the kill rule was the thing it forbids
+
+`AC-7a.4`: *"a rule naming only a bare threshold is rejected."* `KillRule` **was** a bare threshold —
+two band edges, an expected rate, a date. No null hypothesis, no statistic, no `detectable_ratio`, no
+`min_n_per_arm`, no registrant. `assert_pre_registered` checked the timestamp and nothing else.
+
+★★★ **The missing half is the half that gets chosen after the data.** `PG-5.1`: pre-registration
+fixes the *analysis*, not a constant. ✅ Completeness is now refused at **construction** — a partly
+stated plan must not be buildable. ⚠ Two rules already in the suite were incomplete; the check caught
+them on the first run.
+
+### ★★ `AC-7a.6` — the line that would have produced a false finding
+
+`challenges_from_deltas()` **retains unchanged deltas**. A filter keeping only `changed == True`
+would make the revision rate `1.0` in *both* arms, and `T1` would report a perfect capitulation ratio
+— *"pure social pressure"* — from data that says nothing of the kind. ⚠⚠ **It would have looked like
+a finding, not a bug**, on the capability `PG-5.1` calls most at risk of being theatre.
+
+### ★ The surviving mutation was right
+
+Deleting `to_report()`'s invalidity block changed nothing — `_fmt` already prints the metric's own
+`insufficient_reason`, carrying the AUC, the threshold and `D3`'s explanation verbatim. ✅ The
+**duplicate was removed**, not the test strengthened: two copies of one sentence is `P4` in
+miniature, they drift, and a reader cannot tell which is authoritative.
+
+### ⛔ Three specs, three traceability rows naming tools that were not there
+
+`DX-41` (wrong tool), `DX-42` (no tool), `DX-47` (no tool). ⚠⚠ **A traceability row is a claim, and
+nothing in this repo checks that the module it names exists.** ★ That is now the clearest
+process gap in the build — see §2.17.
+
+### ⬜ `F7a` is built. It has still never RUN.
+
+★★ Everything above is the *instrument*. `PG-5`'s claim — *"I measured whether my agents capitulate
+to invalid challenges, and here is the rate"* — needs `F6b` to exist and a real run behind it.
+⚠ `F6b` is 5 of 12 ACs, and `AC-7a.1` now **enforces** that it cannot graduate before this gate,
+which it passes.
+
+---
+
+## 2.15 ✅ `F9` COMPLETE — 10 of 10 ACs, 2026-09-09
+
+**Second spec closed today.** `F9` read *5 of 10 traced*; three ACs had no implementation, the rest
+were built and unrecorded. **1,773 tests pass, 8 guarantees green** (up from 7), **6 mutations all
+caught on the first pass.**
+
+| AC | was | now |
+|---|---|---|
+| `.1`, `.3`, `.5`, `.7`–`.10` | ✅ built, ⚠ untraced | ✅ traced |
+| `.2` no reimplementation | ⛔⛔ **the named tool did not exist** (`DX-42`) | ✅ `check_no_reimplementation.py`, CI guarantee #8 |
+| `.4` de-rating unchanged | ⛔ no test | ✅ 10 coverage values across both floors, both adapters |
+| `.6` the card states its source | ⛔ no code (`DX-43`) | ✅ `thesis_source` field + `RELAYED_JUDGEMENT` |
+
+### ★★★ `DX-42` — the same failure as `DX-41`, one spec later
+
+`F6a`'s `AC-6a.6` named `tools/check_import_fences.py`, which existed but checked a **different
+fence**. `F9`'s `AC-9.2` named `tools/check_no_reimplementation.py`, which **did not exist at all**.
+
+⚠⚠ **A traceability row is a CLAIM, and nothing in this repo checks that the module it names
+exists.** Two consecutive specs, same shape. ★ That is now the strongest available argument for the
+`AC-9.2`-style structural check as a *habit* rather than a one-off: the rows are written by the same
+hand that writes the code, so they agree by construction — exactly `constitution` §5.1's illegal
+move (*"improvise, then write a test that agrees with the improvisation"*) displaced one level up.
+
+### ★★ `DX-43` — a vocabulary built and never used
+
+`RELAYED_JUDGEMENT` — a fourth reliability class with its own glyph and the label *"RELAYED
+JUDGEMENT (unverified transport)"* — was added 2026-08-25 because `AC-1.79` requires the class **in
+every medium**. `build_card()` never assigned it. ⚠ `RP-48` is explicit it is **more provisional than
+`JUDGEMENT`, never a footnote on it**: a relay report is *"a judgement whose bundle does not exist
+and whose numbers are mostly unverifiable against data we hold."*
+
+★★★ The design decision worth keeping: **an unprovenanced thesis renders `"unknown"` at the weakest
+class, never defaulting to `api`.** The tempting default is the common case (`QR-20`) — and it would
+render the least-known thesis as the *most* trustworthy source available. A defaulting rule must fail
+toward the weaker claim (`P5`).
+
+### ⚠⚠ `DX-44` — `AC-9.6` has two live meanings, and they collided in practice
+
+F9 `AC-9.6` (*the card states its source*) and D-09 `AC-9.6` (*every card field names a producing
+domain*) are both `AC-9.6` and **both about the discipline card**. ★ The collision bit within minutes:
+the first implementation set `source="F9"`, which D-09's `AC-9.6` fails — *a field D-09 could compute
+itself is one it must not*. ✅ Corrected to `source="D-01"`.
+
+⚠ This is precisely what constitution §1 exists to prevent (`AP-n` out of `P1`–`P6`; `M<n>` → `MS-n`),
+and it is **open**: `AC-<n>.<k>` numbers by spec, so F9 and D-09 both render as `9`. ★ Recommend
+`AC-F9.<k>` for this repo's own specs — the smaller surface. **Victor's call.**
+
+### ⬜ Next
+
+`F7a` (6 ACs) — ★ and it is the one that has **never run**. Then `F6b` (7) and `F8` (12).
+
+---
+
+## 2.14 ✅ `F6a` COMPLETE — 11 of 11 ACs, 2026-09-09
+
+**The first spec closed since `B5`.** `F6a` read *3 of 11 traced*; four ACs had no implementation at
+all and the rest were built but never recorded. **1,738 tests pass, all 7 guarantees green, 6
+mutations all caught on the first pass.**
+
+| AC | was | now |
+|---|---|---|
+| `AC-6a.1`–`.5`, `.7`, `.11` | ✅ built, ⚠ **untraced** | ✅ traced — the table was the only gap |
+| `AC-6a.6` peer-to-peer fence | ⛔⛔ **no code at all** (`DX-41`) | ✅ `peer_to_peer_violations()`, wired into CI |
+| `AC-6a.8` selection recorded | ⛔ no code | ✅ `trace/wire.py::record_routing` |
+| `AC-6a.9` influenced bucket | ⛔ no code | ✅ `evaluation/metrics/influence.py` |
+| `AC-6a.10` never called agreement | ⛔ no code | ✅ `decision/concurrence.py` + `compose()` + a render fence |
+
+### ★★★ The finding worth keeping: **`PG-7` was one-third built**
+
+`PG-7` has three obligations. Only the first existed.
+
+1. ✅ every cross-configuration is **recorded** — `influenced_by`, `AC-6a.5`, done at `MS-6`
+2. ⛔ influenced decisions are **bucketed separately in evaluation** — nothing read the field
+3. ⛔ the combined verdict **never claims two independent views agree** — no guard anywhere
+
+⚠⚠ **A recorded field that nothing consumes is a note, not a control.** `PG-7` exists because
+*"cross-configuration silently converts concurrence into an echo"* — and for as long as nothing
+partitioned on the flag, the echo stayed inside the headline number. ★ That is the harm the rule was
+written against, sitting untouched behind a field that looked like compliance.
+
+### ⚠ Three more things the build surfaced
+
+- **`DX-41` — a tool that was three-quarters of an alibi.** `check_import_fences.py` has the right
+  name, sits in the right place, is wired into `check_all.py`, and the spec's traceability row named
+  it — but it walks `src/explain/` (`AC-4.2`, seat 6) and never checked the analysts against **each
+  other**. ★★ The live tree passes, so the fence was being *honoured*; it simply was not *enforced*.
+- **`DX-40` — two specs disagreeing.** `F2` §4 says routing writes its own decision record; `F6a` §2
+  says routing does not record. ✅ Settled by `AC-6a.2`: `select()` must be **pure**, and a module
+  that writes files cannot be proven pure by structure.
+- **`ST-2` nearly broke.** `PG-7.3`'s guard was first written inside `src/evaluation/`, which would
+  have forced `src/decision/` to import the harness (`AC-5.12` fails the build over it). ✅ It moved to
+  `src/decision/concurrence.py` — where `F6a` `D3` had said the enforcement point was all along.
+- ★ **Ruff caught a test of mine that asserted nothing** — `assert_may_claim_independent_agreement(...)
+  is None` with no `assert`. ⚠ `DX-20`'s family again: a check that passes without checking.
+
+### ⬜ Next
+
+`F9` (5 ACs) or `F7a` (6 ACs, then **run** it). ★ `F7a` is the one that has never executed.
 
 ---
 

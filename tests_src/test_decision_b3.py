@@ -354,3 +354,44 @@ def test_the_b3_stub_gate_composes_without_fabricating_a_grade():
     assert rec.verdict_final == BUY
     assert rec.grade["k"] is None and rec.grade["verdict_distribution"] is None
     assert rec.gates[0].produced_by_stub == "B4.4"
+
+
+# --------------------------------------------------------------------------- #
+# PG-7.3 · F6a AC-6a.10 — a combined verdict may never claim independent
+# agreement when one seat configured another. `F6a` D3: enforced HERE, at
+# composition, and checked again at rendering (tests/structural/).
+# --------------------------------------------------------------------------- #
+
+def test_ac_6a_10_an_uninfluenced_verdict_is_labelled_independent():
+    """★ The status travels ALWAYS, including on the good case — a field
+    present only when something is wrong is a field readers learn to skip."""
+    assert composed().concurrence == "independent"
+    assert composed().to_json_obj()["concurrence"] == "independent"
+
+
+def test_ac_6a_10_a_cross_configured_verdict_is_labelled_not_independent():
+    """⚠⚠ `PG-7`: conditioning B's configuration on A's output makes their
+    agreement partly an ECHO. The label is what stops a reader counting it as
+    two views."""
+    rec = composed(influenced_by=("quant",))
+    assert rec.concurrence == "cross-configured"
+    assert "independent" not in rec.to_json_obj()["concurrence"]
+
+
+def test_ac_6a_10_claiming_agreement_while_cross_configured_RAISES():
+    """⚠⚠ `AC-6a.10` — the claim is REFUSED, not softened.
+
+    ★ `F6a` `D3`: *"if the claim is never built, no renderer can emit it."*
+    Guarding only the renderer would leave a true-looking agreement sitting in
+    the decision record for `F5`, `F7b` and every future consumer.
+    """
+    from src.decision.concurrence import IndependenceClaimError
+
+    with pytest.raises(IndependenceClaimError, match="quant"):
+        composed(influenced_by=("quant",), claim_independent_agreement=True)
+
+
+def test_ac_6a_10_claiming_agreement_is_allowed_when_nothing_was_configured():
+    """★ The guard must not fire on the honest case, or callers route around it."""
+    rec = composed(influenced_by=(), claim_independent_agreement=True)
+    assert rec.concurrence == "independent"

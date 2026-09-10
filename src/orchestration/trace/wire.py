@@ -28,8 +28,17 @@ from collections.abc import Callable
 from datetime import datetime, timezone
 from typing import Any
 
-from src.orchestration.trace.models import ExternalCall, StepRecord
+from src.orchestration.trace.models import DecisionRecord, ExternalCall, StepRecord
 from src.orchestration.trace.store import TraceStore
+
+#: `AC-6a.8` / `PG-9` — the propensity of a DETERMINISTIC control plane.
+#:
+#: ⚠⚠ Not a placeholder. F2 §4: *"the field exists now so off-policy evaluation
+#: is possible later; it is not a placeholder to be added when needed, because
+#: by then the history is gone."* ★ The day routing stops being deterministic,
+#: this constant is the one thing that must change — and a run recorded before
+#: that day still says truthfully what its policy was.
+DETERMINISTIC_PROPENSITY = 1.0
 
 
 def _now() -> str:
@@ -206,3 +215,48 @@ def traced_transport(
         return response
 
     return _transport
+
+
+def record_routing(store: TraceStore, routing, *, step_id: str,
+                   decision_id: str, state: dict | None = None) -> DecisionRecord:
+    """`F6a` `AC-6a.8` — turn a `Routing` into a `CT-2.3` `DecisionRecord`.
+
+    ⚠⚠ **Why this lives in `wire.py` and not in `routing.py`** — a spec-vs-spec
+    disagreement, resolved here (`DX-40`):
+
+    - **F2 §4** says *"a decision record is written by the routing function
+      itself, carrying the reason it already returns."*
+    - **F6a §2 non-goals** says *"✗ Recording. F6a returns the reason; F2
+      persists it."*
+
+    ★ Read together the intent is one thing: the record must **originate from
+    the routing choice** rather than from a separate observer that could drift
+    out of step. It does not require `routing.py` to import a store — and F6a's
+    non-goal is the sharper constraint, because `select()` is a **pure
+    function** (`AC-6a.2`: no I/O), and a module that writes files cannot be
+    proven pure by structure. ★★ So the record originates from the `Routing`,
+    and the I/O happens at F2's seam, beside every other record-writing seam.
+
+    ⚠ `decision_id` is **required and referenced, never minted** (`CT-2.7`): a
+    routing choice is *part of* a decision, not the decision. Its own identity
+    is `step_id`. Minting one here would fan `F7b`'s outcome join out across
+    every routing choice in a run.
+    """
+    record = DecisionRecord(
+        run_id=store.run_id,
+        step_id=step_id,
+        decision_id=decision_id,
+        # ⚠ `state` is what the policy ACTUALLY SAW (`CT-2.3`), which is why it
+        # is passed in rather than reconstructed: `Routing` keeps the reason and
+        # the outcome, not the inputs, and a reconstruction could disagree with
+        # the real thing precisely when it matters.
+        state=dict(state or {}),
+        candidates=list(routing.candidates),
+        action=routing.variant,
+        reason=routing.reason,
+        propensity=DETERMINISTIC_PROPENSITY,
+        # ★ `PG-7.1` and `PG-9`'s reason are the SAME field, recorded once.
+        influenced_by=routing.influenced_by,
+    )
+    store.append(record)
+    return record

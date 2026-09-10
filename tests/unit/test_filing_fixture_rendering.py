@@ -16,8 +16,11 @@ import pytest
 REPO = pathlib.Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO))
 
-from tools.convert_filing import _PAGE_FOOTER, _PAGE_HEADER  # noqa: E402
-from tools.convert_filing import strip_page_furniture  # noqa: E402
+from tools.convert_filing import (  # noqa: E402
+    _PAGE_FOOTER,
+    _PAGE_HEADER,
+    strip_page_furniture,
+)
 
 FIXTURES = REPO / "tests_src/fixtures/filings"
 

@@ -15,6 +15,10 @@ from datetime import date
 
 from src.decision.algebra.verdict import BUY, apply_gate, conservatism, meet
 from src.decision.attribute.binding import attribute
+from src.decision.concurrence import (
+    assert_may_claim_independent_agreement,
+    concurrence_label,
+)
 from src.decision.contracts.recommendation import GateOutcome, Recommendation
 from src.decision.errors import (
     AbsentTreatedAsPassError,
@@ -38,6 +42,8 @@ def compose(
     gate_roster_declared, manifest_anchor: str, held_tickers=(),
     actionable: bool, not_actionable_reason: str | None = None, stubs=(),
     top_thesis_stability: dict | None = None,
+    influenced_by: tuple[str, ...] = (),
+    claim_independent_agreement: bool = False,
 ) -> Recommendation:
     """Pure, total on declared inputs (§8's API surface).
 
@@ -95,6 +101,13 @@ def compose(
     if actionable:
         assert_actionable_inputs(alert_set, top_thesis_stability)
 
+    # ⚠⚠ `PG-7.3` / `AC-6a.10` — refuse to BUILD the claim, do not soften it.
+    # ★ `F6a` `D3`: *"if the claim is never built, no renderer can emit it."*
+    #   Guarding only D-09 would leave a true-looking agreement in the decision
+    #   record for `F5`, `F7b` and every future consumer to read.
+    if claim_independent_agreement:
+        assert_may_claim_independent_agreement(influenced_by=influenced_by)
+
     return Recommendation(
         as_of=as_of, run_id=run_id, decision_anchor=nomination.decision_anchor,
         candidate={"ticker": top.ticker, "rank": top.rank,
@@ -108,6 +121,10 @@ def compose(
         gate_roster_declared=declared, gate_roster_reported=reported,
         actionable=actionable, not_actionable_reason=not_actionable_reason,
         stubs=tuple(stubs),
+        # ★ The status travels with the verdict, always — including when it is
+        #   `"independent"`, because a field present only on the bad case is a
+        #   field readers learn to ignore.
+        concurrence=concurrence_label(influenced_by),
     )
 
 

@@ -119,3 +119,77 @@ def test_d2_exactly_one_predicate_ships_at_ms6():
     reasons = {select("ranking_model", {"realised_vol_60d": v}).reason
                for v in (0.0, 0.44, 0.46, 9.9)}
     assert reasons == {"default", f"realised_vol_60d > {m.VOL_THRESHOLD}"}
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-6a.8 · AC-6a.9 · AC-6a.10 — the three ACs `MS-6` left untraced.
+#
+# ⚠⚠ A spec-vs-spec disagreement found while writing these (`DX-40`):
+#    F2 §4 says *"a decision record is written by the routing function
+#    itself"*; F6a §2 non-goals says *"✗ Recording. F6a returns the reason;
+#    F2 persists it."* ★ Resolved in F6a's favour — `routing.py` imports
+#    nothing from `trace/`, and the seam lives in F2's `wire.py`, where the
+#    other record-writing seams already live.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_ac_6a_8_a_selection_is_recorded_with_propensity_one(tmp_path):
+    """`AC-6a.8` — ★ every routing choice leaves a `DecisionRecord`.
+
+    ⚠ `propensity == 1.0` *while the control plane is deterministic* (`PG-9`).
+    F2 §4: the field exists NOW so off-policy evaluation is possible later —
+    **it is not a placeholder to add when needed, because by then the history
+    is gone.**
+    """
+    from src.orchestration.trace.models import mint_decision_id
+    from src.orchestration.trace.store import TraceStore
+    from src.orchestration.trace.wire import record_routing
+
+    store = TraceStore(tmp_path, "run-1")
+    decision_id = mint_decision_id("run-1", "MU")
+    routing = select("thesis_depth", {"realised_vol_60d": 0.60})
+    record_routing(store, routing, step_id="route:thesis_depth",
+                   decision_id=decision_id, state={"realised_vol_60d": 0.60})
+    store.close()
+
+    rec = next(r for r in store.read_all() if r.get("type") == "DecisionRecord")
+    assert rec["action"] == "deep"
+    assert rec["reason"] == f"realised_vol_60d > {VOL_THRESHOLD}"
+    assert rec["candidates"] == ["standard", "deep"]
+    assert rec["propensity"] == 1.0
+    assert rec["decision_id"] == decision_id
+    assert rec["state"] == {"realised_vol_60d": 0.60}
+
+
+def test_ac_6a_8_the_decision_id_is_referenced_never_minted_here(tmp_path):
+    """⚠⚠ `CT-2.7` — *"a routing choice is part of a decision, not the
+    decision."* Its own identity is `step_id`.
+
+    ★ If `record_routing` minted an id, every routing choice would become its
+    own decision and `F7b`'s join to outcomes would fan out — the Tier-B study
+    rests on exactly this key.
+    """
+    import inspect
+
+    from src.orchestration.trace import wire
+    src = inspect.getsource(wire.record_routing)
+    assert "mint_decision_id" not in src, (
+        "record_routing must REFERENCE a decision_id, never mint one (CT-2.7)")
+    with pytest.raises(TypeError):
+        wire.record_routing(object(), select("thesis_depth", {}),
+                            step_id="s")  # decision_id is required
+
+
+def test_ac_6a_8_an_influenced_selection_carries_the_seat_into_the_record(tmp_path):
+    """★ `PG-7.1` and `PG-9`'s reason are the SAME field, recorded once (F2 §4)."""
+    from src.orchestration.trace.store import TraceStore
+    from src.orchestration.trace.wire import record_routing
+
+    store = TraceStore(tmp_path, "run-1")
+    routing = select("thesis_depth", {}, peer={"seat_domain": "quant",
+                                               "realised_vol_60d": 0.9})
+    record_routing(store, routing, step_id="route:1", decision_id="run-1:MU:1",
+                   state={"realised_vol_60d": 0.9})
+    store.close()
+    rec = next(r for r in store.read_all() if r.get("type") == "DecisionRecord")
+    assert rec["influenced_by"] == "quant"

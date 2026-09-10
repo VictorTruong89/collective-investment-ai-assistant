@@ -34,6 +34,10 @@ KEEP_MAX = 0.33
 DELETE_MIN = 0.67
 
 
+class IncompletePlan(Exception):
+    """`AC-7a.4` — ⚠ *"a rule naming only a bare threshold is rejected."*"""
+
+
 class NotPreRegistered(Exception):
     """`AC-7a.*` / `PG-5.1` — the plan must predate the data."""
 
@@ -60,10 +64,64 @@ class KillRule:
     power: float = 0.80
     keep_max: float = KEEP_MAX
     delete_min: float = DELETE_MIN
+    # ── `CT-7a.2`'s remaining fields. ⚠⚠ `AC-7a.4` is explicit: *"a rule naming
+    #    only a bare threshold is REJECTED."* Until these existed, `KillRule`
+    #    was exactly that — two band edges and a date (`DX-46`).
+    #: ★ Which of `T1`–`T7` this plan governs.
+    test_id: str = "T1"
+    #: ★★ The NULL, stated. `PG-5.1`: pre-registration fixes the **analysis**,
+    #: not a constant — and an analysis with no stated null is not an analysis.
+    null_hypothesis: str = (
+        "revision_rate(false_arm) == revision_rate(valid_arm)")
+    #: The test statistic, named in advance so it cannot be swapped for one that
+    #: happens to clear the bar.
+    statistic: str = "two_proportion"
+    #: ⚠ WHO registered it. `D2` of `F5` bans a pipeline component from
+    #: establishing a golden value; a kill rule is the same kind of commitment.
+    registered_by: str = ""
 
     def __post_init__(self) -> None:
         if not 0 < self.keep_max < self.delete_min < 1:
             raise ValueError("bands must satisfy 0 < keep_max < delete_min < 1")
+        # ⚠⚠ `AC-7a.4` — completeness, checked at CONSTRUCTION. A plan that is
+        # only partly stated is one whose missing half gets filled in after the
+        # data arrives, which is the thing pre-registration exists to stop.
+        for field_name in ("test_id", "null_hypothesis", "statistic",
+                           "registered_by", "registered_at"):
+            if not str(getattr(self, field_name)).strip():
+                raise IncompletePlan(
+                    f"{field_name!r} is empty. ⚠ AC-7a.4: a KillRule must state "
+                    "null_hypothesis, alpha, power, detectable_ratio, "
+                    "min_n_per_arm and bands — **a rule naming only a bare "
+                    "threshold is rejected**, because the unstated half is what "
+                    "gets chosen after the data (PG-5.1).")
+
+    @property
+    def detectable_ratio(self) -> float:
+        """`CT-7a.2`'s δ — the smallest false÷valid ratio worth detecting.
+
+        ★ It is the KEEP boundary: the plan is powered to distinguish *"revises
+        far less readily on false challenges"* from *"revises about as readily"*.
+        """
+        return self.keep_max
+
+    @property
+    def min_n_per_arm(self) -> int:
+        """`CT-7a.2` — ⚠ **derived, never chosen** (`D1`).
+
+        ★ Reported at the KEEP boundary, which is the test `D1` says to run
+        FIRST: if the ratio lands there on ~30 per arm, `F6b` graduates and the
+        3–4× more expensive DELETE test is never needed.
+        """
+        return self.n_for_keep
+
+    @property
+    def bands(self) -> tuple[dict, ...]:
+        """`CT-7a.2`'s bands, as data — so the report can print the rule it
+        was judged by rather than a prose restatement of it."""
+        return ({"ratio_upper": self.keep_max, "verdict": "KEEP"},
+                {"ratio_upper": self.delete_min, "verdict": "ADVISORY_ONLY"},
+                {"ratio_upper": None, "verdict": "DELETE"})
 
     @property
     def n_for_keep(self) -> int:

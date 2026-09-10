@@ -67,6 +67,8 @@ CHECKS = [
     "AC-2.10 framework confinement",
     "AC-4.2/4.7 analyst firewall",
     "AC-5.11/5.12/5.15 evaluation boundaries",
+    "AC-9.2 the relay is wrapped, not rebuilt",
+    "AC-7a.1 F6b's measurement gate is in place",
     "MS-8.7 ID-family registry",
 ]
 
@@ -96,7 +98,15 @@ def main() -> int:
     results.append(run(CHECKS[3], [py, "tools/check_framework_confinement.py"], REPO))
     results.append(run(CHECKS[4], [py, "tools/check_import_fences.py"], REPO))
     results.append(run(CHECKS[5], [py, "tools/check_evaluation_boundaries.py"], REPO))
-    results.append(run(CHECKS[6], [py, "tools/check_id_families.py"], REPO))
+    # ⚠ `AC-9.2` — added 2026-09-09 (`DX-42`). The spec's traceability row named
+    # `tools/check_no_reimplementation.py` and the file did not exist, so F9's
+    # FIRST non-goal was enforced by nothing.
+    results.append(run(CHECKS[6], [py, "tools/check_no_reimplementation.py"], REPO))
+    # ⚠ `AC-7a.1` — `PG-5.1` as a build check. `F6b` may not graduate before the
+    # design that measures it exists, and a gate living only in a spec header is
+    # enforced by whoever remembers it when least motivated to (`DX-47`).
+    results.append(run(CHECKS[7], [py, "tools/check_gate_ordering.py"], REPO))
+    results.append(run(CHECKS[8], [py, "tools/check_id_families.py"], REPO))
 
     failed = results.count(False)
     print("──" * 20)

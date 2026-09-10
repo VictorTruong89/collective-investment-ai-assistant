@@ -184,10 +184,39 @@ falling back to the declared default with `reason == "default"`.
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 11 ACs green, 2026-09-09** — every one mutation-verified (6 mutations on the four ACs
+completed today; **all caught on the first pass**).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-6a.1 … AC-6a.5, AC-6a.11 | *(to be written)* | `src/orchestration/policy/routing.py` |
-| AC-6a.6, AC-6a.7 | *(to be written)* | `tools/check_import_fences.py` |
-| AC-6a.8 … AC-6a.10 | *(to be written)* | `src/orchestration/trace/` · `src/decision/` |
+| AC-6a.1 | `tests/unit/test_routing.py::test_ac_6a_1_identical_inputs_give_an_equal_routing` | `policy/routing.py::select` |
+| AC-6a.2 | `::test_ac_6a_2_select_performs_no_io` | `policy/routing.py::select` |
+| AC-6a.3 | `::test_ac_6a_3_the_reason_is_specific_not_boilerplate` · `::test_ac_6a_3_an_empty_reason_cannot_be_constructed` | `policy/routing.py::Routing.__post_init__` |
+| AC-6a.4 | `::test_ac_6a_4_a_routing_may_only_name_a_registered_candidate` | `policy/routing.py::Routing.__post_init__` |
+| AC-6a.5 | `::test_ac_6a_5_*` (3) | `policy/routing.py::select` |
+| AC-6a.6 | ★ `tests/structural/test_peer_to_peer_fence.py::test_ac_6a_6_*` (5) | `tools/check_import_fences.py::peer_to_peer_violations` |
+| AC-6a.7 | `tests/unit/test_routing.py::test_ac_6a_7_*` (3) | `policy/routing.py::assert_forward` · `PHASE_ORDER` |
+| AC-6a.8 | ★ `tests/unit/test_routing.py::test_ac_6a_8_*` (3) | `trace/wire.py::record_routing` · `DETERMINISTIC_PROPENSITY` |
+| AC-6a.9 | ★ `tests/unit/test_influence_partition.py::test_ac_6a_9_*` (5) | `evaluation/metrics/influence.py::partition_by_influence` |
+| AC-6a.10 | ★ `tests_src/test_decision_b3.py::test_ac_6a_10_*` (4) · `tests/structural/test_pg7_independence_claims.py` (3) · `tests/unit/test_influence_partition.py::test_ac_6a_10_*` (4) | `decision/concurrence.py` · `decision/compose/service.py` · `contracts/recommendation.py::concurrence` |
+| AC-6a.11 | `tests/unit/test_routing.py::test_ac_6a_11_*` (2) | `policy/routing.py::select` |
+
+### ⚠⚠ What completing this spec exposed — four findings, 2026-09-09
+
+1. **`AC-6a.6` was enforced by nothing (`DX-41`).** `tools/check_import_fences.py` existed and looked
+   like the home for it, but `firewall_violations` walks `src/explain/` only — that is `AC-4.2`, seat 6
+   reaching into a walled domain. ★★ The fence `AC-6a.6` actually names — `src/fundamental/**` and
+   `src/quant/**` not importing **each other** — had **no code at all**. ⚠ A tool with the right name
+   in the right place reads exactly like coverage.
+2. **`PG-7` was one-third built.** `influenced_by` was recorded (`AC-6a.5`) and then **nothing read
+   it**. ★★ A recorded field that nothing consumes is a note, not a control — the echo stayed inside
+   the headline number, which is the precise harm `PG-7` was written against.
+3. **`ST-2` nearly broke.** `PG-7.3`'s guard was first written in `src/evaluation/metrics/influence.py`,
+   which would have forced `src/decision/` to import the harness — `AC-5.12` fails the build over that.
+   ✅ The guard lives in `src/decision/concurrence.py`, which is where `D3` said it should be all along
+   (*"the enforcement point is composition"*); the harness imports **it**.
+4. **A spec-vs-spec disagreement (`DX-40`).** `F2` §4 says *"a decision record is written by the routing
+   function itself"*; `F6a` §2 non-goals says *"✗ Recording. F6a returns the reason; F2 persists it."*
+   ✅ Resolved in `F6a`'s favour: `AC-6a.2` requires `select()` to be a **pure function**, and a module
+   that writes files cannot be proven pure by structure. The record originates from the `Routing`; the
+   I/O happens at `trace/wire.py::record_routing`, beside every other record-writing seam.

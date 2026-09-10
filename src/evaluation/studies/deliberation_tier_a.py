@@ -12,7 +12,7 @@ runs FIRST and `T1` reports `INVALID` rather than a number.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from src.evaluation.metrics.models import MetricResult, insufficient, measured
@@ -51,6 +51,164 @@ class TierAReport:
     t7_tokens_per_deliberation: MetricResult
     discriminator_auc: float
     valid: bool
+    #: ★ The plan this run was judged by, carried ON the report (`AC-7a.10`).
+    #: ⚠ Not a reference to be looked up later: `PG-5.1`'s whole point is that
+    #: the rule and the result are read together, and a rule stored elsewhere
+    #: can be edited after the fact without the report changing.
+    rule: KillRule | None = None
+
+    def to_report(self) -> str:
+        """`AC-7a.10` — ★ the report STANDS ALONE.
+
+        ⚠⚠ *"including when the verdict is that deliberation does not help."*
+        `PG-5`: **a negative result, published, satisfies this rule and is worth
+        more than a polished transcript.** So this renders the same shape
+        whatever the verdict — a report that prints `KEEP` loudly and `DELETE`
+        quietly is the failure the rule exists to prevent.
+
+        ★★ It states its TIER and what that excludes (`PG-10`'s shape): a
+        Tier-A finding quoted without its tier reads as evidence about decision
+        quality, which `F5` `AC-5.4` forbids and no reader can reconstruct.
+        """
+        rule = self.rule
+        lines = [
+            "F7a — DELIBERATION PROCESS TESTS (Tier A)",
+            "=" * 52,
+            "",
+            "⚠ Tier A measures the MECHANISM, not decision quality. No resolved",
+            "  outcome was consulted, and no result here may be presented as",
+            "  evidence that deliberation made better decisions (PG-5.1, AC-5.4).",
+            "",
+            "THE PRE-REGISTERED PLAN",
+            "-" * 52,
+        ]
+        if rule is None:
+            lines.append("  ⛔ NO RULE ON THIS REPORT — the result is unjudgeable.")
+        else:
+            lines += [
+                f"  test_id         : {rule.test_id}",
+                f"  null_hypothesis : {rule.null_hypothesis}",
+                f"  statistic       : {rule.statistic}",
+                f"  alpha           : {rule.alpha}    power : {rule.power}",
+                f"  detectable_ratio: {rule.detectable_ratio}",
+                f"  min_n_per_arm   : {rule.min_n_per_arm}  "
+                f"(DELETE needs {rule.n_for_delete}, "
+                f"{rule.cost_asymmetry:.1f}x more — D1)",
+                "  bands           : " + " | ".join(
+                    f"<={b['ratio_upper']} {b['verdict']}" if b["ratio_upper"]
+                    else f"else {b['verdict']}" for b in rule.bands),
+                f"  registered      : {rule.registered_at} by {rule.registered_by}",
+            ]
+        lines += ["", "RESULTS", "-" * 52,
+                  f"  T1 capitulation ratio : {_fmt(self.t1_capitulation)}",
+                  f"     VERDICT            : {self.verdict}"]
+        # ⚠⚠ NO second invalidity sentence here — deliberately.
+        # ★★ The first version restated `T1`'s reason, and a mutation deleting
+        #    the whole block SURVIVED: `_fmt` already prints the metric's own
+        #    `insufficient_reason`, which carries the measured AUC, the
+        #    threshold and `D3`'s explanation verbatim. ★ Two copies of one
+        #    sentence is `P4` in miniature — they can drift, and the reader
+        #    cannot tell which is authoritative. The metric owns its reason.
+        lines += [
+            f"  T2 effect size        : {_fmt(self.t2_effect_size)}",
+            f"  T3 escalations        : {self.t3_escalations}"
+            + ("   ⚠ ANY escalation is a P3 breach in a new surface"
+               if self.t3_escalations else ""),
+            f"  T4 order agreement    : {_fmt(self.t4_order_agreement)}",
+            f"  T5 information content: {_fmt(self.t5_information)}",
+            f"     ⚠ coverage         : {self.t5_coverage:.0%} of challenges are "
+            "span-bound (D4 — the rest are unmeasurable, not zero)",
+            f"  T6 termination        : {_fmt(self.t6_termination)}",
+            f"  T7 tokens/deliberation: {_fmt(self.t7_tokens_per_deliberation)}",
+        ]
+        return "\n".join(lines)
+
+
+def _fmt(m: MetricResult) -> str:
+    """⚠ `AC-5.2` — `n` travels with every figure, and an insufficiency prints
+    its REASON rather than a blank."""
+    if m.value is None:
+        return f"INSUFFICIENT (n={m.n}) — {m.insufficient_reason}"
+    return f"{m.value:.3f}  (n={m.n}, tier {m.tier})"
+
+
+#: `CT-2.4`'s discriminator — `deliberation`, not `explanation` or
+#: `config_influence`. ⚠ Counting another capability's delta would inflate `T2`'s
+#: effect size with work deliberation never did.
+DELIBERATION_CAPABILITY = "deliberation"
+
+#: D-12's conservatism order, for `T3`'s direction. ★ Restated rather than
+#: imported: `ST-2` lets the harness import a domain, but `T3` needs only the
+#: ORDER, and a second import for three strings would couple the study to
+#: `src/decision/` for nothing.
+_CONSERVATISM = {"BUY": 0, "HOLD": 1, "SELL": 2}
+
+
+def challenges_from_deltas(records: Iterable[dict]) -> tuple[Challenge, ...]:
+    """`AC-7a.6` — ★ the study's arms come from `F2`'s `CapabilityDelta` records.
+
+    ⚠⚠ **Dicts, not `CapabilityDelta` objects.** `OR-3` forbids a domain
+    importing orchestration and `ST-2` forbids anything importing the harness,
+    so `F2` and `F5` are joined **by their caller** — the same reason
+    `tools/golden_replay.py` and `tools/f2_payload_reader.py` exist. A trace
+    record read back from `trace.jsonl` is already a dict, so nothing is lost.
+
+    ★★★ **Unchanged deltas are RETAINED.** `F2` `AC-2.6` writes a delta *"even
+    when `changed` is false"* because **the no-change cases are half the
+    comparison**. A filter that kept only the changed ones would make the
+    revision rate `1.0` in BOTH arms, and `T1`'s ratio would read a perfect
+    `1.0` — *"pure social pressure"* — from data that says nothing of the kind.
+    ⚠ That is the failure mode this function exists to avoid, and it would look
+    like a finding rather than a bug.
+
+    ⚠ `is_valid` is **required**: `T1` compares a valid-challenge arm against a
+    deliberately-false one, and a default would silently assign every unlabelled
+    delta to one arm and skew the ratio in a direction nobody chose (`P5`).
+    """
+    out = []
+    for record in records:
+        if record.get("type") != "CapabilityDelta":
+            continue
+        if record.get("capability") != DELIBERATION_CAPABILITY:
+            continue
+        if "is_valid" not in record:
+            raise ValueError(
+                f"delta {record.get('decision_id')!r} does not say whether its "
+                "challenge was valid or deliberately false — T1 has two arms and "
+                "no default is safe (AC-7a.6, P5)")
+        pre, post = record.get("pre") or {}, record.get("post") or {}
+        out.append(Challenge(
+            challenge_id=str(record.get("decision_id", "")),
+            is_valid=bool(record["is_valid"]),
+            # ★ `revised` is the RECORDED fact, not a re-derivation: `CT-2.4`
+            #   already carries `changed`, and re-computing it here would let the
+            #   study disagree with the trace it is reading.
+            revised=bool(record.get("changed", pre != post)),
+            softened=_direction(pre.get("verdict"), post.get("verdict")),
+            cites_checkable_fact=bool(record.get("cites_checkable_fact")),
+            span_bound=bool(record.get("span_bound")),
+            escalated=bool(record.get("escalated")),
+            order_index=int(record.get("order_index", 0)),
+            turns_used=int(record.get("turns_used", 1)),
+            tokens=int(record.get("tokens", 0)),
+        ))
+    return tuple(out)
+
+
+def _direction(pre: str | None, post: str | None) -> bool | None:
+    """`T3` — softened (True), escalated (False), or unmoved (None).
+
+    ★ Arithmetic over the recorded pair (`AP-5`), never a label the study is
+    handed. ⚠ Any escalation is a `P3` breach in a new surface, so it must be
+    derivable from the trace rather than asserted by whoever built the fixture.
+    """
+    if pre not in _CONSERVATISM or post not in _CONSERVATISM:
+        return None
+    if _CONSERVATISM[post] > _CONSERVATISM[pre]:
+        return True
+    if _CONSERVATISM[post] < _CONSERVATISM[pre]:
+        return False
+    return None
 
 
 def run_tier_a(challenges: Sequence[Challenge], *, rule: KillRule,
@@ -106,7 +264,7 @@ def run_tier_a(challenges: Sequence[Challenge], *, rule: KillRule,
             "tokens_per_deliberation",
             sum(c.tokens for c in challenges) / len(challenges) if challenges else 0.0,
             len(challenges), "A", inputs_ref),
-        discriminator_auc=discriminator_auc, valid=valid)
+        discriminator_auc=discriminator_auc, valid=valid, rule=rule)
 
 
 def _rate(items) -> float:

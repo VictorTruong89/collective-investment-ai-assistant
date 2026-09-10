@@ -267,13 +267,47 @@ and **`T1` measures nothing.**
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 12 ACs green, 2026-09-09** — mutation-verified (7 mutations; ⚠ **one survived on the first
+pass** and is recorded below, because it found a real defect in the code rather than in the test).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-7a.1 | *(process check)* | `tools/check_gate_ordering.py` |
-| AC-7a.2 … AC-7a.3 | *(to be written — Q1, Q3)* | `src/evaluation/studies/deliberation.py` |
-| AC-7a.4 … AC-7a.6 | *(to be written)* | `src/evaluation/studies/` |
-| AC-7a.7 … AC-7a.9 | *(to be written — Q2)* | `src/evaluation/studies/deliberation.py` |
-| AC-7a.11, AC-7a.12 | *(to be written)* | `src/evaluation/studies/killrule.py` |
-| AC-7a.10 | *(to be written)* | `src/evaluation/studies/report.py` |
+| AC-7a.1 | ★ `tests/structural/test_gate_ordering.py::test_ac_7a_1_*` (4) | `tools/check_gate_ordering.py::gate_violations` |
+| AC-7a.2 | `tests/unit/test_deliberation.py::test_t1_social_pressure_shows_as_a_ratio_near_one` | `studies/deliberation_tier_a.py::run_tier_a` |
+| AC-7a.3 | `::test_d3_a_separable_false_set_makes_t1_INVALID_not_a_ratio` · `::test_d3_an_indistinguishable_set_lets_t1_report` | `deliberation_tier_a.py::DISCRIMINATOR_CHANCE_MAX` |
+| AC-7a.4 | ★ `tests/structural/test_gate_ordering.py::test_ac_7a_4_*` (7 fields + construction) · `tests/unit/test_deliberation.py::test_d1_min_n_is_derived_from_power_not_chosen` · `::test_pg_5_1_a_rule_registered_after_the_data_is_refused` | `studies/killrule.py::KillRule` · `IncompletePlan` · `assert_pre_registered` |
+| AC-7a.5 | ★ `tests/unit/test_tier_a_bindings.py::test_ac_7a_5_*` (3) | `deliberation_tier_a.py::run_tier_a` · `Challenge` |
+| AC-7a.6 | ★ `tests/unit/test_tier_a_bindings.py::test_ac_7a_6_*` (6) | `deliberation_tier_a.py::challenges_from_deltas` · `_direction` |
+| AC-7a.7 | `tests/unit/test_deliberation.py::test_t3_escalations_are_counted_because_any_escalation_is_a_p3_breach` · `::test_escalation_is_a_first_class_outcome` | `deliberation_tier_a.py::_direction` |
+| AC-7a.8 | `tests/unit/test_deliberation.py` (order arm) | `deliberation_tier_a.py::_order_agreement` |
+| AC-7a.9 | `tests/unit/test_deliberation.py::test_d4_t5_reports_its_own_coverage` | `metrics/models.py::insufficient` |
+| AC-7a.10 | ★ `tests/unit/test_tier_a_bindings.py::test_ac_7a_10_*` (3) | `deliberation_tier_a.py::TierAReport.to_report` · `_fmt` |
+| AC-7a.11 | `tests/unit/test_deliberation.py::test_d1_a_ratio_JUST_above_the_keep_band_needs_four_times_the_sample` | `killrule.py::KillRule.verdict` |
+| AC-7a.12 | `tests/unit/test_deliberation.py::test_d5_the_bands_decide_delete_vs_advisory_not_a_later_judgement` (5 cases) | `killrule.py::KillRule.verdict` |
+
+### ⚠⚠ What completing this spec exposed — four findings, 2026-09-09
+
+1. **⛔⛔ Code and tests existed; traceability did not (`DX-45`).** 22 tests covered these studies and
+   **not one named an AC** — every docstring cited a decision (`D1`, `D3`, `D5`). Constitution §6:
+   *"Every test docstring names the `AC-<n>.<k>` it satisfies … an AC with no row is not done, however
+   green the test is — because nobody can find it later."* ★★ Mapping the tests onto the ACs is
+   precisely what exposed the three that had **no code at all**.
+2. **`CT-7a.2` was two band edges and a date (`DX-46`).** `KillRule` could not state its own
+   `null_hypothesis`, `statistic`, `detectable_ratio`, `min_n_per_arm`, `bands` or `registered_by` —
+   ⚠ **exactly the *"rule naming only a bare threshold"* that `AC-7a.4` says is rejected.**
+   `assert_pre_registered` checked the timestamp and nothing else, so the *plan* half of
+   pre-registration lived only in this document's prose. ✅ Completeness is now checked at
+   **construction**: a partly-stated plan cannot be built, because its missing half is what gets
+   filled in after the data arrives.
+3. **`AC-7a.6` had no binding at all.** §4 opens *"Every test runs on `CapabilityDelta` pairs"* and
+   `run_tier_a` never touched one. ✅ `challenges_from_deltas()` reads `F2`'s records — as **dicts**,
+   because `OR-3` and `ST-2` both bind and the two halves are joined by their caller (the same reason
+   `tools/golden_replay.py` exists). ★★★ Its load-bearing line is that **unchanged deltas are
+   retained**: a filter keeping only `changed == True` would make the revision rate `1.0` in *both*
+   arms, and `T1` would report a perfect capitulation ratio — *"pure social pressure"* — from data
+   saying nothing of the kind. ⚠ That would have looked like a finding, not a bug.
+4. **★ A surviving mutation found a defect in the CODE, not the test.** Deleting `to_report()`'s
+   invalidity block changed nothing, because `_fmt` already prints the metric's own
+   `insufficient_reason` — which carries the measured AUC, the threshold and `D3`'s explanation
+   verbatim. ✅ The duplicate was **removed** rather than the test strengthened: two copies of one
+   sentence is `P4` in miniature, they drift, and a reader cannot tell which is authoritative.

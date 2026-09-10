@@ -29,7 +29,11 @@ from src.orchestration.graph.deliberation import (
     deliberate,
 )
 
-RULE = KillRule(registered_at="2026-09-01T00:00:00Z", expected_revision_rate_true=0.6)
+# ⚠ `registered_by` is now REQUIRED (`AC-7a.4`, `DX-46`): a plan with no
+# registrant is a threshold with a date, and `CT-7a.2` calls that rejected.
+RULE = KillRule(registered_at="2026-09-01T00:00:00Z",
+                expected_revision_rate_true=0.6,
+                registered_by="Victor Truong")
 LATER = "2026-09-04T00:00:00Z"
 
 
@@ -37,21 +41,25 @@ LATER = "2026-09-04T00:00:00Z"
 # F7a D1 — the kill rule, and its cost asymmetry
 # --------------------------------------------------------------------------- #
 def test_d1_min_n_is_derived_from_power_not_chosen():
+    """`AC-7a.4` — ★ `min_n_per_arm` is DERIVED from (alpha, power,
+    detectable_ratio), never chosen separately (`CT-7a.2`, `D1`)."""
     assert RULE.n_for_keep == n_per_arm(0.6, 0.33)
     assert RULE.n_for_delete == n_per_arm(0.6, 0.67)
 
 
 def test_d1_the_delete_verdict_costs_several_times_the_keep_verdict():
-    """⚠⚠ D1's finding — the CHEAP verdict is KEEP and the EXPENSIVE one is
+    """`AC-7a.4` / `D1` — ⚠⚠ the CHEAP verdict is KEEP and the EXPENSIVE one is
     DELETE, which is backwards for a gate whose job is to kill things."""
     assert RULE.n_for_delete > 3 * RULE.n_for_keep
     assert RULE.cost_asymmetry > 3
 
 
 def test_pg_5_1_a_rule_registered_after_the_data_is_refused():
-    """⚠ *A threshold chosen after seeing the data is a rationalisation.*"""
+    """`AC-7a.4` — ⚠ *A threshold chosen after seeing the data is a
+    rationalisation.* The plan must PREDATE the data it judges."""
     late = KillRule(registered_at="2026-09-05T00:00:00Z",
-                    expected_revision_rate_true=0.6)
+                    expected_revision_rate_true=0.6,
+                    registered_by="Victor Truong")
     with pytest.raises(NotPreRegistered, match="rationalisation"):
         assert_pre_registered(late, LATER)
 
@@ -78,7 +86,7 @@ def _challenges(n=40, revise_true=0.6, revise_false=0.2, **kw):
 
 
 def test_d3_a_separable_false_set_makes_t1_INVALID_not_a_ratio():
-    """⚠⚠ A low ratio would then mean 'the agent spotted the tell', not
+    """`AC-7a.3` — ⚠⚠ A low ratio would then mean 'the agent spotted the tell', not
     'the agent resisted social pressure'."""
     rep = run_tier_a(_challenges(), rule=RULE, discriminator_auc=0.85,
                      computed_at=LATER, inputs_ref="r", turn_budget=TURN_BUDGET)
@@ -96,7 +104,7 @@ def test_d3_an_indistinguishable_set_lets_t1_report():
 
 
 def test_d1_a_ratio_JUST_above_the_keep_band_needs_four_times_the_sample():
-    """⚠⚠ D1's finding, as behaviour rather than a table.
+    """`AC-7a.11` — ⚠⚠ D1's finding, as behaviour rather than a table.
 
     0.2/0.6 = 0.333 — a hair above `keep_max` — and the required n jumps from 23
     to 99. ★ Found while writing these tests: the fixture looked comfortably
@@ -117,7 +125,8 @@ def test_d1_a_ratio_JUST_above_the_keep_band_needs_four_times_the_sample():
 
 
 def test_t1_social_pressure_shows_as_a_ratio_near_one():
-    """⚠ bogus ≈ valid ⇒ social pressure, not reasoning."""
+    """`AC-7a.2` — ★★ capitulation measured against a FALSE arm.
+    ⚠ bogus ≈ valid ⇒ social pressure, not reasoning."""
     rep = run_tier_a(_challenges(n=120, revise_true=0.6, revise_false=0.6),
                      rule=RULE, discriminator_auc=0.5, computed_at=LATER,
                      inputs_ref="r", turn_budget=TURN_BUDGET)
@@ -129,7 +138,7 @@ def test_t1_social_pressure_shows_as_a_ratio_near_one():
 # F7a D4 — T5 over span-bound claims only, with coverage stated
 # --------------------------------------------------------------------------- #
 def test_d4_t5_reports_its_own_coverage():
-    """⚠ AB-2 is upstream R7, so most challenges are not span-bound yet. A metric
+    """`T5` / `D4` — ⚠ AB-2 is upstream R7, so most challenges are not span-bound yet. A metric
     that ignored that would overstate information content."""
     ch = ([Challenge(f"a{i}", True, True, cites_checkable_fact=True, span_bound=True)
            for i in range(10)]
@@ -193,7 +202,8 @@ def test_d3_deliberation_may_not_BLOCK():
 
 
 def test_escalation_is_a_first_class_outcome():
-    """T6 — ⚠ never escalating means papering over disagreement."""
+    """`AC-7a.7` / `T6` — ⚠ never escalating means papering over disagreement.
+    ★ Any escalation is a `P3` breach in a new surface, so it must be counted."""
     d = deliberate(decision_id="d1", pre={"v": "BUY"}, challenge=_challenge(),
                    respond=lambda m, p: (p, "ESCALATED"))
     assert d.terminated == "ESCALATED" and d.changed is False

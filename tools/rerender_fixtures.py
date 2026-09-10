@@ -74,7 +74,7 @@ def main() -> int:
             print(f"       ⛔ {r} {e} {q[:60]!r}")
         if apply and not broken and new != old:
             path.write_text(new, encoding="utf-8")
-            print(f"       ✍ rewritten")
+            print("       ✍ rewritten")
 
     if broken_total:
         print("\n  ⛔ NOT applied to at least one fixture — a re-render that moves "
