@@ -101,7 +101,7 @@ untestable control `QR-17`'s analysis rejected (`AC-8.16`).
 ## 4. Behaviour & reuse (the lean "how")
 
 - **A request runs the full path.** T1 resolves `F9`'s `ThesisSourcePort` and produces the same
-  artifact the top-1 gets (`QR-16`, `AC-9.7`).
+  artifact the top-1 gets (`QR-16`, `AC-F9.7`).
 - ★★ **`INV-6` is preserved by designation, not by rationing.** The actionable count stays **one**;
   the manager chooses which analysis it attaches to, and **the designation is journaled** (D-11).
   ⚠ Exactly one actionable recommendation, chosen by the person who owns the P&L, with the
@@ -178,7 +178,7 @@ validation, once real directives exist to map.
 
 - **AC-8.1** *(★ a request runs the full path)* — **Given** a request for any universe name, **when**
   it completes, **then** the artifact has the same required fields at the same depth as the top-1's.
-  → *integration.* (`QR-16`, `AC-9.7`)
+  → *integration.* (`QR-16`, `AC-F9.7`)
 - **AC-8.2** *(★★ the actionable count stays one)* — **Given** any number of analyses in a day,
   **when** the day's outputs are read, **then** exactly one carries the actionable designation.
   → *invariant / property.* (`INV-6`)
@@ -200,7 +200,7 @@ validation, once real directives exist to map.
   suspended, **when** resumed, **then** `422` naming what changed. → *API contract.* (`P5`)
 - **AC-8.10** *(no verification bypass)* — **Given** any request path, **when** a thesis is produced,
   **then** it passes the same claim verification and confidence de-rating as the scheduled path.
-  → *invariant / property.* (`AC-9.3`, `AC-9.4`)
+  → *invariant / property.* (`AC-F9.3`, `AC-F9.4`)
 - **AC-8.12** *(★★ the interpreter emits only registered effects)* — **Given** any directive text,
   **when** interpreted, **then** every emitted effect is present in `CT-8.5` — ⚠ **an unregistered
   effect is never produced**, however the text is phrased. → *invariant / property.*
@@ -343,15 +343,43 @@ validation, once real directives exist to map.
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 20 ACs green, 2026-09-09** — mutation-verified (5 mutations on the ACs completed today, all
+caught on the first pass).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-8.1, AC-8.10 | *(to be written)* | `src/orchestration/control/analysis.py` |
-| AC-8.2 … AC-8.5 | *(to be written — Q2)* | `src/orchestration/control/` · `src/recording/` |
-| AC-8.6 … AC-8.9 | *(to be written — Q4)* | `src/orchestration/control/resume.py` |
-| AC-8.11 | *(to be written)* | `src/orchestration/trace/` |
-| AC-8.12 … AC-8.14 | *(to be written)* | `src/orchestration/control/directives/interpret.py` |
-| AC-8.15, AC-8.18, AC-8.19 | *(to be written)* | `.../directives/store.py` |
-| AC-8.16, AC-8.17 | *(to be written)* | `tools/check_no_raw_directive_in_prompt.py` |
-| AC-8.20 | *(to be written)* | `src/orchestration/trace/` |
+| AC-8.1 | ★ `tests/integration/test_drilldown_full_path.py::test_ac_8_1_*` (4) | `control/models.py::AnalysisRequest` · `fundamental/source/adapters.py` |
+| AC-8.2 | `tests/unit/test_control_surface.py::test_ac_8_2_only_one_analysis_a_day_may_be_actionable` | `control/models.py::DesignationJournal` |
+| AC-8.3 | `::test_ac_8_3_a_designation_records_what_it_displaced` | `control/models.py::Designation` |
+| AC-8.4 | ★ `tests/unit/test_control_surface_gaps.py::test_ac_8_4_*` (2) | `reporting/render/card.py::FIELD_ORDER` |
+| AC-8.5 | `tests/unit/test_control_surface.py::test_ac_8_5_the_ask_is_recorded_even_with_no_designation` | `control/models.py` |
+| AC-8.6 | `tests/unit/test_control_surface.py::test_ac_8_6_resume_is_idempotent` | `control/resume.py::SuspendStore` |
+| AC-8.7 | `::test_ac_8_7_a_suspended_run_survives_a_process_restart` | `control/resume.py` |
+| AC-8.8 | `::test_ac_8_8_an_expired_token_is_refused_by_the_existing_staleness_rule` | `control/resume.py::ResumeExpired` |
+| AC-8.9 | `::test_ac_8_9_stale_inputs_are_named_not_swallowed` · `::test_ac_8_9_an_unchanged_data_as_of_resumes_cleanly` | `control/resume.py::InputsMovedOn` |
+| AC-8.10 | ★★ `tests/integration/test_drilldown_full_path.py::test_ac_8_10_*` (4, incl. 5 coverage values) | `fundamental/source/adapters.py::_check_claims` |
+| AC-8.11 | ★ `tests/unit/test_control_surface_gaps.py::test_ac_8_11_*` (3) | `control/models.py::control_trace_records` |
+| AC-8.12 | `tests/unit/test_control_surface.py::test_ac_8_12_only_registered_effects_are_emitted` | `control/directives.py::EffectVocabulary` |
+| AC-8.13 | `::test_ac_8_13_replay_uses_frozen_effects_and_never_re_interprets` | `directives.py::effects_for_replay` |
+| AC-8.14 | `::test_ac_8_14_an_unregistered_effect_applies_NOTHING` | `directives.py::interpret` |
+| AC-8.15 | `::test_ac_8_15_nothing_takes_effect_without_confirmation` | `directives.py::confirm` |
+| AC-8.16 | ★★ `tests/structural/test_no_raw_directive_in_prompt.py` (5) · `tests/unit/test_control_surface.py::test_ac_8_16_*` | `tools/check_no_raw_directive_in_prompt.py::raw_text_leaks` |
+| AC-8.17 | `::test_ac_8_17_the_same_directive_applies_identically` | `directives.py::effects_for_replay` |
+| AC-8.18 | `::test_ac_8_18_the_window_is_honoured_and_expiry_is_automatic` (4 cases) | `directives.py::Directive.applies_on` |
+| AC-8.19 | `::test_ac_8_19_unmappable_directives_are_logged_reviewably` | `directives.py::UnmappableDirective` |
+| AC-8.20 | ★ `tests/unit/test_control_surface_gaps.py::test_ac_8_20_*` (4) | `control/directives.py::directive_delta` |
+
+### ⚠⚠ What completing this spec exposed — two findings, 2026-09-09
+
+1. **`AC-8.16` was typed *structural* and enforced by a unit test on ONE OBJECT (`DX-51`).**
+   `Directive.to_prompt_payload()` correctly omits `raw_text`, and a test asserted exactly that — but
+   **nothing stopped a different module reading `.raw_text` and building a prompt of its own.**
+   ★★★ §2.1 states the harm: a directive reaching a prompt is *"an untyped instruction channel into the
+   analysis"* — **prompt injection with the fund manager as the vector** — and `AC-8.15`'s confirm step
+   would be approving typed effects while unreviewed prose travelled beside them. ✅ Now a tree-wide
+   check and the **10th** CI guarantee. ⚠ It catches `payload["raw_text"]` as well as `.raw_text`,
+   because a trace record read back from JSON is a **dict** — the path most likely to be taken.
+2. **`AC-8.20` had no code.** A directive **changes a tradeable number**, so it owes `PG-5.2`'s two
+   arms like any other capability. ⚠ Without the no-change arm, the only recorded directives are the
+   ones that moved a number and the effect size is **1.0 by construction** — the same defect `F7a`
+   `AC-7a.6` guards against, arriving through a different capability.

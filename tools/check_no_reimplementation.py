@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""`F9` `AC-9.2` — ★ the relay is WRAPPED, never rebuilt (`P4`).
+"""`F9` `AC-F9.2` — ★ the relay is WRAPPED, never rebuilt (`P4`).
 
     python3 tools/check_no_reimplementation.py
 
@@ -31,7 +31,7 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 #: The layer that must stay a wrapper.
 WRAPPER_ROOT = "src/fundamental/source"
 
-#: ⚠ The three kinds of logic `AC-9.2` names, as the shapes they take in code.
+#: ⚠ The three kinds of logic `AC-F9.2` names, as the shapes they take in code.
 #: ★ Each entry is a FUNCTION NAME the wrapper would have to define in order to
 #: own that logic. Calling one is fine — that is what wrapping means.
 FORBIDDEN_DEFINITIONS = {
@@ -82,7 +82,7 @@ def reimplementation_violations(root: pathlib.Path | None = None) -> list[str]:
                     if node.name in names:
                         out.append(
                             f"{rel}:{node.lineno}: defines {node.name}() — ⚠ "
-                            f"AC-9.2: {kind} belongs to src/fundamental/relay/, "
+                            f"AC-F9.2: {kind} belongs to src/fundamental/relay/, "
                             "and this layer WRAPS it. A second implementation is "
                             "a second answer to a question that already has one "
                             "(P4).")
@@ -94,7 +94,7 @@ def reimplementation_violations(root: pathlib.Path | None = None) -> list[str]:
                     if isinstance(target, ast.Name) and target.id in FORBIDDEN_CONSTANTS:
                         out.append(
                             f"{rel}:{node.lineno}: assigns {target.id} — ⚠⚠ "
-                            "AC-9.2 / AC-1.77: the confidence floors live in "
+                            "AC-F9.2 / AC-1.77: the confidence floors live in "
                             "src/fundamental/scorecard/coverage.py. A copy here "
                             "fires INSTEAD of the real one and the relay's "
                             "safety case rests on it firing unchanged.")
@@ -104,12 +104,12 @@ def reimplementation_violations(root: pathlib.Path | None = None) -> list[str]:
 def main() -> int:
     bad = reimplementation_violations()
     if bad:
-        print("⛔ AC-9.2 — the thesis-source layer reimplements the relay:",
+        print("⛔ AC-F9.2 — the thesis-source layer reimplements the relay:",
               file=sys.stderr)
         for b in bad:
             print(f"   {b}", file=sys.stderr)
         return 1
-    print("✅ AC-9.2 — src/fundamental/source/ wraps the relay, reimplements none of it")
+    print("✅ AC-F9.2 — src/fundamental/source/ wraps the relay, reimplements none of it")
     return 0
 
 

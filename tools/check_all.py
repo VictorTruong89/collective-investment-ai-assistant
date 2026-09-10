@@ -67,8 +67,11 @@ CHECKS = [
     "AC-2.10 framework confinement",
     "AC-4.2/4.7 analyst firewall",
     "AC-5.11/5.12/5.15 evaluation boundaries",
-    "AC-9.2 the relay is wrapped, not rebuilt",
+    "AC-F9.2 the relay is wrapped, not rebuilt",
     "AC-7a.1 F6b's measurement gate is in place",
+    "AC-8.16 no raw directive text reaches a prompt",
+    "AC-7b.5 nothing gates on a Tier-B result",
+    "DX-53 every traceability row resolves",
     "MS-8.7 ID-family registry",
 ]
 
@@ -98,7 +101,7 @@ def main() -> int:
     results.append(run(CHECKS[3], [py, "tools/check_framework_confinement.py"], REPO))
     results.append(run(CHECKS[4], [py, "tools/check_import_fences.py"], REPO))
     results.append(run(CHECKS[5], [py, "tools/check_evaluation_boundaries.py"], REPO))
-    # ⚠ `AC-9.2` — added 2026-09-09 (`DX-42`). The spec's traceability row named
+    # ⚠ `AC-F9.2` — added 2026-09-09 (`DX-42`). The spec's traceability row named
     # `tools/check_no_reimplementation.py` and the file did not exist, so F9's
     # FIRST non-goal was enforced by nothing.
     results.append(run(CHECKS[6], [py, "tools/check_no_reimplementation.py"], REPO))
@@ -106,7 +109,22 @@ def main() -> int:
     # design that measures it exists, and a gate living only in a spec header is
     # enforced by whoever remembers it when least motivated to (`DX-47`).
     results.append(run(CHECKS[7], [py, "tools/check_gate_ordering.py"], REPO))
-    results.append(run(CHECKS[8], [py, "tools/check_id_families.py"], REPO))
+    # ⚠⚠ `AC-8.16` is typed *structural* and was enforced by a unit test on one
+    # object (`DX-51`). A directive reaching a prompt is an untyped instruction
+    # channel into the analysis, with the manager as the injection vector.
+    results.append(run(CHECKS[8], [py, "tools/check_no_raw_directive_in_prompt.py"], REPO))
+    # ⛔⛔ `AC-7b.5` — *structurally, not by convention*. This is the rule most
+    # likely to erode by good intentions: once F7b has numbers they will be the
+    # most interesting in the system, and reaching for them at a promotion
+    # decision is the natural move (`DX-52`).
+    results.append(run(CHECKS[9], [py, "tools/check_no_tier_b_gating.py"], REPO))
+    # ⚠⚠ `DX-53` — constitution §6 says a traceability row must EXIST; nothing
+    # said it had to be TRUE. Six specs completed 2026-09-09 each had a
+    # structural AC unenforced behind a row that read as coverage.
+    # ★ Limit: it resolves that a named file and test exist, NOT that the test
+    #   tests its AC — that half stays human.
+    results.append(run(CHECKS[10], [py, "tools/check_traceability_rows.py"], REPO))
+    results.append(run(CHECKS[11], [py, "tools/check_id_families.py"], REPO))
 
     failed = results.count(False)
     print("──" * 20)

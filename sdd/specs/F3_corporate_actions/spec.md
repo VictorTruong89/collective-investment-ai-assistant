@@ -250,19 +250,41 @@ requires ≥2 independent sources or one primary; `retired_side == true` require
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 12 ACs green, 2026-09-09.** ⚠⚠ **This table said *"(to be written)"* on every row until
+today, while 10 of the 12 ACs had passing tests** — `F7a`'s `DX-45` exactly, one spec earlier. ★ The
+two that genuinely had none (`AC-3.4`, `AC-3.10`) were found by filling the table in.
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-3.1 | *(to be written)* | `src/data_engine/corporate_actions/resolve.py` |
-| AC-3.2 | *(to be written)* | `.../corroborate.py` |
-| AC-3.3 | *(to be written)* | `.../resolve.py` + reuse `symbology/combination.py` |
-| AC-3.4 | *(to be written)* | `.../contamination.py` |
-| AC-3.5 | *(to be written)* | golden fixtures from `AB-18` |
-| AC-3.6 | *(to be written)* | `.../resolve.py` |
-| AC-3.7 | *(to be written)* | `.../resolve.py` |
-| AC-3.8 | *(to be written)* | `.../models.py` |
-| AC-3.9 | *(to be written)* | `.../resolve.py` |
-| AC-3.10 | *(to be written)* | `tools/check_llm_gateway_only.py` |
-| AC-3.11 | *(to be written — blocked Q1)* | `src/orchestration/trace/replay.py` |
-| AC-3.12 | *(to be written)* | `.../resolve.py` |
+| AC-3.1 | `tests/unit/test_corporate_actions.py::test_ac_3_1_no_evidence_yields_undetermined_never_a_guess` | `corporate_actions/classify.py` |
+| AC-3.2 | `::test_ac_3_2_a_single_source_downgrades_to_undetermined` · `::test_ac_3_2_two_independent_sources_corroborate` | `corporate_actions/classify.py::corroboration_of` |
+| AC-3.3 | `::test_ac_3_3_a_merger_of_equals_yields_two_findings_one_per_side` | `classify.py` |
+| AC-3.4 | ★ `::test_ac_3_4_*` (2) — **added 2026-09-09** | `classify.py` · `models.py::series_contaminated_from` |
+| AC-3.5 | `::test_ac_3_5_*` | `classify.py` |
+| AC-3.6 | `::test_ac_3_6_*` | `classify.py` |
+| AC-3.7 | `::test_ac_3_7_*` | `classify.py` |
+| AC-3.8 | `::test_ac_3_8_*` | `classify.py` |
+| AC-3.9 | `::test_ac_3_9_*` | `classify.py` |
+| AC-3.10 | ★ `tests/structural/test_peer_to_peer_fence.py::test_ac_3_10_*` (5) — **added 2026-09-09** | `tools/check_import_fences.py::sdk_fence_violations` |
+| AC-3.11 | `::test_ac_3_11_*` | `orchestration/trace/` |
+| AC-3.12 | `::test_ac_3_12_contamination_is_RECORDED_never_spliced` | `models.py::Finding` |
+
+### ⚠ A third correction, found by prototyping `DX-53`'s check
+
+★★★ `AC-3.2`'s row named `corporate_actions/corroborate.py` — **a file that does not exist.** The
+logic is `classify.py::corroboration_of`. ⚠ I copied that path straight out of the stub table while
+filling this section in, **without checking it** — which is `DX-53` happening inside the very edit
+that documented `DX-53`. ★ A prototype resolver caught it in one pass.
+
+### ⚠⚠ Two ACs found unenforced while filling this table, 2026-09-09
+
+1. **`AC-3.4` — contamination detection had no test.** ★★★ It is the sharpest AC in `F3`: a retired
+   symbol whose closes match its successor's *silently becomes another company's price history*, and
+   **nothing about it looks wrong** — same ticker, continuous series, and every downstream
+   computation runs happily on a company that stopped existing. ★ `D4` is why it is only *recorded*:
+   repairing the series is an investment judgement, and `F3` refuses to make it.
+2. **`AC-3.10` / `ST-5` — no domain may import an LLM SDK directly, and nothing checked** (`DX-54`).
+   ★★★ `ST-5` is what makes three guarantees **unavoidable** rather than merely available: `GW-20`'s
+   budget cap, `F2` `CT-2.2`'s request/response recording and `AC-2.9`'s redaction **all live at the
+   gateway**. ⚠ A single direct SDK call bypasses all three at once — and leaves no gap to notice,
+   because the trace simply would not contain the call.

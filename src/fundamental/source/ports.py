@@ -3,7 +3,7 @@
 ★★ **The contract is what makes the two adapters substitutable**, not the type
 signature. `F1`'s `MU`-71 % lesson: two adapters shared a signature and differed
 in a guarantee nobody had written down. So the guarantees are stated here and
-checked by one contract suite (`AC-9.1`).
+checked by one contract suite (`AC-F9.1`).
 """
 
 from __future__ import annotations

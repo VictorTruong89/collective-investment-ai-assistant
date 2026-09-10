@@ -61,7 +61,7 @@ metric-gate · unit · integration.
 | **F7a** | [Deliberation process tests (Tier A)](F7a_deliberation_process_tests/spec.md) — **gates F6b** | 🟡 **draft** — 12 ACs; ✅ blocker resolved | AC-7a.1 … AC-7a.12 | ⛔ none |
 | **F7b** | [Deliberation outcome study (Tier B)](F7b_deliberation_outcome_study/spec.md) — never gates | 🟡 **draft** — 9 ACs, ⚠ 2 blocked (Q1, Q2) | AC-7b.1 … AC-7b.9 | ⛔ none |
 | **F8** | [Human control surface](F8_control_surface/spec.md) | 🟡 **draft** — 20 ACs incl. directives; ⏳ vocabulary at E2E | AC-8.1 … AC-8.20 | ⛔ none |
-| **F9** | [Thesis source port](F9_thesis_source_port/spec.md) | 🟡 **draft** — 10 ACs, ⚠ 2 blocked (Q1) | AC-9.1 … AC-9.10 | ⛔ none |
+| **F9** | [Thesis source port](F9_thesis_source_port/spec.md) | 🟡 **draft** — 10 ACs, ⚠ 2 blocked (Q1) | AC-F9.1 … AC-F9.10 | ⛔ none |
 
 ★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if
 nothing after it landed.

@@ -137,13 +137,131 @@ def gate_binding_violations(src_root: pathlib.Path | None = None) -> list[str]:
     return out
 
 
+#: `F6b` `AC-6b.3` — the fields that are HUMAN-READABLE ONLY. `CT-6b.1`:
+#: *"note: str — ⚠ human-readable ONLY; never branched on"*.
+PROSE_FIELDS = ("note", "text")
+
+#: Where deliberation control flow lives.
+DELIBERATION_ROOTS = ("orchestration/graph", "shared/agents")
+
+
+def prose_branch_violations(src_root: pathlib.Path | None = None) -> list[str]:
+    """`AC-6b.3` — ⚠⚠ control flow may NEVER branch on prose.
+
+    `CT-6b.1` marks `payload.note` *"human-readable ONLY; never branched on"*,
+    and `F6b` §4 says why: *"If the payload is prose, only another model can
+    consume it and the branch becomes **undecidable**."*
+
+    ★★ The deeper reason is `PG-9`. A branch on free text has no answer to
+    *"why did this happen?"* better than *"the wording tripped it"* — and a
+    deliberation whose control flow depends on phrasing is one where changing a
+    prompt silently changes decisions, with nothing in the trace to show it.
+
+    ⚠ Reading prose to RECORD or RENDER it is fine; only a branch is refused.
+    """
+    import ast
+
+    src_root = src_root or REPO / "src"
+    out = []
+    for rel_root in DELIBERATION_ROOTS:
+        root = src_root / rel_root
+        if not root.is_dir():
+            continue
+        for path in _py(root):
+            rel = path.relative_to(src_root.parent).as_posix()
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8"), str(path))
+            except SyntaxError:                            # pragma: no cover
+                continue
+            for node in ast.walk(tree):
+                if not isinstance(node, (ast.If, ast.While, ast.IfExp)):
+                    continue
+                for sub in ast.walk(node.test):
+                    if (isinstance(sub, ast.Attribute)
+                            and sub.attr in PROSE_FIELDS):
+                        out.append(
+                            f"{rel}:{node.lineno}: control flow branches on "
+                            f".{sub.attr} — ⚠ AC-6b.3 / CT-6b.1: that field is "
+                            "HUMAN-READABLE ONLY. A branch on prose is "
+                            "undecidable to anything but another model, and "
+                            "PG-9 has no answer for it better than 'the "
+                            "wording tripped it'.")
+    return out
+
+
+def agent_cross_import_violations(src_root: pathlib.Path | None = None) -> list[str]:
+    """`AC-6b.5` — no agent module imports another; all exchange is via D-08.
+
+    ★ Same rule `F6a` follows, one layer up: `F6b` §4 — *"Mediated by the
+    orchestrator. Agents exchange messages **through** D-08 and never import
+    each other."* ⚠ A direct import turns n agents into n² dependencies and,
+    worse, creates a path along which one seat's in-progress work reaches
+    another without any message being recorded.
+    """
+    src_root = src_root or REPO / "src"
+    agents = src_root / "shared/agents"
+    if not agents.is_dir():
+        return []
+    out = []
+    for path in _py(agents):
+        rel = path.relative_to(src_root.parent).as_posix()
+        own = path.stem
+        for mod in _imports(path.read_text(encoding="utf-8"), rel):
+            if mod.startswith("src.shared.agents") and not mod.endswith(own):
+                out.append(
+                    f"{rel} imports {mod} — ⚠ AC-6b.5: agents exchange through "
+                    "D-08 and never import each other.")
+    return out
+
+
+#: `ST-5` — **only the LLM gateway calls an LLM.** ⚠ Vendor SDKs, by import name.
+LLM_SDKS = ("anthropic", "openai", "google.generativeai", "cohere",
+            "mistralai", "litellm", "langchain")
+
+#: ★ The one place permitted to import them.
+GATEWAY_PREFIX = "src/shared/llm"
+
+
+def sdk_fence_violations(src_root: pathlib.Path | None = None) -> list[str]:
+    """`F3` `AC-3.10` / `ST-5` — ⚠ no domain reaches a model directly.
+
+    ★★ `ST-5` is one of the inherited rules the constitution restates by ID:
+    *only the LLM gateway calls an LLM*. It is what makes `GW-20`'s budget cap,
+    `F2`'s `CT-2.2` recording and `AC-2.9`'s redaction **unavoidable** rather
+    than merely available — every one of them lives at the gateway, so a direct
+    SDK call bypasses all three at once.
+
+    ⚠ `AC-3.10` names `src/data_engine/corporate_actions/**`, and the same rule
+    binds every domain, so the fence is checked over all of `src/` with the
+    gateway exempted (`DX-54`).
+    """
+    src_root = src_root or REPO / "src"
+    out = []
+    for path in _py(src_root):
+        rel = path.relative_to(src_root.parent).as_posix()
+        if rel.startswith(GATEWAY_PREFIX):
+            continue
+        for mod in _imports(path.read_text(encoding="utf-8"), rel):
+            if any(mod == s or mod.startswith(f"{s}.") for s in LLM_SDKS):
+                out.append(
+                    f"{rel} imports {mod} — ⚠ ST-5 / AC-3.10: only "
+                    "src/shared/llm/ calls an LLM. A direct SDK call bypasses "
+                    "the budget cap (GW-20), the CT-2.2 recording and AC-2.9's "
+                    "redaction in one step, because all three live at the "
+                    "gateway.")
+    return out
+
+
 def all_violations(src_root: pathlib.Path | None = None) -> list[str]:
     # ⚠ `peer_to_peer_violations` was added 2026-09-09 (`AC-6a.6`). It had a
     # tool-shaped home here and was never wired in, so the fence `F6a` §4 calls
     # *structural* was enforced by nothing — see `DX-41`.
     return (firewall_violations(src_root)
             + gate_binding_violations(src_root)
-            + peer_to_peer_violations(src_root))
+            + peer_to_peer_violations(src_root)
+            + prose_branch_violations(src_root)
+            + agent_cross_import_violations(src_root)
+            + sdk_fence_violations(src_root))
 
 
 def main() -> int:
@@ -155,8 +273,11 @@ def main() -> int:
         return 1
     print("✅ AC-4.2 / AC-4.7 — the analyst firewall holds at seat 6")
     print("✅ AC-6a.6 — the two analysts are mediated, never peer-to-peer")
+    print("✅ AC-6b.3 / AC-6b.5 — no branch on prose; no agent imports another")
+    print("✅ AC-3.10 / ST-5 — only src/shared/llm/ imports an LLM SDK")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

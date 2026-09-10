@@ -86,11 +86,34 @@ exactly this.
 | **`QQ-nn`** | Open quant questions | `L1-quantitative-analysis` |
 | **`DR-n`** | Blueprint-tier rules | `blueprints/README.md` |
 
+### ⚠⚠ `AC-F<n>.<k>` — this repo's spec ACs carry their spec id (`DX-44`, 2026-09-09)
+
+**A bare `AC-9.6` had two live meanings**, and both were about the discipline card:
+
+| | means |
+|---|---|
+| `F9` (this repo) | *the card states which source produced its thesis* |
+| `D-09` (upstream reporting) | *every card field names a producing domain* |
+
+★★★ **It bit within minutes of being noticed.** The first `F9` `AC-9.6` implementation set
+`source="F9"` on a new card field — which D-09's `AC-9.6` **fails**, since it asserts every field's
+source starts with `D-`. ⚠ Two rules, one id, the same artifact, opposite requirements.
+
+★ **The rule:** where this repo's `F<n>` spec number collides with an upstream domain's, its ACs are
+written **`AC-F<n>.<k>`**. `F9` is renamed. `F6b`, `F7a`, `F7b` need no change — their letters are
+already unique.
+
+⚠⚠ **Measured, and the rest is NOT yet renamed.** Seven numeric prefixes collide with upstream, by
+citation count: **`AC-1` 362 · `AC-8` 120 · `AC-2` 80 · `AC-9` 71 (fixed) · `AC-5` 67 · `AC-3` 60 ·
+`AC-4` 41.** ★ `AC-1` is the worst by far and `F1`'s range (`.1`–`.15`) sits **inside** upstream
+D-01's, exactly as `F9`'s did. **This is a live, unfixed collision** — `DX-44` stays open for it.
+
 ### Spec-internal (every spec, both repos)
 
 | Family | Meaning |
 |---|---|
 | **`AC-<n>.<k>`** | Acceptance criterion — the unit of done |
+| ★ **`AC-F<n>.<k>`** | ⚠ **This repo's own spec ACs, where a bare number would collide** — see below |
 | **`CT-<n>.<k>`** | Contract — a concrete data/API shape |
 | **`D-nn`** | Domain identifier (`D-00`…`D-14`) |
 

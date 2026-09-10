@@ -7,7 +7,7 @@
 variants also differ in instruction, no experiment separates transport from
 prompt.
 
-⚠ **`AC-9.2`: the relay is WRAPPED, never rebuilt.** `src/fundamental/relay/`
+⚠ **`AC-F9.2`: the relay is WRAPPED, never rebuilt.** `src/fundamental/relay/`
 already does composition, rotation, schema validation, claim re-verification and
 coverage de-rating. Re-implementing any of it here would produce a second answer
 to a question that already has one (`P4`).
@@ -44,7 +44,7 @@ class SourcedThesis:
 
     def __post_init__(self) -> None:
         if not self.provenance:
-            raise ValueError("C4 — every thesis carries provenance (AC-9.5)")
+            raise ValueError("C4 — every thesis carries provenance (AC-F9.5)")
         if self.confidence.get("basis") == "adapter":
             raise ValueError(
                 "C3 — confidence comes from the shared assess_confidence, never "
@@ -97,14 +97,14 @@ class _BaseAdapter:
 
 @dataclass(frozen=True)
 class ApiAdapter(_BaseAdapter):
-    """★ The DEFAULT variant (`QR-20`, `AC-9.8`)."""
+    """★ The DEFAULT variant (`QR-20`, `AC-F9.8`)."""
 
     variant: str = "api"
 
 
 @dataclass(frozen=True)
 class RelayAdapter(_BaseAdapter):
-    """⚠ WRAPS `src/fundamental/relay/`; reimplements none of it (`AC-9.2`).
+    """⚠ WRAPS `src/fundamental/relay/`; reimplements none of it (`AC-F9.2`).
 
     ★ Its verification must propagate **unsoftened**: the relay raises on a
     contradicting claim, and this wrapper must not catch it.

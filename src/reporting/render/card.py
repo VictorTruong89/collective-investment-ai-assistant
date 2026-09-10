@@ -32,7 +32,7 @@ from src.reporting.render.lint import enforce
 
 #: Ordering is an argument (**RP-15**): the falsifier renders ABOVE the verdict.
 #: *What would prove this wrong, before what we think.*
-#: ⚠ `thesis_source` sits IMMEDIATELY AFTER `analyst_verdict` (`F9` `AC-9.6`).
+#: ⚠ `thesis_source` sits IMMEDIATELY AFTER `analyst_verdict` (`F9` `AC-F9.6`).
 #: ★ It qualifies that verdict and nothing else: how far the transport can be
 #: trusted is unreadable once separated from the judgement it applies to. Placing
 #: it lower — beside `confidence`, say — would let a reader take the analyst's
@@ -106,7 +106,7 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
               f"{rec.verdict_nominated}" if rec.was_downgraded else "composed (DN-1)"),
     ))
 
-    # ★ F9 AC-9.6 — WHICH SOURCE produced the thesis, and how far to trust the
+    # ★ F9 AC-F9.6 — WHICH SOURCE produced the thesis, and how far to trust the
     # transport. ⚠ Read once here so the verdict unit below and the source unit
     # cannot disagree about it.
     thesis_variant = _thesis_variant(rec)
@@ -123,7 +123,7 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
             note="the analyst's own verdict, shown beside the composed one (RP-8)",
         ))
 
-    # ★★ F9 `AC-9.6` — the card states its source, on BOTH paths.
+    # ★★ F9 `AC-F9.6` — the card states its source, on BOTH paths.
     # ⚠ A provenance field that appeared only on the relay path would teach a
     # reader that its ABSENCE means "fine", and then a missing provenance and an
     # API thesis look identical (`AP-2`, `DC-1`).
@@ -131,7 +131,8 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
         units.append(RenderUnit(
             field="thesis_source", value=thesis_variant,
             # ⚠ `source` names the producing DOMAIN, never a spec id. D-09's own
-            # `AC-9.6` asserts every field starts with `D-` (`RP-6`/`DC-1`:
+            # D-09's OWN `AC-9.6` (a different AC from F9's — DX-44)
+            # asserts every field starts with `D-` (`RP-6`/`DC-1`:
             # *a field D-09 could compute itself is one it must not*), and the
             # thesis — whichever transport carried it — is D-01's.
             # ★ Caught by that existing test on the first run of this code.
@@ -236,7 +237,7 @@ def _confidence_unit(grade, rec, as_of) -> RenderUnit:
 
 
 def _thesis_variant(rec) -> str:
-    """`AC-9.6` — which `thesis_source` variant authored this thesis.
+    """`AC-F9.6` — which `thesis_source` variant authored this thesis.
 
     ⚠⚠ **`"unknown"`, never `"api"`, when provenance is absent.** The tempting
     default is `api`, because `QR-20` makes it the common case — and that would

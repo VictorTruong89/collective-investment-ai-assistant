@@ -211,12 +211,31 @@ recovered.
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 9 ACs green, 2026-09-09** — mutation-verified (5 mutations, all caught on the first pass).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-7b.1, AC-7b.2, AC-7b.7 | *(to be written — blocked Q1, Q2)* | `src/evaluation/studies/deliberation_outcome.py` |
-| AC-7b.3, AC-7b.4, AC-7b.8 | *(to be written)* | `src/evaluation/studies/report.py` |
-| AC-7b.5 | *(to be written)* | `tools/check_no_tier_b_gating.py` |
-| AC-7b.6 | *(to be written)* | `src/evaluation/metrics/models.py` |
-| AC-7b.9 | *(to be written)* | `src/orchestration/trace/outcomes.py` |
+| AC-7b.1 | ★ `tests/unit/test_tier_b_gaps.py::test_ac_7b_1_*` (2) | `studies/deliberation_tier_b.py::pairs_from_deltas` |
+| AC-7b.2 | `::test_ac_7b_2_unchanged_pairs_are_retained_in_the_base_rate` · `tests/unit/test_deliberation.py::test_ac_7b_2_*` | `deliberation_tier_b.py::study` |
+| AC-7b.3 | ★★ `::test_ac_7b_3_*` (2) | `deliberation_tier_b.py::TierBReport.to_report` · `achieved_power` · `detectable_effect_at_n` |
+| AC-7b.4 | ★ `::test_ac_7b_4_an_empty_window_is_INSUFFICIENT_and_is_a_SUCCESSFUL_run` | `TierBReport.verdict` |
+| AC-7b.5 | ★★ `tests/structural/test_no_tier_b_gating.py` (5) · `::test_ac_7b_5_calling_gate_is_always_an_error` | `tools/check_no_tier_b_gating.py` · `TierBCannotGate` |
+| AC-7b.6 | `::test_ac_7b_6_the_tier_is_declared_B` | `TierBReport.tier` |
+| AC-7b.7 | ★ `::test_ac_7b_7_*` (2) | `TierBReport.influenced_bucket` |
+| AC-7b.8 | ★★ `::test_ac_7b_8_*` (3, incl. 6 forbidden phrases × 4 report shapes) | `deliberation_tier_b.py::VERDICTS` · `OVERCLAIMS` |
+| AC-7b.9 | `tests/unit/test_trace.py` (outcome link, append-only + idempotent) | `orchestration/trace/outcomes.py::OutcomeStore.link` |
+
+### ⚠⚠ What completing this spec exposed — two findings, 2026-09-09
+
+1. **`AC-7b.5` had no check (`DX-52`) — the 5th consecutive spec naming a tool that did not exist.**
+   ⚠ The AC says *"structurally, not by convention"*, and that wording is chosen: this is the rule most
+   likely to erode **by good intentions**. ★★★ Once `F7b` finally has numbers they will be the most
+   interesting numbers in the system — *"did deliberation make us money?"* — and reaching for them at a
+   promotion decision is the natural move. ✅ Now the **11th** CI guarantee.
+2. **`AC-7b.8`'s wording had no enforcement.** `CT-7b.1` is emphatic — *"`NO_DIFFERENCE_DETECTED` is
+   **not** `NO_DIFFERENCE`"* — and nothing produced a verdict at all. ★★★ A null on an underpowered
+   study is a statement about the **instrument**; *"no difference"* is a statement about the **world**,
+   and this study is nowhere near able to make it. ✅ `VERDICTS` is a closed set and `OVERCLAIMS` is
+   asserted against the rendered text of every report shape — not left to a reviewer to notice.
+   ★ `AC-7b.3`'s ordering is likewise enforced on the **rendered string**: power appears before the
+   result, because a reader who meets the difference first has already formed a view.

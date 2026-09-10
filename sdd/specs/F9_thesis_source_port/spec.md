@@ -92,31 +92,31 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 ## 6. Acceptance criteria
 
-- **AC-9.1** *(★ both adapters pass one contract suite)* — **Given** the `thesis_source` port, **when**
+- **AC-F9.1** *(★ both adapters pass one contract suite)* — **Given** the `thesis_source` port, **when**
   the contract suite runs, **then** it executes against **every** registered variant and both satisfy
   `C1`–`C5`. → *invariant / property.* (`F1` `AC-1.9`)
-- **AC-9.2** *(the relay is wrapped, not rebuilt)* — **Given** the source tree, **when** CI runs,
+- **AC-F9.2** *(the relay is wrapped, not rebuilt)* — **Given** the source tree, **when** CI runs,
   **then** `src/fundamental/source/**` contains no prompt composition, claim verification or
   confidence logic of its own; it calls `relay/`. → *invariant / property (structural).* (`P4`)
-- **AC-9.3** *(★★ verification survives the wrapper)* — **Given** a relayed report containing a claim
+- **AC-F9.3** *(★★ verification survives the wrapper)* — **Given** a relayed report containing a claim
   that contradicts pipeline data, **when** it passes through `RelayAdapter`, **then**
   `RelayContradictedError` propagates — ⚠ **the adapter does not catch, soften or de-rate it**.
   → *characterization, over the existing `ingest` behaviour.* (`RA-118`, `P5`)
-- **AC-9.4** *(de-rating is unchanged)* — **Given** identical evidence coverage, **when** confidence is
+- **AC-F9.4** *(de-rating is unchanged)* — **Given** identical evidence coverage, **when** confidence is
   computed through the adapter and directly via `assess_confidence`, **then** the results are equal.
   → *characterization.* (`RA-67`, `AC-1.77`)
-- **AC-9.5** *(provenance is on every thesis)* — **Given** a thesis from either adapter, **when** read,
+- **AC-F9.5** *(provenance is on every thesis)* — **Given** a thesis from either adapter, **when** read,
   **then** `provenance` names the port, variant and version that produced it. → *data contract.*
-- **AC-9.6** *(the card states its source)* — **Given** a rendered discipline card, **when** its thesis
+- **AC-F9.6** *(the card states its source)* — **Given** a rendered discipline card, **when** its thesis
   came from the relay, **then** the card says so. → *data contract.* (`AP-2`, `DC-1`)
-- **AC-9.7** *(★ depth parity)* — **Given** the same ticker authored by each adapter, **when** the two
+- **AC-F9.7** *(★ depth parity)* — **Given** the same ticker authored by each adapter, **when** the two
   theses are compared, **then** they carry the same required fields at the same depth; ⚠ **neither is
   a reduced form of the other**. → *data contract.* (`QR-16`)
-- **AC-9.8** *(the API is the default)* — **Given** no explicit variant, **when** the port is resolved,
+- **AC-F9.8** *(the API is the default)* — **Given** no explicit variant, **when** the port is resolved,
   **then** `api` is returned. → *unit.* (`QR-20`)
-- **AC-9.9** *(unresolvable raises)* — **Given** an unknown ticker, **when** `author` is called,
+- **AC-F9.9** *(unresolvable raises)* — **Given** an unknown ticker, **when** `author` is called,
   **then** it raises; ⚠ **an empty or placeholder thesis is never returned**. → *unit.* (`P5`)
-- **AC-9.10** *(both are traced identically)* — **Given** a thesis from either adapter, **when** the
+- **AC-F9.10** *(both are traced identically)* — **Given** a thesis from either adapter, **when** the
   trace is read, **then** the external calls, the provenance and the step records have the same shape.
   → *data contract.* (`F2`)
 
@@ -170,10 +170,10 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 - **Q1 — Does the relay envelope carry source spans?** `QR-16`'s "earn the confidence back" option
   depends on the relayed report returning claims **with spans** so `ingest()` can verify every one.
-  ⚠ If it does not, the relay stays blanket-de-rated and `AC-9.7`'s parity is nominal. **Answerable by
+  ⚠ If it does not, the relay stays blanket-de-rated and `AC-F9.7`'s parity is nominal. **Answerable by
   reading `relay/models.py` at `MS-6`.**
 - **Q2 — What is the API adapter's prompt?** The relay has a 463-line prompt spec upstream. Does the
-  API path reuse it, or does the master prompt differ? ⚠ If they differ, `AC-9.7`'s parity claim
+  API path reuse it, or does the master prompt differ? ⚠ If they differ, `AC-F9.7`'s parity claim
   weakens and the A/B compares two things at once.
 - **Q3 — Cost measurement (`QR-20`'s action).** Pull the usage report before `MS-6` closes and record
   the number in `QR-20`.
@@ -185,20 +185,20 @@ completed today; **all caught on the first pass**).
 
 | AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-9.1 | `tests/contracts/test_thesis_source.py::test_ac_9_1_*` (3, parameterised over BOTH variants) | `source/adapters.py::_BaseAdapter` |
-| AC-9.2 | ★ `tests/structural/test_no_reimplementation.py::test_ac_9_2_*` (6) | `tools/check_no_reimplementation.py::reimplementation_violations` |
-| AC-9.3 | `tests/contracts/test_thesis_source.py::test_ac_9_3_c2_a_contradicting_claim_RAISES_and_is_never_de_rated` | `source/adapters.py::_check_claims` |
-| AC-9.4 | ★ `::test_ac_9_4_*` (3, incl. 10 coverage values across both floors) | `scorecard/coverage.py::assess_confidence` injected into `_BaseAdapter` |
-| AC-9.5 | `::test_ac_9_5_c4_provenance_is_on_every_thesis` | `source/adapters.py::SourcedThesis` |
-| AC-9.6 | ★ `tests/unit/test_card_states_its_source.py::test_ac_9_6_*` (7) | `reporting/render/card.py::_thesis_variant` · `FIELD_ORDER` |
-| AC-9.7 | `tests/contracts/test_thesis_source.py::test_ac_9_7_depth_parity_the_two_produce_the_same_shape` | `source/adapters.py::SourcedThesis` |
-| AC-9.8 | `::test_ac_9_8_the_api_is_the_registry_default` | `source/adapters.py::ApiAdapter` |
-| AC-9.9 | `::test_ac_9_9_c5_an_unresolvable_ticker_raises` | `source/errors.py::UnresolvableTicker` |
-| AC-9.10 | `::test_ac_9_10_both_are_traced_identically` | `source/adapters.py` · `orchestration/trace/` |
+| AC-F9.1 | `tests/contracts/test_thesis_source.py::test_ac_f9_1_*` (3, parameterised over BOTH variants) | `source/adapters.py::_BaseAdapter` |
+| AC-F9.2 | ★ `tests/structural/test_no_reimplementation.py::test_ac_f9_2_*` (6) | `tools/check_no_reimplementation.py::reimplementation_violations` |
+| AC-F9.3 | `tests/contracts/test_thesis_source.py::test_ac_f9_3_c2_a_contradicting_claim_RAISES_and_is_never_de_rated` | `source/adapters.py::_check_claims` |
+| AC-F9.4 | ★ `::test_ac_f9_4_*` (3, incl. 10 coverage values across both floors) | `scorecard/coverage.py::assess_confidence` injected into `_BaseAdapter` |
+| AC-F9.5 | `::test_ac_f9_5_c4_provenance_is_on_every_thesis` | `source/adapters.py::SourcedThesis` |
+| AC-F9.6 | ★ `tests/unit/test_card_states_its_source.py::test_ac_f9_6_*` (7) | `reporting/render/card.py::_thesis_variant` · `FIELD_ORDER` |
+| AC-F9.7 | `tests/contracts/test_thesis_source.py::test_ac_f9_7_depth_parity_the_two_produce_the_same_shape` | `source/adapters.py::SourcedThesis` |
+| AC-F9.8 | `::test_ac_f9_8_the_api_is_the_registry_default` | `source/adapters.py::ApiAdapter` |
+| AC-F9.9 | `::test_ac_f9_9_c5_an_unresolvable_ticker_raises` | `source/errors.py::UnresolvableTicker` |
+| AC-F9.10 | `::test_ac_f9_10_both_are_traced_identically` | `source/adapters.py` · `orchestration/trace/` |
 
 ### ⚠⚠ What completing this spec exposed — three findings, 2026-09-09
 
-1. **`AC-9.2` was enforced by nothing (`DX-42`).** The traceability row named
+1. **`AC-F9.2` was enforced by nothing (`DX-42`).** The traceability row named
    `tools/check_no_reimplementation.py` — ⛔ **and the file did not exist.** F9's *first* non-goal
    (*"✗ Re-implementing prompt composition, ingest, verification or de-rating"*) had no check at all.
    ★★ The same shape as `DX-41` one spec earlier: **a traceability row naming a plausible tool reads
@@ -215,8 +215,8 @@ completed today; **all caught on the first pass**).
    assigned it. ⚠ `RP-48` is explicit that it is **more provisional than `JUDGEMENT`, never a footnote
    on it**; rendering a relayed thesis as an ordinary judgement tells the reader the two are equally
    checkable.
-3. **⚠⚠ An ID collision, live (`DX-44`).** F9's `AC-9.6` (*the card states its source*) and D-09's
-   `AC-9.6` (*every card field names a producing domain*) are **both `AC-9.6`, and both about the
+3. **⚠⚠ An ID collision, live (`DX-44`).** F9's `AC-F9.6` (*the card states its source*) and D-09's
+   `AC-F9.6` (*every card field names a producing domain*) are **both `AC-F9.6`, and both about the
    discipline card**. ★★ The collision bit immediately: the first implementation set `source="F9"`,
-   which D-09's `AC-9.6` fails — *a field D-09 could compute itself is one it must not* (`RP-6`/`DC-1`).
+   which D-09's `AC-F9.6` fails — *a field D-09 could compute itself is one it must not* (`RP-6`/`DC-1`).
    ✅ Corrected to `source="D-01"`: whichever transport carried it, the thesis is D-01's.

@@ -140,3 +140,43 @@ def test_ac_3_11_provenance_and_trace_ref_travel_with_the_finding():
                                          trace_ref="job:corp_actions"))
     assert f.provenance == {"variant": "search_v1"}
     assert f.trace_ref == "job:corp_actions"
+
+
+def test_ac_3_4_contamination_is_detected_and_dated_on_the_retired_side():
+    """`AC-3.4` — ⚠⚠ *contamination is detected*, and the DATE is the finding.
+
+    ★★★ Why this AC is the sharpest in `F3`. A retired symbol whose closes
+    match its successor's after the effective date is a series that **silently
+    becomes another company's price history**. ⚠ Nothing about it looks wrong:
+    the ticker is the same, the series is continuous, and every downstream
+    computation — returns, volatility, the ranker's features — runs happily on
+    a company that stopped existing.
+
+    ★ `D4` is why it is only RECORDED: repairing the series is an investment
+    judgement about which company the history belongs to, and `F3` refuses to
+    make it. The finding names the first matching date so the decision is
+    someone's, explicitly.
+
+    ⚠ This AC had **no test** until 2026-09-09, found while filling `F3`'s
+    traceability table — which said *"(to be written)"* on all twelve rows.
+    """
+    out = classify("AAA", search=_search([E1, E2]),
+                   interpret=lambda t, s: {"outcome": "merger_of_equals",
+                                           "other_side": "BBB",
+                                           "successor_symbol": "CCC",
+                                           "contaminated_from": "2026-06-01"})
+    retired = next(f for f in out if f.retired_side)
+    assert retired.series_contaminated_from == "2026-06-01"
+    surviving = next(f for f in out if not f.retired_side)
+    assert surviving.series_contaminated_from is None, (
+        "only the RETIRED side's series is contaminated — the survivor's own "
+        "history is still its own")
+
+
+def test_ac_3_4_an_uncontaminated_finding_says_so_with_None_not_a_guess():
+    """⚠ `P5` — absence is explicit. ★ A default date would assert a
+    contamination nobody detected, which is worse than missing one."""
+    (f,) = classify("XYZ", search=_search([E1, E2]),
+                    interpret=lambda t, s: {"outcome": "ticker_change",
+                                            "successor_symbol": "ZZZ"})
+    assert f.series_contaminated_from is None

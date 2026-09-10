@@ -137,3 +137,41 @@ def effects_for_replay(d: Directive) -> tuple[tuple[str, object], ...]:
     if d.state != "ACTIVE":
         raise NotConfirmed(f"only an ACTIVE directive has effects; this is {d.state}")
     return d.effects
+
+
+def directive_delta(d: Directive, *, pre: dict, post: dict,
+                    decision_id: str) -> dict:
+    """`AC-8.20` — a directive is a capability that alters output (`PG-5.2`).
+
+    ⚠⚠ **A directive changes a tradeable number**, so it owes the same two arms
+    as deliberation and explanation. `CT-2.4`'s rule applies unchanged: the
+    delta is written *"whenever the capability runs, including when `changed` is
+    false"*.
+
+    ★★ The no-change arm is what makes *"did the directive actually do
+    anything?"* answerable. ⚠ Without it, the only recorded directives are the
+    ones that moved a number and the effect size is **1.0 by construction** —
+    the same defect `F7a` `AC-7a.6` guards against, arriving through a different
+    capability.
+
+    ⚠ A `DRAFT` raises rather than recording: `AC-8.15` says a draft has no
+    effect on any run, so it has no arms — and writing one would imply it ran.
+    """
+    if d.state != "ACTIVE":
+        raise ValueError(
+            f"directive {d.directive_id!r} is {d.state}, not ACTIVE. ⚠ AC-8.15: "
+            "a DRAFT has no effect on any run, so it has no pre/post arms to "
+            "record — writing a delta for one would imply it ran.")
+    return {
+        "type": "CapabilityDelta",
+        "decision_id": decision_id,
+        "capability": "directive",
+        "pre": dict(pre),
+        "post": dict(post),
+        "changed": pre != post,
+        # ★ `PG-9` — *why did this run use these parameters?* needs a better
+        #   answer than "a directive was active".
+        "directive_id": d.directive_id,
+        "effects": dict(d.effects),
+        "vocabulary_version": d.vocabulary_version,
+    }

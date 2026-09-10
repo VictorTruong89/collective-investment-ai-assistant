@@ -1,4 +1,4 @@
-"""`F9` `AC-9.6` — ★ the discipline card states which source produced its thesis.
+"""`F9` `AC-F9.6` — ★ the discipline card states which source produced its thesis.
 
 ⚠⚠ **The vocabulary existed and nothing used it.** `RELAYED_JUDGEMENT` — a
 fourth reliability class with its own glyph `◌⇄` and the label *"RELAYED
@@ -42,7 +42,7 @@ def _rec(variant="api", *, thesis_ref=_SENTINEL):
                      universe_n=1, model_artifact_id="sha256:abc",
                      candidates=(Candidate("NVDA", 1, 0.1115, 0.425),))
     # ★ A gate carrying a graded verdict, so `analyst_verdict` renders — that
-    #   is the unit whose reliability CLASS `AC-9.6` changes.
+    #   is the unit whose reliability CLASS `AC-F9.6` changes.
     gate = GateVerdict("thesis", "NVDA", AS_OF, "PASS", "graded for test",
                        Grade(verdict="BUY"))
     rec = compose(
@@ -56,15 +56,15 @@ def _rec(variant="api", *, thesis_ref=_SENTINEL):
     return replace(rec, thesis_ref=thesis_ref)
 
 
-def test_ac_9_6_a_relayed_thesis_is_named_on_the_card():
-    """⚠ `AC-9.6` — *"when its thesis came from the relay, the card says so."*"""
+def test_ac_f9_6_a_relayed_thesis_is_named_on_the_card():
+    """⚠ `AC-F9.6` — *"when its thesis came from the relay, the card says so."*"""
     card = build_card(_rec("relay"), as_of=AS_OF)
     unit = card.field("thesis_source")
     assert unit.value == "relay"
     assert card.to_json_obj()["fields"]["thesis_source"]["value"] == "relay"
 
 
-def test_ac_9_6_an_api_thesis_is_named_too():
+def test_ac_f9_6_an_api_thesis_is_named_too():
     """★ The field is present on BOTH paths.
 
     ⚠ A provenance field that appears only on the relay path teaches readers
@@ -74,7 +74,7 @@ def test_ac_9_6_an_api_thesis_is_named_too():
     assert build_card(_rec("api"), as_of=AS_OF).field("thesis_source").value == "api"
 
 
-def test_ac_9_6_a_relayed_analyst_verdict_renders_as_RELAYED_JUDGEMENT():
+def test_ac_f9_6_a_relayed_analyst_verdict_renders_as_RELAYED_JUDGEMENT():
     """★★ `RP-48` / `AC-1.79` — the CLASS changes, not just a label somewhere.
 
     ⚠ `RELAYED_JUDGEMENT` is **more provisional than `JUDGEMENT`**, never a
@@ -86,14 +86,14 @@ def test_ac_9_6_a_relayed_analyst_verdict_renders_as_RELAYED_JUDGEMENT():
     assert card.field("thesis_source").reliability == RELAYED_JUDGEMENT
 
 
-def test_ac_9_6_an_api_analyst_verdict_stays_an_ordinary_JUDGEMENT():
+def test_ac_f9_6_an_api_analyst_verdict_stays_an_ordinary_JUDGEMENT():
     """⚠ The class must not be applied indiscriminately — if everything is
     relayed, the distinction carries no information."""
     card = build_card(_rec("api"), as_of=AS_OF)
     assert card.field("analyst_verdict").reliability == JUDGEMENT
 
 
-def test_ac_9_6_the_label_says_unverified_transport_in_words():
+def test_ac_f9_6_the_label_says_unverified_transport_in_words():
     """★★ `RP-1` residual (`QP-1`): class is **never signalled by colour
     alone** — and a machine-readable enum is this medium's 'colour'. The words
     are what a reader takes away."""
@@ -102,7 +102,7 @@ def test_ac_9_6_the_label_says_unverified_transport_in_words():
     assert "RELAYED" in label and "unverified transport" in label
 
 
-def test_ac_9_6_a_thesis_with_no_provenance_is_LOUD_not_assumed_api():
+def test_ac_f9_6_a_thesis_with_no_provenance_is_LOUD_not_assumed_api():
     """⚠⚠ `P5` — fail loud, never silent.
 
     ★ The tempting default is `api`, because it is the common case (`QR-20`).
@@ -117,7 +117,7 @@ def test_ac_9_6_a_thesis_with_no_provenance_is_LOUD_not_assumed_api():
         "strongest (P5, AP-2)")
 
 
-def test_ac_9_6_a_card_with_no_thesis_at_all_omits_the_field():
+def test_ac_f9_6_a_card_with_no_thesis_at_all_omits_the_field():
     """★ A walking-skeleton card states no thesis; a `thesis_source` on it
     would name a source for something that does not exist."""
     card = build_card(_rec(thesis_ref=None), as_of=AS_OF)

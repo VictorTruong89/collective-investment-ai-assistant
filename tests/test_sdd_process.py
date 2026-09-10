@@ -54,7 +54,13 @@ def test_every_spec_has_the_required_shape(spec: Path):
     # ⚠ DX-10 — `[a-z]?` matters: this repo splits F6/F7 into `F6a`/`F6b`/
     # `F7a`/`F7b`, so its ACs read `AC-6a.1`. Upstream's regex predates that split
     # and silently reported four real specs as declaring NO acceptance criteria.
-    assert re.search(r"\*\*AC-\d+[a-z]?\.\d+\*\*", text), \
+    # ⚠⚠ `F?` — DX-44, 2026-09-09. F9's ACs are `AC-F9.1` because a bare
+    # `AC-9.6` had TWO live meanings: F9's (*the card states its source*) and
+    # D-09's (*every card field names a producing domain*), both about the
+    # discipline card. ★ This assertion fired the moment the rename landed —
+    # which is the same guard doing its job LOUDLY that `DX-10` recorded it
+    # doing SILENTLY the first time.
+    assert re.search(r"\*\*AC-F?\d+[a-z]?\.\d+\*\*", text), \
         f"{spec} declares no acceptance criteria — it cannot be 'done' (constitution §4)"
     assert "Traceability" in text, f"{spec} has no traceability table"
 

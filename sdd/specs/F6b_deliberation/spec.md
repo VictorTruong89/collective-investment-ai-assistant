@@ -250,12 +250,48 @@ flow.
 
 ## 9. Traceability (spec → test → code)
 
-⚠ **Empty by design** — no code exists yet; no AC may be marked green before its test runs.
+✅ **All 12 ACs green, 2026-09-09** — every one mutation-verified (11 mutations, **all caught on the
+first pass**).
 
-| AC | Test | Code module |
+| AC | Test (file::test) | Code module |
 |---|---|---|
-| AC-6b.1, AC-6b.7, AC-6b.12 | *(to be written — Q1)* | `src/orchestration/graph/deliberation.py` |
-| AC-6b.2, AC-6b.3 | *(to be written)* | `src/shared/agents/messages.py` |
-| AC-6b.4, AC-6b.5 | *(to be written)* | `tools/check_import_fences.py` |
-| AC-6b.6, AC-6b.10 | *(to be written)* | `src/orchestration/graph/deliberation.py` |
-| AC-6b.8, AC-6b.9, AC-6b.11 | *(to be written)* | `src/orchestration/trace/` |
+| AC-6b.1 | ★ `tests/unit/test_deliberation_safety.py::test_ac_6b_1_every_input_terminates_within_budget` (8 cases) | `graph/deliberation.py::deliberate` |
+| AC-6b.2 | `tests/unit/test_deliberation.py::test_d2_a_challenge_without_a_declared_threshold_is_refused` | `deliberation.py::Message.__post_init__` |
+| AC-6b.3 | ★ `tests/structural/test_peer_to_peer_fence.py::test_ac_6b_3_*` (4) | `tools/check_import_fences.py::prose_branch_violations` |
+| AC-6b.4 | `tests/unit/test_deliberation.py::test_d5_only_risk_may_initiate_and_the_firewall_is_why` | `deliberation.py::FirewallCrossing` |
+| AC-6b.5 | ★ `tests/structural/test_peer_to_peer_fence.py::test_ac_6b_5_*` (2) | `check_import_fences.py::agent_cross_import_violations` |
+| AC-6b.6 | ★★ `tests/unit/test_deliberation_safety.py::test_ac_6b_6_*` (8) | `deliberation.py::assert_not_escalated` · `VerdictEscalated` |
+| AC-6b.7 | ★ `::test_ac_6b_7_escalation_is_recorded_not_averaged` · `tests/unit/test_deliberation.py::test_escalation_is_a_first_class_outcome` | `deliberation.py::deliberate` |
+| AC-6b.8 | ★ `::test_ac_6b_8_*` (3) | `deliberation.py::capability_delta` |
+| AC-6b.9 | ★ `::test_ac_6b_9_*` (2) | `deliberation.py::speaking_order` |
+| AC-6b.10 | ★★ `::test_ac_6b_10_*` (4) | `deliberation.py::ACTIVE` · `ADVISORY_ONLY` · `DEFAULT_MODE` |
+| AC-6b.11 | `::test_ac_6b_11_a_sent_message_is_immutable` | `deliberation.py::Message` (frozen) |
+| AC-6b.12 | ★ `::test_ac_6b_12_*` (3) | `deliberation.py::deliberate` · `Deliberation.incomplete_reason` |
+| — | ★★★ `tests/integration/test_f6b_f7a_end_to_end.py` (5) | **the `F6b`→`F7a` loop, closed** |
+
+### ⚠⚠ What completing this spec exposed — three findings, 2026-09-09
+
+1. **⛔⛔ `P3` was not enforced inside deliberation (`DX-48`).** `AC-6b.6` says *"a revision may make a
+   verdict equal or more conservative, **never more aggressive**"* — and `deliberate()` did not check.
+   ★★★ The ordering is what makes this severe: deliberation runs **before** D-12 (`D4`), so an
+   escalated verdict reaches the composer looking like the seat's own honest output, and D-12 composes
+   deterministically from whatever it is handed. ⚠ Nothing downstream catches it — `RP-7`/`DC-5`
+   compare the *composed* verdict to the *nominated* one, and after an escalation here **both already
+   carry it**. ✅ `assert_not_escalated()` runs on what the agent PROPOSED, before the mode decides
+   whether to apply it, so an escalation cannot lie dormant in `ADVISORY_ONLY` and arrive the day the
+   band is promoted.
+2. **`ADVISORY_ONLY` could not be expressed (`DX-49`).** §2.1's band table maps every `F7a` verdict onto
+   what `F6b` may do — and `Deliberation` had **no `mode` field**, so the table bound to nothing.
+   ⚠ Including its `INSUFFICIENT` row, which exists precisely so *absence of evidence defaults to the
+   safe branch, not the convenient one*. ✅ `DEFAULT_MODE = ADVISORY_ONLY`: `F7a` has never run, so
+   nothing has yet earned `ACTIVE`. ★★ The advisory path still records `advisory_post` — what it
+   *would* have done — because an advisory capability that discarded its own proposal would make the
+   Tier-B study impossible for exactly the period the capability is unproven.
+3. **★★★ The `F6b`→`F7a` loop had never closed (`DX-50`).** `F7a` §4 opens *"every test runs on
+   `CapabilityDelta` pairs"*; `AC-6b.8` requires the pair to be recorded. **Neither side existed**:
+   `run_tier_a` took hand-made objects and `deliberate()` emitted no delta. ⚠ So `F7a` was an
+   instrument with nothing to measure and `F6b` a capability that could not be measured — **each
+   complete on its own terms, and jointly useless.** ✅ `capability_delta()` emits exactly the shape
+   `challenges_from_deltas()` reads, and the end-to-end test demonstrates the instrument
+   discriminating: an evidence-weighing agent scores `ratio 0.000 → KEEP`, a capitulating one
+   `ratio 1.000 → DELETE`.

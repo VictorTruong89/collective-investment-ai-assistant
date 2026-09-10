@@ -98,3 +98,40 @@ class DesignationJournal:
             else:
                 live[e.decision_id] = e
         return next(iter(live.values()), None)
+
+
+def control_trace_records(*, run_id: str, request, designation=None,
+                          suspended_at: str | None = None,
+                          resumed_at: str | None = None) -> tuple[dict, ...]:
+    """`AC-8.11` — ★ the request, the suspension, the resume and the
+    designation, all joined on the run's `run_id` (`F2` `AC-2.1`).
+
+    ⚠ **The ask is recorded regardless of outcome** (§4). A request that led to
+    no designation still produces a record — ★ over a year that is behavioural
+    data about the fund manager's own discipline, and `D5` keeps it append-only
+    precisely so a reversal stays visible.
+
+    ⚠ `decision_id` is **referenced, never minted here** (`CT-2.7`). A
+    drill-down is `attempt >= 2` and mints its own at the start of the analysis;
+    if the trace did not carry it, `F7b` could not join an outcome back to the
+    analysis the manager actually asked for.
+    """
+    out = [{"type": "ControlRecord", "event": "request", "run_id": run_id,
+            "decision_id": request.decision_id, "ticker": request.ticker,
+            "rank_held": request.rank_held, "at": request.requested_at}]
+    if suspended_at:
+        out.append({"type": "ControlRecord", "event": "suspend",
+                    "run_id": run_id, "decision_id": request.decision_id,
+                    "at": suspended_at})
+    if resumed_at:
+        out.append({"type": "ControlRecord", "event": "resume",
+                    "run_id": run_id, "decision_id": request.decision_id,
+                    "at": resumed_at})
+    if designation is not None:
+        out.append({"type": "ControlRecord", "event": "designation",
+                    "run_id": run_id, "decision_id": designation.decision_id,
+                    # ★ `AC-8.3` — the substitution is the fact worth keeping.
+                    "displaced_decision_id": designation.displaced_decision_id,
+                    "displaced_ticker": designation.displaced_ticker,
+                    "at": designation.at})
+    return tuple(out)

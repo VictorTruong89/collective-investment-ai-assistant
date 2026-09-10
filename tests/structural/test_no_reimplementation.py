@@ -1,4 +1,4 @@
-"""`F9` `AC-9.2` — ★ the relay is WRAPPED, never rebuilt (`P4`, `AC-1.77`).
+"""`F9` `AC-F9.2` — ★ the relay is WRAPPED, never rebuilt (`P4`, `AC-1.77`).
 
 ⚠⚠ **The spec's traceability row named `tools/check_no_reimplementation.py` and
 the file did not exist** (`DX-42`). `F9` §2 puts this first in its non-goals —
@@ -20,12 +20,12 @@ from tools.check_no_reimplementation import reimplementation_violations
 REPO = pathlib.Path(__file__).resolve().parents[2]
 
 
-def test_ac_9_2_the_wrapper_reimplements_nothing():
+def test_ac_f9_2_the_wrapper_reimplements_nothing():
     """The live tree. ⚠ No skip, no tolerance list."""
     assert reimplementation_violations() == []
 
 
-def test_ac_9_2_a_reimplemented_confidence_function_is_caught(tmp_path):
+def test_ac_f9_2_a_reimplemented_confidence_function_is_caught(tmp_path):
     """⚠ The check must be able to FAIL, or it is decoration."""
     root = tmp_path / "src" / "fundamental" / "source"
     root.mkdir(parents=True)
@@ -34,7 +34,7 @@ def test_ac_9_2_a_reimplemented_confidence_function_is_caught(tmp_path):
     assert len(hits) == 1 and "confidence logic" in hits[0]
 
 
-def test_ac_9_2_a_copied_confidence_FLOOR_is_caught(tmp_path):
+def test_ac_f9_2_a_copied_confidence_FLOOR_is_caught(tmp_path):
     """⚠⚠ `AC-1.77` — the floor is how the duplication actually arrives.
 
     ★ Not as a function anybody would notice in review, but as a **number**:
@@ -48,7 +48,7 @@ def test_ac_9_2_a_copied_confidence_FLOOR_is_caught(tmp_path):
     assert len(hits) == 1 and "AC-1.77" in hits[0]
 
 
-def test_ac_9_2_a_reimplemented_prompt_builder_is_caught(tmp_path):
+def test_ac_f9_2_a_reimplemented_prompt_builder_is_caught(tmp_path):
     """⚠ `D2` — one prompt, two transports. A prompt built HERE would make the
     two variants incomparable, and `F5`/`F7b` both partition by variant."""
     root = tmp_path / "src" / "fundamental" / "source"
@@ -58,7 +58,7 @@ def test_ac_9_2_a_reimplemented_prompt_builder_is_caught(tmp_path):
     assert len(hits) == 1 and "prompt composition" in hits[0]
 
 
-def test_ac_9_2_CALLING_the_shared_logic_is_allowed(tmp_path):
+def test_ac_f9_2_CALLING_the_shared_logic_is_allowed(tmp_path):
     """★★ The distinction the whole check rests on: **calling is wrapping.**
 
     ⚠ A check that banned the NAME would ban the injection too — and the
@@ -75,7 +75,7 @@ def test_ac_9_2_CALLING_the_shared_logic_is_allowed(tmp_path):
     assert reimplementation_violations(root) == []
 
 
-def test_ac_9_2_the_real_adapters_take_confidence_as_an_INJECTED_dependency():
+def test_ac_f9_2_the_real_adapters_take_confidence_as_an_INJECTED_dependency():
     """★ The positive form of the rule, on the live code: the adapter never
     reaches for the floors, it is handed the function."""
     import inspect

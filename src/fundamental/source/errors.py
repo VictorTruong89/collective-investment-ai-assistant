@@ -8,7 +8,7 @@ class ThesisSourceError(Exception):
 
 
 class UnresolvableTicker(ThesisSourceError):
-    """`C5` / `AC-9.9` — ⚠ an empty thesis is never returned.
+    """`C5` / `AC-F9.9` — ⚠ an empty thesis is never returned.
 
     A thesis-shaped object with nothing in it reads downstream as *"analysed and
     found nothing to say"*, which is a different claim from *"could not analyse"*.
@@ -19,7 +19,7 @@ class UnresolvableTicker(ThesisSourceError):
 
 
 class ClaimContradictsData(ThesisSourceError):
-    """`C2` / `AC-9.3` — ⚠⚠ verification must survive the wrapper.
+    """`C2` / `AC-F9.3` — ⚠⚠ verification must survive the wrapper.
 
     ★ The relay already *"re-verifies claims and raises on contradiction"*
     (`QR-20`). A wrapper that caught this and de-rated instead would convert a
