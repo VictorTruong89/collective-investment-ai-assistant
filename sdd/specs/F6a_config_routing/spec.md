@@ -73,7 +73,7 @@ existing policy layer. F6a lands beside them; it does not create a parallel one.
   "candidates": ["str"] }
 ```
 Rules: `reason` non-empty always; `variant` ∈ `candidates`; `candidates` = the registered variants for
-that port at the time of the call (`F1` `AC-1.5`, closed set).
+that port at the time of the call (`F1` `AC-F1.5`, closed set).
 
 **CT-6a.2 — `select(port, features, peer=None) -> Routing`** — total: every input yields a `Routing`,
 falling back to the declared default with `reason == "default"`.
@@ -89,7 +89,7 @@ falling back to the declared default with `reason == "default"`.
   → *data contract.*
 - **AC-6a.4** *(the chosen variant is registered)* — **Given** a `Routing`, **when** `F1` resolves it,
   **then** the variant is in the registry — ⚠ routing can never name a variant that does not exist.
-  → *unit.* (`F1` `AC-1.5`)
+  → *unit.* (`F1` `AC-F1.5`)
 - **AC-6a.5** *(★ `influenced_by` records cross-configuration)* — **Given** a selection that consumed a
   peer seat's output, **when** the `Routing` is read, **then** `influenced_by` names that seat; and
   **given** one that did not, **then** it is null. → *data contract.* (`PG-7.1`)
@@ -146,7 +146,7 @@ falling back to the declared default with `reason == "default"`.
 - **Decision:** ship the worked example alone. ⚠ `PG-9` requires every routing choice to record the
   predicate that fired; a predicate set nobody has evaluated is a set of untested branches, and
   `F7b` can only attribute an outcome difference to a rule that actually varied.
-- ★ **`AC-1.12`'s logic applied to predicates**: abstraction is earned. A second predicate arrives when
+- ★ **`AC-F1.12`'s logic applied to predicates**: abstraction is earned. A second predicate arrives when
   a measured need for it does — and `F2`'s `DecisionRecord.state` is already recording what the policy
   saw, so the evidence for the next one accrues from day one.
 - **Rejected — a fuller predicate library at `MS-6`.** ⚠ Every unexercised branch is a path through

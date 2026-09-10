@@ -183,8 +183,8 @@ the wrong place.
 |---|---|---|
 | **`<module>/ports.py`** | the contract — a `Protocol` and its written guarantees | ⚠ pure typing, no implementation (`CA-3`) |
 | ★ **`<module>/adapters/<variant>.py`** | **every alternative implementation** | Inherited convention (upstream `L4` §18.3). Adapters may import an SDK; the module above them may not (`A2`) |
-| **`src/shared/registry/wiring.py`** | the **only** place that imports adapters, and registers them | ⚠ The composition root (`CA-9`). Everything selectable is registered **here, at startup** — the closed set (`QR-7`, `F1` `AC-1.5`) |
-| **`src/experiments/`** | ★ **experimental** variants | The `ST-2` carve-out: nothing imports D-10 **except the wiring**, so an experiment can be swapped in, run, and swapped out without any domain depending on it. Registered with `experimental=True`, which propagates to every output (`F1` `AC-1.11`, `PG-2`) |
+| **`src/shared/registry/wiring.py`** | the **only** place that imports adapters, and registers them | ⚠ The composition root (`CA-9`). Everything selectable is registered **here, at startup** — the closed set (`QR-7`, `F1` `AC-F1.5`) |
+| **`src/experiments/`** | ★ **experimental** variants | The `ST-2` carve-out: nothing imports D-10 **except the wiring**, so an experiment can be swapped in, run, and swapped out without any domain depending on it. Registered with `experimental=True`, which propagates to every output (`F1` `AC-F1.11`, `PG-2`) |
 
 ### Why a variant does **not** live anywhere else
 
@@ -193,7 +193,7 @@ the wrong place.
   port. It also breaks the vertical-slice rule (§1.1 #1).
 - ✗ **Not discovered from the filesystem at runtime.** The variant set is **closed** (`QR-7`): a
   variant that was never registered cannot be resolved, and no import or filesystem lookup is
-  attempted (`F1` `AC-1.5`). ★ **That is what makes the no-hot-reload non-goal structural rather than
+  attempted (`F1` `AC-F1.5`). ★ **That is what makes the no-hot-reload non-goal structural rather than
   merely stated.**
 - ✗ **Not registered by the module itself on import.** Registration order would become semantics.
   One composition root, called once.
@@ -208,7 +208,7 @@ the wrong place.
 
 ⚠ **`A4` — abstraction is earned.** A port with one implementation is a guess about the future written
 in code. `RankingModelPort` appears above as an *illustration*, not a commitment: it earns its
-existence when the EBM challenger is real (`F4` `Q2`), and `F1` `AC-1.12` tests exactly that.
+existence when the EBM challenger is real (`F4` `Q2`), and `F1` `AC-F1.12` tests exactly that.
 
 ---
 

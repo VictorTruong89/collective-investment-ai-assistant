@@ -100,13 +100,39 @@ exactly this.
 source starts with `D-`. ⚠ Two rules, one id, the same artifact, opposite requirements.
 
 ★ **The rule:** where this repo's `F<n>` spec number collides with an upstream domain's, its ACs are
-written **`AC-F<n>.<k>`**. `F9` is renamed. `F6b`, `F7a`, `F7b` need no change — their letters are
-already unique.
+written **`AC-F<n>.<k>`**. ✅ **`F9` and `F1` are renamed.** `F6b`, `F7a`, `F7b` need no change —
+their letters are already unique, which is the argument for the convention generally.
 
-⚠⚠ **Measured, and the rest is NOT yet renamed.** Seven numeric prefixes collide with upstream, by
-citation count: **`AC-1` 362 · `AC-8` 120 · `AC-2` 80 · `AC-9` 71 (fixed) · `AC-5` 67 · `AC-3` 60 ·
-`AC-4` 41.** ★ `AC-1` is the worst by far and `F1`'s range (`.1`–`.15`) sits **inside** upstream
-D-01's, exactly as `F9`'s did. **This is a live, unfixed collision** — `DX-44` stays open for it.
+### ⚠⚠ Why `F1` and `F9` were renamed and the other five were NOT — a deliberate stopping point
+
+Measured 2026-09-09 by upstream citation count:
+
+| | `AC-1` | `AC-9` | `AC-8` | `AC-2` | `AC-5` | `AC-3` | `AC-4` |
+|---|---|---|---|---|---|---|---|
+| upstream citations | **362** | 71 | 120 | 80 | 67 | 60 | 41 |
+| own AC range | `.1`–`.15` | `.1`–`.10` | `.1`–`.20` | `.1`–`.16` | `.1`–`.18` | `.1`–`.12` | `.1`–`.13` |
+| renamed | ✅ | ✅ | ✗ | ✗ | ✗ | ✗ | ✗ |
+
+★★★ **The criterion is not citation volume — it is whether the two ranges OVERLAP.**
+`F1` and `F9` are the two whose own numbering sits **inside** a live upstream domain's (D-01's
+`AC-1.1`–`AC-1.99`, D-09's `AC-9.1`–`AC-9.34`), so a bare id is genuinely ambiguous *and both
+meanings are in daily use*. ⚠ `AC-9.6` proved that is not theoretical: two rules, one id, the same
+artifact, **opposite requirements**.
+
+⚠⚠ **The remaining five are left deliberately, and the reason is cost against a smaller risk.**
+Renaming them means ~370 further surgical citations, and every one must be classified by hand
+because a global substitution would corrupt upstream references. ★ The measured hazard is lower:
+their upstream counterparts are cited mostly in `sdd/design/rel6_*` and `tests_src/`, which are
+**inherited territory this repo does not edit** (vision §2), so the two vocabularies rarely meet in
+one file.
+
+★★ **A worked example of why the classification cannot be automated.** `src/models/governance/
+parity.py` reads *"(F1 AC-1.15, INV-6)"* about a feature-coverage floor — which is **neither** this
+repo's `F1` nor its `AC-1.15` (`InvalidKey` on a malformed name). A naive rename would have
+corrupted it. **It was left untouched.** ⚠ Any future extension of this convention must classify
+every occurrence individually, exactly as `F1` and `F9` were.
+
+⬜ `DX-44` remains **partially open** for `AC-2`/`AC-3`/`AC-4`/`AC-5`/`AC-8`.
 
 ### Spec-internal (every spec, both repos)
 

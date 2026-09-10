@@ -64,7 +64,7 @@ class Routing:
         if self.variant not in self.candidates:
             raise ValueError(
                 f"{self.variant!r} is not among {self.candidates} — a Routing may "
-                "only name a REGISTERED variant (F1 AC-1.5, closed set)")
+                "only name a REGISTERED variant (F1 AC-F1.5, closed set)")
 
 
 def phase_of(seat_domain: str) -> int:
@@ -103,7 +103,7 @@ def select(port: str, features: Mapping[str, object],
     if not cands:
         raise UnknownPort(
             f"no candidates declared for port {port!r} — routing cannot invent one "
-            "(F1 AC-1.5: the variant set is closed)")
+            "(F1 AC-F1.5: the variant set is closed)")
 
     influenced_by = None
     domain = PORT_DOMAIN.get(port)

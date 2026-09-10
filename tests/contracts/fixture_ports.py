@@ -35,7 +35,7 @@ class TerseGreeter:
 
 
 class LeakyGreeter:
-    """⚠ Deliberately violates AC-1.7 — used to prove the suite CATCHES it."""
+    """⚠ Deliberately violates AC-F1.7 — used to prove the suite CATCHES it."""
 
     def __init__(self) -> None:
         self._last = ""
@@ -47,7 +47,7 @@ class LeakyGreeter:
 
 
 class WarmupGreeter:
-    """⚠ Leaks only on the FIRST call — the class AC-1.7's fresh-instance clause exists for.
+    """⚠ Leaks only on the FIRST call — the class AC-F1.7's fresh-instance clause exists for.
 
     A check that compared two calls on the SAME warm instance would see agreement
     and pass. Only comparing against a genuinely fresh instance exposes it.
@@ -79,7 +79,7 @@ def build_registry() -> Registry:
     r.register("greeter", "terse", TerseGreeter, version="0.2.0", experimental=True)
     r.register("doubler", "mul", IntDoubler, version="1.0.0")
     r.register("doubler", "shift", ShiftDoubler, version="1.1.0")
-    # ⚠ a STAND-IN, flagged so AC-1.12 does not count it as earned abstraction (A1)
+    # ⚠ a STAND-IN, flagged so AC-F1.12 does not count it as earned abstraction (A1)
     r.register("greeter", "null", TerseGreeter, version="0.0.0", fixture=True)
     return r
 

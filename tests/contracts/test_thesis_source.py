@@ -1,6 +1,6 @@
 """F9 `AC-F9.1` — ★ ONE contract suite, both adapters. `MS-6.2`.
 
-★★ This is `F1` `AC-1.9` doing its job on a real port: the suite is
+★★ This is `F1` `AC-F1.9` doing its job on a real port: the suite is
 parameterised over the registered variants, so `api` and `relay` face **exactly**
 the same guarantees. ⚠ The `MU`-71 % lesson — two adapters shared a signature and
 differed in a guarantee nobody had written down.
@@ -198,7 +198,7 @@ def test_ac_f9_4_the_two_adapters_de_rate_identically(monkeypatch):
     """⚠⚠ `D1` — *"a port whose two adapters make different guarantees is not
     one port."* ★ If the relay path de-rated differently from the API path, the
     caller would have to know which answered, which is precisely what `F1`
-    `AC-1.9`'s substitution contract forbids.
+    `AC-F1.9`'s substitution contract forbids.
     """
     results = {}
     for cls in ADAPTERS:

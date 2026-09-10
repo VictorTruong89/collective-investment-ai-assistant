@@ -2,7 +2,7 @@
 
 ★ `D1`: **the `Registry` instance IS the run scope.** One registry is built per
 run and passed down by constructor injection; there is deliberately no importable
-singleton. That is what makes `AC-1.6`'s cache boundary checkable rather than
+singleton. That is what makes `AC-F1.6`'s cache boundary checkable rather than
 interpretive, and what stops a long-lived `F8` process from serving day 2 out of
 day 1's cache — a run is already not a process (`F8` `AC-8.7`).
 
@@ -28,7 +28,7 @@ from src.shared.registry.provenance import CoverageReport, Provenance
 
 _KEY = re.compile(r"^[a-z0-9_.]+$")
 
-#: `AC-1.12` — a port with fewer than this many variants is reported, never failed.
+#: `AC-F1.12` — a port with fewer than this many variants is reported, never failed.
 EARNED_ABSTRACTION_MIN = 2
 
 
@@ -82,7 +82,7 @@ class Registry:
         fixture: bool = False,
         port_type: type | None = None,
     ) -> None:
-        """`AC-1.1`, `AC-1.3` — store the factory; never invoke it here.
+        """`AC-F1.1`, `AC-F1.3` — store the factory; never invoke it here.
 
         Invoking at registration would force construction at import time and make
         registration order load-bearing on configuration.
@@ -97,14 +97,14 @@ class Registry:
 
     # ── resolution ───────────────────────────────────────────────────────────
     def _entry(self, port: str, variant: str) -> _Entry:
-        """`AC-1.5` — a pure dict lookup. No import, no module load, no filesystem."""
+        """`AC-F1.5` — a pure dict lookup. No import, no module load, no filesystem."""
         try:
             return self._entries[(port, variant)]
         except KeyError:
             raise UnknownVariant(port, variant, self.variants(port)) from None
 
     def resolve(self, port: str, variant: str) -> object:
-        """`AC-1.6` — build at most once per (port, variant) per Registry instance.
+        """`AC-F1.6` — build at most once per (port, variant) per Registry instance.
 
         ★ No runtime arguments (`S1-6`): configuration belongs at registration,
         or the cache key would silently return an instance built with a different
@@ -127,7 +127,7 @@ class Registry:
         return self.resolve(port, variant), self.provenance(port, variant)
 
     def provenance(self, port: str, variant: str) -> Provenance:
-        """`AC-1.8` — entry-derived, and available WITHOUT constructing anything."""
+        """`AC-F1.8` — entry-derived, and available WITHOUT constructing anything."""
         entry = self._entry(port, variant)
         return Provenance(
             port=port, variant=variant, version=entry.version, experimental=entry.experimental
@@ -139,7 +139,7 @@ class Registry:
         return tuple(sorted(v for (p, v) in self._entries if p == port))
 
     def real_variants(self, port: str) -> tuple[str, ...]:
-        """`AC-1.12` (`A1`) — variants that are implementations, not stand-ins.
+        """`AC-F1.12` (`A1`) — variants that are implementations, not stand-ins.
 
         ⚠ `fixture` answers a DIFFERENT question from `experimental`: an experimental
         variant is real code on trial; a fixture is not an implementation at all.
@@ -151,7 +151,7 @@ class Registry:
     def ports(self) -> tuple[str, ...]:
         """`CT-1.3` — every port with at least one registered variant, sorted.
 
-        ★ Added to the contract by `A1`: `AC-1.9`'s meta-test cannot check "a variant
+        ★ Added to the contract by `A1`: `AC-F1.9`'s meta-test cannot check "a variant
         registered without being added to the suite causes a failure" without
         enumerating what is registered, so the AC was unimplementable without it.
         """
@@ -159,7 +159,7 @@ class Registry:
 
     # ── coverage ─────────────────────────────────────────────────────────────
     def validate_coverage(self, required_ports: Iterable[str] | None = None) -> CoverageReport:
-        """`AC-1.4` (raise) + `AC-1.12` (warn) + `AC-1.13` (`D2` default).
+        """`AC-F1.4` (raise) + `AC-F1.12` (warn) + `AC-F1.13` (`D2` default).
 
         `required_ports` defaults to `src.shared.ports.__all__` minus
         `OPTIONAL_PORTS`. Passing a list explicitly is for TESTS — production never

@@ -1,4 +1,4 @@
-"""F1 — structural ACs over src/shared/ports/ (AC-1.10, AC-1.13)."""
+"""F1 — structural ACs over src/shared/ports/ (AC-F1.10, AC-F1.13)."""
 
 from __future__ import annotations
 
@@ -18,8 +18,8 @@ def _module_files():
     return sorted(PORTS_DIR.glob("*.py"))
 
 
-def test_ac_1_10_port_modules_carry_no_implementation():
-    """AC-1.10 — declarations only: no I/O, no vendor import, no executable statement.
+def test_ac_f1_10_port_modules_carry_no_implementation():
+    """AC-F1.10 — declarations only: no I/O, no vendor import, no executable statement.
 
     ⚠ A literal binding (__all__, a type alias) is a DECLARATION, not an executable
     statement — the ban is on module-scope calls and side effects.
@@ -52,8 +52,8 @@ def test_ac_1_10_port_modules_carry_no_implementation():
             pytest.fail(f"{path}: executable statement at module scope: {type(node).__name__}")
 
 
-def test_ac_1_13_declaring_a_port_is_requiring_it():
-    """AC-1.13 — a Protocol in ports.__all__ with no variant and no optional marker fails coverage."""
+def test_ac_f1_13_declaring_a_port_is_requiring_it():
+    """AC-F1.13 — a Protocol in ports.__all__ with no variant and no optional marker fails coverage."""
     from src.shared import ports
 
     empty = Registry()
@@ -64,8 +64,8 @@ def test_ac_1_13_declaring_a_port_is_requiring_it():
         empty.validate_coverage()
 
 
-def test_ac_1_13_default_required_ports_comes_from_all_not_a_second_list():
-    """AC-1.13/D2 — validate_coverage() with no argument reads ports.__all__."""
+def test_ac_f1_13_default_required_ports_comes_from_all_not_a_second_list():
+    """AC-F1.13/D2 — validate_coverage() with no argument reads ports.__all__."""
     from src.shared import ports
 
     r = Registry()
@@ -74,8 +74,8 @@ def test_ac_1_13_default_required_ports_comes_from_all_not_a_second_list():
     assert report.required == expected
 
 
-def test_ac_1_13_a_declared_port_with_no_variant_is_caught():
-    """AC-1.13 — simulate adding a Protocol to __all__: coverage must fail."""
+def test_ac_f1_13_a_declared_port_with_no_variant_is_caught():
+    """AC-F1.13 — simulate adding a Protocol to __all__: coverage must fail."""
     r = Registry()
     with pytest.raises(IncompleteRegistry) as exc:
         r.validate_coverage(required_ports=("newly_declared_port",))

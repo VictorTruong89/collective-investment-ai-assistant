@@ -1,4 +1,4 @@
-"""F1 — the contract-suite base (AC-1.7, AC-1.9).
+"""F1 — the contract-suite base (AC-F1.7, AC-F1.9).
 
 ⚠ Lives OUTSIDE conftest.py on purpose. pytest loads conftest under its own
 module name, so a class defined there is a DIFFERENT object from the one a test
@@ -19,7 +19,7 @@ class PortContractSuite:
 
     Subclasses declare:
       port            — the port name as registered
-      primary_method  — AC-1.7: "the port's primary method, as named in its own contract"
+      primary_method  — AC-F1.7: "the port's primary method, as named in its own contract"
       sample_inputs   — (A, B), two DIFFERENT inputs to the primary method
     """
 
@@ -27,7 +27,7 @@ class PortContractSuite:
     primary_method: str
     sample_inputs: tuple[object, object]
 
-    #: ⚠ AC-1.7 (`A1`) — the AC compares OUTPUTS, so it is only meaningful when the
+    #: ⚠ AC-F1.7 (`A1`) — the AC compares OUTPUTS, so it is only meaningful when the
     #: port's external world is held fixed for the duration. A suite that cannot do
     #: that must say so; reporting a pass would be a lie.
     external_world_held_fixed: bool = False
@@ -36,11 +36,11 @@ class PortContractSuite:
     def registry():
         return build_registry()
 
-    def test_ac_1_7_no_state_leaks_between_calls(self, variant):
-        """AC-1.7 — call A then B on one instance; B must equal B on a fresh instance."""
+    def test_ac_f1_7_no_state_leaks_between_calls(self, variant):
+        """AC-F1.7 — call A then B on one instance; B must equal B on a fresh instance."""
         if not self.external_world_held_fixed:
             pytest.skip(
-                f"AC-1.7 NOT EVALUATED for port {self.port!r}: its suite does not hold the "
+                f"AC-F1.7 NOT EVALUATED for port {self.port!r}: its suite does not hold the "
                 "external world fixed, so an output difference cannot be attributed to "
                 "leaked state (F1 A1). Stub the dependency or state the gap — do not pass."
             )
@@ -50,11 +50,11 @@ class PortContractSuite:
 
 
 def assert_no_state_leak(registry_factory, port, variant, primary_method, sample_inputs):
-    """AC-1.7's actual check, extracted so a meta-test can prove it has POWER.
+    """AC-F1.7's actual check, extracted so a meta-test can prove it has POWER.
 
     ⚠ Deliberately NOT idempotence. "Same input twice → same output" would fail a
     correct adapter that reads a moving external world — a PricePort hitting a live
-    vendor legitimately returns different results if the data moved. What AC-1.6's
+    vendor legitimately returns different results if the data moved. What AC-F1.6's
     instance caching requires is that no CALLER-VISIBLE STATE carries between calls,
     which is what the A-then-B form tests.
     """

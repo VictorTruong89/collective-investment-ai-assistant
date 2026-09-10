@@ -2,7 +2,7 @@
 
 `__all__` IS the requirement list: declaring a port here is the same act as
 requiring it, so the drift a hand-kept list permits — add a port, forget the
-entry, coverage silently stops checking it — is impossible (`AC-1.13`).
+entry, coverage silently stops checking it — is impossible (`AC-F1.13`).
 
 A port that is genuinely optional must SAY SO in `OPTIONAL_PORTS`; optionality
 is never achieved by omission.
@@ -11,7 +11,7 @@ is never achieved by omission.
 NON-GOAL — `PricePort`, `ThesisSourcePort` (`F9`) and the rest each arrive with
 their own spec. F1 owns the mechanism, not the ports.
 
-⚠ `AC-1.10`: declarations only. No I/O, no vendor import, no module-scope call.
+⚠ `AC-F1.10`: declarations only. No I/O, no vendor import, no module-scope call.
 """
 
 from __future__ import annotations

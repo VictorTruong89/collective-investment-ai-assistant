@@ -46,7 +46,7 @@ def test_ac_6a_3_an_empty_reason_cannot_be_constructed():
 
 
 def test_ac_6a_4_a_routing_may_only_name_a_registered_candidate():
-    """F1 AC-1.5 — the variant set is closed; routing cannot invent one."""
+    """F1 AC-F1.5 — the variant set is closed; routing cannot invent one."""
     with pytest.raises(ValueError, match="not among"):
         Routing("ranking_model", "gpt5", "because", ("1m", "1w"))
 

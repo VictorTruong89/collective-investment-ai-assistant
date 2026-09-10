@@ -51,7 +51,7 @@ metric-gate · unit · integration.
 
 | Spec-ID | Feature | Status | Acceptance criteria | Tests exist? |
 |---|---|---|---|---|
-| **F1** | [Module protocol & registry (SPI)](F1_module_registry/spec.md) | 🟢 **approved 2026-09-03** — 14 ACs, **0 blocked** (`Q1`–`Q3` → `D1`–`D3`) | AC-1.1 … AC-1.14 | 🔨 `MS-1` in progress |
+| **F1** | [Module protocol & registry (SPI)](F1_module_registry/spec.md) | 🟢 **approved 2026-09-03** — 14 ACs, **0 blocked** (`Q1`–`Q3` → `D1`–`D3`) | AC-F1.1 … AC-F1.14 | 🔨 `MS-1` in progress |
 | **F2** | [Execution trace & replay](F2_trace_replay/spec.md) | 🟢 **approved 2026-09-04** — 16 ACs, **0 blocked** (`Q1`–`Q6` → `D1`–`D6`) | AC-2.1 … AC-2.16 | ⛔ none — unapproved |
 | **F3** | [Corporate-action resolution agent](F3_corporate_actions/spec.md) | 🟡 **draft** — 12 ACs, ⚠ 1 blocked (Q1) | AC-3.1 … AC-3.12 | ⛔ none — `PG-1` |
 | **F4** | [Explainability contract](F4_explainability/spec.md) | 🟡 **draft** — 13 ACs, ⚠ 3 blocked (Q1, Q4, Q5) | AC-4.1 … AC-4.13 | ⛔ none |

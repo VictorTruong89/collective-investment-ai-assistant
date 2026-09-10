@@ -18,7 +18,7 @@ class InvalidKey(RegistryError):
 
 
 class DuplicateRegistration(RegistryError):
-    """AC-1.1 — a second registration of one (port, variant).
+    """AC-F1.1 — a second registration of one (port, variant).
 
     ⚠ Silent overwrite would make import order load-bearing.
     """
@@ -27,12 +27,12 @@ class DuplicateRegistration(RegistryError):
         self.port, self.variant = port, variant
         super().__init__(
             f"({port!r}, {variant!r}) is already registered; "
-            "the first entry is unchanged (AC-1.1)"
+            "the first entry is unchanged (AC-F1.1)"
         )
 
 
 class UnknownVariant(RegistryError):
-    """AC-1.2 — resolution of a name that was never registered.
+    """AC-F1.2 — resolution of a name that was never registered.
 
     ★ `available` is REQUIRED, so a typo diagnoses itself.
     """
@@ -46,7 +46,7 @@ class UnknownVariant(RegistryError):
 
 
 class IncompleteRegistry(RegistryError):
-    """AC-1.4 — a required port has no variant. Turns a 3 a.m. KeyError into a boot failure."""
+    """AC-F1.4 — a required port has no variant. Turns a 3 a.m. KeyError into a boot failure."""
 
     def __init__(self, missing: tuple[str, ...]) -> None:
         self.missing = missing
@@ -56,7 +56,7 @@ class IncompleteRegistry(RegistryError):
 
 
 class ConcurrentRegistryAccess(RegistryError):
-    """AC-1.14 / `D3` — the registry is single-threaded, and says so out loud.
+    """AC-F1.14 / `D3` — the registry is single-threaded, and says so out loud.
 
     ⚠ `INV-2` (reproducibility) is a property of the whole invocation. A lock here
     would guard the cache dict while leaving the SHARED INSTANCE exactly as exposed

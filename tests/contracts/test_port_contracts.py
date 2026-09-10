@@ -1,4 +1,4 @@
-"""F1 — the concrete contract suites, plus the AC-1.9 meta-test."""
+"""F1 — the concrete contract suites, plus the AC-F1.9 meta-test."""
 
 from __future__ import annotations
 
@@ -22,8 +22,8 @@ class TestDoublerContract(PortContractSuite):
     sample_inputs = (3, 7)
 
 
-def test_ac_1_9_every_port_with_variants_has_a_contract_suite():
-    """AC-1.9 — a port registered without a suite fails; the suite covers every variant."""
+def test_ac_f1_9_every_port_with_variants_has_a_contract_suite():
+    """AC-F1.9 — a port registered without a suite fails; the suite covers every variant."""
     suites = {c.port for c in PortContractSuite.__subclasses__()}
     registered = set(build_registry().ports())
     assert registered <= suites, f"ports registered with no contract suite: {registered - suites}"
@@ -33,8 +33,8 @@ def test_ac_1_9_every_port_with_variants_has_a_contract_suite():
         assert covered, f"{cls.port} has a suite but no registered variants"
 
 
-def test_ac_1_7_the_suite_actually_catches_a_leaky_adapter():
-    """AC-1.7 (meta) — ⚠ prove the no-leakage CHECK has power, not just that the fixture leaks.
+def test_ac_f1_7_the_suite_actually_catches_a_leaky_adapter():
+    """AC-F1.7 (meta) — ⚠ prove the no-leakage CHECK has power, not just that the fixture leaks.
 
     Every adapter this repo registers today is stateless, so the suite would pass
     vacuously and tell us nothing. Running the real check against a deliberately
@@ -49,8 +49,8 @@ def test_ac_1_7_the_suite_actually_catches_a_leaky_adapter():
         assert_no_state_leak(leaky_registry, "greeter", "leaky", "greet", ("Ada", "Grace"))
 
 
-def test_ac_1_7_the_fresh_instance_clause_is_load_bearing():
-    """AC-1.7 (meta) — ⚠ a first-call-only leak is invisible without a FRESH instance.
+def test_ac_f1_7_the_fresh_instance_clause_is_load_bearing():
+    """AC-F1.7 (meta) — ⚠ a first-call-only leak is invisible without a FRESH instance.
 
     WarmupGreeter agrees with itself on every call after the first, so comparing two
     calls on one warm instance would pass. This is why the AC says "equals the result
@@ -65,6 +65,6 @@ def test_ac_1_7_the_fresh_instance_clause_is_load_bearing():
         assert_no_state_leak(warm_registry, "greeter", "warmup", "greet", ("Ada", "Grace"))
 
 
-def test_ac_1_7_the_check_passes_a_well_behaved_adapter():
-    """AC-1.7 (meta) — and does not fire on a correct one."""
+def test_ac_f1_7_the_check_passes_a_well_behaved_adapter():
+    """AC-F1.7 (meta) — and does not fire on a correct one."""
     assert_no_state_leak(build_registry, "greeter", "polite", "greet", ("Ada", "Grace"))

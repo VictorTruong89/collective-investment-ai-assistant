@@ -1,4 +1,4 @@
-"""F9 `CT-9.1` — `ThesisSourcePort`. ⚠ Typing only (`CA-3`, `F1` `AC-1.10`).
+"""F9 `CT-9.1` — `ThesisSourcePort`. ⚠ Typing only (`CA-3`, `F1` `AC-F1.10`).
 
 ★★ **The contract is what makes the two adapters substitutable**, not the type
 signature. `F1`'s `MU`-71 % lesson: two adapters shared a signature and differed

@@ -85,7 +85,7 @@ the machinery that records what it changed.
 |---|---|
 | tests | **1,908 pass · 5 skip · 0 fail** — ★ +195 today |
 | guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` ★ +5 today |
-| findings | **54 `DX` logged** — 53 closed; ⬜ **`DX-44` partially open** — `F9` renamed to `AC-F9.<k>`, six numeric prefixes still collide (`AC-1` 362 upstream citations) |
+| findings | **54 `DX` logged** — 53 closed; ◐ **`DX-44` deliberately partial** — `F1`+`F9` renamed; five prefixes left, with the criterion (**range overlap**, not volume) recorded in `constitution.md` §1 |
 | golden set | **28 cases**, all established by the fund manager, replaying green |
 | lint | ruff clean on all code this repo authored |
 
@@ -211,7 +211,7 @@ blocks nothing.
 | ~~C13~~ | ✅ **Done 2026-09-07 — the fixture is now citable.** `tools/convert_filing.py` folds `$` into the following cell and `%` into the preceding one, so **every cell is a semantic unit**: `CNBU \| $5,069 \| $2,573 \| ...` instead of `CNBU \| $ \| 5,069 \| $ \| ...`. ⚠ Verified **token-for-token**: 30,990 both renderings, nothing lost. ★ The golden cases' `quote` was updated and their `bundle_hash` is new — but their **VALUES did not change**, which is the point: a golden value is a fact about the document, not about our rendering of it. ⬜ A clean `input_ref` still needs one more live run (~$0.67) | ✏ was: ⬜ **Re-render the filing fixture for CITATION, not `grep`** — `$`/`%` are split into their own pipe-separated cells, which no reader can quote verbatim | ⚠⚠ Cause of 3 of the 6 live-run failures and the reason 13 attempts (~$7.88) never produced a clean `input_ref`. ★ After the fix, cases 1 and 2 must be **re-established** against the new fixture — a different rendering is a different `bundle_hash` |
 | ~~C14~~ | ✅ **Resolved 2026-09-07** — identity carries the **span** for items whose value is not a figure; a FIGURE's identity is unchanged, so two values on one `(id, qualifier, period)` still collide. ★ Mutation-tested both ways: always adding the span kills the numeric guard, and the test says so | ✏ was: **`MP-18`'s identity does not fit NARRATIVE items** — three distinct `seg.basis_note` findings collide on `(evidence_id, '', period)` | ⚠ `E-01` asks for *"any statement"*, which is plural. The rule was derived from `seg.revenue` and over-fits it. ★ Likely fix: include the **span** in identity for items with no numeric value — but ⚠ that weakens the guard for the numeric case, so it needs a decision, not an improvisation |
 | ~~C15~~ | ✅ **Resolved by Victor 2026-09-07: `5,069` with unit `millions of USD`.** Enforced in code (`AP-5`), not asked for in prose — the third constraint left to prose that came back wrong. ⚠ A symbol with no currency in `unit` **raises**: `$` is not always USD, and guessing is the silent default `P5` forbids | ✏ was: **Does `value` carry the currency symbol?** After `C13` the system returns `$5,069`, not `5,069` | ⚠⚠ Falsifies my own `C13` claim that rendering does not affect values. ★ `MO-1`: a bare value is not monetary — but carrying `$` in `value` AND "millions of USD" in `unit` states the currency twice. **Victor's call**; the golden cases' `expected` depends on it |
-| **C4** | **Close `AC-1.12`'s warning list** — declare real ports in `src/shared/ports/__all__` | ⬜ Still open. Currently empty by design; each real port needs its own spec first |
+| **C4** | **Close `AC-F1.12`'s warning list** — declare real ports in `src/shared/ports/__all__` | ⬜ Still open. Currently empty by design; each real port needs its own spec first |
 | ~~C12~~ | ✅ **Done 2026-09-07 — the trace can now state what a call cost.** `traced_transport` takes an injected `cost_of(model_id, tokens)`; pricing is **config** (`llm.pricing.*`) and `D-08` may not reach into `D-00` to read it, so it is passed in. ⚠ No pricer ⇒ `cost_usd` is **null, never 0** — *zero is a claim, null is an admission*, and a call recorded as free is worse than one recorded as unpriced (mutation-tested) | ⚠⚠ Found the hard way: after ~$6 of live runs, *"what did this cost?"* could not be answered from the trace and had to be recomputed by `tools/spend_report.py`. ★ **A run whose cost nobody can state is a run nobody can budget for** — and `GW-20`'s budget cap is enforced in memory, so nothing on disk shows what was actually spent |
 | ~~C5~~ | ✅ **ID families reconciled 2026-09-04** (`MS-8.7`) — ⚠⚠ §1 was **~50 % incomplete**: 39 families in use, named nowhere (`DX-17`) | ★ Now **enforced** by `tools/check_id_families.py`, in `check_all.py` |
 | **C6** | **Build the demo** (`9.4`) | ⊘ Descoped to 2027 by your decision (`QR-24`) |
@@ -410,7 +410,7 @@ only you can supply. ⚠ It is commented out because a blank `expected` now *ref
 
 **A Q1 case cannot fail, because year-to-date *is* the first quarter.** Choosing Q3 is the
 difference between a case that measures something and a case that decorates the suite — the same
-lesson as `AC-1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
+lesson as `AC-F1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
 
 #### ⚠ Where a golden case runs — it is NOT in the pipeline
 
@@ -753,7 +753,7 @@ only you can supply. ⚠ It is commented out because a blank `expected` now *ref
 
 **A Q1 case cannot fail, because year-to-date *is* the first quarter.** Choosing Q3 is the
 difference between a case that measures something and a case that decorates the suite — the same
-lesson as `AC-1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
+lesson as `AC-F1.7`'s vacuous fixtures and `DX-9`'s shrinking tree.
 
 #### ⚠ Where a golden case runs — it is NOT in the pipeline
 
@@ -968,15 +968,15 @@ and fully tested in isolation.
 | 1.1 | Repo scaffolding: `pyproject.toml`, CI, `LICENSE`, ruff/pytest config | — | ✅ **2026-09-04** — ruff clean, `.github/workflows/ci.yml`, `tools/check_all.py` |
 | 1.2 | `src/shared/registry/` — `(port, variant) → factory`, versioning, `validate_coverage()` | `F1` | ✅ 2026-09-03 |
 | 1.3 | `src/shared/agents/ports.py` — `AgentPort` as **one registered port among several** (`QR-8`) | `F1` | ⬜ **deferred to `MS-4`** — see note |
-| 1.4 | ★ **Closed variant set** — every selectable variant registered at startup (`QR-7`) | `F1` | ✅ `AC-1.5` |
-| 1.5 | ★ **Instance caching per `(port, variant)` within a run** | `F1` | ✅ `AC-1.6` — *run scope* = one `Registry` instance (`F1` `D1`) |
+| 1.4 | ★ **Closed variant set** — every selectable variant registered at startup (`QR-7`) | `F1` | ✅ `AC-F1.5` |
+| 1.5 | ★ **Instance caching per `(port, variant)` within a run** | `F1` | ✅ `AC-F1.6` — *run scope* = one `Registry` instance (`F1` `D1`) |
 | 1.6 | ★★ **One contract-test suite, parameterised over every registered variant** | `F1` | ✅ `tests/contracts/` |
 
 **Built 2026-09-03 — `31 passed, 1 skipped`, all 15 ACs mutation-verified (16 mutations, all caught).**
 
 ✏ **Amended the same day (`F1` `A1`).** The build raised **five spec defects that the `S1` review did
-not find** — a contradiction between `CT-1.3` and `CT-1.4`, an unmechanised term in `AC-1.12`, a
-residual false positive in `AC-1.7`, a missing `ports()` method, and untested `CT-1.1` rules. ★ Reading
+not find** — a contradiction between `CT-1.3` and `CT-1.4`, an unmechanised term in `AC-F1.12`, a
+residual false positive in `AC-F1.7`, a missing `ports()` method, and untested `CT-1.1` rules. ★ Reading
 a spec checks whether it is *coherent*; implementing it checks whether it is *executable*. **Treat the
 first implementation as part of the review** for every spec after this one.
 
@@ -1271,7 +1271,7 @@ bound to a verified span or marked unbound, and a counterfactual is stated in ob
 | # | Item | Seat | Spec |
 |---|---|---|---|
 | 6.1 | ✅ `corporate_actions/` — search **precedes** classification; one source is a lead, two are a finding; a combination yields **two** findings | 8 | `F3` |
-| 6.2 | ✅ `ThesisSourcePort` — **both adapters through ONE contract suite** (`F1` `AC-1.9` on a real port); `D2` one prompt, two transports | 2 | `F9` |
+| 6.2 | ✅ `ThesisSourcePort` — **both adapters through ONE contract suite** (`F1` `AC-F1.9` on a real port); `D2` one prompt, two transports | 2 | `F9` |
 | 6.3 | ★ **Pull the actual API bill** and revisit `QR-20` with a number | — | — |
 | 6.4 | ✅ Control surface — designation journal, ⚠ `D5` revocation is a **second entry**, `INV-6` enforced over one boundary | 7 | `F8` |
 | 6.5 | ✅ **Suspend / resume** — on disk (survives restart), idempotent, `RA-126` expiry, and `D4`'s `data_as_of` stale-input guard | 7 | `F8` |
@@ -1582,7 +1582,7 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-41** | 2026-09-09 | F6a | `AC-6a.6` — `src/fundamental/**` and `src/quant/**` may not import each other (`ST-9`, `INV-014`). `F6a` §4 calls it *structural*, and `tools/check_import_fences.py` exists, is named for it, and is wired into `check_all.py` | ⛔⛔ **It checks a DIFFERENT fence.** `firewall_violations()` walks `src/explain/` and asks whether **seat 6** reached into a walled domain — that is `AC-4.2`. ★★ The fence `AC-6a.6` names — the two analysts importing **each other** — had **no code at all**, and the spec's traceability row said `tools/check_import_fences.py` as though it did | `tools/check_import_fences.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **A tool with the right name, in the right place, wired into CI, reads exactly like coverage** — and this one was three-quarters of an alibi. ⚠ The traceability row pointed at it, which is how the gap survived a spec review. ★ The harm is specific and silent: a direct import is a channel through which one seat can condition the other **with no `influenced_by` recorded anywhere**, so `PG-7` is defeated without leaving a trace — strictly worse than being defeated loudly. ✅ `peer_to_peer_violations()` added, wired into `all_violations()` and `main()`, 5 tests incl. both directions and the ALLOWED cases (orchestrator types, intra-domain). ⚠ Deliberately stricter than the seat-6 fence: `_is_published` does **not** apply, because the two analysts are meant to be independent of each other, not merely of each other's internals. ★ The live tree passes — the fence was being honoured, just not enforced |
 | **DX-42** | 2026-09-09 | F9 | `AC-F9.2` — `src/fundamental/source/**` contains no prompt composition, claim verification or confidence logic of its own; it calls `relay/`. F9's traceability row names `tools/check_no_reimplementation.py` | ⛔⛔ **The file did not exist.** F9's *first* non-goal — *"✗ Re-implementing prompt composition, ingest, verification or de-rating"* — was enforced by nothing, and the spec table named a tool that was never written | `tools/check_no_reimplementation.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★ **`DX-41`'s shape one spec later: a traceability row naming a plausible tool reads exactly like coverage.** Two consecutive specs, same failure — ⚠ a row is a CLAIM, and nothing in this repo checked that the module it names exists. ✅ Built and wired into `check_all.py` as the **8th** guarantee, 6 tests. ★ Deliberately about **definitions, not names**: an adapter *taking* `assess_confidence` as an injected dependency is how `C3` is satisfied, so only a `def` or a threshold assignment counts as ownership — a check that banned the name would ban the injection. ★★★ It also catches a copied `CONFIDENCE_FLOOR` **constant**, which is how a duplicated floor actually arrives: one plausible line, not a function anyone notices in review. `AC-1.77` says the relay's whole safety case rests on that floor firing unchanged, so a local copy fires **instead of** the real one |
 | **DX-43** | 2026-09-09 | F9 | `AC-F9.6` — a card whose thesis came from the relay says so. `RP-48`/`AC-1.79` added a FOURTH reliability class, `RELAYED_JUDGEMENT`, on 2026-08-25: glyph `◌⇄`, label *"RELAYED JUDGEMENT (unverified transport)"* | ⚠⚠ **The class existed, fully specified, and `build_card()` never assigned it.** Every thesis rendered as an ordinary `JUDGEMENT` whatever its transport, and no card field named its source at all | `src/reporting/render/card.py` | ⚠ material | ✅ **resolved 2026-09-09** | ★★ `RP-48` is explicit that `RELAYED_JUDGEMENT` is **more provisional than `JUDGEMENT`, never a footnote on it** — a relay report is *"a judgement whose bundle does not exist and whose numbers are mostly unverifiable against data we hold"*. Rendering it as an ordinary judgement tells the reader the two are **equally checkable**, which is what `AP-2`/`DC-1` exist to prevent. ✅ `thesis_source` renders on BOTH paths — ⚠ a field appearing only on the relay path teaches readers that its absence means *fine*, so a missing provenance and an API thesis would look identical. ★★★ An unprovenanced thesis renders `"unknown"` at the **weakest** class, never defaulting to `api`: the tempting default is the common case (`QR-20`), and it would render the least-known thesis as the **most** trustworthy source available. A defaulting rule must fail toward the weaker claim (`P5`). ★ Position is load-bearing too — `thesis_source` sits immediately after `analyst_verdict`, because how far to trust the transport is unreadable once separated from the judgement it qualifies |
-| **DX-44** | 2026-09-09 | F9 · D-09 · ⚠ **and 6 more** | Constitution §1 reserves ID families and warns *"two live meanings for one ID"* is a real defect — `AP-n` had to be renamed out of `P1`–`P6`, and `M<n>`→`MS-n` across 118 references for the same reason | ⚠⚠ **`AC-9.6` had TWO live meanings, both about the discipline card.** F9: *the card states its source*. D-09: *every card field names a producing domain*. ⛔⛔ **And measuring it showed the problem is SEVEN prefixes, not one**: by upstream citation count `AC-1` **362** · `AC-8` 120 · `AC-2` 80 · `AC-9` 71 · `AC-5` 67 · `AC-3` 60 · `AC-4` 41 — **801 upstream citations against 148 own ACs** | `sdd/specs/*/spec.md` · `constitution.md` §1 | ⛔ high | ◐ **F9 RENAMED 2026-09-09 (Victor approved); ⬜ the other six stay OPEN** | ★★★ **It bit within minutes of being noticed** — the first `AC-9.6` implementation set `source="F9"` on a card field, which **D-09's** `AC-9.6` fails (*a field D-09 could compute itself is one it must not*). Two rules, one id, the same artifact, **opposite requirements**. ✅ `F9` → `AC-F9.<k>`, 14 files, D-09's references left untouched and **explicitly qualified** where the two sit side by side. ★★ The rename made `tests/test_sdd_process.py`'s AC regex fire — the same guard whose own comment records `DX-10`, where it failed **silently** on the `F6a`/`F6b` split; this time it failed **loudly**, which is the whole difference. ⚠⚠ **The unfixed remainder is the real finding.** `F1`'s range (`.1`–`.15`) sits **INSIDE** upstream D-01's exactly as `F9`'s did, and `AC-1` is cited 362 times upstream — so a blind rename would corrupt D-01 references, and a careful one is ~800 citations of surgical work. ★ `F6b`/`F7a`/`F7b` need nothing: their letters are already unique, which is the argument for `AC-F<n>` generally |
+| **DX-44** | 2026-09-09 · ✏ **2026-09-10** | F1 · F9 · D-01 · D-09 | Constitution §1 reserves ID families and warns *"two live meanings for one ID"* is a real defect — `AP-n` out of `P1`–`P6`, `M<n>`→`MS-n` across 118 references | ⚠⚠ **`AC-9.6` had TWO live meanings, both about the discipline card** (F9: *the card states its source*; D-09: *every card field names a producing domain*). ⛔ Measuring it showed **seven** numeric prefixes collide, **801 upstream citations against 148 own ACs** — `AC-1` **362** · `AC-8` 120 · `AC-2` 80 · `AC-9` 71 · `AC-5` 67 · `AC-3` 60 · `AC-4` 41 | `sdd/specs/*/spec.md` · `constitution.md` §1 | ⛔ high | ◐ **`F9` + `F1` RENAMED (Victor, 2026-09-09/10); ⬜ five prefixes left DELIBERATELY** | ★★★ **It bit within minutes** — the first `AC-9.6` implementation set `source="F9"`, which **D-09's** `AC-9.6` fails (*a field D-09 could compute itself is one it must not*). Two rules, one id, one artifact, **opposite requirements**. ✅ `F9` → `AC-F9.<k>` (14 files) and `F1` → `AC-F1.<k>` (22 files), D-01/D-09 references untouched and **explicitly qualified** where the two sit side by side. ★ The `F9` rename made `test_sdd_process.py`'s AC regex fire — the same guard whose comment records `DX-10`, where it failed **silently**. ★★★ **The stopping criterion is OVERLAP, not volume.** `F1` and `F9` are the two whose own numbering sits **inside** a live upstream domain's (D-01 `.1`–`.99`, D-09 `.1`–`.34`), so a bare id is ambiguous **and both meanings are in daily use**. The other five are cited upstream mostly in `sdd/design/rel6_*` and `tests_src/` — **inherited territory this repo does not edit** (vision §2) — so the vocabularies rarely meet in one file. ⚠⚠ **A worked example of why this cannot be automated:** `src/models/governance/parity.py` reads *"(F1 AC-1.15, INV-6)"* about a feature-coverage floor — **neither** this repo's `F1` **nor** its `AC-1.15` (`InvalidKey` on a malformed name). ★ A global substitution would have corrupted it; it was classified by hand and **left untouched**. Every occurrence in both renames was checked individually, and 8 of ~30 cross-references turned out to be upstream's |
 | **DX-45** | 2026-09-09 | F7a | Constitution §6 — *"Every test docstring names the `AC-<n>.<k>` it satisfies. Every spec keeps its traceability table current. **An AC with no row is not done, however green the test is** — because nobody can find it later."* | ⛔⛔ **`F7a` had 22 passing tests and ZERO AC references.** Every docstring cited a DECISION (`D1`, `D3`, `D5`) instead. `grep 'def test_ac_7a_'` returned **nothing**, and the spec's traceability table said *(to be written)* on every row | `tests/unit/test_deliberation.py` · `F7a` §9 | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **The tests were good and the coverage was invisible.** A decision-named test proves the decision was honoured; it cannot tell you which acceptance criterion is unmet — so the spec read *0 of 12 done* while ~9 were. ⚠ That is worse than an honest gap: it makes the remaining work unfindable and invites re-implementing what exists. ★★ Mapping the 22 onto the ACs is exactly what exposed the **three with no code at all** (`AC-7a.5`, `.6`, `.10`) and the two only half-implemented (`.1`, `.4`). ✅ 8 docstrings annotated, 12 rows filled, 3 gaps closed |
 | **DX-46** | 2026-09-09 | F7a | `CT-7a.2` defines a `KillRule` as a **pre-registered analysis plan**: `null_hypothesis`, `statistic`, `alpha`, `power`, `detectable_ratio`, `min_n_per_arm`, `bands`, `registered_at`, `registered_by`. `AC-7a.4` is emphatic — ⚠ *"a rule naming ONLY A BARE THRESHOLD is rejected"* | ⛔⛔ **`KillRule` WAS a bare threshold**: two band edges, an expected rate and a date. It could not state its own null hypothesis, statistic, `detectable_ratio` or `min_n_per_arm`, and carried no registrant. ★ `assert_pre_registered` checked the TIMESTAMP and nothing else, so the *plan* half of pre-registration existed only in the spec's prose | `src/evaluation/studies/killrule.py` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **The half that was missing is the half that gets chosen after the data.** `PG-5.1`: pre-registration fixes the **analysis**, not a constant — a rule that states only where the bands sit leaves the null, the statistic and the required `n` to be settled once the numbers are visible, which is the rationalisation the whole mechanism exists to prevent. ✅ Completeness is checked at **CONSTRUCTION** (`IncompletePlan`), not at use: a partly-stated plan must not be *buildable*. ⚠ Two existing rules in the suite were incomplete and had to be given a registrant — the check caught them immediately. ★ `min_n_per_arm` and `detectable_ratio` are **derived properties**, never fields, so `D1`'s power calculation cannot be overridden by hand |
 | **DX-47** | 2026-09-09 | F7a | `AC-7a.1` / `PG-5.1` — ★★ *"this spec is a GATE: `F6b` may not graduate until this design exists."* The traceability row named `tools/check_gate_ordering.py` | ⛔ **The file did not exist** — the THIRD consecutive spec whose traceability row named a tool that was never written (`DX-41` wrong tool, `DX-42` no tool, `DX-47` no tool). ⚠ The gate lived entirely in a spec header | `tools/check_gate_ordering.py` | ⚠ material | ✅ **resolved 2026-09-09** | ★★★ **A gate in a header is enforced by whoever remembers it at the moment they are most motivated to forget.** `PG-5.1` names `F6b` the capability *most at risk of being theatre*, and the natural sequence — build the interesting thing, measure it later — is exactly what the gate exists to interrupt. ✅ Wired as the **9th** `check_all.py` guarantee; verifies `T1`–`T7` are defined, the plan is CONSTRUCTIBLE (not merely described), and `F6b`'s spec references `F7a`. ★★ It also asserts `D1`'s cost asymmetry stays ≥3×, because *"do not quietly widen the DELETE band to make it cheaper"* is `PG-5.1`'s rationalisation arriving one step earlier — a threshold chosen after seeing the **cost** rather than the data |
@@ -1774,7 +1774,7 @@ nothing warned. ⚠ A green suite reported a rule satisfied when it was no longe
 
 **How it was caught, and the lesson.** By **planting a violation** and observing that upstream still
 reported `14 passed`. ★ *A rule that cannot fail is indistinguishable from a rule that passes — the only
-way to tell them apart is to make it fail on purpose.* This is the same instrument that caught `AC-1.7`'s
+way to tell them apart is to make it fail on purpose.* This is the same instrument that caught `AC-F1.7`'s
 vacuous contract suite during `MS-1` two days earlier, and it is now **twice** the thing that found a
 defect nothing else did.
 
@@ -2392,12 +2392,12 @@ exactly how `DX-39` happened.
 
 ---
 
-## 2.19 ✅ `DX-44` (F9) and `DX-53` closed — 2026-09-09
+## 2.19 ✅ `DX-44` (F9 + F1) and `DX-53` closed — 2026-09-09/10
 
 **12 CI guarantees, 1,908 tests, 148/148 rows resolving.** Both were Victor's decisions; both turned
 out larger on measurement than either of us expected.
 
-### ◐ `DX-44` — `F9` renamed, **six prefixes still collide**
+### ◐ `DX-44` — `F9` and `F1` renamed, **five left deliberately**
 
 `AC-9.6` had two live meanings, both about the discipline card — F9's *the card states its source*
 and D-09's *every card field names a producing domain*. ★★★ It bit within minutes: the first
@@ -2418,6 +2418,33 @@ time, which is the whole difference.
 **801 upstream citations against 148 own ACs.** `F1`'s range (`.1`–`.15`) sits **inside** upstream
 D-01's exactly as `F9`'s did. ⚠ A blind rename corrupts 362 D-01 references; a careful one is ~800
 citations of surgical work. **Not attempted. `DX-44` stays open for the remaining six.**
+
+### ✏ 2026-09-10 — `F1` renamed too, and the stopping point is now a RULE
+
+✅ `F1` → `AC-F1.<k>` across **22 files**. **1,908 tests, 12 guarantees, all green.**
+
+★★★ **The criterion recorded in the constitution is OVERLAP, not citation volume.** `F1` and `F9`
+are the two whose own numbering sits **inside** a live upstream domain's — D-01 runs `AC-1.1`–`.99`,
+D-09 runs `AC-9.1`–`.34` — so a bare id is genuinely ambiguous *and both meanings are in daily use*.
+⚠ `AC-1` at 362 upstream citations was also the largest, but that is a consequence, not the reason.
+
+**The other five (`AC-2`, `AC-3`, `AC-4`, `AC-5`, `AC-8`) are left deliberately**, and the reasoning
+is written into `constitution.md` §1 rather than left as a gap: ~370 further citations, each needing
+hand classification, against a **measurably smaller hazard** — their upstream counterparts live
+almost entirely in `sdd/design/rel6_*` and `tests_src/`, inherited territory this repo does not edit
+(vision §2), so the two vocabularies rarely appear in one file.
+
+### ⚠⚠ The example that proves the classification cannot be automated
+
+`src/models/governance/parity.py` reads *"(F1 AC-1.15, INV-6)"* about a feature-coverage floor.
+That is **neither** this repo's `F1` **nor** its `AC-1.15` (`InvalidKey` on a malformed name) — it
+cites `MT-11` and `INV-6` beside it, so "F1" there means something upstream entirely.
+
+★★ **A global substitution would have silently corrupted it**, and it reads exactly like a citation
+that should be renamed. It was classified by hand and **left untouched** — as were
+`jobs/wiring.py`'s `AC-1.8` (cited beside `RA-20`), `questions.md`'s (explicitly *"upstream RA-67,
+AC-1.8"*), and `prompts/registry.py`'s `AC-1.10`. ⚠ **8 of ~30 cross-references turned out to be
+upstream's.** Any future extension of this convention must do the same, one occurrence at a time.
 
 ### ✅ `DX-53` — option ⓑ, and the prototype found me out
 

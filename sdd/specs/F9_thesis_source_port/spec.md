@@ -94,7 +94,7 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 - **AC-F9.1** *(★ both adapters pass one contract suite)* — **Given** the `thesis_source` port, **when**
   the contract suite runs, **then** it executes against **every** registered variant and both satisfy
-  `C1`–`C5`. → *invariant / property.* (`F1` `AC-1.9`)
+  `C1`–`C5`. → *invariant / property.* (`F1` `AC-F1.9`)
 - **AC-F9.2** *(the relay is wrapped, not rebuilt)* — **Given** the source tree, **when** CI runs,
   **then** `src/fundamental/source/**` contains no prompt composition, claim verification or
   confidence logic of its own; it calls `relay/`. → *invariant / property (structural).* (`P4`)
@@ -129,7 +129,7 @@ relay; `provenance` on every thesis; registration of both variants; the shared c
 
 - **Decision:** `ThesisSourcePort`'s contract requires an evidence span per factual claim. ⚠ **A port
   whose two adapters make different guarantees is not one port** — callers would have to know which
-  variant answered, which is exactly what `F1`'s substitution contract forbids (`AC-1.9`).
+  variant answered, which is exactly what `F1`'s substitution contract forbids (`AC-F1.9`).
 - ★ **The relay already re-verifies claims and raises on contradiction** (`QR-20`), so it has the
   machinery; what `Q1` asks is whether the *envelope* carries them across the transport. It must.
 - ⚠ **Consequence to accept openly:** if the relay transport cannot carry spans for some answer, that

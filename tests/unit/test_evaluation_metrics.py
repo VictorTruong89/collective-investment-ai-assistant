@@ -166,7 +166,7 @@ def test_ac_5_9_too_few_features_is_insufficient_not_unfaithful():
 # AC-5.13 — experimental provenance propagates
 # --------------------------------------------------------------------------- #
 def test_ac_5_13_experimental_inputs_produce_an_experimental_figure():
-    """F1 AC-1.11 / PG-2 — nothing from an experimental variant may read as production."""
+    """F1 AC-F1.11 / PG-2 — nothing from an experimental variant may read as production."""
     r = measured("grounding_rate", 0.9, 40, "A", "run-1", experimental=True)
     assert r.to_json_obj()["experimental"] is True
     rep = grounding_rate([Claim("x", True, "e")] * 30, inputs_ref="r",

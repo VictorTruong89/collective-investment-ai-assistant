@@ -9,7 +9,7 @@ from dataclasses import dataclass
 class Provenance:
     """Which implementation produced this? (`AP-6`, `C8`)
 
-    ★ `AC-1.8`: fully determined by the registry ENTRY, never by anything the
+    ★ `AC-F1.8`: fully determined by the registry ENTRY, never by anything the
     resolved object reports about itself. An adapter that lies about its own
     version cannot corrupt the record.
     """
@@ -22,7 +22,7 @@ class Provenance:
 
 @dataclass(frozen=True, slots=True)
 class CoverageReport:
-    """`AC-1.4` + `AC-1.12` — what `validate_coverage` observed.
+    """`AC-F1.4` + `AC-F1.12` — what `validate_coverage` observed.
 
     ⚠ A *raise* wins over a *report*: if anything is missing, `IncompleteRegistry`
     is raised and this is never returned.
@@ -30,5 +30,5 @@ class CoverageReport:
 
     required: tuple[str, ...]
     missing: tuple[str, ...]
-    #: `AC-1.12` — ports with <2 variants registered `fixture=False` (`A1`).
+    #: `AC-F1.12` — ports with <2 variants registered `fixture=False` (`A1`).
     thin_ports: tuple[str, ...]

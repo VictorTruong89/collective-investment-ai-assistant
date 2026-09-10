@@ -252,7 +252,7 @@ whole set stays local and the mirror ships the machinery without the answers.
   outside `src/evaluation/**` imports from it. → *invariant / property (structural).* (`ST-2`)
 - **AC-5.13** *(experimental provenance propagates)* — **Given** inputs produced by a variant with
   `experimental == true`, **when** a metric is emitted, **then** the result is labelled experimental
-  and cannot be reported as production. → *data contract.* (`F1` `AC-1.11`, `PG-2`)
+  and cannot be reported as production. → *data contract.* (`F1` `AC-F1.11`, `PG-2`)
 - **AC-5.14** *(pre-registration is recorded, not retrofitted)* — **Given** a `ComparisonResult`,
   **when** it is written, **then** `pre_registered_rule` is non-empty and its recorded timestamp
   precedes the comparison's `computed_at`. → *data contract.* (`PG-5.1`)
