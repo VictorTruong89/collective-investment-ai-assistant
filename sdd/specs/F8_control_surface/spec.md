@@ -44,7 +44,40 @@ and the unmappable log (§2.1).
 - ✗ **Inventing effects.** The interpreter may only emit effects already registered (`CT-8.5`); a new effect is a spec change.
 - ✗ **Conversation.** One line in, one confirm. ⚠ No back-and-forth clarification dialogue.
 
-## 2.1 ★ Directives — interpreted, not enumerated
+## 2.1 ⊘ Directives — **DEFERRED to a future release** (Victor, 2026-09-10)
+
+> ⛔⛔ **DEFERRED, not deleted, and not built-and-forgotten.** The design below stands, the code
+> stands, and every one of `AC-8.12`…`AC-8.20` is green. **What changes is that the feature will not
+> be ADOPTED in rel-1** — `CT-8.5`'s vocabulary stays empty, so every directive is unmappable and
+> applies nothing, which is `AC-8.14` behaving correctly rather than a gap.
+>
+> **Victor's reason:** *"My interactive comment analysis will be postponed in future release."*
+>
+> ★★★ **Why this was cheap, and why it is the right shape of cheap.** The feature was **already
+> inert**: `EffectVocabulary` ships `effects=frozenset()`, so `check()` refuses every effect name.
+> Nothing in `src/` imports `directives.py` — it is an isolated leaf, referenced only by its own
+> tests and by the `AC-8.16` fence. ⇒ Deferring means **declaring the current state permanent for
+> rel-1**, not removing anything. No code deleted, no test churn, no guarantee lost.
+>
+> ★★ **What it buys, and this is the actual point.** `QR-23` made E2E validation a precondition for
+> resuming real trading, and `E1` — the effect vocabulary — was the only item on that path that
+> **could not be finished without a fresh risk-policy judgement**. Deferring the feature takes `E1`
+> (and `E2`, `E5`) off the critical path entirely.
+>
+> ★ **And it dissolves `DX-59` rather than fixing it.** Those three thresholds are defined twice, in
+> D-05 and D-06. That restatement is harmless **while they are constants** — it becomes a divergence
+> only if a directive can move one copy and not the other. ⚠ No directive can. The duplication
+> returns to being what it was before `E1`: a deliberate restatement, recorded, not a live defect.
+>
+> ⬜ **What a future release must do first** — do not adopt the vocabulary without these:
+> ⓐ resolve `DX-59` (recommended: both domains read one config key, which `RA-48` says is where
+> these belong anyway); ⓑ set the three ranges (`config/effect_vocabulary.yaml` carries suggested
+> ones with their rationale); ⓒ decide the organising rule — *conservative direction only* was
+> adopted 2026-09-10 and that decision survives the deferral.
+
+### The design, retained for that future release
+
+★ Directives — interpreted, not enumerated
 
 *(Unblocked 2026-09-01. `QR-17`'s framing assumed directives could be enumerated in advance; Victor's
 correction is that they are **case-by-case and diversified, and cannot be predicted**. That changes
@@ -201,30 +234,30 @@ validation, once real directives exist to map.
 - **AC-8.10** *(no verification bypass)* — **Given** any request path, **when** a thesis is produced,
   **then** it passes the same claim verification and confidence de-rating as the scheduled path.
   → *invariant / property.* (`AC-F9.3`, `AC-F9.4`)
-- **AC-8.12** *(★★ the interpreter emits only registered effects)* — **Given** any directive text,
+- ⊘ **AC-8.12** *(★★ the interpreter emits only registered effects)* — **Given** any directive text,
   **when** interpreted, **then** every emitted effect is present in `CT-8.5` — ⚠ **an unregistered
   effect is never produced**, however the text is phrased. → *invariant / property.*
-- **AC-8.13** *(★★ interpretation is frozen; replay never re-interprets)* — **Given** an `ACTIVE`
+- ⊘ **AC-8.13** *(★★ interpretation is frozen; replay never re-interprets)* — **Given** an `ACTIVE`
   directive, **when** its run is replayed, **then** the stored typed `effects` are applied and **the
   interpreter model is not invoked**. → *integration.* (`PG-9`, `F2` `AC-2.3`)
-- **AC-8.14** *(unmappable applies nothing)* — **Given** text that maps to no registered effect,
+- ⊘ **AC-8.14** *(unmappable applies nothing)* — **Given** text that maps to no registered effect,
   **when** interpreted, **then** **no** effect is applied — not even the mappable part — the manager
   is shown what failed, and an `UnmappableDirective` is logged. → *unit.* (`P5`)
-- **AC-8.15** *(★ nothing takes effect without confirmation)* — **Given** an interpreted `DRAFT`,
+- ⊘ **AC-8.15** *(★ nothing takes effect without confirmation)* — **Given** an interpreted `DRAFT`,
   **when** any run executes before `apply`, **then** the run is unaffected. → *invariant / property.*
-- **AC-8.16** *(⚠ raw text never reaches a prompt)* — **Given** an `ACTIVE` directive, **when** any
+- ⊘ **AC-8.16** *(⚠ raw text never reaches a prompt)* — **Given** an `ACTIVE` directive, **when** any
   downstream LLM call is made, **then** `raw_text` appears in no prompt; only typed effects are
   applied. → *invariant / property (structural).* (`AP-5`)
-- **AC-8.17** *(effects apply deterministically)* — **Given** the same `ACTIVE` directive and the same
+- ⊘ **AC-8.17** *(effects apply deterministically)* — **Given** the same `ACTIVE` directive and the same
   inputs, **when** a run executes twice, **then** the applied parameter values are identical.
   → *invariant / property.* (`PG-9`)
-- **AC-8.18** *(the window is honoured and expiry is automatic)* — **Given** a directive whose window
+- ⊘ **AC-8.18** *(the window is honoured and expiry is automatic)* — **Given** a directive whose window
   has passed, **when** a run executes, **then** its effects do not apply and its state is `EXPIRED`
   without manual action. → *unit.*
-- **AC-8.19** *(the unmappable log is reviewable)* — **Given** logged unmappable directives, **when**
+- ⊘ **AC-8.19** *(the unmappable log is reviewable)* — **Given** logged unmappable directives, **when**
   the log is read, **then** each entry carries its text and unmapped phrases, and an entry can be
   marked resolved by a named effect once one is added. → *data contract.*
-- **AC-8.20** *(a directive is a capability that alters output)* — **Given** an `ACTIVE` directive,
+- ⊘ **AC-8.20** *(a directive is a capability that alters output)* — **Given** an `ACTIVE` directive,
   **when** a run executes, **then** a `CapabilityDelta` records the pre- and post-directive values,
   including when nothing changed. → *data contract.* (`PG-5.2`)
 - **AC-8.11** *(everything is traced)* — **Given** a request, **when** the trace is read, **then** the

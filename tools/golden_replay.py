@@ -36,6 +36,34 @@ REPO = pathlib.Path(__file__).resolve().parent.parent
 RECORDINGS = REPO / "tests_src/fixtures/recordings"
 
 
+#: ⚠⚠ `RA-5` splits EXTRACTION (*what does this document say* — ground truth
+#: exists) from JUDGEMENT (*is this good* — none does), and the two have
+#: different output shapes. ★ The replay layer did not know the difference: it
+#: parsed every recording with `parse_items`, so the first `judge:J-01`
+#: recording failed with `'str' object has no attribute 'get'` (`DX-66`).
+#:
+#: ★★ The call_id carries the kind — `extract:E-01:llm:1` vs `judge:J-01:llm:1`
+#: — so dispatch needs no new field and no guess.
+JUDGEMENT_PREFIX = "judge:"
+
+
+def _as_judgement(response: object) -> dict:
+    """A judgement returns ONE object, not a list of items.
+
+    ⚠ There is no `X-01` here and there must not be: a classification has no
+    quoted span to verify against, and `F9` `D1` rejects *"two contracts
+    wearing one name"*. ★ What grades it is `D2`'s recorded judgement —
+    `is_judgement` is True for `thesis`.
+    """
+    import json as _json
+    body = response
+    if isinstance(body, dict) and "text" in body:
+        body = body["text"]
+    if not isinstance(body, str):
+        body = _json.dumps(body)
+    return _json.loads(body[body.index("{"):body.rindex("}") + 1])
+
+
 def _as_recorded_items(bundle_text: str) -> Callable[[object], list]:
     """Recording → `ExtractedItem.to_json_obj()` list, the shape cases use."""
 
@@ -86,8 +114,11 @@ def golden_replay(root: str | pathlib.Path | None = None,
     reader = f2_payload_reader(root)
 
     def replay(input_ref: str):
-        run_id = input_ref.split("/", 1)[0]
-        return recorded_response(
-            reader, parse=_as_recorded_items(_text_for(run_id)))(input_ref)
+        run_id, _, rest = input_ref.partition("/")
+        call_id = rest.split("#", 1)[0]
+        # ★ `RA-5` — dispatch on the kind the call_id already declares.
+        parse = (_as_judgement if call_id.startswith(JUDGEMENT_PREFIX)
+                 else _as_recorded_items(_text_for(run_id)))
+        return recorded_response(reader, parse=parse)(input_ref)
 
     return replay

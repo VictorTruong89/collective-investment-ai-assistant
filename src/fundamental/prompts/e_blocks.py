@@ -183,6 +183,75 @@ E02_V2_ITEM_IDS = ("gd.metric", "gd.value", "gd.period", "gd.stated_on",
                    "gd.prior_value", "gd.language_note")
 
 
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-01 `v1`.
+#:
+#: ★★★ **The FIRST judgement block declared** (`DX-64`, 2026-09-10). `e_blocks.py`
+#: has shipped `E-01`/`E-02` only, while `thesis/author.py::STAGE_BLOCKS` named
+#: `J-01`…`J-17` — none with text in `src/`. ⚠ So `author_once` could construct
+#: no judgement block and **no thesis could ever be recorded**, which is why
+#: `F5`'s `thesis` kind has sat empty. ★ `DX-23`'s shape exactly, one domain over.
+#:
+#: ⚠⚠ **`J-01` was chosen over `J-09` because it is the only kind of block that
+#: can run ALONE.** `J-09` opens *"You also have your own Stage-A conclusions,
+#: which are FIXED"* — it consumes `J-01`…`J-08` plus D-02's valuation trail, so
+#: running it standalone would produce a confident answer over absent inputs.
+#: ★ `J-01` is Stage A's first block: *"the first judgement and the one with the
+#: widest blast radius"*, reading only the bundle.
+#:
+#: ★★ It also makes the better golden case. The answer is a **closed enum**, so
+#: it is checkable the way an extraction item is — not prose a reader must
+#: adjudicate. `D2` still calls it a judgement (`is_judgement` is True for
+#: `thesis`), and the case records whose judgement it was.
+J01_V1_TEXT = """\
+Classify this company into exactly one archetype. The classification governs
+which analytical questions the rest of the analysis is allowed to ask, so it is
+the first judgement and the one with the widest blast radius.
+
+  cyclical_commodity   Output is substantially fungible; the industry's own
+                       capacity cycle, not this company's execution, dominates
+                       the earnings swing. Reported earnings at any single point
+                       are a poor guide to normal earnings.
+  compounder           Demand is stable, returns on capital have persisted above
+                       the cost of capital across the periods in the bundle, and
+                       reinvestment is modest relative to cash generation.
+  secular_growth       Growth dominates every other variable; heavy reinvestment
+                       defers cash generation deliberately; the open question is
+                       market size and share, not margin.
+  regulated_utility    Returns are set by a regulator against a rate base rather
+                       than by competition.
+  financial            The balance sheet IS the business. Book value, spread,
+                       reserves and capital ratios are primary; earnings are not.
+  binary_outcome       Value depends on a small number of discrete events
+                       (approval, drill result, litigation) rather than on a
+                       continuing operating record.
+  insufficient_evidence
+
+A company may plausibly fit two. Choose the one whose FAILURE MODE would hurt
+the reader more if ignored, name the runner-up, and state in one sentence what
+would settle it.
+"""
+
+#: `RA-17` — the enumerated options, order-randomised per call so position
+#: cannot become an answer. ⚠ `insufficient_evidence` is one of them: `MP-7`,
+#: a block with no way to say *"I could not"* will always find something to say.
+J01_OPTIONS = ("cyclical_commodity", "compounder", "secular_growth",
+               "regulated_utility", "financial", "binary_outcome",
+               "insufficient_evidence")
+
+
+def j01_v1() -> PromptBlock:
+    """`J-01` — industry archetype, Stage A, **blind** (`RA-14`).
+
+    ⚠ `view="blind"` is enforced at the seam BOTH WAYS (`call.py`): a blind
+    prompt handed the full bundle has lost its anchor-stripping, and a
+    full-view prompt handed a redacted one is reasoning over less than it
+    should. ★ `MP-3`: *"an absent field is a guarantee"* — Stage A cannot see
+    price because the bundle it receives has none.
+    """
+    return block("J-01", "v1", "judgement", J01_V1_TEXT,
+                 view="blind", options=J01_OPTIONS)
+
+
 def e02_v2() -> PromptBlock:
     """`E-02` `v2` — guidance, without the derived direction label."""
     return block("E-02", "v2", "extraction", E02_V2_TEXT)
@@ -212,4 +281,8 @@ E01_CURRENT_VERSION = "v3"
 BLOCKS = {
     "E-01": (e01_v3, E01_ITEM_IDS, E01_CURRENT_VERSION),
     "E-02": (e02_v2, E02_V2_ITEM_IDS, "v2"),
+    # ⚠ `J-01` is a JUDGEMENT block: its "item ids" are the closed option set,
+    #   not evidence ids. ★ `RA-5` keeps extraction and judgement apart —
+    #   extraction has ground truth, judgement has a recorded judge.
+    "J-01": (j01_v1, J01_OPTIONS, "v1"),
 }

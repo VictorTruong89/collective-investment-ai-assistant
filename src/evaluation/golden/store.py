@@ -22,12 +22,13 @@ import yaml
 
 from src.evaluation.golden.models import GoldenCase
 
-#: ⚠ NOT published. `expected` values for `ranking` and `thesis` are the fund's
+#: ⚠ NOT published. `expected` values for `thesis` are the fund's
 #: judgement — the strategy `QR-12` withholds. The mirror ships the machinery
 #: without the answers (`tools/build_mirror.py`).
 GOLDEN_DIR = "tests_src/fixtures/golden"
 
-KINDS = ("extraction", "ranking", "thesis")
+#: ⊘ `ranking` removed 2026-09-10 — `F5` `D6` / `DX-62`.
+KINDS = ("extraction", "thesis")
 
 
 class GoldenSetError(Exception):

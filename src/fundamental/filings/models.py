@@ -129,8 +129,27 @@ class ExtractedItem:
         """
         # ⚠ A TUPLE, not `period.to_json_obj()` — that returns a dict, which is
         # unhashable, and `__post_init__` puts these in a set.
+        #
+        # ⚠⚠ **`DX-68`, 2026-09-11 — `cumulative_ytd` joined the identity.**
+        # The first run under the shared envelope (`DX-67`) returned
+        # `period_start = None` on **65 of 65** items, so every quarterly row
+        # collapsed onto its YTD twin: 20 duplicate identities, and the whole
+        # result was refused.
+        #
+        # ★★★ The model was not misbehaving — it was obeying `S-2` item 3,
+        # *"Do not compute … do not derive it yourself."* A segment table
+        # states the period **END** (*"Thirteen weeks ended May 29, 2025"*);
+        # the START has to be derived. **Every earlier recording carried a
+        # `period_start` only because nothing had told the model not to compute
+        # one**, and that derived field was masking a gap in this identity.
+        #
+        # ★★ `cumulative_ytd` is the fact the model RECORDS rather than
+        # derives, and it separates the two rows exactly — 5,069 (quarter) from
+        # 14,028 (YTD), same id, same qualifier, same end date. `AP-5`: a
+        # derived quantity does not belong in an identity.
         base = (self.evidence_id, self.qualifier,
-                (self.period.start, self.period.end) if self.period else None)
+                (self.period.start, self.period.end) if self.period else None,
+                bool(self.cumulative_ytd))
         if self.is_figure or self.span is None:
             return base
         return (*base, (self.span.accession_id, self.span.start, self.span.end))

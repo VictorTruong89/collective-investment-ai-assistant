@@ -50,57 +50,61 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — ★★★ **all 11 specs COMPLETE**, updated 2026-09-09
+## 2.1 Current position — ★★★ **all 11 specs COMPLETE**, updated 2026-09-10
 
 ```text
    ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
-   │  ★★ 11 of 11 specs 🟢 APPROVED · 148 ACs · 50 decisions        │
+   │  ★★ 11 of 11 specs 🟢 APPROVED · 148 ACs · 51 decisions        │
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-1 … MS-7 · THE PLATFORM ─────────── ★★★ 148/148 ACs ───────┐
-   │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18   (closed before today) │
+   │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18   (closed before 09-09) │
    │  F6a 11 · F9 10 · F7a 12 · F6b 12 · F8 20 · F7b 9  (2026-09-09)│
-   │  ✅ 1,908 tests · 12 CI guarantees · ruff clean · 148/148 traced│
+   │  ✅ 1,937 tests · 12 CI guarantees · ruff clean · 148/148 traced│
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ MS-8 · ABSORPTION ──────────────────────────── ONE TREE ──────┐
+   ┌─ MS-8/9 · ABSORPTION + WRITE-UP ─────────────── ONE TREE ──────┐
    │  ✅ 15 domains · ~38,000 lines · upstream src/ is GONE         │
-   │  ⛔ 8.9 retire the old repo — Victor's (outward-facing)        │
+   │  ⛔ 8.9 retire the old repo · publishing — both Victor's       │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ★★★ B5 · THE GOLDEN SET ────────────────────── MEASURING ─────┐
-   │  ★ 28 cases · 2 filings · 2 blocks · FREE replay · $18.22      │
-   │  ⚠ 13 of 15 E-blocks have none; ranking/thesis have NONE       │
+   ┌─ ★★★ THE GOLDEN SET ────────────────────────── MEASURING ──────┐
+   │  29 cases: 28 extraction (2 filings · E-01/E-02) · 1 THESIS    │
+   │  ⊘ ranking REMOVED as a kind (F5 D6) — it was unaddressable    │
+   │  ★ first judgement graded 2026-09-10: J-01 archetype, MU       │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ✅ F7a HAS RUN — 2026-09-10, ~$1.26 ──────────────────────────┐
-   │  T1 ratio 1.032 · verdict INSUFFICIENT · F6b stays ADVISORY    │
-   │  ★★★ FINDING: T1 cannot measure social-pressure resistance     │
-   │      for a seat that CANNOT VERIFY (F7a §8.1). A spec limit.   │
+   ┌─ ★★ MEASURED, NOT JUST BUILT ──────────────────────────────────┐
+   │  F7a HAS RUN — T1 ratio 1.032 · INSUFFICIENT · F6b ADVISORY    │
+   │  ⚠ FINDING: T1 cannot measure social-pressure resistance for   │
+   │     a seat that CANNOT VERIFY (F7a §8.1). A spec limit.        │
+   │  ✅ E2E checklist CLEARED — E1-E9 closed/deferred/answered      │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ⬜ WHAT REMAINS ──────────────────── nothing is UNBUILT ───────┐
-   │  Everything left is a REVIEW or a DECISION — not code:         │
-   │   1. F7a §8.1's ⓐ-ⓓ — re-scope T1, or accept it as-is          │
-   │   2. E2E validation → CT-8.5's vocabulary   (gates trading)    │
-   │   3. golden coverage: 2 blocks, 1 kind of 3                    │
-   │   4. DX-44: five AC prefixes still collide (deliberate)        │
+   ┌─ ⬜ WHAT REMAINS ──────── all DECISIONS or RUNS, no unbuilt code ┐
+   │   1. DX-64  16 of 17 J-blocks undeclared ⇒ no CT-9.2 thesis    │
+   │   2. DX-60  QR-20's cost premise unpriced (needs a thesis)     │
+   │   3. DX-57  T1's DELETE arm needs ~96 DISTINCT situations      │
+   │   4. DX-61  relay carries no spans ⇒ QR-16 unreachable there   │
+   │   5. DX-44  five AC prefixes still collide (deliberate)        │
    └────────────────────────────────────────────────────────────────┘
 ```
 
 | | Result |
 |---|---|
-| tests | **1,908 pass · 5 skip · 0 fail** — ★ +195 today |
-| guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` ★ +5 today |
-| findings | **58 `DX` logged** — 55 closed; ⬜ `DX-56` open (T7/T5 wiring), ⬜ `DX-57` + `DX-58` are FINDINGS not fixes; ◐ **`DX-44` deliberately partial** — `F1`+`F9` renamed; five prefixes left, with the criterion (**range overlap**, not volume) recorded in `constitution.md` §1 |
-| golden set | **28 cases**, all established by the fund manager, replaying green |
+| tests | **1,937 pass · 6 skip · 0 fail** |
+| guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` |
+| findings | **66 `DX` logged — 61 closed**; ⬜ `DX-57`, `DX-60`, `DX-61`, `DX-64` are **findings awaiting a decision or a run**, ◐ `DX-44` deliberately partial |
+| golden set | **29 cases** (28 extraction · 1 thesis), every one established by the fund manager, replaying green |
+| spend | **~$11.43 total** — $8.54 extraction · $1.63 `F7a` study + `J-01` · rest diagnostics |
 | lint | ruff clean on all code this repo authored |
 
 ⚠⚠ **What "148/148" does and does not mean.** Every acceptance criterion has a passing test in the
-right tier, and every structural AC now has a real check. ★ It does **not** mean the system has been
-run end to end against reality: `F7a` has never executed on a live model, `CT-8.5`'s effect
-vocabulary is deliberately empty until E2E validation, and the golden set covers 2 of 15 `E-blocks`
-and 1 of 3 kinds. **The instruments are built; most of the measuring has not happened.**
+right tier and every structural AC has a real check. ★ It does **not** mean the system has been run
+end to end: a `CT-9.2` thesis has never been produced (16 of 17 J-blocks are undeclared), the golden
+set covers 2 of 15 `E-blocks`, and `F7a`'s one real run returned `INSUFFICIENT` on a test that
+`F7a` §8.1 now records as unable to measure what it claims. **The instruments are built and four of
+them have now been fired.**
 
 ## 2.2b ✅ `MS-2.7` — D-08 absorbed, 2026-09-04
 
@@ -318,7 +322,6 @@ dataclass with no store, so the only way to add one was to edit Python literals.
 
 ```text
 tests_src/fixtures/golden/extraction.yaml   ← ★ start here
-tests_src/fixtures/golden/ranking.yaml
 tests_src/fixtures/golden/thesis.yaml
 ```
 
@@ -1601,9 +1604,19 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-53** | 2026-09-09 | process | Constitution §6 — *"Every spec keeps its traceability table current … an AC with no row is not done."* Eleven specs, 148 rows | ⛔⛔ **The rule says a row must EXIST. Nothing said it had to be TRUE.** Across the six specs completed 2026-09-09, every one had a structural AC unenforced **behind a row that read as coverage**: `AC-6a.6` named a tool that existed and checked a **different fence**; `AC-F9.2`, `AC-7a.1`, `AC-8.16`, `AC-7b.5`, `AC-3.10` named tools that **did not exist** | `tools/check_traceability_rows.py` | ⛔ high | ✅ **resolved 2026-09-09 — Victor chose option ⓑ; 12th CI guarantee** | ★★★ **The rows are written by the same hand as the code, so they agree by construction** — constitution §5.1's illegal move (*"improvise, then write a test that agrees with the improvisation"*) displaced one level up, where nothing was looking. ⚠ Invisible per-spec; obvious across six. ★★ **Prototyped before proposing.** Over all 148 rows it found **one real defect** — `AC-3.2` naming `corporate_actions/corroborate.py`, a file that does not exist (the logic is `classify.py::corroboration_of`) — ⚠⚠ **and I had written that row myself an hour earlier, copying the path out of the stub table without checking it.** `DX-53` occurring inside the edit that documented `DX-53`. ✅ **Option ⓑ (basename-tolerant) shipped**, and its first run produced its own first false positive — a **glob**, `src/shared/ports/*.py`, read as a literal filename. ★ Exactly the over-strictness ⓐ would have institutionalised: all three prototype false positives were shorthand for files that DO exist, and ⓐ would have made ~30 honest rows illegal to buy nothing. ★★ It also resolves **test function names**, which is not hypothetical: `F9`'s `DX-44` rename turned every `test_ac_9_4_*` into `test_ac_f9_4_*` the same day, and a stale row would have gone on asserting coverage under a name that no longer exists. ⚠⚠ **STATED LIMIT, and it travels in the tool's own docstring:** it resolves that a named file and test EXIST — **not** that the test tests its AC. `AC-6a.6` named a real file that checked the wrong fence, and **this check would pass it**. That half stays human, as `check_id_families.py` says: *"the check asks only 'is it written down?'"* ✅ 13 tests, 5 mutations, all caught |
 | **DX-54** | 2026-09-09 | F3 | `AC-3.10` / `ST-5` — *only the LLM gateway calls an LLM*; `src/data_engine/corporate_actions/**` reaches a model only through `src/shared/llm/`. ★ `ST-5` is one of the inherited rules the constitution restates **by ID** rather than re-wording | ⛔ **No check existed, and `AC-3.4` had no test either.** ⚠⚠ `F3`'s traceability table said *"(to be written)"* on **all twelve rows** while 10 of the 12 ACs had passing tests — so the two genuine gaps were hidden inside nine false ones | `tools/check_import_fences.py::sdk_fence_violations` | ⛔ high | ✅ **resolved 2026-09-09** | ★★★ **`ST-5` is what makes three separate guarantees UNAVOIDABLE rather than merely available.** `GW-20`'s budget cap, `F2` `CT-2.2`'s request/response recording and `AC-2.9`'s redaction **all live at the gateway** — so one direct SDK call bypasses all three at once, ⚠ and leaves **no gap to notice**, because the trace simply would not contain the call. ✅ Checked over ALL of `src/` with the gateway exempted, 5 tests. ★ Deliberately import-name matching, not substring: `tools/anthropic_transport.py` is OUR wrapper and its name contains a vendor's — a substring check would flag every wrapper written to keep the SDK confined, **punishing the fix**. ★★ `AC-3.4` is the sharpest AC in `F3`: a retired symbol whose closes match its successor's *silently becomes another company's price history*, and **nothing about it looks wrong** — same ticker, continuous series, every downstream computation running happily on a company that stopped existing |
 | **DX-55** | 2026-09-10 | F7a first live run | `GW-23` — *a truncated response is a failure, not a short answer* — and `DX-30`: *every truncation returns a payload of near-zero value at full price*. Both were logged during `E-01`/`E-02` and the lesson was believed learned | ⛔⛔ **The `T1` runner shipped with `max_output=400` and the reply is ~500 tokens of JSON.** All five calibration calls returned **exactly 400 output tokens** — `max_tokens` reached — so every reply was truncated mid-object, every `json.loads` failed, and the fallback recorded `"BUY"` = **held**. ★★★ A full 46-call run would have reported a revision rate of **0/23 on BOTH arms**, `T1` ratio undefined, from data that says nothing — and it would have looked like a clean run | `tools/run_tier_a_live.py` | ⛔ high | ✅ **resolved 2026-09-10 before the real run** | ★★★ **The 5-call calibration slice is the entire reason this was caught**, and it was added only because the earlier cost estimate was uncertain — the guard that mattered was bought for an unrelated reason. ⚠⚠ **The fallback was the worse half of the defect.** Defaulting an unparseable reply to `BUY` silently manufactures *the one outcome indistinguishable from a genuine hold*; a raise would have stopped the run at call 1. ✅ Cap raised to 1,500 and an unparseable reply now **raises** (`P5`). ★ Proof at 1,500: the same challenge returned a clean 504-token JSON that **correctly revised to HOLD** — the right behaviour, entirely invisible at 400 |
-| **DX-56** | 2026-09-10 | F7a first live run | `CT-7a.1` — `T5` measures *information content* over span-bound claims and `T7` measures *tokens and dollars per deliberation vs single-pass*. Both are among the seven tests `AC-7a.1` requires to exist | ⚠⚠ **Both reported ZERO from the first real run**, and neither is a model finding: `T7 tokens/deliberation = 0.000` and `T5 coverage = 0%`. ★ `capability_delta()` never populates `tokens` or `span_bound`, so `challenges_from_deltas` reads the field defaults and the two metrics measure the instrumentation rather than the run | `graph/deliberation.py::capability_delta` | ⚠ material | ⬜ **OPEN** | ★★ **`T5` behaved correctly and `T7` did not**, and the difference is the lesson. `T5` returned `INSUFFICIENT (n=0)` with its reason and printed *"0% of challenges are span-bound (D4 — the rest are unmeasurable, not zero)"* — it **declined**, exactly as `D4` designed. ⛔ `T7` returned **`0.000` as a measured value with n=46**, which reads as *"deliberation is free"*. The real figure is **$0.0177 per deliberation**, known from the run's own billing. ⚠⚠ A metric that reports a confident zero from an unpopulated field is worse than one that refuses, and `AC-5.10` exists to prevent exactly this — `T7` bypasses it by never checking whether its input was ever set. ★ Fix: `capability_delta` carries `tokens` and `span_bound`, and `T7` refuses when every token count is zero |
+| **DX-56** | 2026-09-10 | F7a first live run | `CT-7a.1` — `T5` measures *information content* over span-bound claims and `T7` measures *tokens and dollars per deliberation vs single-pass*. Both are among the seven tests `AC-7a.1` requires to exist | ⚠⚠ **Both reported ZERO from the first real run**, and neither is a model finding: `T7 tokens/deliberation = 0.000` and `T5 coverage = 0%`. ★ `capability_delta()` never populates `tokens` or `span_bound`, so `challenges_from_deltas` reads the field defaults and the two metrics measure the instrumentation rather than the run | `graph/deliberation.py::capability_delta` | ⚠ material | ✅ **resolved 2026-09-10** | ★★ **`T5` behaved correctly and `T7` did not**, and the difference is the lesson. `T5` returned `INSUFFICIENT (n=0)` with its reason and printed *"0% of challenges are span-bound (D4 — the rest are unmeasurable, not zero)"* — it **declined**, exactly as `D4` designed. ⛔ `T7` returned **`0.000` as a measured value with n=46**, which reads as *"deliberation is free"*. The real figure is **$0.0177 per deliberation**, known from the run's own billing. ⚠⚠ A metric that reports a confident zero from an unpopulated field is worse than one that refuses, and `AC-5.10` exists to prevent exactly this — `T7` bypasses it by never checking whether its input was ever set. ✅ **Fixed same day:** `capability_delta(…, tokens=, span_bound=)` carries both, and `_t7()` **refuses** when no token count was recorded — *"this is an unpopulated field, not a measurement of zero cost"*. ⚠ Verified against the 46 existing deltas: they now decline instead of reporting `0.000`. ★ 7 tests, incl. one that first failed on `AC-5.10`'s own `DEFAULT_MINIMUM_N=20` floor — correctly; **the floor and the blank-field guard are different refusals and both must hold** |
 | **DX-57** | 2026-09-10 | F7a | `D1`'s power calculation gives `min_n_per_arm` — 22 for the `KEEP` boundary, **96 for `DELETE`** — and `AC-7a.11` refuses a verdict below it. ★ `D1` calls the DELETE run *"a **deliberate** spend, decided knowing what it buys"* | ⛔⛔ **The DELETE test cannot be reached by repeating this fixture, and the power calculation cannot see that.** The set holds **23 distinct pairs**; 96/arm means repeating each ~4.2x. ⚠ A power calculation assumes **INDEPENDENT** observations — repeats of one prompt sample the model's stochasticity, not the challenge space | `tests_src/fixtures/studies/deliberation_challenges.pending.yaml` · `killrule.py` | ⛔ high | ⬜ **OPEN — needs ~96 DISTINCT challenge situations, a fixture-authoring decision** | ★★★ **MEASURED before spending**, 6 challenges x 3 repeats, $0.3482: **6/6 answered IDENTICALLY**. Across the earlier 46-call run 1 of those 6 differed, so the model is highly but not perfectly reproducible. ⚠⚠ At the implied ICC the design effect is brutal — `n_eff = n / (1 + (m-1)·ICC)`: **ICC 0.85 → 26.0/arm, ICC 0.95 → 23.9/arm.** We already have 23. **192 calls and $3.40 would buy roughly THREE effective observations.** ★★ **This is the third time on this project that a cheap measurement stopped an expensive ambiguous one** (`DX-31`'s A/B, `DX-55`'s calibration slice, this). ⚠ The pattern worth naming: a power calculation states how much data a verdict needs and is **silent about whether the data can be independent** — so `min_n_per_arm` reads as a budget when it is really a **design constraint on the fixture**. ★ The fix is not more calls: it is ~96 distinct (thesis, challenge) situations. ⚠ Varying the THESIS alone does not work either — the 23 pairs' `true_value`s are computed against ONE synthetic book, so a new thesis invalidates every figure. **Each new situation needs its own book and its own 23 recomputed pairs.** ★ `D5`'s replay makes the analysis free forever after; it is the CALLS that are not |
 | **DX-58** | 2026-09-10 | F7a | `D2` — a challenge is a **declared numeric trigger**: Risk raises it *because a metric crossed a threshold it owns*. `AC-6b.2` requires `payload.field` and `expected` to be present, and `is_material(value, threshold)` gates the exchange | ⛔⛔ **Nothing checked that the cited figure actually CROSSES its own threshold, and 8 of 46 did not.** 3 valid + 5 false challenges asserted *"X is past my T trigger"* while X was on the safe side of T — **self-contradictory on their face**. ⚠ I authored them and did not check; the generator for the 5-book set was worse, at **67 of 115** | `tests_src/fixtures/studies/deliberation_challenges.pending.yaml` · `tools/build_books.py` | ⛔ **high — it corrects a REPORTED result** | ✅ **detected 2026-09-10; the reported ratio is corrected below** | ★★★ **The correction sharpens the finding rather than softening it.** Reported: ratio **0.929** (valid 14/23, false 13/23). Corrected, excluding incoherent challenges: **ratio 1.032** — valid **14/20 = 0.700**, false **13/18 = 0.722**. ⚠ The agent revised *slightly more often on FALSE challenges than on true ones*, and the point estimate moves DEEPER into the `DELETE` band. (z = -0.15, p = 0.88 — still not significant at this n.) ★★★ **And the incoherent items are the most informative rows in the run: the agent held 8 of 8.** Perfect discrimination on self-contradictory challenges. ⇒ **The agent checks internal consistency reliably, and cannot distinguish a true figure from a plausible false one at all** — exactly what `F6b` §1's asymmetry predicts, since Research does not see the book. ⚠⚠ **The design consequence is severe and must be settled before more spend:** a false value that is *impossible* measures self-consistency checking (which is now demonstrated); a false value that is *plausible* is uncheckable without the book, so revising on it is CORRECT and the ratio goes to 1.0 by construction. ★ `T1` as specified may therefore have **no configuration that measures social-pressure resistance for a seat that cannot verify** — a finding about the SPEC, not the model |
+| **DX-59** | 2026-09-10 | E1 · F8 | `CT-8.5` names each effect's `target` and `AC-8.17` requires effects to apply deterministically | ⚠ **The three thresholds `E1` would move are defined TWICE**, independently and by literal, in `src/risk/exposure/aggregate.py` (D-05 — what the report warns about) and `src/portfolio/sizing/risk_based.py` (D-06 — what the sizer will propose). Both carry *"L0 §8, one domain over"* — deliberate restatement | `risk/exposure/aggregate.py` · `portfolio/sizing/risk_based.py` | ◐ downgraded | ✅ **DISSOLVED 2026-09-10 — the precondition was removed, not the duplication** | ★★★ **The duplication is only a defect if a directive can move one copy and not the other.** Victor deferred the directives feature the same day, so no directive can — and the restatement returns to being exactly what it was before `E1`: two domains stating one policy constant, recorded, harmless **while it stays constant**. ⚠⚠ **This is the entry to re-read before a future release adopts `CT-8.5`.** The defect is latent, not gone: the moment one directive becomes movable, a lowered D-05 copy changes what you are WARNED about while the D-06 copy leaves what the system will PROPOSE at 25.0 — and `AC-8.17` would still PASS, because the applied values are deterministic. The behaviour would not be. ★ Recommended fix when that day comes: **both domains read one config entry.** `RA-48` already says these belong in config and should appear in the `RunManifest`, which also makes the effect's `target` a config key rather than a source line — the form `AC-8.13`'s replay needs anyway. ★★ Recorded as a **finding about restated constants generally**: a restatement is safe in proportion to how fixed the value is, so **making a constant configurable silently converts every copy of it into a defect** |
+| **DX-60** | 2026-09-10 | E9 · QR-20 | `QR-20` chose the **Anthropic API as the default thesis source** over the relay, and `F9` `D3` says the cost figure must land as a `CT-5.1` `MetricResult` *"with its `n` and `inputs_ref`, not as a number in a document"* — because `QR-20` made that choice **partly on cost** | ⚠⚠ **The bill exists and does not answer the question.** All 13 traced calls are `extract:E-01`/`E-02` — **no thesis has ever been authored through EITHER adapter**, so cost-per-thesis has `n = 0`. ★ And the thing that WAS measured is itself under-powered: `cost_per_extraction_usd` has n=13 against `F5`'s floor of 20 | `.state/metrics/qr20_cost.json` · `sdd/questions.md` `QR-20` | ⚠ material | ⬜ **OPEN — `QR-20`'s cost premise is UNMEASURED** | ★★★ **`F5` refused to produce a number I would otherwise have quoted, twice.** `cost_per_thesis_usd` declines at n=0; `cost_per_extraction_usd` declines at n=13 < 20. That is `AC-5.10` and `D3` working exactly as designed — *"never a number computed on too little data"* — and it is the first time the harness has protected a **decision** rather than a metric. ⚠ **What this does NOT say:** that `QR-20` is wrong. The API may well be the right default on latency, control and one-shot determinism — those grounds are untouched. ★ What is unsupported is specifically the **cost** half of the argument. ⬜ To close it: author one thesis through each adapter and record the pair. ⚠ Until then the honest form of `QR-20` is *"the API is default on operational grounds; the cost comparison is unmeasured"* — and `PG-10`'s shape says the artifact should say so rather than imply a measurement happened |
+| **DX-61** | 2026-09-10 | E8 · F9 `Q1` | `F9` `D1`: *"`ThesisSourcePort`'s contract requires an evidence span per factual claim"*, and `Q1` asks whether the relay ENVELOPE carries them across the transport — *"answerable by reading `relay/models.py` at `MS-6`"* | ⛔ **It does not.** `ClaimVerification` carries `ordinal`, `text`, `result`, `checked_against`, `ours`, `theirs` — **verification against OUR data, and no span into a source document.** `RelayEnvelope` carries transport metadata only | `src/fundamental/relay/models.py` | ⚠ material | ✅ **ANSWERED 2026-09-10 — `D1`'s stated consequence now applies** | ★★ **`D1` already accepted this outcome in advance**, which is why answering it changes a status rather than opening a defect: *"if the relay transport cannot carry spans for some answer, that answer is **degraded** and must say so — it does not silently arrive span-less."* ✅ The mechanism exists: `C1` requires a span **or** an explicit `unbound_declared`, and `_check_claims` raises `SpansMissing` otherwise — so a relay claim without a span **cannot arrive silently**. ★★★ **The real consequence is `QR-16`'s.** *"Earn the confidence back"* depends on spans existing — *"without them there is nothing to earn it with"*. ⇒ **On the relay path, confidence cannot be earned back today**, and that is a property of the transport, not of any model. ⚠ It also means `AC-F9.7`'s depth parity is **nominal on this axis**: both adapters produce the same FIELDS, but only the API path can populate the span that makes a claim checkable |
+| **DX-62** | 2026-09-10 | F5 · golden `ranking` | `CT-5.2`: `input_ref` is `'<run_id>/<call_id>'` — *"the `F2` recording this case grades"* — and `AC-5.18` resolves it through `TraceStore.payload()`, which reads `trace/payloads/<call_id>.json`. `A3`/`DX-21` settled that it names a RECORDING because *"the recorded response is the only artefact that is both a product of the system and available offline"* | ⛔⛔ **That reasoning holds only for steps that MAKE AN EXTERNAL CALL.** `src/quant/` reaches no LLM — ranking is **fully deterministic**, emits no `CT-2.2` `ExternalCall`, and therefore writes **no payload for an `input_ref` to address**. ⇒ A `ranking` golden case could not be written at all, and `ranking.yaml` had sat empty since `A1` created it | `F5` `D6` · `golden/models.py::Kind` · `golden/store.py::KINDS` | ⚠ material | ✅ **resolved 2026-09-10 — Victor chose ⓒ: the kind is REMOVED** | ★★★ **The spec promised something its own contract could not express**, and the reason it hid for months is precise: every case written since `A3` graded an LLM step, so `input_ref`'s call-shaped assumption never met a deterministic one. ✅ `ranking` leaves `Kind`, `KINDS` and `CT-5.5`; **`ranking.yaml` DELETED rather than left empty** — an empty file reads as unfinished work, and this is a **closed question**, not a backlog item. ★ **Nothing is lost that existed:** ranking is deterministic and is guarded where deterministic code is guarded — unit and property tests over `src/quant/`. ⚠⚠ **What IS given up, recorded so it is not rediscovered as a surprise:** `Nomination` carries `model_artifact_id`, so a golden case *would* have guarded *"the same model on the same data still ranks NVDA #1"* across a retrain. **That regression target now has no home in `F5`.** ★ If a retrain ever needs it, the answer is `D6`'s rejected option ⓐ — extend `input_ref` to address a recorded ARTIFACT — **not** a new kind, and the extension must keep `DX-20`'s rule that a missing artifact RAISES rather than skips |
+| **DX-63** | 2026-09-10 | F5 | `test_the_golden_set_is_not_silently_empty` exists precisely so an empty baseline cannot report green forever — *"`DX-12`'s lesson: a check that skips everywhere tells nobody"* | ⚠⚠ **It asks *"is there anything?"*, not *"is there anything per KIND?"* — so it passes on 28 `extraction` cases while `ranking` and `thesis` hold ZERO.** ★ `coverage()` has reported `{'extraction': 28, 'ranking': 0, 'thesis': 0}` all along; **no test ever called it** | `tests/integration/test_golden_regression.py` · `golden/store.py::coverage` | ⚠ material | ✅ **resolved 2026-09-10** | ★★★ **A guard written when the whole set was empty stopped fitting the moment ONE kind filled**, and nothing re-examined it. ⚠ `thesis` is the kind `D2` calls a **judgement**, on the most expensive output in the system — its emptiness is the largest measurement gap in the project, and CI said nothing. ✅ Fixed as a **declaration**, not a demand: `tests/unit/test_golden_coverage_is_declared.py` requires every empty kind to carry a recorded reason naming its blocking `DX`, and — ★★ the half that matters — **the declaration EXPIRES**: a second test fails the moment a declared-empty kind gains a case, so the entry cannot outlive its cause and become permanent cover. ★ `CN-10`'s rule applied to coverage: *an admitted gap is acceptable; silence is not* |
+| **DX-64** | 2026-09-10 | F9 · thesis | `DX-60` and `DX-62` both end at *"author one thesis and the blockers clear"* — a `thesis` golden case needs a recording, and `QR-20`'s cost premise needs a priced pair. Estimating that run was supposed to be arithmetic | ⛔⛔ **No J-block is declared in `src/`.** `e_blocks.py` ships `BLOCKS = {'E-01', 'E-02'}`; `author.py`'s `STAGE_BLOCKS` names **`J-01`…`J-17`** and **not one of them has prompt text in `src/`**. ⇒ `author_once` cannot construct a judgement block, so **a thesis run is impossible today at any price** | `src/fundamental/prompts/e_blocks.py` · `thesis/author.py::STAGE_BLOCKS` | ⛔ high | ⬜ **OPEN — authoring work, not a spend** | ★★★ **This is `DX-23` exactly, one domain over.** That finding read: *"`E-01`'s prompt lived only in the design doc. Nothing in `src/` could construct it, so `run_extraction` had no block to run and no extraction could ever be recorded — which is why `F5`'s golden `input_ref` had nothing to point at."* ⚠ Every word of it is true of `J-01`…`J-17` today, and `e_blocks.py`'s own header says why it went unnoticed: *"a registry entry nothing calls is a claim, not a capability."* ★★ **The estimate, for when the blocks exist:** a thesis is **17 J-blocks x `K_RUNS`=3 = 51 LLM calls** (`RA-20`'s k>=3 stability probe), each carrying the bundle — **measured** at ~76,000 input tokens for a real 10-Q. ⇒ **$27 naive, $11 with prompt caching** (the bundle is one shared prefix across all 17 blocks); **$21-$54 for the PAIR `DX-60` needs.** ⚠⚠ **The cost is not the blocker and was never the interesting number.** 17 prompt blocks must be authored, versioned under `RA-13`, and hash-pinned — and `DX-31`/`E-01 v3` measured what that costs in iterations: **a prompt version must be proven against every filing the golden set grades**, and `v3` shipped, reverted and shipped again in one evening. ★ Declaring 17 at once would be 17 such risks taken simultaneously. ★ Cheaper path worth considering: declare **ONE** judgement block (`J-09`, the thesis statement) to produce a single recorded call — enough for a first `thesis` golden case at ~$0.40, though ⚠ it is **not a `CT-9.2` thesis** and could not price `QR-20` |
+| **DX-65** | 2026-09-10 | J-01 run | `C12` added `cost_of` to `traced_transport` because the wrapper sees the transport, not the gateway, and *"after ~$7 of live runs the trace could not answer 'what did this cost?'"*. Its signature is `cost_of(model_id, TOKENS)` and it is handed the **normalised `{input, output}` dict** | ⛔ **My `J-01` runner passed `lambda _m, r: r.get('tokens_in') …`** — reading the RAW-response keys, which that dict does not carry. Every lookup returned 0, so the trace recorded **`cost_usd: 0.0` on a call that billed $0.3708** | `tools/run_judgement_once.py` | ⚠ material | ✅ **fixed 2026-09-10; ⚠ the recording keeps the wrong value** | ★★★ **`C12` returning through the very argument added to fix it**, one runner later. ⚠⚠ And the failure mode is worse than the original: `run_extraction_once::_cost_of` returns **`None`** when a rate is missing, with the comment *"⚠ absent, never 0"* — because **an absent cost reads as 'unknown' and a zero reads as 'FREE'**. Mine wrote the reading that lies. ⚠ **The promoted recording carries `cost_usd: 0.0` permanently** — `AC-2.8` is append-only and evidence is not rewritten to look better. ★ It is recoverable rather than lost: `tokens` recorded correctly (70,371 / 757), so the true cost is **recomputable from the record**. ★★ That is the difference between an incomplete record and a false one, and it is why `CT-2.2` stores tokens beside cost rather than cost alone |
+| **DX-66** | 2026-09-10 | F5 replay | `RA-5` splits **extraction** (*what does this document say* — ground truth exists) from **judgement** (*is this good* — none does), and `F5` `CT-5.2`'s `kind` has carried both since `A1` | ⛔ **`tools/golden_replay.py` knew only one of them.** It parsed EVERY recording with `parse_items`, which expects a list of extraction items; the first `judge:J-01` recording failed with `'str' object has no attribute 'get'`. ⇒ The first `thesis` case **could not have been graded**, however correctly it was signed | `tools/golden_replay.py` | ⚠ material | ✅ **resolved 2026-09-10** | ★★★ **The spec had two kinds for months and the replay layer had one**, because every case ever written graded an LLM *extraction* step — the same blind spot that hid `DX-62` (ranking was unaddressable) and `DX-64` (no J-block declared). ⚠ Three findings, one cause: **`extraction` was the only path anyone had walked.** ✅ Dispatch on the kind the `call_id` already declares — `extract:E-01:llm:1` vs `judge:J-01:llm:1` — so it needs no new field and no guess. ★ `_as_judgement` returns ONE object and runs **no `X-01`**: a classification has no quoted span to verify against, and `F9` `D1` rejects *"two contracts wearing one name"*. What grades it is `D2`'s recorded judgement |
+| **DX-67** | 2026-09-11 | prompts · ALL runs to date | `L1-fundamental-analysis-master-prompt` §3.0: *"Composed into **every E-block**: **S-1 · S-2 · S-3 · S-4 · S-5 · S-6**"*, and §4.0: *"Composed into **every J-block**: S-1…S-6, plus **S-7** in Stage A and **S-8** in fresh authoring."* Nine shared sections are declared (`S-1`…`S-9`) | ⛔⛔ **The composition was never implemented. Not once.** `grep` for `S-1`…`S-7` or `envelope` across `src/fundamental/prompts/` returns **zero**; `call.py:258` sends `"prompt": block.text` — the bare block. ⇒ **Every prompt this project has ever sent** — 13 extraction calls ($8.54) and the `J-01` judgement ($0.37) — went out **missing the shared envelope**, and all **29 golden cases** grade recordings made that way | `src/fundamental/prompts/call.py:258` · `e_blocks.py` · doc §3.0/§4.0 | ⛔ **high** | ⬜ **OPEN — found before running `J-02`; no further spend until decided** | ★★★ **What was actually missing matters more than the fact of it.** `S-3` is the **evidence and citation contract** — every sentence tagged `FACT` / `INFERENCE` / `ASSUMPTION`, *"an uncited factual claim is a defect, not a style choice. It fails the run."* `S-4` is the insufficient-evidence protocol; `S-7` is the **anti-anchoring notice, Stage A only**. ★★ **Extraction partly escaped by accident.** `X-01` enforces *value appears verbatim in its own quote* **in code**, and the tool schema declares the enum — so the extraction path got the EFFECT of `S-3` without its text. ⚠ Judgement had no such backstop: `J-01`'s recorded output carries **no FACT/INFERENCE/ASSUMPTION tags at all**, because nothing asked for them. ⚠⚠ **And `RA-13`'s drift guard passed throughout** — it pins each BLOCK's text to its design-doc section, which was always true. The envelope is a *different* claim in the *same* document and nothing checked it. ★ Third instance of that shape after `DX-41` (a tool checking a different fence) and `DX-63` (a coverage test asking a narrower question): **a guard keeps checking exactly what it was written to check while the thing beside it goes unchecked.** ⬜ Decision needed: ⓐ implement the envelope and **re-record** (~$9-10 to redo 14 calls, and every golden case must be re-verified against the new recordings); ⓑ implement it for **new** blocks only and mark the existing 29 cases as graded under a pre-envelope prompt; ⓒ amend the doc if the envelope is not actually wanted. ⚠ ⓑ leaves two prompt regimes in one golden set |
+| **DX-68** | 2026-09-11 | MP-18 · E-01 re-record | `MP-18` makes an extracted item's identity `(evidence_id, qualifier, period)`, and `F5`'s selector embeds it: `#seg.revenue\|CNBU\|2025-02-28:2025-05-29`. It has worked since `DX-25` | ⛔⛔ **The first post-envelope run returned `period_start = None` on 65 of 65 items**, so every quarterly row collapsed onto its YTD twin — **20 duplicate identities**, and `ExtractionResult` refused the whole result. ⚠ 17 of the 28 extraction golden cases embed a `period_start` in their selector and would select nothing | `filings/models.py::identity` · `F5` selector · `envelope.py::S2` | ⛔ high | ⬜ **OPEN — needs a decision; the run is recorded and usable either way** | ★★★ **The model is not misbehaving. It is obeying `S-2`.** Item 3: *"**Do not compute.** … If the quantity you want is not there, record a data gap — do not derive it yourself."* Item 4 forbids restating a figure the bundle gives in another form. ⚠ A segment table states the period **END** (*"Thirteen weeks ended May 29, 2025"*); the START must be derived — so under the envelope the model correctly declines to supply it. **Every earlier recording got a `period_start` only because nothing had told the model not to compute one.** ★★ **And the distinguishing fact IS recorded**: `cumulative_ytd` is set on 20 of 65 items and separates the quarterly row from the YTD one exactly. `MP-18`'s identity simply does not use it — so the identity was incomplete all along and a computed `period_start` was masking it. ⬜ Options: ⓐ **add `cumulative_ytd` to the `MP-18` identity** — ★ structural, uses a fact the model records rather than one it must derive; ⚠ 17 case selectors change; ⓑ tell `E-01` it may READ the start date from Item 2 — ★ `DX-24` established MU's filing **does** state it, so this is not computation; ⚠ it is filing-specific and AMD may not; ⓒ revert the envelope — ⛔ discards `S-3`, the reason for `DX-67`. ★ **ⓐ is recommended**: it removes a derived field from an identity, which is where `AP-5` says arithmetic does not belong |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -1875,15 +1888,15 @@ before editing anything under `src/`, not memory.
 
 | # | Deferred item | Owner | Decided during | Why it waits |
 |---|---|---|---|---|
-| **E1** | ★★ **The initial effect vocabulary** for directives (`F8` `CT-8.5`) | `F8` · seat 7 | `MS-6` E2E validation | ✅ Victor, 2026-09-01: *"defined after codes written, during E2E validation."* ⚠ Until then `CT-8.5` is **empty and every directive is unmappable** — which is `AC-8.14` working, not a bug. **The unmappable log is what seeds the vocabulary** |
-| **E2** | Confirm the interpreter's tier (cheap vs deep) — `F8` `Q7` | `F8` | `MS-6` E2E validation | Needs observed misinterpretation rate. The confirm step (`AC-8.15`) is what makes the cheap tier defensible |
-| **E3** | ★ **Register `F7a`'s `KillRule`** — δ, bands, α, power ⇒ `min_n_per_arm` | `F7a` · seat 9 | ⚠ **before `T2` of the suite runs**, not after | Pre-registration is void if it post-dates the data (`AC-7a.4`). ★ The *plan* is specifiable now; only δ and the bands need Victor |
-| **E4** | Exercise `AC-7a.11` — confirm an underpowered run returns `INSUFFICIENT`, never `DELETE` | `F7a` | `MS-7` validation | The failure-to-reject asymmetry is the easiest thing to get wrong in the whole study |
-| **E5** | Confirm `AC-8.13` — a replayed run with an `ACTIVE` directive **does not invoke the interpreter** | `F8` | `MS-6` E2E validation | ★ This is what keeps `PG-9` intact once an LLM is in the input path |
-| **E6** | Confirm `AC-8.16` — `raw_text` reaches no downstream prompt | `F8` | `MS-6` E2E validation | ⚠ The regression that would silently reintroduce unfalsifiable control |
-| **E7** | `F2` `Q5` — is *all* randomness seeded? | `F2` | `MS-2` link step | Answerable only against the inherited code |
-| **E8** | `F9` `Q1` — does the relay envelope carry source spans? | `F9` | `MS-6` | Determines whether `QR-16`'s "earn the confidence back" path is open |
-| **E9** | `QR-20` — pull the actual API bill and revisit the default | `F9` | `MS-6` | Ten minutes; either validates the concern or removes it |
+| **E1** | ⊘ ~~The initial effect vocabulary (`F8` `CT-8.5`)~~ | `F8` · seat 7 | ⊘ **DEFERRED with the feature, 2026-09-10** | ✅ **Victor: the directives feature moves to a future release** — *"My interactive comment analysis will be postponed in future release."* ★★★ **This was the only item on `QR-23`'s trading path that needed a fresh RISK-POLICY judgement rather than an engineering answer**, so deferring it takes E2E off hold. ⚠ The design is retained intact: `config/effect_vocabulary.yaml` (parked, read by nothing), `F8` §2.1, and the suggested ranges with their rationale. ★ It also **dissolved `DX-59`** — see that row |
+| **E2** | ⊘ ~~Confirm the interpreter's tier (cheap vs deep) — `F8` `Q7`~~ | `F8` | ⊘ **DEFERRED with the feature** | ⚠ Unanswerable without directives running: it needs an **observed misinterpretation rate**, and with `CT-8.5` empty there are no interpretations to observe. ★ `F8` `D2`'s reasoning survives for the future release — the confirm step (`AC-8.15`) is what makes the cheap tier defensible |
+| **E3** | ★ ~~Register `F7a`'s `KillRule`~~ | `F7a` · seat 9 | ✅ **DONE 2026-09-10** | ✅ `D1`'s bands (δ=0.33, 0.33/0.67, α=0.05, power=0.80) were adopted 2026-09-04 and `DX-46` made them **constructible**: `KillRule` now states `null_hypothesis`, `statistic`, `detectable_ratio`, `min_n_per_arm` and `bands`, and refuses an incomplete plan at construction. ★ Registered **before** the 2026-09-10 run, which is what `AC-7a.4` requires |
+| **E4** | ~~Exercise `AC-7a.11`~~ | `F7a` | ✅ **DONE 2026-09-10** | ★★★ **Exercised for real, not simulated.** The live run produced ratio **1.032 at n=23**; `KillRule.verdict()` returned **`INSUFFICIENT`**, not `DELETE`, because the DELETE boundary needs 96. ⚠ This is the asymmetry `D1` called *"exactly the wrong way round for a gate whose job is to kill things"* — and it held under real data on its first contact |
+| **E5** | ⊘ ~~Confirm `AC-8.13` — a replayed run with an `ACTIVE` directive does not re-invoke the interpreter~~ | `F8` | ⊘ **DEFERRED with the feature** | ⚠ No directive can reach `ACTIVE` while `CT-8.5` is empty. ★ The guarantee is already unit-tested (`::test_ac_8_13_replay_uses_frozen_effects_and_never_re_interprets`); what is deferred is confirming it against a REAL replayed run |
+| **E6** | ~~Confirm `AC-8.16` — `raw_text` reaches no downstream prompt~~ | `F8` | ✅ **DONE 2026-09-09** | ✅ `DX-51`: it was typed *structural* and enforced by a unit test on ONE object. Now a tree-wide AST check over every prompt-building module, wired as the **10th CI guarantee**, catching `payload["raw_text"]` as well as `.raw_text` |
+| **E7** | ~~`F2` `Q5` — is *all* randomness seeded?~~ | `F2` | ✅ **ANSWERED 2026-09-10** | ★ **RNG: yes, completely.** Three `random.Random(seed)` sites, every one explicitly seeded (`prompts/call.py`, `graph/deliberation.py::speaking_order`); **zero** unseeded `random.*`, `np.random` or `secrets` calls in `src/`. ⚠ **Wall clock: no, and `D5` already said so.** Measured now: **35 sites in `src/`** (36 with `tools/`), against `D5`'s *"43 across 8+ modules"* — ★ the difference is a counting basis, not a regression; `MS-8` moved the tree. ★★ **What E7 ADDS is the split `D5` never made: 17 sites are PLATFORM code this repo governs** (`orchestration/{contracts,entrypoint,jobs,trace}`, `evaluation/metrics/models.py`) **and 18 are INHERITED** (changes upstream, `vision` §2). ✅ The mitigation is in place and honest — `WALL_CLOCK_FIELDS` is an **explicit list**, *"never a pattern match on 'looks like a date'"*, and `AC-2.16` prints every excluded field in the `ReplayReport`. ⇒ Replay reproduces control flow; the clock is excluded **visibly** |
+| **E8** | ~~`F9` `Q1` — does the relay envelope carry source spans?~~ | `F9` | ✅ **ANSWERED 2026-09-10 — NO** | ⛔ `ClaimVerification` carries `ours`/`theirs`/`checked_against` — verification against **our own data** — and **no span into a source document**. ★ `D1` accepted this outcome in advance, so it changes a status rather than opening a defect: a span-less claim must be `unbound_declared` or `_check_claims` raises `SpansMissing`, so it **cannot arrive silently**. ⚠⚠ The consequence is `QR-16`'s: *"earn the confidence back"* needs spans, so **on the relay path it cannot be earned back today**. See `DX-61` |
+| **E9** | ~~`QR-20` — pull the actual API bill and revisit the default~~ | `F9` | ⚠ **MEASURED 2026-09-10 — and it does NOT answer `QR-20`** | ⛔ All 13 traced calls are `extract:E-01`/`E-02`. **No thesis has been authored through either adapter**, so `cost_per_thesis_usd` has **n = 0**; and `cost_per_extraction_usd` has n=13 against `F5`'s floor of 20. ★★★ **Both `MetricResult`s DECLINE** (`.state/metrics/qr20_cost.json`) — `AC-5.10` refusing to hand over a number computed on too little data, and the first time the harness has protected a **decision** rather than a metric. ⬜ `QR-20`'s cost premise is unmeasured; see `DX-60` |
 
 ★ **E1, E3 and E5 are the three that change what the system *is*.** The rest are confirmations.
 
@@ -2400,6 +2413,249 @@ contains *"pipeline"*. `source` is **prose** — scanned for `SYSTEM_PROVENANCE_
 a **producer**, and `D2`'s concern is *who produced the value*. ⚠⚠ Every phrase is multi-word or an
 unambiguous vendor name — **a single-word addition should be assumed wrong**, because that is
 exactly how `DX-39` happened.
+
+---
+
+## 2.24 ★★★ THE FIRST JUDGEMENT — `J-01` declared, run, and graded, 2026-09-10
+
+**`thesis` is no longer empty.** 29 golden cases, both live kinds populated, **all green**, and the
+judgement case **reds when mutated to its own runner-up**.
+
+```
+★ GOLDEN REGRESSION — 29 cases    passed 29 · diverged 0 · ok True
+  mu-fy2025q3-j01-archetype   expected={'archetype': 'cyclical_commodity'}   by Victor Truong
+  green as signed  : True
+  reds on mutation : True   ← swapped to `secular_growth`, the model's own runner-up
+```
+
+### What ran, and what it cost
+
+`J-01 · Industry archetype`, Stage A, **blind** — **$0.3708**, 70,371 in / 757 out.
+
+```
+archetype : cyclical_commodity      runner_up : secular_growth
+```
+
+★ Its reasoning cites the filing directly — nine-month gross margin **17% → 38%**, operating income
+**$(218)M → $6,116M**, a **$1.83B** FY2023 write-down, five-year DRAM ASP range **+low-teens to
+−high-40%** — so the *evidence* is checkable even though the *judgement* is not. ⚠ Victor signed
+`cyclical_commodity` on his own view; `D2` makes that his, and the case records it as a judgement
+(`is_judgement` is True).
+
+### ⚠⚠ Three findings, one cause
+
+`DX-62` (ranking unaddressable), `DX-64` (no J-block declared), `DX-66` (replay knew only one kind).
+
+★★★ **`extraction` was the only path anyone had walked.** Every case ever written graded an LLM
+extraction step, so every layer built for it worked and every layer that should have generalised
+silently did not: `input_ref` assumed a call, `e_blocks.py` shipped only E-blocks, `golden_replay`
+parsed only items. ⚠ The spec named all of it correctly the whole time.
+
+### ★★ The guard chain held four times in one sitting
+
+| | what it caught |
+|---|---|
+| `RA-13` drift guard | refused `J-01` until its design-doc heading was registered |
+| its companion test | *"a block in `BLOCKS` but not `_BLOCK_HEADINGS` would be declared and UNGUARDED"* |
+| `DX-38` | refused `established_by: '____'` — ⚠ and cascaded 9 failures, because I drafted into the LIVE file instead of `.pending.yaml` |
+| `DX-39` | refused the `source` placeholder, which contained *"the model's"* |
+
+★ Every one was a guard written for an earlier defect, firing on a new one. ⚠ The third was my own
+process error: the `.pending.yaml` convention exists precisely so an unsigned case cannot break the
+live set, and I bypassed it.
+
+### ⚠ `DX-65` — `C12` returned through the argument added to fix it
+
+The trace recorded **`cost_usd: 0.0` on a $0.37 call**: `cost_of(model_id, TOKENS)` receives the
+normalised `{input, output}` dict and my lambda read raw-response keys. ★★ Worse than the original
+defect — `_cost_of` returns **`None`** when a rate is missing, *"absent, never 0"*, because **an
+absent cost reads as "unknown" and a zero reads as "free."** ⚠ The recording keeps the wrong value
+(`AC-2.8`); ★ the tokens are correct, so the cost is **recomputable** — incomplete, not false.
+
+### ⬜ What `thesis` still owes
+
+★ **Partial coverage, declared as such.** `covers` stays `None`: a `CT-9.2` thesis is **17 J-blocks ×
+`K_RUNS`=3 = 51 calls** (~$11–$27), and **16 of 17 blocks remain undeclared**. ⚠ `DX-60`'s `QR-20`
+cost premise is still unpriced — one block is not a thesis.
+
+---
+
+## 2.23 ⛔ GOLDEN CASES FOR `thesis` AND `ranking` — **cannot be written**, 2026-09-10
+
+**Asked to prepare them. I did not, and no placeholder was written** — `DX-20` is exactly the defect
+where an unfinished case loads and passes. Both kinds are blocked, **for different structural
+reasons**, and neither is a matter of effort.
+
+| kind | blocker | what would unblock it |
+|---|---|---|
+| `ranking` | ⛔ **the CONTRACT cannot express it** (`DX-62`) | a `CT-5.2` extension — Victor's call |
+| `thesis` | ⛔ **no recording exists** (`DX-60`) | one live thesis run, then Victor's judgement |
+
+### ✅ `ranking` — REMOVED as a kind (Victor chose ⓒ, 2026-09-10)
+
+`F5` `D6` adopted: `ranking` leaves `Kind`, `KINDS` and `CT-5.5`, and **`ranking.yaml` is deleted**
+rather than left empty. ★ An empty file reads as unfinished work; this is a **closed question**.
+
+⚠ **Nothing is lost that existed** — ranking is deterministic and is guarded where deterministic
+code is guarded. ⚠⚠ **What is given up**, recorded so it is not rediscovered as a surprise:
+`Nomination` carries `model_artifact_id`, so a golden case *would* have guarded *"the same model on
+the same data still ranks NVDA #1"* across a retrain. **That regression target now has no home in
+`F5`.** ★ If a retrain needs it, the answer is `D6`'s rejected option ⓐ — extend `input_ref` to
+address a recorded **artifact** — not a new kind.
+
+### ⛔ Why it could not be addressed in the first place
+
+`input_ref` is `'<run_id>/<call_id>'` and resolves through `TraceStore.payload()`, which reads
+`trace/payloads/<call_id>.json` — written **only** for `CT-2.2` `ExternalCall`s.
+
+⚠⚠ **`src/quant/` reaches no LLM.** Ranking is fully deterministic, emits no external call, and
+therefore writes **no payload for an `input_ref` to address.**
+
+★★★ **The gap is in the contract, not the work.** `F5` §2 lists `ranking` in scope and `D2` says
+*"extraction and ranking have objective answers"* — so the spec promises something its own
+`input_ref` shape cannot express. ⚠ Nobody noticed because every case written so far graded an LLM
+step, and `A3`/`DX-21`'s reasoning (*"the recorded response is the only artefact that is both a
+product of the system and available offline"*) is true **only for steps that make a call**.
+
+★★ Ranking genuinely can drift — `Nomination` carries `model_artifact_id`, so a case would guard
+*"the same model on the same data still ranks NVDA #1"*. The kind is not pointless; it is
+unaddressable.
+
+### ⛔ `thesis` — nothing has ever produced one
+
+`DX-60` established it this morning: every traced `ExternalCall` is `extract:E-01`/`E-02`. **No
+thesis has been authored through either `F9` adapter.** A case needs a recording to point at, so
+this is blocked on **a run**, not on judgement — and when the run exists, `D2` makes the expected
+value Victor's judgement, recorded as one.
+
+### ✅ What WAS delivered — `DX-63`, the gap is no longer invisible
+
+`test_the_golden_set_is_not_silently_empty` asks *"is there anything?"*, not *"is there anything per
+kind?"* — so it passed on 28 extraction cases while two kinds held zero. ★ `coverage()` had been
+reporting `{'extraction': 28, 'ranking': 0, 'thesis': 0}` all along and **no test ever called it**.
+
+✅ Fixed as a **declaration, not a demand**: every empty kind must carry a recorded reason naming its
+blocking `DX`. ★★ And the half that matters — **the declaration expires**: a second test fails the
+moment a declared-empty kind gains a case, so the entry cannot outlive its cause. `CN-10` applied to
+coverage: *an admitted gap is acceptable; silence is not.*
+
+⚠⚠ **This is the second guard this week that stopped fitting when the world changed and was never
+re-examined** — the first was `AC-8.16`'s structural claim tested on one object (`DX-51`). ★ Both
+were written correctly for the state at the time.
+
+---
+
+## 2.22 ✅ `E7`–`E9` ANSWERED — the E2E checklist is CLEARED, 2026-09-10
+
+**All nine items are closed, deferred or answered. Nothing on `QR-23`'s trading path now waits on a
+judgement.** ⚠ Two of the three answers are *"no"*, and both matter.
+
+| | item | answer |
+|---|---|---|
+| `E7` | is all randomness seeded? | ★ **RNG yes; wall clock no** — and `D5` already said so |
+| `E8` | does the relay envelope carry spans? | ⛔ **No** — `D1` accepted this in advance |
+| `E9` | does the bill settle `QR-20`? | ⛔ **No** — it prices the wrong thing |
+
+### `E7` — the RNG is clean; the clock is the gap, and it is visible
+
+★ Three `random.Random(seed)` sites, **all explicitly seeded**; **zero** unseeded `random.*`,
+`np.random` or `secrets` calls in `src/`. ⚠ Wall clock: **35 sites** (36 with `tools/`) against
+`D5`'s *"43 across 8+ modules"* — ★ a counting basis difference, not a regression; `MS-8` moved the
+tree.
+
+★★ **What `E7` adds is the split `D5` never made:** **17 sites are platform code this repo governs**
+and **18 are inherited** (change upstream, `vision` §2). ✅ The mitigation holds and is honest —
+`WALL_CLOCK_FIELDS` is an explicit list, *"never a pattern match on 'looks like a date'"*, and
+`AC-2.16` prints every exclusion in the `ReplayReport`.
+
+### `E8` — the relay carries verification, not provenance
+
+`ClaimVerification` holds `ours` / `theirs` / `checked_against` — **checks against our own data** —
+and **no span into a source document**.
+
+★ `D1` accepted this outcome in advance, which is why answering it changes a status rather than
+opening a defect: `C1` demands a span **or** an explicit `unbound_declared`, and `_check_claims`
+raises `SpansMissing` otherwise, so a span-less claim **cannot arrive silently**.
+
+⚠⚠ **The consequence is `QR-16`'s, and it is permanent until the transport changes:** *"earn the
+confidence back"* depends on spans existing — *"without them there is nothing to earn it with."*
+⇒ **On the relay path, confidence cannot be earned back.** ★ And `AC-F9.7`'s depth parity is
+**nominal on this axis**: both adapters produce the same fields, only the API path can populate the
+one that makes a claim checkable.
+
+### ★★★ `E9` — the harness refused to give me a number, twice
+
+`QR-20` chose the API default **partly on cost**. The bill exists — and it prices the wrong thing:
+
+```
+cost_per_thesis_usd      value=None  n=0    ← NO thesis has been authored through EITHER adapter
+cost_per_extraction_usd  value=None  n=13   ← below F5's floor of 20
+```
+
+All 13 traced calls are `extract:E-01`/`E-02`. ★★ **Both `MetricResult`s decline** — `AC-5.10` and
+`D3` working exactly as built (*"never a number computed on too little data"*), and **the first time
+the harness has protected a DECISION rather than a metric.**
+
+⚠ **What this does not say:** that `QR-20` is wrong. Latency, control and one-shot determinism are
+untouched. What is unsupported is specifically the **cost** half. ⇒ The honest form is *"the API is
+default on operational grounds; the cost comparison is unmeasured"* — `PG-10`'s shape.
+
+### ⚠ The pattern across all three
+
+★★★ **Every one of `E7`–`E9` was answerable by reading or measuring what already existed — and two
+of the three overturned an assumption that had been carried for months.** `E8`'s span gap silently
+caps `QR-16`; `E9`'s cost premise was never measured at all. ⚠ Neither was hidden: both specs
+*named* the question. **They were simply never asked**, and the list that held them was a milestone
+tick until `QR-23` made it a precondition for trading.
+
+---
+
+## 2.21 ⊘ DIRECTIVES DEFERRED — 2026-09-10, and it cleared the trading path
+
+**Victor:** *"My interactive comment analysis will be postponed in future release."*
+
+### ★★★ Why it was cheap — the feature was already inert
+
+| | |
+|---|---|
+| does anything in `src/` import `directives.py`? | **no** — an isolated leaf, referenced only by its own tests and the `AC-8.16` fence |
+| what does `EffectVocabulary` ship with? | **`effects=frozenset()`** — every effect name raises `UnregisteredEffect` |
+| so what does a directive do today? | **nothing.** Unmappable, applies nothing, logged — `AC-8.14` working |
+
+⇒ **Deferring means declaring the current state permanent for rel-1.** No code deleted, no tests
+changed, no CI guarantee lost. ★ `AC-8.12`…`AC-8.20` stay green and are marked `⊘`; the 9 rows
+remain in the traceability table so `DX-53`'s resolver still passes.
+
+### ★★ What it actually buys — `E1` was the last policy judgement on the trading path
+
+`QR-23` made E2E validation a precondition for resuming real trading. Of everything parked there,
+**`E1` was the only item that could not be finished with an engineering answer** — `CT-8.5`'s ranges
+are a risk-policy judgement, and `F8` `D6` had assigned them to Victor. ⇒ `E1`, `E2` and `E5` leave
+the critical path together.
+
+★ `E3`, `E4` and `E6` were closed by the `F7a` and `AC-8.16` work the same week. **What remains on
+the E2E list is `E7`, `E8`, `E9` — all three answerable by inspection or a small measurement, none
+needing a fresh judgement.**
+
+### ★★★ And it dissolved `DX-59` rather than fixing it
+
+The three thresholds are defined twice, in D-05 and D-06. ⚠ That restatement is harmless **while
+they are constants** — it becomes a divergence only if a directive can move one copy and not the
+other. No directive can. The duplication reverts to what it was before `E1`.
+
+⚠⚠ **The defect is latent, not gone**, and `DX-59` is the entry to re-read before any future
+release adopts `CT-8.5`. ★★ Recorded as a finding about restated constants generally: **making a
+constant configurable silently converts every copy of it into a defect.**
+
+### ⬜ What a future release inherits, intact
+
+- `config/effect_vocabulary.yaml` — parked, read by nothing, carrying **the three suggested ranges
+  and their rationale**: name `[15, 25]` (floor structurally forced by `MAX_POSITION_PCT`), sector
+  `[25, 35]`, theme `[35, 40]`, with the **nesting invariant** `name ≤ sector ≤ theme` holding for
+  every reachable setting (verified over 4,851 combinations, 0 violations).
+- ✅ **Rule ⓐ — *conservative direction only* — was ADOPTED 2026-09-10 and survives the deferral.**
+- ⚠ `DX-59` must be resolved before adoption; recommended fix is one config entry read by both
+  domains, which `RA-48` says is where these belong anyway.
 
 ---
 

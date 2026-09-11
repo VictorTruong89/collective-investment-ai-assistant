@@ -400,8 +400,15 @@ def main() -> int:
     # ⚠ The version is READ, not typed. This line said "E-01 v1" while running
     #   v2 — a label hardcoded beside the value it describes drifts the moment
     #   the value changes, and it is the printout a reader trusts.
+    # ⚠⚠ `DX-67` — print the COMPOSED length, not the block's. The comment
+    #   above warns that a label beside the value it describes drifts; this
+    #   line then reported 1,210 chars while 7,504 were being sent, because the
+    #   shared envelope is composed downstream in `call.py`.
+    _blk = registry.get(args.block, args.prompt_version)
+    from src.fundamental.prompts.envelope import compose_prompt
     print(f"  block      : {args.block} {args.prompt_version}  "
-          f"({len(registry.get(args.block, args.prompt_version).text)} chars)")
+          f"({len(_blk.text)} chars + envelope = "
+          f"{len(compose_prompt(_blk, stage_a=(_blk.view == 'blind')))} sent)")
     print(f"  est tokens : ~{est_in:,} in / ~{est_out:,} out (incl. thinking)")
     print(f"  est cost   : ~${est_in * PRICE_IN + est_out * PRICE_OUT:.2f}")
 

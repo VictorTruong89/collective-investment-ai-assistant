@@ -8,7 +8,37 @@
 # ⚠ Do these LAST, and expect fewer of them. If you cannot state why you hold the
 #    view, the case is not ready — an unexplained golden value gets trusted for
 #    the wrong reason later (CT-5.2's `source` rule).
-cases: []
+cases:
+
+  # ── ★★★ CASE 29 — the first `thesis` case, and the first judgement graded.
+  #    ⚠ `expected` asserts ONLY the archetype (the subset rule, `F5` §4): it is
+  #      silent about `runner_up`, `why` and `what_would_settle_it`, which are
+  #      prose the model may legitimately reword.
+  #    ★★ What it catches: a prompt or model change that reclassifies Micron.
+  #      `J-01` is Stage A's FIRST block and *"the classification governs which
+  #      analytical questions the rest of the analysis is allowed to ask"* — so a
+  #      drift here silently redirects every downstream block.
+  - case_id: mu-fy2025q3-j01-archetype
+    input_ref: "run-2026-09-11T025139-mu-j01/judge:J-01:llm:1"
+    expected:
+      archetype: cyclical_commodity
+    source: >-
+      Victor Truong's own view, stated 2026-09-10: "I believe Micron a cyclical
+      commodity business." ⚠ `D2` — a `thesis` golden value is a JUDGEMENT, and
+      this records WHOSE it was rather than pretending to objectivity
+      (`is_judgement` is True for this kind). ★ Filing evidence consistent with
+      the classification, checkable in
+      tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt (MU 10-Q FY2025 Q3,
+      accession 0000723125-25-000021): nine-month gross margin 17% (FY24 YTD)
+      rising to 38% (FY25 YTD); operating income $(218)M to $6,116M; a $1.83B
+      FY2023 inventory write-down; disclosed five-year DRAM ASP range of
+      +low-teens to −high-40%. ⚠ These figures are recorded as EVIDENCE
+      available to the judgement, not as the fund manager's stated reasoning —
+      he stated the conclusion, and inventing a derivation for him would be the
+      circularity `D2` forbids.
+    established_at: "2026-09-10"
+    established_by: "Victor Truong"
+
 #  - case_id: mu-2026q3-view
 #    input_ref: filings/MU_2026Q3_10Q.txt
 #    expected: {view: BUY, conviction: medium}

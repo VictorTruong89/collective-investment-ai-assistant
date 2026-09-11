@@ -36,6 +36,7 @@ from src.fundamental.errors import (
     ConversationalStateError,
     DegradedCallError,
 )
+from src.fundamental.prompts.envelope import compose_prompt
 from src.fundamental.prompts.registry import PromptBlock, PromptRegistry
 from src.shared.errors import LLMError
 from src.shared.llm.gateway import Gateway, Tier
@@ -255,7 +256,14 @@ class AnalysisGateway:
             shift = evidence_rotation % len(parts)
             obj = {**obj, "parts": parts[shift:] + parts[:shift]}
         return {
-            "prompt": block.text,
+            # ⚠⚠ `DX-67` — this sent `block.text` ALONE for every call this
+            # project ever made. §3.0/§4.0 say the shared envelope
+            # (`S-1`…`S-6`, plus `S-7` in Stage A) is *"composed into every
+            # E-block / every J-block"*, and the composition did not exist.
+            # ★ `S-3` is the evidence and citation contract — the rule that
+            #   makes a factual claim checkable — so its absence is the part
+            #   that mattered, not the missing words as such.
+            "prompt": compose_prompt(block, stage_a=(block.view == "blind")),
             "options": list(permutation),
             "bundle": obj,
         }

@@ -110,6 +110,11 @@ def test_v3_adds_a_reachable_exit_to_the_restatement_clause():
 _BLOCK_HEADINGS = {
     "E-01": "## E-01 · Segment revenue and operating income — `{v}`",
     "E-02": "## E-02 · Guidance, and its revision — `{v}`",
+    # ⚠ `J-01` is a JUDGEMENT block and its section sits one level deeper
+    #   (`###`) in the design doc. ★ Declared 2026-09-10 (`DX-64`) — the first
+    #   J-block with text in `src/`, after `STAGE_BLOCKS` had named J-01…J-17
+    #   for months with none of them constructible.
+    "J-01": "### J-01 · Industry archetype — `{v}`",
 }
 
 
@@ -136,3 +141,97 @@ def test_every_declared_block_is_covered_by_the_drift_guard():
     and UNGUARDED — the guard would silently stop covering the registry."""
     from src.fundamental.prompts.e_blocks import BLOCKS
     assert set(BLOCKS) == set(_BLOCK_HEADINGS)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# `DX-67` — the SHARED ENVELOPE. ⚠⚠ The guard above pinned BLOCK text and
+# passed throughout, while §3.0/§4.0's composition rule went unimplemented for
+# every call this project ever made. ★ A guard keeps checking exactly what it
+# was written to check; the thing beside it goes unchecked.
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_dx67_every_envelope_section_matches_its_spec_section():
+    """`RA-13` for `S-1`…`S-9`, the same discipline block text already had."""
+    from src.fundamental.prompts.envelope import ALL_SECTIONS
+
+    doc = DOC.read_text(encoding="utf-8")
+    for name, text in ALL_SECTIONS.items():
+        n = name.split("-")[1]
+        body = doc.split(f"## S-{n} · ", 1)[1]
+        spec = body.split("```text", 1)[1].split("```", 1)[0].strip("\n")
+        assert text.strip("\n") == spec, f"{name} has drifted from the design doc"
+
+
+def test_dx67_the_guard_covers_every_section_the_doc_declares():
+    """⚠ A section added to the doc but not to `ALL_SECTIONS` would be
+    unguarded — and one never composed at all is exactly `DX-67`."""
+    import re
+
+    doc = DOC.read_text(encoding="utf-8")
+    declared = set(re.findall(r"^## (S-\d) · ", doc, re.M))
+    from src.fundamental.prompts.envelope import ALL_SECTIONS
+    assert declared == set(ALL_SECTIONS), (
+        f"doc declares {sorted(declared)}, envelope.py carries "
+        f"{sorted(ALL_SECTIONS)}")
+
+
+def test_dx67_an_EXTRACTION_block_composes_S1_to_S6_and_the_preamble():
+    """§3.0 — *"Composed into every E-block: S-1 · S-2 · S-3 · S-4 · S-5 · S-6."*"""
+    from src.fundamental.prompts.e_blocks import e01_v3
+    from src.fundamental.prompts.envelope import (
+        EXTRACTION_PREAMBLE,
+        EXTRACTION_SECTIONS,
+        compose_prompt,
+    )
+
+    out = compose_prompt(e01_v3())
+    assert out.startswith(EXTRACTION_PREAMBLE.strip("\n"))
+    for sec in EXTRACTION_SECTIONS:
+        assert sec.strip("\n") in out
+    # ★ the block is LAST: the envelope states the rules, the block asks the
+    #   question, and a question answered before its rules are read is the
+    #   ordering this composition exists to prevent.
+    assert out.rstrip().endswith(e01_v3().text.strip())
+
+
+def test_dx67_a_JUDGEMENT_block_gets_the_judgement_preamble_not_the_extraction_one():
+    """★ `RA-5` — extraction and judgement are told different things about what
+    their answer is worth. ⚠ Handing a judgement block the extraction preamble
+    (*"no part of your answer may be an opinion"*) would forbid the task."""
+    from src.fundamental.prompts.e_blocks import j01_v1
+    from src.fundamental.prompts.envelope import (
+        EXTRACTION_PREAMBLE,
+        JUDGEMENT_PREAMBLE,
+        compose_prompt,
+    )
+
+    out = compose_prompt(j01_v1(), stage_a=True)
+    assert JUDGEMENT_PREAMBLE.strip("\n") in out
+    assert EXTRACTION_PREAMBLE.strip("\n") not in out
+
+
+def test_dx67_S7_is_STAGE_A_ONLY():
+    """⚠⚠ §4.0 — `S-7` is the anti-anchoring notice and applies to Stage A
+    alone. ★ `MP-3` makes the staging physical (the blind bundle carries no
+    price); `S-7` is the half that says so in words. A Stage-B block receiving
+    it would be told not to anchor on a price it may legitimately see."""
+    from src.fundamental.prompts.e_blocks import j01_v1
+    from src.fundamental.prompts.envelope import STAGE_A_SECTION, compose_prompt
+
+    assert STAGE_A_SECTION.strip("\n") in compose_prompt(j01_v1(), stage_a=True)
+    assert STAGE_A_SECTION.strip("\n") not in compose_prompt(j01_v1(), stage_a=False)
+
+
+def test_dx67_S3_the_citation_contract_reaches_every_block():
+    """★★★ The section whose absence actually mattered.
+
+    *"An uncited factual claim is a defect, not a style choice. It fails the
+    run."* ⚠ Extraction partly escaped because `X-01` enforces the same rule in
+    code; judgement had no backstop, and `J-01`'s pre-envelope output carried no
+    FACT/INFERENCE/ASSUMPTION tags because nothing asked for them.
+    """
+    from src.fundamental.prompts.e_blocks import e01_v3, e02_v2, j01_v1
+    from src.fundamental.prompts.envelope import S3, compose_prompt
+
+    for blk, kw in ((e01_v3(), {}), (e02_v2(), {}), (j01_v1(), {"stage_a": True})):
+        assert S3.strip("\n") in compose_prompt(blk, **kw), f"{blk.name} lacks S-3"

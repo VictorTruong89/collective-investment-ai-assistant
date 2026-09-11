@@ -60,9 +60,9 @@ def test_ac_5_17_a_duplicate_case_id_across_kinds_raises(tmp_path):
 
 def test_ac_5_17_malformed_yaml_raises_but_an_ABSENT_file_does_not(tmp_path):
     assert load_kind("extraction", tmp_path) == ()  # ⚠ empty is honest
-    _write(tmp_path, "ranking", "cases: [ unclosed")
+    _write(tmp_path, "thesis", "cases: [ unclosed")
     with pytest.raises(GoldenSetError, match="not valid YAML"):
-        load_kind("ranking", tmp_path)
+        load_kind("thesis", tmp_path)
 
 
 def test_ac_5_17_a_thesis_case_is_marked_a_judgement(tmp_path):

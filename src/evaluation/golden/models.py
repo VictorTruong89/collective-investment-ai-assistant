@@ -18,7 +18,12 @@ import re
 from dataclasses import dataclass
 from typing import Literal
 
-Kind = Literal["extraction", "thesis", "ranking"]
+#: ⊘ `ranking` REMOVED 2026-09-10 (`F5` `D6`, `DX-62`). It was UNADDRESSABLE,
+#: not merely unpopulated: `CT-5.2`'s `input_ref` resolves through a recorded
+#: `CT-2.2` ExternalCall payload, and `src/quant/` reaches no LLM — ranking is
+#: deterministic, so it writes no payload for an `input_ref` to name.
+#: ★ It is guarded where deterministic code is guarded: unit tests over `quant/`.
+Kind = Literal["extraction", "thesis"]
 
 #: ⚠ `DX-28` — the date a case was established. A template blank is not a date.
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")

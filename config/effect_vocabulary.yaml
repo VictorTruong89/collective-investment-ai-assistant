@@ -1,0 +1,188 @@
+# ⊘ PARKED — `F8` `CT-8.5`. **The directives feature is DEFERRED to a future
+#   release** (Victor, 2026-09-10): *"My interactive comment analysis will be
+#   postponed in future release."*
+#
+# ⚠⚠ NOTHING READS THIS FILE. `EffectVocabulary` ships `effects=frozenset()`,
+#   so every directive is unmappable and applies nothing — `AC-8.14` working,
+#   not a gap. ★ Kept because the analysis below is the hard part and it will be
+#   wanted intact when the feature is picked up.
+#
+# ⬜ Before a future release adopts it: ⓐ resolve `DX-59` (the three thresholds
+#   are defined twice, D-05 and D-06 — harmless while constant, a divergence the
+#   moment a directive moves one copy); ⓑ confirm the three ranges below; ⓒ the
+#   organising rule *conservative direction only* was ADOPTED 2026-09-10 and
+#   that decision survives the deferral.
+#
+# ── the original draft header follows ──
+# ⏳ DRAFT — `F8` `CT-8.5`, the closed effect vocabulary. NOT ADOPTED.
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# ⚠⚠ WHAT THIS FILE IS, AND WHY IT WAS EMPTY UNTIL NOW
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# `F8` §2.1: a directive is one line of English; an LLM **translates** it into
+# typed effects; you confirm; the system applies them deterministically. ★ The
+# LLM is a parser, not a policy — which is why this does not breach `PG-9`.
+#
+#   ✗ an LLM that DECIDES what the system does   → a control policy. Forbidden.
+#   ✅ an LLM that TRANSLATES what you already    → a parser. You still decide.
+#      decided into a typed directive
+#
+# ★★ **Expressions are open; effects are CLOSED.** You may type anything. The
+# interpreter may only emit entries from this file (`AC-8.12`), and adding one
+# is a spec change, never a prompt change.
+#
+# ⏳ `F8` `D6` (Victor, 2026-09-01): *"defined after codes written, during E2E
+# validation."* ⚠ `QR-23` then made E2E a precondition for resuming real
+# trading, so this file sits on that critical path.
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# ⛔ WHAT A DIRECTIVE MAY NEVER MOVE — decided by the specs, not by taste
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#   `CONFIDENCE_FLOOR` (0.3) · `CONFIDENCE_HOLD_CAP` (0.5)
+#     ⛔ `INV-012`/`INV-013` via `RA-67`. `F9` §2 lists *"✗ Changing the
+#        confidence rules"* as a non-goal, and `AC-1.77` records that **the
+#        relay's entire safety case rests on these firing unchanged**.
+#
+#   The verdict algebra (`src/decision/algebra/`)
+#     ⛔ `PG-6` — a bounded meet-semilattice, *"a **structural** guarantee, not
+#        a runtime check"*. Nothing may make a verdict more aggressive.
+#
+#   `INV-6` — one actionable recommendation per day
+#     ⛔ Preserved by designation (`AC-8.2`), never by rationing. Not a knob.
+#
+#   Anything in `src/quant/gates/`
+#     ⛔ `PG-10` — a model that has not passed its own promotion gates may not
+#        be presented as actionable. A directive loosening a gate would launder
+#        exactly that.
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# ★★★ PROPOSED ORGANISING RULE — ⚠ THIS IS THE DECISION I NEED FROM YOU
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#   **A directive may move a parameter only in the CONSERVATIVE direction.**
+#
+# ★ It is `P3`'s shape applied to the control surface: *verdicts gate, never
+#   upgrade.* A directive may make the system report earlier, size smaller, or
+#   demand more evidence — never the reverse.
+#
+# ⚠⚠ **The cost of adopting it**, stated plainly so you are not surprised:
+#   *"markets are calm, let some noise through"* becomes **unexpressible**.
+#   Every loosening would need a spec change rather than a directive.
+#
+# ⚠ **The cost of NOT adopting it:** a one-line English instruction, parsed by
+#   a cheap model, could relax a risk report on a machine that trades. The
+#   confirm step (`AC-8.15`) is the only thing standing in front of that, and
+#   `F8` `D2` calls the confirm step *"what makes the cheap tier defensible"*.
+#
+# ⇒ ⬜ **Adopt, reject, or amend.** Everything below assumes ADOPT.
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# ⬜ WHAT I NEED FROM YOU, PER EFFECT
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#   1. **keep / drop** — is this an instruction you would actually give?
+#   2. **`domain`** — the legal range. ⚠ I have left these BLANK: a range is a
+#      risk-policy judgement, and `CN-10` says an admitted guess is acceptable
+#      but **silence is not** — so I would rather you state it than I invent it.
+#   3. **the phrasings you would really type**, so the interpreter is tested
+#      against your language and not mine (`AC-8.14`'s log seeds the rest).
+#
+# ★ Three or four adopted effects unblock E2E. The vocabulary is designed to
+#   grow from the unmappable log (`AC-8.19`), not to be complete on day one.
+# ═══════════════════════════════════════════════════════════════════════════
+
+version: v1-parked
+adopted: false          # ⛔ nothing reads this until Victor sets true
+adopted_by: "____"
+adopted_at: "____"
+# ✅ ADOPTED by Victor 2026-09-10. A directive may move a parameter only in the
+# CONSERVATIVE direction — `P3`'s shape applied to the control surface.
+# ⚠ Accepted cost: *"markets are calm, let some noise through"* is now
+#   UNEXPRESSIBLE as a directive and needs a spec change.
+organising_rule: conservative_direction_only
+
+effects:
+
+  # ── ★ TIER 1 — REPORTING ONLY. The safest class in the system. ────────────
+  # ⚠ `RK-2`: *"every threshold in L0 §8 is a REPORTING threshold. Crossing one
+  #   emits a LEVEL 2 ALERT and **changes nothing else**"* (`INV-023`,
+  #   `INV-026`). ★ Lowering one makes the system tell you SOONER. It cannot
+  #   block a trade, resize a position, or alter a verdict — so a
+  #   misinterpretation here costs you an extra alert, nothing more.
+  # ★★ I recommend the whole v1 vocabulary be drawn from this tier.
+
+  - effect: concentration_report_threshold
+    target: src/risk/exposure/aggregate.py::CONCENTRATION_THRESHOLD_PCT
+    current: 25.0
+    operations: [set, scale]
+    # ⬜ SUGGESTED — needs your confirmation. `CN-10`: an admitted guess is an
+    #    acceptable answer; silence is not.
+    # ★★★ This floor is STRUCTURALLY FORCED, not a taste. `MAX_POSITION_PCT`
+    #    = 15.0 (`portfolio/contracts/sizing.py`, `INV-022`) caps what the
+    #    system will ever PROPOSE. Below 15 the alert fires on a position the
+    #    sizer itself called normal — noise on every ordinary trade, and
+    #    `RP-46`/`RP-47` forbid suppressing alerts, so the noise is permanent.
+    # ⚠ Ceiling is the current value: rule ⓐ forbids loosening.
+    domain: "15.0-25.0"
+    owning_spec: sdd/specs/F8_control_surface/spec.md   # via RK-2 / INV-023
+    example_phrasings: ["watch concentration closely today", "I'm nervous about position size"]
+
+  - effect: sector_report_threshold
+    target: src/risk/exposure/aggregate.py::SECTOR_MAX_PCT
+    current: 35.0
+    operations: [set, scale]
+    # ⬜ SUGGESTED. ★ Floor = the NAME threshold's current value (25.0).
+    # ⚠ Two max-size positions in one sector are 30% — inside this range, so a
+    #    tightened sector alert can still catch that, which is the case worth
+    #    catching.
+    domain: "25.0-35.0"
+    owning_spec: sdd/specs/F8_control_surface/spec.md
+    example_phrasings: ["keep an eye on sector clustering"]
+
+  - effect: theme_report_threshold
+    target: src/risk/exposure/aggregate.py::THEME_REPORT_THRESHOLD_PCT
+    current: 40.0
+    operations: [set, scale]
+    # ⬜ SUGGESTED. ★ Floor = the SECTOR threshold's current value (35.0).
+    # ⚠ The narrowest range of the three, deliberately: a theme spans sectors,
+    #    so tightening it hardest is the most likely to fire on a book that is
+    #    merely diversified across one macro story rather than concentrated.
+    domain: "35.0-40.0"
+    owning_spec: sdd/specs/F8_control_surface/spec.md
+    example_phrasings: ["the AI theme is getting crowded"]
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ✅ SCOPE DECIDED BY VICTOR, 2026-09-10
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#   ✅ rule ⓐ adopted — conservative direction only
+#   ✅ Tier 1 only — the three `RK-2` REPORTING thresholds
+#   ⊘ `data_staleness_tolerance` DROPPED — `STALE_SESSIONS` sits in inherited
+#     D-03 code no `F<n>` spec governs, and `CT-8.5` requires an `owning_spec`
+#   ⊘ `thesis_depth_bias` dropped with Tier 2. ⚠ It was the sharper omission:
+#     `F6a` `D2` ships exactly one predicate and this was it, so a directive
+#     moving it would have been config influence arriving through a second
+#     door, with `AC-6a.8`'s `DecisionRecord` showing only one of two causes
+#
+# ═══════════════════════════════════════════════════════════════════════════
+# ⛔⛔ BLOCKER BEFORE `adopted: true` — `DX-59`
+# ═══════════════════════════════════════════════════════════════════════════
+#
+#   **All three thresholds are defined TWICE**, independently and by literal:
+#     · `src/risk/exposure/aggregate.py`      (D-05 — what the report warns about)
+#     · `src/portfolio/sizing/risk_based.py`  (D-06 — what the sizer will propose)
+#
+#   ★★★ A restated constant is harmless while it is CONSTANT. **The moment a
+#   directive can move it, the copies become a divergence** — and that is a
+#   consequence this vocabulary creates, not one that existed before.
+#
+#   ⚠ A directive lowering the D-05 copy changes what you are WARNED about and
+#     leaves what the system will PROPOSE at 25.0. `AC-8.17` would still pass:
+#     the applied values are deterministic. The behaviour would not be.
+#
+#   ⇒ Recommended fix ⓑ: both read ONE config entry. `RA-48` already says these
+#     belong in config and should appear in the `RunManifest`, so the effect's
+#     `target` becomes a config key rather than a source line — which is also
+#     what makes it replayable (`AC-8.13`).

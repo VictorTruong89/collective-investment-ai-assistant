@@ -106,7 +106,7 @@ Rules: `value` and `insufficient_reason` are mutually exclusive and one is alway
 
 **CT-5.2 — `GoldenCase`:**
 ```json
-{ "case_id": "str", "kind": "extraction | thesis | ranking",
+{ "case_id": "str", "kind": "extraction | thesis",   // ⊘ `ranking` REMOVED — see `D6`
   "input_ref": "str — '<run_id>/<call_id>', the F2 recording this case grades",
   "expected": "object",
   "source": "str — how the expected value was established",
@@ -132,7 +132,7 @@ because **"the document does not say" is a finding; "I have not looked yet" is n
 
 **CT-5.5 — the golden set on disk** — added `A1` 2026-09-05:
 ```text
-tests_src/fixtures/golden/<kind>.yaml       # extraction.yaml · ranking.yaml · thesis.yaml
+tests_src/fixtures/golden/<kind>.yaml       # extraction.yaml · thesis.yaml
 ```
 ```yaml
 cases:
@@ -147,10 +147,10 @@ Rules: **one file per `kind`**; `case_id` unique across the whole set; every fie
 required. ⚠ **Version-controlled** — a golden set that is not versioned cannot show drift, which is
 the only thing a regression suite measures.
 
-⚠⚠ **The golden set is EXCLUDED from the `MS-9.1` public mirror.** `expected` values for `ranking`
-and `thesis` are the fund's judgement, i.e. the strategy `QR-12` withholds. ★ Extraction cases are
-public facts, but splitting the directory by sensitivity would put the decision in a filename — so the
-whole set stays local and the mirror ships the machinery without the answers.
+⚠⚠ **The golden set is EXCLUDED from the `MS-9.1` public mirror.** `expected` values for `thesis`
+are the fund's judgement, i.e. the strategy `QR-12` withholds. ★ Extraction cases are public facts,
+but splitting the directory by sensitivity would put the decision in a filename — so the whole set
+stays local and the mirror ships the machinery without the answers.
 
 **CT-5.3 — `CalibrationResult`** (extends `CT-5.1`):
 ```json
@@ -313,9 +313,11 @@ spec-governed, lives in `src/evaluation/metrics/`, and needs `AC-5.1`'s known-an
   component, so the circularity check could never catch it. ⚠ Measured on 3 real half-signed cases.
   ★ The test is the **absence of letters**, never a name-like shape — `'张伟'`, `"O'Brien"`, `'M K'`
   all pass, because a blank-detector that rejects real people gets worked around.
-- ⚠ **The circularity `Q2` names is real and not fully escapable for `thesis`.** Extraction and ranking
-  have objective answers (a filing says what it says). A thesis's "correct" answer is a judgement, so
-  the golden case records **the judgement and who made it** rather than pretending to objectivity.
+- ⚠ **The circularity `Q2` names is real and not fully escapable for `thesis`.** Extraction has an
+  objective answer (a filing says what it says). A thesis's "correct" answer is a judgement, so the
+  golden case records **the judgement and who made it** rather than pretending to objectivity.
+  ✏ *`ranking` also had an objective answer and is no longer a golden kind — see `D6`; the reason is
+  addressability, not objectivity.*
 - ★ **Same shape as `DX-5`'s split**: where truth is external, keep it external and *say* it is a
   judgement; do not synthesise something that looks like ground truth.
 - **Rejected — seed the golden set from the system's own best output.** ⚠⚠ Circular: the harness would
@@ -375,6 +377,44 @@ reason. Upstream `CN-10` says *"**'admitted guess' is an acceptable answer; sile
 - **Rejected — no CI regression, measure after each run only.** A prompt change would be caught
   *after* it shipped, which is the wrong side of the change.
 
+**`D6` — ⊘ `ranking` is REMOVED as a golden kind.** *(Adopted by Victor 2026-09-10, `DX-62`.)*
+
+★★★ **The kind was unaddressable, not merely unpopulated.** `CT-5.2`'s `input_ref` is
+`'<run_id>/<call_id>'` and `AC-5.18` resolves it through `TraceStore.payload()`, which reads
+`trace/payloads/<call_id>.json` — written **only** for `CT-2.2` `ExternalCall`s. ⚠ `src/quant/`
+reaches no LLM: ranking is fully deterministic, emits no external call, and therefore writes **no
+payload for an `input_ref` to address.** `ranking.yaml` had sat empty since `A1` created it, and no
+amount of work would have filled it.
+
+⚠⚠ **This spec promised something its own contract could not express**, and the reason it went
+unnoticed for months is precise: `A3`/`DX-21` settled `input_ref` as *"the recording"* because *"the
+recorded response is the only artefact that is both a product of the system and available offline"*
+— ★ which is true **only of steps that make a call**. Every case written since has graded an LLM
+step, so the limitation never surfaced.
+
+- **Decision:** `ranking` leaves `Kind`, `KINDS` and `CT-5.5`'s file list. `ranking.yaml` is deleted
+  rather than left empty — ★ an empty file reads as unfinished work, and this is a **closed
+  question**, not a backlog item.
+- ★ **What still guards ranking:** it is deterministic, so it is guarded where deterministic code is
+  guarded — unit and property tests over `src/quant/`. ⚠ Losing the golden kind loses nothing that
+  existed; it removes a promise that was never keepable.
+- ⚠⚠ **What is genuinely given up, stated so it is not rediscovered as a surprise:** `Nomination`
+  carries `model_artifact_id`, and a golden case *would* have guarded *"the same model on the same
+  data still ranks NVDA #1"* across a retrain. **That regression target now has no home in `F5`.**
+  ★ If a retrain ever needs it, the answer is `D6`'s rejected option ⓐ, not a new kind.
+
+- **Rejected — ⓐ extend `input_ref` to address a recorded ARTIFACT (`Nomination`) as well as a
+  call.** ◐ The most capable option and the right one *if* the need returns. ⚠ It widens
+  `AC-5.18`'s resolver, and the widening must preserve `DX-20`'s rule — a missing artifact has to
+  **raise**, never skip, or a broken baseline becomes a smaller one that still reports green.
+  ★ Rejected now because nothing needs it now: no model has been retrained since the harness existed.
+- **Rejected — ⓑ record a `StepRecord` payload for deterministic steps too.** ⚠ Contradicts `F2`
+  `D6`, which records at **job and external-call boundaries** deliberately and rejects instrumenting
+  inherited domain internals — *"every such edit becomes a merge conflict at each absorption."*
+- **Rejected — leave `ranking.yaml` empty with a comment.** ⚠ That is the state that produced this
+  finding: a file that looks like work not yet done, when the work was impossible. ★ `DX-63`'s
+  declared-gap mechanism exists for kinds that are *blocked but wanted*; `ranking` is neither.
+
 ## 8. Open questions (must resolve before/at implementation)
 
 > ✅ **All five are resolved** — `D1`–`D5` in §7, adopted 2026-09-04. **No open questions remain.**
@@ -417,8 +457,10 @@ MU + AMD) and 5 grade `E-02` (guidance, MU), every one established by the fund m
 filing and every one verified to RED under mutation before it was signed.
 
 ⚠ **What is NOT covered, stated because a traceability table's job is to be honest:**
-- **2 blocks of 15.** `E-03`…`E-15` have no cases at all, and `ranking` and `thesis` have none —
-  ★ `thesis` is the kind `D2` says is a judgement, and the most expensive output in the system.
+- **2 blocks of 15.** `E-03`…`E-15` have no cases at all, and `thesis` has none — ★ the kind `D2`
+  says is a judgement, and the most expensive output in the system. ⚠ Its emptiness is a **declared**
+  gap (`DX-63`): `tests/unit/test_golden_coverage_is_declared.py` requires a recorded reason per empty
+  kind, and the declaration expires the moment a case lands.
 - **3 `E-02` cases remain unsigned** in `extraction.pending.yaml`, including the two that would pin
   `DX-33` and `DX-35`. ⚠ Until signed, both fixes are in code but **ungraded**.
 - ⚠⚠ **`AC-5.1` was enforced weakly until `DX-38`** (2026-09-09): `established_by` refused an empty

@@ -1,0 +1,17 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 4000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 211651,
+      "see": "tests_src/fixtures/filings/"
+    }
+  },
+  "response": {
+    "text": "{\"archetype\": \"cyclical_commodity\", \"runner_up\": \"secular_growth\", \"what_would_settle_it\": \"Whether HBM/data-center DRAM under long-dated, capacity-reserved contracts becomes a large enough share of bit supply and gross profit to hold margins through the next industry supply addition \\u2014 i.e., if the coming FY2025 10-K and subsequent cycle show DRAM ASPs falling industry-wide while Micron's gross margin holds, the secular reading wins; if margin collapses with ASPs as it did in FY2023, the commodity reading is confirmed.\", \"why\": \"DRAM and NAND are fungible bit commodities priced by industry supply/demand, and this filing shows the swing plainly: nine-month gross margin went from 17% (FY24 YTD) to 38% (FY25 YTD) and operating income from $(218)M to $6,116M, driven overwhelmingly by ASPs \\u2014 DRAM ASPs up a high-40% range, with the risk factors disclosing five-year ASP ranges of +low-teens to \\u2212high-40% for DRAM and +low-30% to \\u2212low-50% for NAND, plus a $1.83B FY2023 inventory write-down and an $987M FY2024 benefit from selling that written-down inventory. Capital intensity is set by the industry arms race, not by returns visible today ($10.2B of nine-month capex, ~$14B guided for FY2025, multi-fab CHIPS-funded expansion with output starting 2027+), and management itself frames results under \\\"Industry Conditions\\\" and warns that HBM's higher wafer-per-bit intensity could convert to conventional DRAM oversupply. The reader who treats the current 20% net margin and $1.68 quarterly EPS as normalised earnings \\u2014 rather than as a mid-to-late-upcycle print against a book that generated a loss two years ago \\u2014 is the reader who gets hurt worst.\"}",
+    "tokens_in": 70371,
+    "tokens_out": 757,
+    "stop_reason": "tool_use"
+  }
+}
