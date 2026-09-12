@@ -31,7 +31,7 @@ cases:
   #   about `quote`, `span` and `note`, which only the system can supply. A
   #   snapshot would be circular in exactly the way D2 forbids.
   - case_id: mu-fy2025q3-cnbu-revenue
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.revenue|CNBU|2025-02-28:2025-05-29"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.revenue|CNBU|2025-02-28:2025-05-29"
     expected:
       evidence_id: seg.revenue
       qualifier: CNBU
@@ -50,33 +50,13 @@ cases:
     established_at: "2026-09-07"
     established_by: "Victor Truong"
 
-  # ★★ The SAME row, the OTHER column. Differs from case 1 ONLY by `period` —
-  #   which is why MP-18's identity carries it.
-  - case_id: mu-fy2025q3-cnbu-revenue-ytd
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.revenue|CNBU|2024-08-30:2025-05-29"
-    expected:
-      evidence_id: seg.revenue
-      qualifier: CNBU
-      value: "14,028"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]        # ★ the scar tag - "do not subtract"
-      period: {start: "2024-08-30", end: "2025-05-29"}
-    source: >-
-      Same filing and table, CNBU row, 'Nine Months Ended May 29, 2025' column
-      (col 3 of 4). period.start derived from the Consolidated Statements of
-      Changes in Equity, which open 'Balance as of August 29, 2024' - the prior
-      fiscal year end - so the nine months begin the following day.
-    established_at: "2026-09-07"
-    established_by: "Victor Truong"
-
 
   # ── ★★ CASE 3 — a NEGATIVE, in parentheses. The only case here testing SIGN.
   #    ⚠ An extractor that stripped the parens would report a $9M operating
   #      PROFIT where the filing states a LOSS. Filing line 1166:
   #      `SBU | (9) | 76 | 362 | (631)`
   - case_id: mu-fy2025q3-sbu-op-income
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.op_income|SBU|2025-02-28:2025-05-29"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.op_income|SBU|2025-02-28:2025-05-29"
     expected:
       evidence_id: seg.op_income
       qualifier: SBU
@@ -95,7 +75,7 @@ cases:
   # ── CASE 4 — a SECOND segment. ★ With case 1 it proves `qualifier` actually
   #    discriminates: same evidence_id, same period, different row.
   - case_id: mu-fy2025q3-sbu-revenue
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.revenue|SBU|2025-02-28:2025-05-29"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.revenue|SBU|2025-02-28:2025-05-29"
     expected:
       evidence_id: seg.revenue
       qualifier: SBU
@@ -109,28 +89,10 @@ cases:
     established_at: "2026-09-07"
     established_by: "Victor Truong"
 
-  # ── CASE 5 — the cumulative trap on a DIFFERENT segment. ★ If the tag were
-  #    applied by position rather than by reading, this is where it shows.
-  - case_id: mu-fy2025q3-ebu-revenue-ytd
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.revenue|EBU|2024-08-30:2025-05-29"
-    expected:
-      evidence_id: seg.revenue
-      qualifier: EBU
-      value: "3,304"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]
-      period: {start: "2024-08-30", end: "2025-05-29"}
-    source: >-
-      Same filing, 'Revenue' table, EBU row, 'Nine Months Ended May 29, 2025'
-      column (col 3 of 4).
-    established_at: "2026-09-07"
-    established_by: "Victor Truong"
-
   # ── CASE 6 — a different evidence_id on the SAME segment. ⚠ If revenue and
   #    operating income were ever crossed, case 1 alone would not notice.
   - case_id: mu-fy2025q3-cnbu-op-income
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.op_income|CNBU|2025-02-28:2025-05-29"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.op_income|CNBU|2025-02-28:2025-05-29"
     expected:
       evidence_id: seg.op_income
       qualifier: CNBU
@@ -144,49 +106,13 @@ cases:
     established_at: "2026-09-07"
     established_by: "Victor Truong"
 
-  # ── CASE 7 — cumulative on OPERATING INCOME, not revenue. ★ The scar tag must
-  #    ride on every figure that has a period, not just the headline one.
-  - case_id: mu-fy2025q3-mbu-op-income-ytd
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.op_income|MBU|2024-08-30:2025-05-29"
-    expected:
-      evidence_id: seg.op_income
-      qualifier: MBU
-      value: "604"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]
-      period: {start: "2024-08-30", end: "2025-05-29"}
-    source: >-
-      Same filing, 'Operating income (loss)' table, MBU row, nine-month column.
-    established_at: "2026-09-07"
-    established_by: "Victor Truong"
-
-  # ── CASE 8 — ⚠ EBU nine-month op income (112) barely exceeds its own QUARTER
-  #    (98). That is unusual and worth a second look at the filing: it is the
-  #    kind of pair a careless reading transposes.
-  - case_id: mu-fy2025q3-ebu-op-income-ytd
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.op_income|EBU|2024-08-30:2025-05-29"
-    expected:
-      evidence_id: seg.op_income
-      qualifier: EBU
-      value: "112"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]
-      period: {start: "2024-08-30", end: "2025-05-29"}
-    source: >-
-      Same filing, 'Operating income (loss)' table, EBU row, 'Nine Months Ended
-      May 29, 2025' column (col 3 of 4).
-    established_at: "2026-09-07"
-    established_by: "Victor Truong"
-
   # ── ★★ CASE 9 — the `not_found` path (MP-7). NO period, NO value.
   #    ⚠ The ONLY case asserting the system says "I could not" instead of
   #      inventing. E-01 asks for seg.assets "if disclosed"; Micron states it
   #      does NOT report assets by segment. Nothing else in the set catches a
   #      fabrication here.
   - case_id: mu-fy2025q3-seg-assets-not-disclosed
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.assets||:"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.assets||:"
     expected:
       evidence_id: seg.assets
       status: not_found
@@ -198,7 +124,7 @@ cases:
 
   # ── CASE 10 — a NARRATIVE item (C14): text, no period.
   - case_id: mu-fy2025q3-cnbu-segment-name
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.name|CNBU|:"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.name|CNBU|:"
     expected:
       evidence_id: seg.name
       qualifier: CNBU
@@ -256,7 +182,7 @@ cases:
 
   # ── ★ CASE 11 — the flagship discrete quarter, largest segment.
   - case_id: amd-fy2025q3-datacenter-revenue
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.revenue|Data Center|2025-06-29:2025-09-27"
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.revenue|Data Center|2025-06-29:2025-09-27"
     expected:
       evidence_id: seg.revenue
       qualifier: Data Center
@@ -272,23 +198,6 @@ cases:
     established_at: "2026-09-08"
     established_by: "Victor Truong"
 
-  # ── CASE 12 — the SAME row, cumulative. The trap, on a second filer.
-  - case_id: amd-fy2025q3-datacenter-revenue-ytd
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.revenue|Data Center|2024-12-29:2025-09-27"
-    expected:
-      evidence_id: seg.revenue
-      qualifier: Data Center
-      value: "11,255"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]
-      period: {start: "2024-12-29", end: "2025-09-27"}
-    source: >-
-      Same filing and table, Data Center row, 'Nine Months Ended
-      September 27, 2025' column (col 3 of 4).
-    established_at: "2026-09-08"
-    established_by: "Victor Truong"
-
   # ── ★★ CASE 13 — THE NESTED-SEGMENT TEST. Nothing in filing 1 covers this.
   #    The table shows THREE rows under this heading:
   #        Client                  | 2,750 | ...
@@ -299,7 +208,7 @@ cases:
   #    ==> The SEGMENT value is 4,048. An extractor returning 2,750 has read
   #        the indentation instead of the sentence.
   - case_id: amd-fy2025q3-clientgaming-revenue
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.revenue|Client and Gaming|2025-06-29:2025-09-27"
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.revenue|Client and Gaming|2025-06-29:2025-09-27"
     expected:
       evidence_id: seg.revenue
       qualifier: Client and Gaming
@@ -319,7 +228,7 @@ cases:
   #    ⚠ 'All Other' is explicitly NOT a reportable segment; it is where
   #      unallocated costs live. Parentheses mean a LOSS.
   - case_id: amd-fy2025q3-allother-op-income
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.op_income|All Other|2025-06-29:2025-09-27"
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.op_income|All Other|2025-06-29:2025-09-27"
     expected:
       evidence_id: seg.op_income
       qualifier: All Other
@@ -336,7 +245,7 @@ cases:
 
   # ── CASE 15 — the smallest segment; guards against small values being lost.
   - case_id: amd-fy2025q3-embedded-revenue
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.revenue|Embedded|2025-06-29:2025-09-27"
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.revenue|Embedded|2025-06-29:2025-09-27"
     expected:
       evidence_id: seg.revenue
       qualifier: Embedded
@@ -350,26 +259,9 @@ cases:
     established_at: "2026-09-08"
     established_by: "Victor Truong"
 
-  # ── CASE 16 — cumulative operating income on the nested segment.
-  - case_id: amd-fy2025q3-clientgaming-op-income-ytd
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.op_income|Client and Gaming|2024-12-29:2025-09-27"
-    expected:
-      evidence_id: seg.op_income
-      qualifier: Client and Gaming
-      value: "2,130"
-      unit: millions of USD
-      status: found
-      tags: [cumulative_ytd]
-      period: {start: "2024-12-29", end: "2025-09-27"}
-    source: >-
-      Same filing, 'Operating income (loss)' table, Client and Gaming row,
-      nine-month column (col 3 of 4).
-    established_at: "2026-09-08"
-    established_by: "Victor Truong"
-
   # ── CASE 17 — the not_found path on a SECOND filer (MP-7).
   - case_id: amd-fy2025q3-seg-assets-not-disclosed
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.assets||:"
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.assets||:"
     expected:
       evidence_id: seg.assets
       status: not_found
@@ -387,64 +279,12 @@ cases:
     established_at: "2026-09-08"
     established_by: "Victor Truong"
 
-# ═══════════════════════════════════════════════════════════════════════════
-# ★★ seg.basis_note — the LAST E-01 item id with no case, and the one whose
-#    absence caused DX-31. These are NARRATIVE cases: the finding IS a sentence.
-#
-# ⚠⚠ A FRAGILITY YOU SHOULD KNOW BEFORE SIGNING. These are addressed by
-#    `qualifier`, and unlike "CNBU" or "Data Center" — which are the company's
-#    own words — a basis-note qualifier is INVENTED BY THE MODEL. It chose
-#    'restatement basis', 'future recast', 'sub-business disclosure'. If a later
-#    run labels the same sentence differently, the selector misses and the case
-#    reds for a RELABEL, not a misreading.
-#    ★ Recorded as an open design question, not silently accepted. The two
-#      alternatives are no better: addressing by character span breaks whenever
-#      the fixture is re-rendered (C13 moved every offset, twice).
-# ═══════════════════════════════════════════════════════════════════════════
-
-  # ── ★★★ CASE 18 — THE RESTATEMENT FACT. The single most consequential
-  #    sentence in filing 2, and the reason E-01 v3 exists.
-  #    ⚠ If the system stops surfacing this, a restated prior-period figure gets
-  #      compared against an as-originally-reported one and NOTHING warns you.
-  - case_id: amd-fy2025q3-basis-note-restatement
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.basis_note|restatement basis|:"
-    expected:
-      evidence_id: seg.basis_note
-      status: found
-      value: "All prior period segment data were retrospectively adjusted."
-    source: >-
-      AMD 10-Q FY2025 Q3, accession 0000002488-25-000166, Note 4 Segment
-      Reporting. Verbatim sentence following the statement that the Company
-      combined the Client and Gaming segments effective FY2025.
-    established_at: "2026-09-09"
-    established_by: "Victor Truong"
-
-  # ── ★★ CASE 19 — the sentence that makes CASE 13 correct.
-  #    ⚠ Without it, nothing in the golden set records WHY 4,048 is the segment
-  #      figure and 2,750 is not. Case 13 asserts the number; this asserts the
-  #      REASON, and a reason nobody recorded is a reason nobody can re-check.
-  - case_id: amd-fy2025q3-basis-note-sub-business
-    input_ref: "run-2026-09-08T222412-amd-e01/extract:E-01:llm:1#seg.basis_note|sub-business disclosure|:"
-    expected:
-      evidence_id: seg.basis_note
-      status: found
-      value: >-
-        Neither of the Client and Gaming businesses qualify as a separate
-        reportable operating segment, however, the Company continues to
-        separately disclose revenue for each business.
-    source: >-
-      Same filing, Note 4, immediately preceding the segment table. This is the
-      statement that distinguishes a reportable SEGMENT from a business
-      disclosed within one.
-    established_at: "2026-09-09"
-    established_by: "Victor Truong"
-
   # ── CASE 20 — filing 1's own basis note: a recast ANNOUNCED but not made.
   #    ★ The contrast with case 18 is the point: MU says it WILL recast, AMD
   #      says it HAS. A system that reported these identically would erase the
   #      difference between a future comparability break and a past one.
   - case_id: mu-fy2025q3-basis-note-future-recast
-    input_ref: "run-2026-09-08T230439-mu-e01/extract:E-01:llm:1#seg.basis_note|future recast|:"
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.basis_note|future recast|:"
     expected:
       evidence_id: seg.basis_note
       status: found
@@ -475,7 +315,7 @@ cases:
   #    ★ Same sentence as case 23, different item — this is what `gd.language_
   #      note` is FOR.
   - case_id: mu-fy2025q3-gd-newyork-nonbinding
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.language_note|State of New York funding (non-binding term sheet)|:"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.language_note|New York State funding term sheet|:"
     expected:
       evidence_id: gd.language_note
       status: found
@@ -497,7 +337,7 @@ cases:
   #    QUOTE: "Expected amortization expense is $19 million for the remainder of
   #            2025, $69 million for 2026, $58 million for 2027, ..."
   - case_id: mu-fy2025q3-gd-amortization-2025
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.value|Expected amortization expense — remainder of 2025|2025-05-30:2025-08-28"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.value|amortization expense remainder FY2025|:"
     expected:
       evidence_id: gd.value
       status: found
@@ -506,27 +346,6 @@ cases:
     source: >-
       Same filing, intangible assets note. ⚠ Six figures share ONE sentence;
       the qualifier is what separates them.
-    established_at: "2026-09-09"
-    established_by: "Victor Truong"
-
-  # ── ★ CASE 26 — a RELATIVE period must stay relative.
-  #    ⚠ "in the next 12 months" is what the company said. Resolving it to a
-  #      date is a COMPUTATION, and `MP-6` says no prompt computes. If a later
-  #      run returns "2026-05-28" here, the system has started inferring and
-  #      calling it extraction.
-  #    QUOTE: "As of May 29, 2025, we expect to reclassify $20 million of
-  #            pre-tax gains related to cash flow hedges from accumulated other
-  #            comprehensive income (loss) into earnings in the next 12 months."
-  - case_id: mu-fy2025q3-gd-hedge-relative-period
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.period|Cash flow hedge reclassification to earnings|2025-05-30:2026-05-28"
-    expected:
-      evidence_id: gd.period
-      status: found
-      value: "in the next 12 months"
-    source: >-
-      Same filing, derivatives note. ★ The structured `period` field may carry
-      the resolved dates — that is the SELECTOR's business. The VALUE must stay
-      the company's own words.
     established_at: "2026-09-09"
     established_by: "Victor Truong"
 
@@ -541,7 +360,7 @@ cases:
   #      `gd.prior_value` properly needs a multi-filing bundle (filing 3).
   #    ⚠⚠ If this ever reds "found", a prior value has been INVENTED.
   - case_id: mu-fy2025q3-gd-prior-value-absent
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.prior_value||:"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.prior_value||:"
     expected:
       evidence_id: gd.prior_value
       status: not_found
@@ -550,29 +369,6 @@ cases:
       statement of any guidance is available to compare against. ★ Establishing
       this means confirming the bundle really holds one filing — which is a
       fact about our own inputs, not about the document.
-    established_at: "2026-09-09"
-    established_by: "Victor Truong"
-
-  # ── ★★ CASE 28 — `MO-1`: a bare value is not monetary, and a per-share unit
-  #    is not millions.
-  #    ⚠ "0.115" with unit "millions of USD" would be $115,000 per share. The
-  #      mutation that reds this case is exactly that swap. ★ Every other value
-  #      in this set is millions or billions; this is the one that is neither.
-  #    QUOTE: "On June 25, 2025, our Board of Directors declared a quarterly
-  #            dividend of $0.115 per share, payable in cash on July 22, 2025,
-  #            to shareholders of record as of the close of business on
-  #            July 7, 2025."
-  - case_id: mu-fy2025q3-gd-dividend-per-share
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.value|Declared quarterly dividend (payable July 22, 2025)|:2025-07-22"
-    expected:
-      evidence_id: gd.value
-      status: found
-      value: "0.115 per share"
-      unit: "USD per share"
-    source: >-
-      Same filing, equity note. ⚠ A DECLARED dividend is guidance in the sense
-      E-02 means it: a future payment the company itself committed to, with a
-      stated date.
     established_at: "2026-09-09"
     established_by: "Victor Truong"
 
@@ -592,7 +388,7 @@ cases:
   #            equipment, net of proceeds from government incentives, to be
   #            approximately $14 billion."
   - case_id: mu-fy2025q3-gd-capex-value
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.value|FY2025 capital expenditures|2024-08-30:2025-08-28"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.value|capex FY2025|:"
     expected:
       evidence_id: gd.value
       status: found
@@ -613,7 +409,7 @@ cases:
   #            grants of up to $6.4 billion in connection with our U.S.
   #            manufacturing expansion and modernization projects."
   - case_id: mu-fy2025q3-gd-chips-ceiling
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.value|CHIPS Act direct funding grants|:"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.value|CHIPS Act grants|:"
     expected:
       evidence_id: gd.value
       status: found
@@ -643,7 +439,7 @@ cases:
   #            New York that provides for up to $5.5 billion in funding for the
   #            planned four-fab facility over the next 20-plus years ..."
   - case_id: mu-fy2025q3-gd-newyork-ceiling
-    input_ref: "run-2026-09-09T074110-mu-e02/extract:E-02:llm:1#gd.value|State of New York funding (non-binding term sheet)|:"
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.value|New York State funding term sheet|:"
     expected:
       evidence_id: gd.value
       status: found
@@ -655,3 +451,282 @@ cases:
     established_at: "2026-09-09"
     established_by: "Victor Truong"
 
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳⏳ WITHDRAWN 2026-09-11 (`DX-74`) — 2 AMD seg.basis_note CASES
+#
+# ⚠⚠ These are UNADDRESSABLE in the `v4` recording, not failing in it. The
+#    values are still present and still correct. What vanished is the field
+#    that TELLS THEM APART.
+#
+# ★★★ Measured on the two AMD runs, 82 minutes apart, same prompt family:
+#
+#      run-...T070909 (v3+envelope)  3 basis notes, each with a qualifier:
+#         'Segment structure change / restatement'
+#         'Client and Gaming sub-rows'
+#         'Goodwill reassignment'
+#      run-...T082118 (v4)           4 basis notes, ALL with qualifier ''
+#
+#    ==> 4 items collapse onto one `MP-18` identity and `_select` refuses —
+#        correctly. Taking the first would hide exactly the ambiguity MP-18
+#        exists to prevent.
+#
+# ⚠⚠ THE STRUCTURAL POINT, which is bigger than these two cases: `qualifier`
+#    is FREE TEXT THE MODEL INVENTS, and `MP-18` makes it part of the identity.
+#    It has now been observed to REWORD between runs ('restatement basis' ->
+#    'Segment structure change / restatement') and to DISAPPEAR entirely. An
+#    identity component the model re-authors each run is not an identity.
+#    ★ For figures this never bit, because there the qualifier is a SEGMENT
+#      NAME copied from the table — externally fixed. It bites on narrative
+#      items, where the qualifier is a LABEL the model composes.
+#
+# ⬜ Needs a decision (see `DX-74` in L3 for the options). Parked, not deleted.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ★★ seg.basis_note — the LAST E-01 item id with no case, and the one whose
+#    absence caused DX-31. These are NARRATIVE cases: the finding IS a sentence.
+#
+# ⚠⚠ A FRAGILITY YOU SHOULD KNOW BEFORE SIGNING. These are addressed by
+#    `qualifier`, and unlike "CNBU" or "Data Center" — which are the company's
+#    own words — a basis-note qualifier is INVENTED BY THE MODEL. It chose
+#    'restatement basis', 'future recast', 'sub-business disclosure'. If a later
+#    run labels the same sentence differently, the selector misses and the case
+#    reds for a RELABEL, not a misreading.
+#    ★ Recorded as an open design question, not silently accepted. The two
+#      alternatives are no better: addressing by character span breaks whenever
+#      the fixture is re-rendered (C13 moved every offset, twice).
+# ═══════════════════════════════════════════════════════════════════════════
+
+  # ── ★★★ CASE 18 — THE RESTATEMENT FACT. The single most consequential
+  #    sentence in filing 2, and the reason E-01 v3 exists.
+  #    ⚠ If the system stops surfacing this, a restated prior-period figure gets
+  #      compared against an as-originally-reported one and NOTHING warns you.
+  - case_id: amd-fy2025q3-basis-note-restatement
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.basis_note||:@22633:22914"
+    expected:
+      evidence_id: seg.basis_note
+      status: found
+      value: "All prior period segment data were retrospectively adjusted."
+    source: >-
+      AMD 10-Q FY2025 Q3, accession 0000002488-25-000166, Note 4 Segment
+      Reporting. Verbatim sentence following the statement that the Company
+      combined the Client and Gaming segments effective FY2025.
+    established_at: "2026-09-09"
+    established_by: "Victor Truong"
+
+
+
+  # ── ★★ CASE 19 — the sentence that makes CASE 13 correct.
+  #    ⚠ Without it, nothing in the golden set records WHY 4,048 is the segment
+  #      figure and 2,750 is not. Case 13 asserts the number; this asserts the
+  #      REASON, and a reason nobody recorded is a reason nobody can re-check.
+  - case_id: amd-fy2025q3-basis-note-sub-business
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.basis_note||:@24803:24979"
+    expected:
+      evidence_id: seg.basis_note
+      status: found
+      value: >-
+        Neither of the Client and Gaming businesses qualify as a separate
+        reportable operating segment, however, the Company continues to
+        separately disclose revenue for each business.
+    source: >-
+      Same filing, Note 4, immediately preceding the segment table. This is the
+      statement that distinguishes a reportable SEGMENT from a business
+      disclosed within one.
+    established_at: "2026-09-09"
+    established_by: "Victor Truong"
+
+  # ═════════════════════════════════════════════════════════════════════
+  # ★★★ THE 6 YTD CASES — re-established by Victor Truong 2026-09-11
+  #     (`DX-73` option ⓑ). `period.start` is now `null`: the filing does
+  #     not state it, and prior-FY-end PLUS ONE DAY is arithmetic `S-2`
+  #     forbids the model to perform. ⚠ Every VALUE is unchanged from the
+  #     2026-09-07 signature — only the claim about the start date moved.
+  # ★ These restore the `cumulative_ytd` guard, whose declaration in
+  #   test_golden_regression.py expires on their return.
+  # ═════════════════════════════════════════════════════════════════════
+  - case_id: mu-fy2025q3-cnbu-revenue-ytd
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.revenue|CNBU|:2025-05-29|ytd"
+    expected:
+      evidence_id: seg.revenue
+      qualifier: CNBU
+      value: "14,028"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]        # ★ the scar tag - "do not subtract"
+      period: {start: null, end: "2025-05-29"}
+    source: >-
+      Same filing and table, CNBU row, 'Nine Months Ended May 29, 2025' column
+      (col 3 of 4). period.start is NOT ASSERTED: the filing does not
+      state it. Measured 2026-09-11 - "August 30, 2024" appears ZERO times in
+      MU_FY2025Q3_10Q.txt; "August 29, 2024" appears twice, as the prior fiscal
+      year end. The nine-month start is that date PLUS ONE DAY, i.e. arithmetic,
+      which S-2 forbids the model to perform (DX-73).
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+
+
+  # ── CASE 5 — the cumulative trap on a DIFFERENT segment. ★ If the tag were
+  #    applied by position rather than by reading, this is where it shows.
+  - case_id: mu-fy2025q3-ebu-revenue-ytd
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.revenue|EBU|:2025-05-29|ytd"
+    expected:
+      evidence_id: seg.revenue
+      qualifier: EBU
+      value: "3,304"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]
+      period: {start: null, end: "2025-05-29"}
+    source: >-
+      Same filing, 'Revenue' table, EBU row, 'Nine Months Ended May 29, 2025'
+      column (col 3 of 4).
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+
+
+  # ── CASE 7 — cumulative on OPERATING INCOME, not revenue. ★ The scar tag must
+  #    ride on every figure that has a period, not just the headline one.
+  - case_id: mu-fy2025q3-mbu-op-income-ytd
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.op_income|MBU|:2025-05-29|ytd"
+    expected:
+      evidence_id: seg.op_income
+      qualifier: MBU
+      value: "604"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]
+      period: {start: null, end: "2025-05-29"}
+    source: >-
+      Same filing, 'Operating income (loss)' table, MBU row, nine-month column.
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+
+
+  # ── CASE 8 — ⚠ EBU nine-month op income (112) barely exceeds its own QUARTER
+  #    (98). That is unusual and worth a second look at the filing: it is the
+  #    kind of pair a careless reading transposes.
+  - case_id: mu-fy2025q3-ebu-op-income-ytd
+    input_ref: "run-2026-09-11T082002-mu-e01/extract:E-01:llm:1#seg.op_income|EBU|:2025-05-29|ytd"
+    expected:
+      evidence_id: seg.op_income
+      qualifier: EBU
+      value: "112"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]
+      period: {start: null, end: "2025-05-29"}
+    source: >-
+      Same filing, 'Operating income (loss)' table, EBU row, 'Nine Months Ended
+      May 29, 2025' column (col 3 of 4).
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+
+
+  # ── CASE 12 — the SAME row, cumulative. The trap, on a second filer.
+  - case_id: amd-fy2025q3-datacenter-revenue-ytd
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.revenue|Data Center|:2025-09-27|ytd"
+    expected:
+      evidence_id: seg.revenue
+      qualifier: Data Center
+      value: "11,255"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]
+      period: {start: null, end: "2025-09-27"}
+    source: >-
+      Same filing and table, Data Center row, 'Nine Months Ended
+      September 27, 2025' column (col 3 of 4).
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+
+
+  # ── CASE 16 — cumulative operating income on the nested segment.
+  - case_id: amd-fy2025q3-clientgaming-op-income-ytd
+    input_ref: "run-2026-09-11T082118-amd-e01/extract:E-01:llm:1#seg.op_income|Client and Gaming|:2025-09-27|ytd"
+    expected:
+      evidence_id: seg.op_income
+      qualifier: Client and Gaming
+      value: "2,130"
+      unit: millions of USD
+      status: found
+      tags: [cumulative_ytd]
+      period: {start: null, end: "2025-09-27"}
+    source: >-
+      Same filing, 'Operating income (loss)' table, Client and Gaming row,
+      nine-month column (col 3 of 4).
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+  # ═════════════════════════════════════════════════════════════════════
+  # ★★★ THE 2 E-02 SUBSET CASES — established by Victor Truong 2026-09-11
+  #     (`DX-77` option ⓒ). `expected` asserts evidence_id + status +
+  #     unit + SPAN, and is deliberately SILENT about `value` and
+  #     `qualifier` — the two fields the model authors.
+  # ★ Measured across 4 runs: the span was identical in all four; the
+  #   value text varied. Each subset still matches exactly 1 of 63
+  #   items, and both RED under span mutation — not a weaker case.
+  # ⚠ `DX-79` — under the old value-pinning scheme, whether these
+  #   passed depended on WHICH RUN was promoted. That is what ⓒ fixes.
+  # ═════════════════════════════════════════════════════════════════════
+
+  # ── gd.period · the hedge reclassification window.
+  #    ⚠ `unit` is empty here, so span is doing ALL the discriminating work.
+  - case_id: mu-fy2025q3-gd-hedge-relative-period
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.period|cash flow hedge reclassification|:"
+    expected:
+      evidence_id: gd.period
+      status: found
+      unit: ""
+      span: {accession_id: "0000723125-25-000021", offset: [55427, 55615]}
+    source: >-
+      MU 10-Q FY2025 Q3, accession 0000723125-25-000021, derivatives note - the
+      sentence stating the amount expected to be reclassified from AOCI into
+      earnings, at filing offsets 55427-55615. ⚠ `value` is deliberately NOT
+      asserted (F5 §4's subset rule, DX-77): the filing fixes WHICH sentence
+      states the window, not whether the model copies it as "in the next 12
+      months" or "the next 12 months". Measured across 4 runs: the span was
+      identical in all 4, the wording differed in 1.
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"
+
+  # ── gd.value · the declared quarterly dividend, per share.
+  #    ★ `unit: USD per share` is unique across all 63 items on its own; the
+  #      span is belt-and-braces here rather than load-bearing.
+  #
+  #    ⚠⚠ WHY `value` GOES, stated here rather than in `source`: the previously
+  #    signed value "0.115 per share" carried "per share" in BOTH `value` and
+  #    `unit`, and E-01's own prompt says the currency belongs in the unit. So
+  #    the later bare "0.115" is arguably the better reading. ★ A golden case is
+  #    not automatically right for being signed — which is exactly why D2 hands
+  #    this call to you and not to the system.
+  #
+  #    ⓘ This paragraph lived in `source` until D2's provenance guard refused
+  #    the case for the phrase "the model's" — correctly: `source` records how
+  #    the value was established FROM THE DOCUMENT, and a sentence about what
+  #    the model said is not that. The guard fired on my prose, not on yours.
+  - case_id: mu-fy2025q3-gd-dividend-per-share
+    input_ref: "run-2026-09-11T115548-mu-e02/extract:E-02:llm:1#gd.value|declared quarterly dividend|:"
+    expected:
+      evidence_id: gd.value
+      status: found
+      unit: USD per share
+      span: {accession_id: "0000723125-25-000021", offset: [51931, 52127]}
+    source: >-
+      MU 10-Q FY2025 Q3, accession 0000723125-25-000021, subsequent-events /
+      dividend paragraph at filing offsets 51931-52127, declaring the quarterly
+      dividend per share. ⚠ `value` is deliberately NOT asserted (DX-77, and
+      F5 §4's subset rule): the filing fixes WHICH paragraph declares the
+      per-share dividend, not how a transcription splits the figure from its
+      denomination. ★ `unit` still pins that this is a PER-SHARE money figure,
+      which is the substantive claim this case exists to guard.
+    established_at: "2026-09-11"
+    established_by: "Victor Truong"

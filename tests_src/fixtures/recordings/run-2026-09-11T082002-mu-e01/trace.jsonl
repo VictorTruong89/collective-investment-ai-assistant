@@ -1,0 +1,2 @@
+{"type": "ExternalCall", "run_id": "run-2026-09-11T082002-mu-e01", "step_id": "extract:E-01", "call_id": "extract:E-01:llm:1", "kind": "llm", "model_id": "claude-opus-5", "prompt_version": "v4", "tokens": {"input": 76576, "output": 7919}, "cost_usd": 0.580855, "latency_ms": 71420, "error": null, "payload_ref": "extract:E-01:llm:1", "_key": "call:extract:E-01:llm:1"}
+{"type": "__run_closed__", "status": "SUCCESS"}

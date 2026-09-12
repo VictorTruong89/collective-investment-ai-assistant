@@ -256,9 +256,22 @@ def compose_prompt(block, *, stage_a: bool = False, fresh: bool = False) -> str:
     this good* — none does) are told different things about what their answer
     is worth.
     """
-    if block.kind == "extraction":
-        parts = [EXTRACTION_PREAMBLE, *EXTRACTION_SECTIONS]
-    elif block.kind == "judgement":
+    parts = [*_envelope_parts(block.kind, stage_a=stage_a, fresh=fresh),
+             block.text]
+    return "\n\n".join(p.strip("\n") for p in parts)
+
+
+def _envelope_parts(kind: str, *, stage_a: bool, fresh: bool) -> list[str]:
+    """The sections composed in FRONT of a block, in order — and nothing else.
+
+    ★★ `DX-76` — factored out so `compose_prompt` and `envelope_hash` cannot
+    disagree about what the envelope is. ⚠ A hash computed from a second,
+    parallel list would be a hash of something the vendor never saw, which is
+    worse than no hash at all.
+    """
+    if kind == "extraction":
+        return [EXTRACTION_PREAMBLE, *EXTRACTION_SECTIONS]
+    if kind == "judgement":
         parts = [JUDGEMENT_PREAMBLE, *JUDGEMENT_SECTIONS]
         # ⚠ Declared by the caller, never guessed from the block id: `J-01`
         #   being Stage A is a fact about `STAGE_BLOCKS`, not about its name.
@@ -266,10 +279,8 @@ def compose_prompt(block, *, stage_a: bool = False, fresh: bool = False) -> str:
             parts.append(STAGE_A_SECTION)
         if fresh:
             parts.append(FRESH_SECTION)
-    else:                                          # pragma: no cover
-        raise ValueError(f"unknown block kind {block.kind!r} (RA-5)")
-    parts.append(block.text)
-    return "\n\n".join(p.strip("\n") for p in parts)
+        return parts
+    raise ValueError(f"unknown block kind {kind!r} (RA-5)")
 
 
 #: ★ Declared once so the drift guard and the composer cannot disagree about
@@ -279,3 +290,35 @@ ALL_SECTIONS = {"S-1": S1, "S-2": S2, "S-3": S3, "S-4": S4, "S-5": S5,
 
 #: ⚠ Hashed at import, the same discipline `block()` applies to block text.
 SECTION_HASHES = {k: content_hash(v) for k, v in ALL_SECTIONS.items()}
+
+
+def envelope_hash(kind: str, *, stage_a: bool = False, fresh: bool = False) -> str:
+    """★★★ `DX-76` — the identity of the ENVELOPE that was composed into a call.
+
+    ⚠⚠ **The gap this closes.** `F2`'s `prompt_version` records the BLOCK's
+    version, and `test_the_recording_is_not_from_a_RETIRED_prompt_version`
+    compares it against the version the repo ships. That guard fired correctly
+    when `E-01` went `v3` → `v4`.
+
+    ★★★ It could not see `DX-67` at all. Composing `S-1`…`S-6` in front of every
+    prompt changed **every call this project makes** and bumped **no version** —
+    `E-02` is `v2` before and after — so a pre-envelope and a post-envelope
+    recording are indistinguishable in the trace. ⚠ The largest prompt change
+    the project has made sat in the one place the versioning scheme had no name
+    for: the envelope is per-block-INDEPENDENT text, and the version is
+    per-block.
+
+    ⚠ And the artefact could not settle it either: `promote_recording` elides
+    `request.payload`, which is where the composed prompt lives. So *"was this
+    recording made under the envelope?"* was unanswerable after the fact.
+
+    ★ This hashes exactly the sections `compose_prompt` would prepend, in order,
+    and **excludes `block.text`** — that half is already covered by
+    `prompt_version`, and folding it in would make every block's envelope hash
+    differ for no reason. `"none"` is returned for an empty envelope so a
+    pre-`DX-67` recording is named rather than merely null.
+    """
+    parts = _envelope_parts(kind, stage_a=stage_a, fresh=fresh)
+    if not parts:                                  # pragma: no cover
+        return "none"
+    return content_hash("\n\n".join(p.strip("\n") for p in parts))

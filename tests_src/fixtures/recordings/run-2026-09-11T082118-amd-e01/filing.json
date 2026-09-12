@@ -1,0 +1,4 @@
+{
+  "ticker": "AMD",
+  "fixture": "tests_src/fixtures/filings/AMD_FY2025Q3_10Q.txt"
+}

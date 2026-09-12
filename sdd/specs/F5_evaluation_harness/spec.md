@@ -201,7 +201,7 @@ stays local and the mirror ships the machinery without the answers.
   > teaches people to ignore red**, which destroys it permanently.
 - **AC-5.18** *(★ a golden case resolves to its recording — `A3`, `DX-21`)* — **Given** a case whose
   `input_ref` is `<run_id>/<call_id>`, optionally with a selector
-  `#<evidence_id>|<qualifier>|<start>:<end>`, **when** the regression runs, **then** the recorded
+  `#<evidence_id>|<qualifier>|<start>:<end>[|ytd]`, **when** the regression runs, **then** the recorded
   response is served from `F2`'s payload store — and, with a selector, the ONE item matching that
   identity is picked out of it — and compared to `expected`; **and** an expired payload, a missing
   recording or a malformed `input_ref` **raises `UnresolvableCase`** rather than being skipped. → *unit.*
@@ -215,6 +215,19 @@ stays local and the mirror ships the machinery without the answers.
   > `MP-18`'s identity, so the golden set's granularity and the extraction's identity are one thing
   > rather than two conventions to keep in step. A vanished item raises — *the reading this case pins
   > is gone* is the regression, not a missing fixture.
+  > ✏ **Amended `A4` 2026-09-11 (`DX-68`) — the selector gained `[|ytd]`, `MP-18`'s fourth
+  > component.** The shared prompt envelope's `S-2` item 3 — *"Do not compute … record a data gap"* —
+  > made the model stop reporting `period_start` on segment rows, because a segment table states only
+  > the period END and the start must be **derived**. ⚠ It was obeying the instruction. But `period`
+  > had been carrying the entire discrete-vs-year-to-date distinction, so **20 of 65 items collapsed
+  > onto 20 duplicate identities** and the `ExtractionResult` was refused. ★ `cumulative_ytd` is a
+  > fact the model **records**, not one it must compute, so the identity now rests on observation
+  > rather than arithmetic — which is `AP-5` read the right way round: *a derived quantity does not
+  > belong in an identity.*
+  > ⚠⚠ **Absence of the flag ASSERTS "discrete"; it is not a don't-care** — so this is deliberately
+  > **not** backward compatible for cumulative rows, and **6 of 28 golden selectors were updated**.
+  > ★ A don't-care would have matched both rows and rebuilt the exact ambiguity the component was
+  > added to remove; breaking loudly, by case name, is the cheaper failure.
 - **AC-5.17** *(★ the golden set is loaded from disk, and validated on load — `A1`)* — **Given**
   `tests_src/fixtures/golden/*.yaml`, **when** the set is loaded, **then** every case is constructed
   through `CT-5.2`'s validation — so `D2`'s circularity check runs on **file** contents, not only on
@@ -259,6 +272,12 @@ stays local and the mirror ships the machinery without the answers.
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
+> ✏ **Amended `A4` 2026-09-11** — `AC-5.18`: the selector gained `[|ytd]` (`DX-68`). ⚠ `MP-18`'s
+> identity had rested on a quantity the model must **derive**; it now rests on one it **records**.
+> ★ The finding arrived through the front door: the first post-envelope re-record produced 20
+> duplicate identities and **refused to parse** — the failure was loud, immediate, and unmissable,
+> which is the whole argument for `MP-18` being a constructor check rather than a lint.
+>
 > ✏ **Amended `A3` 2026-09-05** — `AC-5.18` + `CT-5.2`: `input_ref` settled as the **recording**, and
 > `replay_response` implemented (`DX-21`). ⚠ Until this, `run_regression` took a callable nothing ever
 > supplied, so a golden case could be written and **never run** — the third rung of the same ladder as
@@ -448,7 +467,7 @@ step, so the limitation never surfaced.
 | AC-5.15 | `tests/structural/test_evaluation_boundaries.py::test_ac_5_15_*` (3) | `tools/check_evaluation_boundaries.py::study_consumer_violations` |
 | AC-5.16 | `::test_ac_5_16_a_figure_whose_inputs_expired_is_marked` | `metrics/models.py::MetricResult.recomputable` |
 | AC-5.17 | `tests/unit/test_golden_store.py::test_ac_5_17_*` (6) | `golden/store.py::load_kind` · `load_all` · `coverage` |
-| AC-5.18 | `tests/unit/test_golden_replay.py::test_dx_21_*` (8) · `::test_dx_25_*` (5) | `regression/replay.py::recorded_response` · `_select` |
+| AC-5.18 | `tests/unit/test_golden_replay.py::test_dx_21_*` (8) · `::test_dx_25_*` (5) · ★ `::test_dx_68_*` (5) | `regression/replay.py::recorded_response` · `_select` · `INPUT_REF_RE` |
 
 ✅ **All 16 ACs green, 2026-09-04** — **21 mutations run, all caught on the first pass.**
 

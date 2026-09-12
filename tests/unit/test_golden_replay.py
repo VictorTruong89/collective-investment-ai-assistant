@@ -114,7 +114,8 @@ def test_dx_25_cases_1_and_2_differ_only_by_period_and_both_resolve(tmp_path):
     _e01_call(tmp_path)
     reader = recorded_response(f2_payload_reader(tmp_path))
     discrete = f"{RUN}/{CALL}#seg.revenue|CNBU|2025-02-28:2025-05-29"
-    ytd = f"{RUN}/{CALL}#seg.revenue|CNBU|2024-08-30:2025-05-29"
+    # ⚠ `DX-68` — the `|ytd` flag is now REQUIRED on a cumulative row.
+    ytd = f"{RUN}/{CALL}#seg.revenue|CNBU|2024-08-30:2025-05-29|ytd"
     assert reader(discrete)["value"] == "5,069"
     assert reader(ytd)["value"] == "14,028"
     assert reader(ytd)["tags"] == ["cumulative_ytd"]
@@ -139,7 +140,10 @@ def test_dx_25_an_ambiguous_selector_raises_rather_than_taking_the_first(tmp_pat
                period_end="2025-05-29", qualifier="CNBU").to_json_obj()
     _record(tmp_path, [dup, dict(dup, value="2")])
     ref = f"{RUN}/{CALL}#seg.revenue|CNBU|2025-02-28:2025-05-29"
-    with pytest.raises(UnresolvableCase, match="share one identity"):
+    # ⚠ `DX-74` — "one SELECTOR", not "one identity". The distinction is the
+    #   finding: for a non-figure the two DO have different identities (the
+    #   span), and it was the selector that could not say so.
+    with pytest.raises(UnresolvableCase, match="share one selector"):
         recorded_response(f2_payload_reader(tmp_path))(ref)
 
 
@@ -149,6 +153,93 @@ def test_dx_25_a_bare_ref_still_compares_the_whole_response(tmp_path):
     report = run_regression([_case(RESPONSE)],
                             recorded_response(f2_payload_reader(tmp_path)))
     assert report.verdict == "PASS"
+
+
+# ── DX-68 · the post-envelope shape: no period_start, only the ytd flag ────
+
+def _e01_call_no_start(root):
+    """★★ The recording the shared prompt envelope actually produces.
+
+    ⚠ `S-2` item 3 says *"Do not compute… record a data gap"*, and a segment
+    table states only the period END — so the model stopped reporting
+    `period_start`. Measured on `run-2026-09-11T065539-mu-e01`: **65 of 65
+    items carried `period_start: None`**, and `period` alone no longer told the
+    discrete column from the year-to-date one.
+    """
+    from src.fundamental.filings.extract import item
+
+    def mk(v, qual, cum=False):
+        q = f"{qual} {v}"
+        return item("seg.revenue", value=v, unit="millions of USD", quote=q,
+                    accession_id="acc", offset=(0, len(q)), period_start=None,
+                    period_end="2025-05-29", cumulative_ytd=cum,
+                    qualifier=qual).to_json_obj()
+
+    rows = [mk("5,069", "CNBU"), mk("14,028", "CNBU", True)]
+    _record(root, rows)
+    return rows
+
+
+def test_dx_68_ytd_separates_two_rows_that_period_no_longer_separates(tmp_path):
+    """★★★ `DX-68` — the pair that collapsed. Same evidence_id, same qualifier,
+    same (start-less) period; the ONLY thing left distinguishing them is the
+    tag the model records rather than derives."""
+    _e01_call_no_start(tmp_path)
+    reader = recorded_response(f2_payload_reader(tmp_path))
+    assert reader(f"{RUN}/{CALL}#seg.revenue|CNBU|:2025-05-29")["value"] == "5,069"
+    assert reader(f"{RUN}/{CALL}#seg.revenue|CNBU|:2025-05-29|ytd")["value"] == "14,028"
+
+
+def test_dx_68_an_absent_flag_asserts_discrete_rather_than_dont_care(tmp_path):
+    """⚠⚠ The failure this closes. Were the flag a *don't care*, the unflagged
+    ref would match BOTH rows — which is the 20-duplicate state `MP-18` exists
+    to forbid, arrived at through the selector instead of the extractor."""
+    _e01_call_no_start(tmp_path)
+    hit = recorded_response(f2_payload_reader(tmp_path))(
+        f"{RUN}/{CALL}#seg.revenue|CNBU|:2025-05-29")
+    assert hit["tags"] == []
+
+
+def test_dx_68_a_ytd_ref_whose_row_is_gone_raises(tmp_path):
+    """★ `DX-20`'s rule reaching the new component: a vanished reading is the
+    regression, never a skip."""
+    from src.fundamental.filings.extract import item
+    q = "CNBU 5,069"
+    only_discrete = item("seg.revenue", value="5,069", unit="u", quote=q,
+                         accession_id="acc", offset=(0, len(q)),
+                         period_start=None, period_end="2025-05-29",
+                         qualifier="CNBU").to_json_obj()
+    _record(tmp_path, [only_discrete])
+    with pytest.raises(UnresolvableCase, match="cumulative_ytd"):
+        recorded_response(f2_payload_reader(tmp_path))(
+            f"{RUN}/{CALL}#seg.revenue|CNBU|:2025-05-29|ytd")
+
+
+def test_dx_68_the_selector_tag_has_not_drifted_from_the_domain_constant():
+    """⚠ `replay.py` duplicates the tag as a literal because it reaches no
+    domain module (`MP-5`). ★ A test may import both, so the duplication is
+    checked rather than merely commented."""
+    from src.evaluation.regression.replay import CUMULATIVE_YTD_TAG
+    from src.fundamental.filings.models import CUMULATIVE_YTD
+    assert CUMULATIVE_YTD_TAG == CUMULATIVE_YTD
+
+
+def test_dx_68_a_discrete_ref_is_unchanged_but_a_ytd_one_must_gain_the_flag(tmp_path):
+    """⚠⚠ `DX-68` is **not** backward compatible, and that is deliberate.
+
+    A pre-`DX-68` ref to a *discrete* row still resolves. A pre-`DX-68` ref to a
+    *cumulative* row now **raises**, because the absent flag asserts "discrete".
+    ★ That is the right direction to break in: it is loud, it names the case,
+    and it cannot be mistaken for a pass. The silent alternative — treating an
+    absent flag as *don't care* — would have matched both rows and reproduced
+    the very ambiguity this component was added to remove.
+    """
+    rows = _e01_call(tmp_path)
+    reader = recorded_response(f2_payload_reader(tmp_path))
+    assert reader(f"{RUN}/{CALL}#seg.revenue|CNBU|2025-02-28:2025-05-29") == rows[0]
+    with pytest.raises(UnresolvableCase, match="discrete"):
+        reader(f"{RUN}/{CALL}#seg.revenue|CNBU|2024-08-30:2025-05-29")
+    assert reader(f"{RUN}/{CALL}#seg.revenue|CNBU|2024-08-30:2025-05-29|ytd") == rows[2]
 
 
 def test_dx_26_a_trace_cannot_be_closed_twice(tmp_path):
@@ -224,3 +315,77 @@ def test_a_recording_states_which_prompt_version_produced_it(tmp_path):
     store.close()
     (rec,) = [r for r in store.read_all() if r["type"] == "ExternalCall"]
     assert rec["prompt_version"] == "v2"
+
+
+# ── DX-74 · the selector learns the span the identity already carries ────────
+
+def _four_basis_notes(root):
+    """★★ The AMD run that broke: 4 narrative items, NO qualifier on any.
+
+    ⚠ Measured on `run-2026-09-11T082118-amd-e01`. The run 82 minutes earlier
+    gave each note a qualifier; this one gave none — so `qualifier`, which
+    `MP-18` uses as an identity component, is **free text the model invents**.
+    """
+    from src.fundamental.filings.extract import item
+
+    notes, off = [], 0
+    for text in ("All prior period segment data were retrospectively adjusted.",
+                 "Neither of the Client and Gaming businesses qualifies.",
+                 "In the first quarter the Company reassigned goodwill.",
+                 "The three and nine months ended September 27, 2025."):
+        notes.append(item("seg.basis_note", value=text, unit=None, quote=text,
+                          accession_id="acc", offset=(off, off + len(text)),
+                          qualifier="").to_json_obj())
+        off += len(text) + 1
+    _record(root, notes)
+    return notes
+
+
+def test_dx_74_a_span_picks_one_of_four_otherwise_identical_notes(tmp_path):
+    """★★★ The two AMD cases come back. Without the span these four are one
+    selector; with it each addresses exactly one item."""
+    notes = _four_basis_notes(tmp_path)
+    reader = recorded_response(f2_payload_reader(tmp_path))
+    for note in notes:
+        start, end = note["span"]["offset"]
+        ref = f"{RUN}/{CALL}#seg.basis_note||:@{start}:{end}"
+        assert reader(ref)["value"] == note["value"]
+
+
+def test_dx_74_without_the_span_the_four_still_refuse(tmp_path):
+    """⚠⚠ The span NARROWS; it does not make ambiguity tolerable. A bare
+    selector over four indistinguishable items must still raise — `DX-25`'s
+    rule is unchanged, and the error now says what would separate them."""
+    _four_basis_notes(tmp_path)
+    with pytest.raises(UnresolvableCase, match="share one selector"):
+        recorded_response(f2_payload_reader(tmp_path))(f"{RUN}/{CALL}#seg.basis_note||:")
+
+
+def test_dx_74_the_error_names_the_spans_that_would_disambiguate(tmp_path):
+    """★ `CN-10` — an error that names the shortfall beats one that states it.
+    ⚠ It reports the spans as a FACT and warns that pinning one on a FIGURE
+    would hide a real duplicate rather than resolve it."""
+    _four_basis_notes(tmp_path)
+    with pytest.raises(UnresolvableCase) as exc:
+        recorded_response(f2_payload_reader(tmp_path))(f"{RUN}/{CALL}#seg.basis_note||:")
+    assert "their spans are" in str(exc.value)
+    assert "FIGURE" in str(exc.value)
+
+
+def test_dx_74_a_span_that_matches_nothing_raises_rather_than_widening(tmp_path):
+    """⚠ `DX-20`'s rule reaching the new component: an over-specified selector
+    that matches nothing is a VANISHED reading, never a silent fallback to the
+    unpinned match."""
+    _four_basis_notes(tmp_path)
+    with pytest.raises(UnresolvableCase, match="GONE"):
+        recorded_response(f2_payload_reader(tmp_path))(
+            f"{RUN}/{CALL}#seg.basis_note||:@9000:9100")
+
+
+def test_dx_74_pre_existing_refs_are_unaffected(tmp_path):
+    """★ Unlike `|ytd`, an absent span is NOT a positive assertion — it cannot
+    be, since a figure has no span in its identity at all. Every ref written
+    before `DX-74` keeps its exact meaning."""
+    rows = _e01_call(tmp_path)
+    reader = recorded_response(f2_payload_reader(tmp_path))
+    assert reader(f"{RUN}/{CALL}#seg.revenue|CNBU|2025-02-28:2025-05-29") == rows[0]

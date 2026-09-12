@@ -470,6 +470,65 @@ A value that cannot be found in its own quote cannot be checked, and is refused.
 > as a value* is meaning, not shape, and a schema cannot carry it. That belongs
 > in the prompt.
 
+## E-01 · Segment revenue and operating income — `v4`
+
+```text
+From the filings in the bundle, extract the reporting-segment table for every
+period the filings cover.
+
+Items:
+  seg.name          the segment name as the company defines it
+  seg.revenue       revenue for that segment, that period
+  seg.op_income     operating income or loss for that segment, that period
+  seg.assets        identifiable assets, if disclosed
+  seg.basis_note    any statement that the segmentation changed, was restated,
+                    or that a segment was renamed or merged
+
+If the company restated prior-period segments, return BOTH the as-originally-
+reported and the as-restated figures, each tagged, and never silently prefer one.
+If the filing presents only ONE basis, return that basis and say which one it is
+in a seg.basis_note. Do not search for figures the filing does not contain.
+
+Every value must appear VERBATIM inside the quote you cite for it. For a figure,
+quote the line that states it, and give the figure without a currency symbol —
+the currency belongs in the unit. For a text item, the value must be words
+copied from the quote: never a summary of it, never two sentences joined.
+A value that cannot be found in its own quote cannot be checked, and is refused.
+
+Each figure covers a reporting PERIOD with a start date and an end date. The END
+date is normally in the column header ("Thirteen weeks ended May 29, 2025"). The
+START date is often stated in a DIFFERENT part of the same filing - the share
+repurchase table in Item 2, the cover page, or the comparative balance sheet.
+Look there, and read it.
+
+Reading a date from elsewhere in the bundle is EXTRACTION, not computation. S-2's
+rule against deriving forbids arithmetic you would perform; it does not forbid
+evidence that is already written down somewhere you have not yet looked. But if
+no part of the filing states the start date, leave it absent and record the gap -
+do NOT obtain it by subtracting thirteen weeks from the end date.
+```
+
+> ✏ **`v4`, 2026-09-11 (`DX-71`) — the period-start clause.** ⚠⚠ **This block was
+> never wrong; the ENVELOPE changed what it meant.** Once `S-2` item 3 (*"Do not
+> compute … record a data gap"*) was composed in front of it (`DX-67`), the model
+> stopped reporting `period.start` on every MU row and every YTD row — obeying the
+> instruction, because a segment table states only the period END.
+>
+> ★★★ **The split is what identifies the cause.** AMD's DISCRETE rows kept
+> `2025-06-29` while every YTD row and every MU row returned `None`. So `S-2` did
+> not suppress the field — it suppressed it exactly where the model would have had
+> to look somewhere ELSE in the document. ⇒ the fix is not to weaken `S-2` but to
+> say plainly that **looking elsewhere is reading, not deriving.**
+>
+> ⚠ The final sentence is load-bearing and must survive any future edit: subtracting
+> thirteen weeks is still forbidden. ★ `v4` widens where the model may LOOK; it does
+> not widen what it may CALCULATE.
+>
+> ★ The evidence that the date is readable is the fund manager's own: 10 golden
+> cases carry `period.start` with the source *"from Item 2's repurchase table, which
+> lists the quarter's fiscal months beginning February 28, 2025"* — established
+> against the filing, before any of this.
+
 ## E-01 · Segment revenue and operating income — `v3`
 
 ```text

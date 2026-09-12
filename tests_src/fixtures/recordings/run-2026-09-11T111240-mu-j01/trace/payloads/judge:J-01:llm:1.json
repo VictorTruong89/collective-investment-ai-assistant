@@ -1,0 +1,17 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 4000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 218133,
+      "see": "tests_src/fixtures/filings/"
+    }
+  },
+  "response": {
+    "text": "{\"archetype\": \"cyclical_commodity\", \"runner_up\": \"secular_growth\", \"what_would_settle_it\": \"A multi-year series of this company's returns on invested capital spanning at least one full memory down-cycle, plus disclosure of what share of DRAM/HBM output is committed under multi-year fixed-price contracts \\u2014 persistent above-cost-of-capital returns through a trough, with volume locked long-term, would move the classification toward secular_growth (or compounder); another year like the nine months ended May 30, 2024 would confirm cyclical_commodity.\"}",
+    "tokens_in": 72453,
+    "tokens_out": 4000,
+    "stop_reason": "max_tokens"
+  }
+}

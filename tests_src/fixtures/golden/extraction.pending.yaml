@@ -48,3 +48,141 @@
 
 # ⏳ (empty — the E-02 guidance cases 21-28 were all promoted to
 #    extraction.yaml on 2026-09-09)
+
+
+# ✅ `DX-73` DONE 2026-09-11 — the 6 YTD cases were signed by Victor Truong and
+#    moved into extraction.yaml. Nothing remains of them here.
+
+
+  # ★★ The SAME row, the OTHER column. Differs from case 1 ONLY by `period` —
+  #   which is why MP-18's identity carries it.
+# ⚠ `input_ref` below is re-pointed onto the `v4` recordings — that is ADDRESSING,
+#   not establishing. `expected` is untouched: the open question is the VALUE of
+#   `period.start`, and only the fund manager may change that (`D2`).
+cases:
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳⏳ AWAITING YOUR RULING 2026-09-11 (`DX-77`) — 2 E-02 CASES
+#
+# ★★ The values are NOT wrong in the new run. Each case pins a TRANSCRIPTION
+#    BOUNDARY that the document does not fix, and the model chose a different
+#    one — both defensible, neither a regression:
+#
+#      gd-hedge-relative-period
+#        signed : "in the next 12 months"
+#        now    : "the next 12 months"      <- dropped a leading preposition
+#
+#      gd-dividend-per-share
+#        signed : value "0.115 per share"  unit "USD per share"
+#        now    : value "0.115"            unit "USD per share"
+#
+# ⚠⚠ The second is arguably an IMPROVEMENT, and that is uncomfortable in the
+#    right way: `E-01`'s own prompt says "give the figure without a currency
+#    symbol - the currency belongs in the unit", and the signed value carries
+#    "per share" in BOTH fields. ★ A golden case is not automatically right
+#    just because it is signed.
+#
+# ★★★ THE PATTERN, third instance today. `DX-73` (a period start the filing
+#    never states), `DX-74` (a qualifier the model invents), and now a quote
+#    boundary the model chooses: **the golden set keeps asserting things the
+#    MODEL authors rather than things the DOCUMENT fixes.** Those assertions
+#    cannot be stable, because nothing external holds them still.
+#
+# ⬜ Your options, per case:
+#    (a) re-establish the expected value to the new wording (⚠ only you may)
+#    (b) assert the SUBSET that the document does fix — e.g. drop `value` and
+#        keep `evidence_id`+`unit`+`status`, or pin the span instead (`DX-74`)
+#    (c) leave parked
+#    ★ I would not guess which; the subset rule (`F5` §4) is a judgement about
+#      what you meant the case to catch.
+#
+# ⚠⚠ SIGNED 2026-09-11 — AND THE SIGNATURE DID NOT SETTLE IT. Read this before
+#    signing again; the omission was mine, not yours.
+#
+#    Both cases were signed with their values UNCHANGED, and both PASS — but
+#    only because their `input_ref` still points at
+#        run-2026-09-09T074110-mu-e02   <- the PRE-ENVELOPE recording
+#    I parked them without re-pointing, because they do not resolve against the
+#    current one. So they grade a prompt regime the repo retired, and the
+#    signature preserved the status quo rather than answering the question.
+#
+#    ★ Demonstrated, not assumed: moving them live as-signed fires TWO
+#      independent guards —
+#        test_the_recording_is_not_from_a_RETIRED_prompt_version
+#        test_dx_76_the_golden_set_does_not_grade_two_PROMPT_REGIMES_at_once
+#
+# ⬜ THE QUESTION THAT IS ACTUALLY OPEN. Against the CURRENT recording
+#    (run-2026-09-11T115548-mu-e02) the model says:
+#
+#      gd.period  "the next 12 months"   (signed: "in the next 12 months")
+#      gd.value   "0.115"                (signed: "0.115 per share")
+#                 unit "USD per share"   (unit is IDENTICAL in both)
+#
+#    (a) ACCEPT the new wording — re-establish these two `value`s, re-point to
+#        the current recording. ⚠ Says the model's boundary choice is fine.
+#    (b) KEEP your wording and re-point anyway — the cases then FAIL, and that
+#        failure is a recorded claim that the system got it wrong. ★ Legitimate:
+#        a red case is a finding, not a defect in the case.
+#    (c) DROP `value` from `expected` and assert the subset the document fixes
+#        (evidence_id + unit + status), per F5 §4's subset rule. ★ This is the
+#        one I would pick if it were mine to pick: nothing external holds a
+#        quote boundary still, so pinning one guarantees future churn.
+#
+# ⚠ I have NOT guessed. All three are defensible and only you may establish it.
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+  # ── ★ CASE 26 — a RELATIVE period must stay relative.
+  #    ⚠ "in the next 12 months" is what the company said. Resolving it to a
+  #      date is a COMPUTATION, and `MP-6` says no prompt computes. If a later
+  #      run returns "2026-05-28" here, the system has started inferring and
+  #      calling it extraction.
+  #    QUOTE: "As of May 29, 2025, we expect to reclassify $20 million of
+  #            pre-tax gains related to cash flow hedges from accumulated other
+  #            comprehensive income (loss) into earnings in the next 12 months."
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳ PREPARED 2026-09-11 UNDER `DX-77` OPTION ⓒ (chosen by Victor) — 2 CASES
+#
+# ★★★ WHAT ⓒ ASSERTS NOW, AND WHY IT IS THE SPAN.
+#    ⓒ was "assert the subset the document fixes". Measuring which half that
+#    is turned out to be decisive — the SAME two readings across FOUR runs
+#    (one pre-envelope, three post):
+#
+#      span                     value
+#      [55427, 55615]  x4       "in the next 12 months" x3 / "the next 12 months" x1
+#      [51931, 52127]  x4       "0.115 per share"       x1 / "0.115"              x3
+#
+#    ==> the SPAN is identical in every run; the VALUE text is not. The span
+#        indexes the FILING, so it is the half the document holds still.
+#        `expected` now asserts evidence_id + status + unit + span, and is
+#        SILENT about `value` and `qualifier` — the two fields the model
+#        authors.
+#
+# ⚠⚠ IT IS NOT A WEAKER CASE. Both subsets match EXACTLY ONE of the 63 items,
+#    so each still pins one reading and still reds if that reading vanishes.
+#    What it stops doing is failing when the model rephrases a quote boundary.
+#    ★ Without the span the hedge subset would have matched TEN items — unit is
+#      empty there — so the span is what keeps this case meaningful at all.
+#
+# ⚠⚠⚠ SOMETHING YOU SHOULD KNOW BEFORE SIGNING, because it is uncomfortable.
+#    I promoted `run-...T115548` by a rule I stated BEFORE looking ("the first
+#    verified run") specifically so I could not pick the run that suited the
+#    cases. ★ That rule picked the ONE run of four where the hedge wording
+#    differs. Had `run-...T115923` been promoted instead, BOTH cases would have
+#    passed unchanged and `DX-77` would never have been raised.
+#    ==> The finding is real either way, and arguably MORE important for having
+#        surfaced by luck: under the old `value`-pinning scheme these cases were
+#        a coin-flip on which run got promoted. `DX-79` records it.
+#
+# ─── TO SIGN, per case:
+#     1. check the reading against the FILING at the span offsets
+#        (tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt)
+#     2. established_by: "____"        -> "Victor Truong"
+#        established_at: "____-__-__"  -> "2026-09-__"
+#     3. CUT into extraction.yaml (move, never copy)
+#     4. python3 -m pytest -q tests/integration/test_golden_regression.py
+# ═══════════════════════════════════════════════════════════════════════════
+
+cases:

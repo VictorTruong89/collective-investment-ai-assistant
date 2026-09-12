@@ -118,6 +118,38 @@ A value that cannot be found in its own quote cannot be checked, and is refused.
 """
 
 
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-01 `v4`.
+#:
+#: ★★★ **`DX-71` — this block was never wrong; the ENVELOPE changed what it
+#: meant.** Once `DX-67` composed `S-2` item 3 (*"Do not compute … record a data
+#: gap"*) in front of it, the model stopped reporting `period.start` — correctly,
+#: since a segment table states only the period END.
+#:
+#: ⚠⚠ **The split is what identifies the cause.** Measured on the post-envelope
+#: re-records: AMD's DISCRETE rows kept `2025-06-29`, while every YTD row and
+#: every MU row returned `None`. `S-2` did not suppress the field — it suppressed
+#: it exactly where the model would have had to look somewhere ELSE in the
+#: document. ★ So the fix is not to weaken `S-2`; it is to say plainly that
+#: **looking elsewhere is reading, not deriving.**
+#:
+#: ⚠ The last sentence is load-bearing: subtracting thirteen weeks stays
+#: forbidden. `v4` widens where the model may LOOK, never what it may CALCULATE.
+E01_V4_TEXT = E01_V3_TEXT.rstrip("\n") + """
+
+Each figure covers a reporting PERIOD with a start date and an end date. The END
+date is normally in the column header ("Thirteen weeks ended May 29, 2025"). The
+START date is often stated in a DIFFERENT part of the same filing - the share
+repurchase table in Item 2, the cover page, or the comparative balance sheet.
+Look there, and read it.
+
+Reading a date from elsewhere in the bundle is EXTRACTION, not computation. S-2's
+rule against deriving forbids arithmetic you would perform; it does not forbid
+evidence that is already written down somewhere you have not yet looked. But if
+no part of the filing states the start date, leave it absent and record the gap -
+do NOT obtain it by subtracting thirteen weeks from the end date.
+"""
+
+
 #: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-02 `v1`.
 #:
 #: ★★ **The second block to be declared, 2026-09-09.** 14 of 15 `E-blocks` had
@@ -267,19 +299,24 @@ def e01_v3() -> PromptBlock:
     return block("E-01", "v3", "extraction", E01_V3_TEXT)
 
 
+def e01_v4() -> PromptBlock:
+    """`E-01` `v4` — the period-start clause (`DX-71`)."""
+    return block("E-01", "v4", "extraction", E01_V4_TEXT)
+
+
 def e01_v2() -> PromptBlock:
     """`E-01` — segment revenue and operating income, `v2`."""
     return block("E-01", "v2", "extraction", E01_V2_TEXT)
 
 
 #: The version this repo currently ships. ★ One name to change at the next bump.
-E01_CURRENT_VERSION = "v3"
+E01_CURRENT_VERSION = "v4"
 
 #: ★ Every declared block: id -> (factory, item ids, current version).
 #: ⚠ A block absent here is NOT runnable — `E-03`…`E-15` remain design-doc only,
 #: because a registry entry nothing calls is a claim, not a capability.
 BLOCKS = {
-    "E-01": (e01_v3, E01_ITEM_IDS, E01_CURRENT_VERSION),
+    "E-01": (e01_v4, E01_ITEM_IDS, E01_CURRENT_VERSION),
     "E-02": (e02_v2, E02_V2_ITEM_IDS, "v2"),
     # ⚠ `J-01` is a JUDGEMENT block: its "item ids" are the closed option set,
     #   not evidence ids. ★ `RA-5` keeps extraction and judgement apart —

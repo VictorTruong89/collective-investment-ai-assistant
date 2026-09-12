@@ -27,20 +27,55 @@ def _text_from_spec(version: str = "v2") -> str:
     return body.split("```text", 1)[1].split("```", 1)[0].lstrip("\n")
 
 
+#: ⚠⚠ `DX-72` — **every declared version, discovered rather than listed.**
+#: This guard checked `v2` and only `v2`. By 2026-09-11 the SHIPPED version was
+#: `v3` — so the drift guard was pinning a version nothing sent, while the text
+#: actually reaching the vendor was unchecked. ★ `v3` happened to match the doc,
+#: so the gap cost nothing; it was still a guard watching the wrong object.
+#: ⚠ A hardcoded version list would reproduce the defect at the next bump, so
+#: the versions come from the module.
+def _declared_e01_versions() -> dict:
+    import src.fundamental.prompts.e_blocks as eb
+    return {v: getattr(eb, f"E01_{v.upper()}_TEXT")
+            for v in ("v2", "v3", "v4") if hasattr(eb, f"E01_{v.upper()}_TEXT")}
+
+
 def test_ra_13_e01_prompt_text_is_byte_identical_to_the_spec():
     """⚠ If this reds, ONE of the two is a bug — decide which, then bump the
-    version if the text is meant to change (`RA-13`)."""
-    assert _text_from_spec() == E01_V2_TEXT, (
-        "E-01's v2 prompt text in e_blocks.py has drifted from "
-        "L1-fundamental-analysis-master-prompt.md §E-01"
-    )
+    version if the text is meant to change (`RA-13`).
+
+    ★ `DX-72` — asserts EVERY declared version, not just the first one written.
+    """
+    declared = _declared_e01_versions()
+    assert declared, "no E-01 version is declared — the guard would pass vacuously"
+    for version, text in declared.items():
+        assert _text_from_spec(version) == text, (
+            f"E-01's {version} prompt text in e_blocks.py has drifted from "
+            f"L1-fundamental-analysis-master-prompt.md §E-01 `{version}`"
+        )
 
 
 def test_ra_13_the_declared_hash_covers_that_text():
     """★ `block()` self-hashes at declaration — this pins that the hash the
     registry enforces is the hash of the text the spec published."""
+    import src.fundamental.prompts.e_blocks as eb
     from src.fundamental.prompts.registry import content_hash
-    assert e01_v2().declared_hash == content_hash(_text_from_spec())
+    for version in _declared_e01_versions():
+        factory = getattr(eb, f"e01_{version}")
+        assert factory().declared_hash == content_hash(_text_from_spec(version))
+
+
+def test_dx_72_the_version_the_registry_ships_is_one_the_guard_checks():
+    """★★★ `DX-72`'s actual lesson. A drift guard that checks a version nobody
+    sends is a guard watching the wrong object — and it reads as coverage.
+
+    ⚠ Same family as `DX-41`, `DX-63`, `DX-67`, `DX-70`: **a guard keeps
+    checking exactly what it was written to check while the thing beside it
+    goes unchecked.**
+    """
+    from src.fundamental.prompts.e_blocks import BLOCKS, E01_CURRENT_VERSION
+    assert E01_CURRENT_VERSION in _declared_e01_versions()
+    assert BLOCKS["E-01"][0]().version == E01_CURRENT_VERSION
 
 
 def test_e01_is_declared_as_an_extraction_block():
@@ -85,7 +120,7 @@ def test_ra_13_every_declared_version_matches_its_own_spec_section():
     so without this it could sit wrong for weeks and only be discovered by a
     live run that costs money.
     """
-    from src.fundamental.prompts.e_blocks import E01_V2_TEXT, E01_V3_TEXT
+    from src.fundamental.prompts.e_blocks import E01_V3_TEXT
     for version, text in (("v2", E01_V2_TEXT), ("v3", E01_V3_TEXT)):
         assert text == _text_from_spec(version), (
             f"E-01 {version} in e_blocks.py has drifted from the design doc"
@@ -100,7 +135,7 @@ def test_v3_adds_a_reachable_exit_to_the_restatement_clause():
     unsatisfiable and the model burned its whole budget producing nothing.
     ★★★ Every demand in a prompt needs a reachable exit.
     """
-    from src.fundamental.prompts.e_blocks import E01_V2_TEXT, E01_V3_TEXT
+    from src.fundamental.prompts.e_blocks import E01_V3_TEXT
     assert "presents only ONE basis" not in E01_V2_TEXT
     assert "presents only ONE basis" in E01_V3_TEXT
     assert "Do not search for figures the filing does not contain" in E01_V3_TEXT

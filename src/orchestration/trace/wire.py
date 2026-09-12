@@ -136,6 +136,7 @@ def traced_transport(
     call_id_of: Callable[[dict], str] | None = None,
     cost_of: Callable[[str | None, dict], float | None] | None = None,
     prompt_version: str | None = None,
+    envelope_hash: str | None = None,
 ) -> Callable[[dict], dict]:
     """Wrap a gateway transport so every vendor call becomes a `CT-2.2` record.
 
@@ -170,6 +171,12 @@ def traced_transport(
     ★ `prompt_version` is passed in for the same reason: the transport sees a
     composed payload, not the block that composed it, so only the caller knows
     which version is in force.
+
+    ★★ `envelope_hash` is passed in for exactly that reason one layer up
+    (`DX-76`). The transport sees one composed string and cannot tell the shared
+    sections from the block's own text; only the caller knows which envelope was
+    put in front. ⚠ Without it, `prompt_version` names half the prompt and the
+    recording cannot say which half changed.
 
     ★ `cost_of` is injected rather than imported: pricing is **config** (`llm.pricing.*`),
     and `D-08` may not reach into `D-00`'s config to read it. Passing `None`
@@ -208,6 +215,10 @@ def traced_transport(
             # one. A regression suite pinned to a prompt nobody runs is worse
             # than none — it reports green about the past.
             prompt_version=prompt_version,
+            # ⚠⚠ `DX-76` — the block's version is HALF the prompt's identity.
+            # The envelope is the other half, and it is per-block-independent,
+            # so no version number anywhere named it.
+            envelope_hash=envelope_hash,
             # ⚠ `None` when no pricer was given — absent, never 0. A call
             # recorded as free is worse than one recorded as unpriced.
             cost_usd=cost_of(model_id, tokens) if cost_of else None,

@@ -91,7 +91,44 @@ TIER = Tier.DEEP
 #: have served at DOUBLE the price of the failure, and `GW-23` refuses the
 #: half-answer either way. ★ Raise it only on evidence of a run that needed more
 #: AND completed.
-MAX_TOKENS = {"extraction": 12000, "judgement": 16000}
+#:
+#: ✏ **Raised 12,000 → 20,000 for extraction, 2026-09-11 (`DX-69`).** The
+#: post-envelope `E-02` re-record hit 12,000 **exactly** and was refused.
+#:
+#: ⚠⚠ **The paragraph above is right and must not be read as overturned: a
+#: larger cap makes a FAILURE more expensive, not a success.** A truncated run
+#: produces the whole budget, so `E-02` failing now costs ~$0.87 instead of
+#: ~$0.68. Output that is never produced is never billed, so a *successful*
+#: call is unaffected — ★ but "an unused cap is free" is true only of the runs
+#: that succeed, and it is the failures this number governs.
+#:
+#: ★★ What justifies it is the headroom census this constant had never had
+#: (`DX-69`). The cap is shared per KIND while the margin is per BLOCK:
+#: measured pre-envelope, MU `E-01` sat at 20.0 % headroom, AMD `E-01` at
+#: 36.8 %, and **`E-02` at 12.4 %** — the tightest call in the project's
+#: history, and the one nobody had looked at.
+#:
+#: ⚠⚠ **The retry did NOT need more than 12,000, and that is the finding.**
+#: Same prompt, byte for byte — **76,195 input tokens on both runs** — and the
+#: only variable changed was this constant:
+#:
+#:     cap 12,000 → 12,000 out, TRUNCATED, $0.6810 wasted
+#:     cap 20,000 →  8,479 out, 38 items verified, $0.5929
+#:
+#: ★★★ So `E-02`'s requirement is **variable and straddles 12,000**, not fixed
+#: above it. ⚠ Two samples with n=1 per arm and a stochastic generator: the
+#: cap plausibly changes the adaptive-thinking split (the note at the top of
+#: this comment), but **that mechanism is not established here** and the trace
+#: does not record the thinking/response breakdown to settle it.
+#:
+#: ★ What IS established is enough to act on: a block whose draw sometimes
+#: exceeds its ceiling fails ~$0.68 at a time and yields nothing, and a margin
+#: of 12.4 % cannot absorb variance it was never measured against. **This cap
+#: is raised against VARIANCE, not against a larger fixed requirement** — and
+#: the rule above ("only on evidence of a run that needed more AND completed")
+#: is not met by this change. Recorded as such so the precedent is not
+#: mistaken for the rule.
+MAX_TOKENS = {"extraction": 20000, "judgement": 16000}
 
 
 @dataclass(frozen=True, slots=True)

@@ -427,6 +427,7 @@ def main() -> int:
 
     # ⚠ Imported here so a --dry-run needs neither the SDK nor a key.
     from src.fundamental.prompts.call import AnalysisGateway
+    from src.fundamental.prompts.envelope import envelope_hash
     from src.orchestration.trace.store import TraceStore
     from src.orchestration.trace.wire import traced_transport
     from src.shared.config import Config
@@ -461,7 +462,12 @@ def main() -> int:
         # ⚠⚠ Without this the trace records `prompt_version: None` — so a
         # recording cannot say WHICH prompt produced it, and a golden case
         # grading it cannot tell whether it still grades what we ship.
-        prompt_version=args.prompt_version)
+        prompt_version=args.prompt_version,
+        # ⚠⚠ `DX-76` — WHICH envelope. Without it the recording says
+        # which BLOCK version ran and stays silent about the shared
+        # sections composed in front of it, which is the half `DX-67`
+        # changed without bumping anything.
+        envelope_hash=envelope_hash("extraction"))
     gateway = Gateway(Config(GATEWAY_VALUES, sources=("tools/run_extraction_once.py",)),
                       transport=transport)
     seam = AnalysisGateway(gateway, registry)

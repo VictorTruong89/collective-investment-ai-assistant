@@ -149,7 +149,7 @@ class ExtractedItem:
         # derived quantity does not belong in an identity.
         base = (self.evidence_id, self.qualifier,
                 (self.period.start, self.period.end) if self.period else None,
-                bool(self.cumulative_ytd))
+                bool(self.is_cumulative_ytd))
         if self.is_figure or self.span is None:
             return base
         return (*base, (self.span.accession_id, self.span.start, self.span.end))

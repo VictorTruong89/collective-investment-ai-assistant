@@ -44,6 +44,19 @@ def cases():
     return list(load_all())
 
 
+#: ⚠⚠ `DX-76` — envelopes the golden set may grade, BESIDES the current ones.
+#:
+#: ★ `"None"` = a recording made before `envelope_hash` existed. It means
+#: **unknown**, never *"no envelope"* — that case is the string `"none"`.
+#: ⚠⚠ The four recordings promoted earlier on 2026-09-11 WERE made under the
+#: envelope, but nothing in the artefact proves it: `promote_recording` elides
+#: the composed prompt. ★★ That is `DX-76`'s whole point, seen from the inside —
+#: the provenance is known to the session that made them and to nobody else,
+#: which is precisely the state the field exists to end. They are admitted here
+#: rather than re-recorded at ~$1.7 to buy a hash we already know the value of.
+DECLARED_ENVELOPES = {"None"}
+
+
 def test_ac_5_7_the_golden_set_replays_green(cases):
     """★★ The measurement, not the machinery: does the extractor still read
     this filing the way the fund manager established it?"""
@@ -73,11 +86,27 @@ def test_ac_5_7_the_suite_reds_when_a_reading_changes(cases):
 
 def test_ac_5_7_dropping_the_cumulative_tag_reds(cases):
     """⚠ `cumulative_ytd` is the scar tag — *do not subtract*. A case that
-    stopped asserting it would let a YTD figure pass as a quarterly one."""
+    stopped asserting it would let a YTD figure pass as a quarterly one.
+
+    ★★ `DX-73` — all 6 cumulative cases were withdrawn on 2026-09-11 (they
+    asserted a `period.start` the filing never states) and re-established by the
+    fund manager the same day with `start: null`. ⚠ While they were out this
+    xfailed against a written declaration rather than raising a bare
+    `StopIteration`; the declaration was deleted the moment they returned.
+    """
     from dataclasses import replace
 
-    ytd = next(c for c in cases if c.expected.get("tags") == ["cumulative_ytd"])
-    assert not run_regression([replace(ytd, expected={**ytd.expected, "tags": []})],
+    ytd = [c for c in cases if c.expected.get("tags") == ["cumulative_ytd"]]
+    assert ytd, (
+        "no live case asserts `cumulative_ytd` — the scar tag is UNGUARDED. "
+        "⚠ A YTD figure could pass as a quarterly one and nothing would notice. "
+        "★ `DX-73` withdrew all 6 such cases on 2026-09-11 and this assertion "
+        "xfailed against a written declaration while they were out; the 6 were "
+        "re-established by the fund manager the same day and the declaration "
+        "was DELETED with them. A declaration that outlives its reason is how a "
+        "gap becomes permanent (DX-63)."
+    )
+    assert not run_regression([replace(ytd[0], expected={**ytd[0].expected, "tags": []})],
                               _replay()).ok
 
 
@@ -156,6 +185,52 @@ def test_the_recording_is_not_from_a_RETIRED_prompt_version():
         "the golden set grades a recording made under a retired prompt:\n  "
         + "\n  ".join(stale)
         + "\n★ Re-record with the current prompt, or the suite measures the past."
+    )
+
+
+def test_dx_76_the_golden_set_does_not_grade_two_PROMPT_REGIMES_at_once():
+    """★★★ `DX-76` — `prompt_version` names HALF the prompt.
+
+    ⚠⚠ `DX-67` composed `S-1`…`S-6` in front of every call and bumped no
+    version, so `E-02` is `v2` before and after and the retired-prompt guard
+    could not see the change. This one can: it compares the recorded
+    `envelope_hash` across everything the golden set actually grades.
+
+    ★ It does NOT demand a particular envelope — only that the set does not
+    silently mix regimes. A deliberate split and an invisible one look identical
+    in CI, and that is the defect being closed. ⚠ A split held ON PURPOSE must
+    be DECLARED, exactly as `DX-73`'s coverage loss is.
+    """
+    import json
+
+    from src.fundamental.prompts.envelope import envelope_hash
+    from tools.golden_replay import RECORDINGS
+
+    referenced = {c.input_ref.split("/")[0] for c in load_all()}
+    seen: dict[str, list[str]] = {}
+    for log in sorted(RECORDINGS.glob("*/trace.jsonl")):
+        if log.parent.name not in referenced:
+            continue
+        for line in log.read_text(encoding="utf-8").splitlines():
+            rec = json.loads(line)
+            if rec.get("type") == "ExternalCall":
+                seen.setdefault(str(rec.get("envelope_hash")), []).append(log.parent.name)
+    # ★★ The CURRENT envelopes, computed live rather than hardcoded — the same
+    # discipline `test_ra_13_*` applies to block text. ⚠ Extraction and
+    # judgement legitimately differ (`S-7` is Stage-A only), so "one envelope
+    # for the whole set" would be wrong; what must hold is that every graded
+    # recording carries an envelope this repo STILL SHIPS.
+    current = {envelope_hash("extraction"), envelope_hash("judgement"),
+               envelope_hash("judgement", stage_a=True)}
+    unexpected = {h: r for h, r in seen.items()
+                  if h not in current and h not in DECLARED_ENVELOPES}
+    assert not unexpected, (
+        f"the golden set grades a recording under an envelope this repo no "
+        f"longer ships: {sorted(unexpected)}\n  "
+        + "\n  ".join(f"{h}: {sorted(set(r))}" for h, r in unexpected.items())
+        + "\n★ Re-record under one envelope, or declare the split and say why "
+          "(DX-76). ⚠ A split held on purpose and one nobody noticed look the "
+          "same from here."
     )
 
 

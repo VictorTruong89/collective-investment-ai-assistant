@@ -19,7 +19,7 @@ cases:
   #      analytical questions the rest of the analysis is allowed to ask"* — so a
   #      drift here silently redirects every downstream block.
   - case_id: mu-fy2025q3-j01-archetype
-    input_ref: "run-2026-09-11T025139-mu-j01/judge:J-01:llm:1"
+    input_ref: "run-2026-09-11T111240-mu-j01/judge:J-01:llm:1"
     expected:
       archetype: cyclical_commodity
     source: >-

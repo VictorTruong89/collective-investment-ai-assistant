@@ -136,9 +136,30 @@ counterfactual arm permanently.
   "response": "object — the full payload as received",
   "model_id": "str | null — exact id, never an alias",
   "prompt_version": "str | null",
+  "envelope_hash": "str | null — ★ DX-76, which SHARED ENVELOPE was composed in front",
   "tokens": {"input": "int", "output": "int"}, "cost_usd": "float | null",
   "latency_ms": "int", "error": "str | null" }
 ```
+
+> ✏ **Amended `A5` 2026-09-11 (`DX-76`) — `envelope_hash` added.** ⚠⚠ `prompt_version` names the
+> **block's** version and nothing else. `DX-67` composed the shared sections `S-1`…`S-6` in front of
+> **every call this project makes** and bumped **no version** — `E-02` is `v2` before and after — so a
+> pre-envelope and a post-envelope recording were **indistinguishable in the trace**.
+>
+> ★★★ The consequence was not theoretical: `F5`'s `test_the_recording_is_not_from_a_RETIRED_prompt_
+> version` exists precisely to stop the golden set grading a prompt the repo no longer ships, and it
+> was **structurally blind to the largest prompt change the project has made** — because the envelope
+> is per-block-INDEPENDENT text and the version is per-block, so it sat in the one place the
+> versioning scheme had no name for.
+>
+> ⚠ `promote_recording` elides `request.payload`, where the composed prompt lives, so the question
+> could not be answered from the artefact either. ★ The hash is computed from the same part list
+> `compose_prompt` uses — a hash of a parallel list would be a hash of bytes the vendor never saw,
+> which is worse than none because it reads as evidence.
+>
+> ⚠ `null` means **unknown** (a recording made before this field existed), never *"an empty
+> envelope"* — that case is the string `"none"`. The distinction matters: four recordings promoted
+> before 2026-09-11 carry `null` and **cannot be classified retroactively**.
 Rules: `request` **and** `response` are both required — a request without its response cannot be
 replayed. `model_id` records what actually served the call, so provider aliasing is visible.
 

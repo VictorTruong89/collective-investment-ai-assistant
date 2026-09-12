@@ -108,6 +108,16 @@ class ExternalCall(TraceRecord):
     response: Any = None
     model_id: str | None = None
     prompt_version: str | None = None
+    #: ★★★ `DX-76` — WHICH SHARED ENVELOPE was composed in front of the prompt.
+    #: ⚠⚠ `prompt_version` names the BLOCK's version and nothing else. `DX-67`
+    #: prepended `S-1`…`S-6` to every call and bumped no version — `E-02` is
+    #: `v2` before and after — so a pre-envelope and a post-envelope recording
+    #: were **indistinguishable in the trace**, and the drift guard written to
+    #: catch a retired prompt was structurally blind to the largest prompt
+    #: change the project has made. ★ `None` = pre-`DX-76`, i.e. unknown; it is
+    #: deliberately not "none", which means *an envelope was composed and it
+    #: was empty*.
+    envelope_hash: str | None = None
     tokens: dict = field(default_factory=dict)
     cost_usd: float | None = None
     latency_ms: int = 0

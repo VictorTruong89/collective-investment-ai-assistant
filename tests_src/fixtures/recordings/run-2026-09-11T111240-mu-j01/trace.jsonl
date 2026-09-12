@@ -1,0 +1,2 @@
+{"type": "ExternalCall", "run_id": "run-2026-09-11T111240-mu-j01", "step_id": "judge:J-01", "call_id": "judge:J-01:llm:1", "kind": "llm", "model_id": "claude-opus-5", "prompt_version": "v1", "tokens": {"input": 72453, "output": 4000}, "cost_usd": 0.46226500000000004, "latency_ms": 45259, "error": null, "payload_ref": "judge:J-01:llm:1", "_key": "call:judge:J-01:llm:1"}
+{"type": "__run_closed__", "status": "SUCCESS"}

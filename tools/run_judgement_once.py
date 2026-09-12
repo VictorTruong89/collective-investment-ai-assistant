@@ -110,6 +110,7 @@ def main() -> int:
         print("\n  ★ dry run — nothing sent.")
         return 0
 
+    from src.fundamental.prompts.envelope import envelope_hash
     from src.orchestration.trace.store import TraceStore
     from src.orchestration.trace.wire import traced_transport
     from tools.anthropic_transport import anthropic_transport
@@ -130,7 +131,11 @@ def main() -> int:
         # reads as "unknown" and a zero reads as "free"**.
         cost_of=lambda _m, tokens: (tokens.get("input", 0) * PRICE_IN
                                     + tokens.get("output", 0) * PRICE_OUT),
-        prompt_version=blk.version)
+        prompt_version=blk.version,
+        # ⚠⚠ `DX-76` — the judgement envelope differs from the extraction one
+        # (`S-7` is Stage-A only), so the hash must be computed with the SAME
+        # flags `compose_prompt` is given, not a constant.
+        envelope_hash=envelope_hash("judgement", stage_a=(blk.view == "blind")))
 
     result = transport({"model": MODEL, "max_tokens": MAX_OUT, "payload": payload})
     store.close()
