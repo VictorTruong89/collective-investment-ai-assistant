@@ -55,6 +55,118 @@ cases:
     established_at: "2026-09-10"
     established_by: "Victor Truong"
 
+  # ── ★★ CASE 31 — J-08 supply read. Established by Victor Truong 2026-09-12;
+  #    reasoning finalised 2026-09-13. Moved from thesis.pending.yaml.
+  #    ★ Graded as DISCIPLINE, not as a market view — see `source`.
+  - case_id: mu-fy2025q3-j08-supply-read
+    input_ref: "run-2026-09-12T024848-mu-stage-a/judge:J-08:llm:1"
+    expected:
+      supply_read: insufficient_evidence
+    source: >-
+      Victor Truong's judgement, graded as (1) DISCIPLINE, as of 2025-06-26 and
+      from the MU 10-Q only (tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt,
+      accession 0000723125-25-000021): INSUFFICIENT_EVIDENCE. J-08 item 5 must
+      be answered "from E-13's announced capacity, and only from it", and the
+      bundle behind this recording carried no E-13 material. The 10-Q names
+      the competitors (line 1566: Kioxia, Samsung, SK hynix, Sandisk, YMTC,
+      CXMT) and says only generically "We and our competitors generally seek to
+      increase supply" (line 1570); it states no rival's capacity, output or
+      timing. This case therefore checks that the answer obeys the "only from
+      E-13" rule when E-13 is absent - it is not a view on DRAM/NAND supply,
+      which belongs on a recording whose bundle carries real competitor
+      material. Note on authorship: the value is Victor Truong's, chosen
+      2026-09-12; the wording was drafted in review on 2026-09-13 and adopted
+      by him.
+    established_at: "2026-09-12"
+    established_by: "Victor Truong"
+
+  # ── ★★ CASE 30 — J-07 cycle position. Established by Victor Truong: value
+  #    chosen 2026-09-12, reasoning finalised 2026-09-13. Moved from
+  #    thesis.pending.yaml on 2026-09-13.
+  #    ⚠ `expected` asserts ONLY `cycle_position` (subset rule, F5 §4).
+  #    ⏸→▶ Parked 2026-09-13 after replaying `mid` (runner-up `late`), and
+  #    RE-ESTABLISHED the same day by Victor Truong's decision, value unchanged.
+  #    ⚠ It is EXPECTED TO FAIL against this recording: a measured disagreement
+  #    between Victor's judgement and the recorded answer, kept live on purpose.
+  - case_id: mu-fy2025q3-j07-cycle-position
+    input_ref: "run-2026-09-12T024848-mu-stage-a/judge:J-07:llm:1"
+    expected:
+      cycle_position: late
+    source: >-
+      Victor Truong's judgement, as of 2025-06-26 and from the MU 10-Q only
+      (tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt, accession
+      0000723125-25-000021): LATE in the cycle. For: third-quarter revenue grew
+      15% on the prior quarter on volume while prices FELL - DRAM average
+      selling prices down in the low-single-digit range and NAND down in the
+      high-single-digit range (lines 1250-1251); gross margin plateaued at 37%
+      to 38% quarter on quarter (line 1229); customer prepayments made to
+      secure future supply fell from $907M to $146M, with $777M shipped against
+      them (line 1045), so customers are no longer paying ahead to lock in
+      supply. Against, weighed and judged not decisive: inventory is flat
+      (line 330) while nine-month revenue rose 50%, which points to tightness
+      and fits "mid"; NAND customers were still cutting inventory in the first
+      half (line 1215); industry-wide capex, which J-07 calls the leading
+      variable, is not in this document. Main alternative considered: mid. Not
+      peak. Note on authorship: the conclusion "late" is Victor Truong's,
+      chosen 2026-09-12; the supporting reasoning was drafted in review on
+      2026-09-13 (correcting two factual errors in his first draft - the
+      prepayments do not drive margin, and the quarter-on-quarter vs
+      year-on-year comparison was not like for like) and adopted by him.
+    established_at: "2026-09-12"
+    established_by: "Victor Truong"
+
+  # ── ★★ CASE 32 — J-05 balance-sheet resilience = 3. Established by Victor
+  #    Truong 2026-09-13. ★ The first golden case on a CRITERION-SELECTED rubric
+  #    score (`DX-100`): `expected` asserts the criterion text, from which the
+  #    score is derived (`RA-31`). ⚠ Tied to `balance_sheet_resilience@v3`: a
+  #    rubric revision changes the text and this case fails LOUDLY, as it should.
+  #    Recording = seed 0 of three runs that all selected this criterion.
+  - case_id: mu-fy2025q3-j05-balance-sheet-resilience
+    input_ref: "run-2026-09-13T184111-mu-j05/judge:J-05:llm:1"
+    expected:
+      criterion: "Maturities are laddered and covered, with covenant headroom disclosed but thin, or not disclosed."
+    source: >-
+      Victor Truong's judgement, as of 2025-06-26 and from the MU 10-Q only
+      (tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt, accession
+      0000723125-25-000021): balance_sheet_resilience@v3 level 3 - maturities
+      laddered and covered, covenant headroom not disclosed. For: no note or
+      term-loan principal falls due before fiscal 2028 ($600M), then $2,384M in
+      2029 and $9,500M in 2030 and after (lines 818-825); a new, undrawn $3.50B
+      revolving credit facility running to March 2030 (lines 233, 810); cash and
+      investments of $12,213M (line 559). Why not level 4: the single financial
+      maintenance covenant - net leverage not to exceed 3.25 to 1.00 (line 806) -
+      is disclosed but its current value is not, and level 4 requires headroom
+      disclosed. Level 3 under v3 covers "disclosed but thin, or not disclosed".
+      Note on authorship: the value is Victor Truong's, agreed 2026-09-13 after
+      reviewing three recorded runs that each selected this criterion; the
+      wording was drafted in review and adopted by him.
+    established_at: "2026-09-13"
+    established_by: "Victor Truong"
+
+  # ── ★★ CASE 33 — J-06 capital allocation = 4. Established by Victor Truong
+  #    2026-09-13. Same shape as case 32; tied to `capital_allocation@v3`.
+  - case_id: mu-fy2025q3-j06-capital-allocation
+    input_ref: "run-2026-09-13T184227-mu-j06/judge:J-06:llm:1"
+    expected:
+      criterion: "Actions taken across the bundle's periods match the stated priorities, and no buyback in those periods was made at a price the filings later show was high (a window with no buybacks meets this condition)."
+    source: >-
+      Victor Truong's judgement, as of 2025-06-26 and from the MU 10-Q only
+      (tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt, accession
+      0000723125-25-000021): capital_allocation@v3 level 4 - actions match the
+      stated priorities. For: the stated priorities are investment in capacity
+      and technology (line 1371) and the dividend; the dividend of $0.115 per
+      share was declared and paid in each of the first three quarters and
+      declared again on June 25, 2025 (line 886); and no share was repurchased
+      in the first nine months of 2025 against a $10B authorization with $7.19B
+      used to date (line 882), so there is no buyback in the window to test for
+      price discipline - which v3 states meets the condition, rather than
+      scoring abstention as a failure. Note on authorship: the value is Victor
+      Truong's, agreed 2026-09-13 after reviewing three recorded runs that each
+      selected this criterion; the wording was drafted in review and adopted by
+      him.
+    established_at: "2026-09-13"
+    established_by: "Victor Truong"
+
 #  - case_id: mu-2026q3-view
 #    input_ref: filings/MU_2026Q3_10Q.txt
 #    expected: {view: BUY, conviction: medium}

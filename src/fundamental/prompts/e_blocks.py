@@ -11,7 +11,8 @@ bumped on any content change, and `block()` hashes the text at declaration so a
 later in-place edit is caught. ⚠ Editing the text here without bumping the
 version is the one thing neither guard can catch (`MP-4`'s note in the registry).
 
-⚠ Only `E-01` is declared. `E-02`…`E-15` stay in the design doc until something
+⚠ Nine E-blocks are declared (`E-01` `E-02` `E-04` `E-06` `E-07` `E-09` `E-10`
+`E-12` `E-13`). The other six stay in the design doc until something
 actually runs them — a registry entry nothing calls is a claim, not a capability.
 """
 
@@ -592,9 +593,13 @@ FIELD_ENUMS = {
 #: `balance_sheet@v1` still names a dimension that does not exist.
 EMITS_RUBRIC = {
     "J-03": "moat_durability@v2",
-    "J-04": "earnings_quality@v2",
-    "J-05": "balance_sheet_resilience@v2",
-    "J-06": "capital_allocation@v2",
+    # ✏ `DX-99` (2026-09-13) — `@v3`: non-GAAP and policy checks as SEARCHED,
+    #   so a company with no non-GAAP measures is scoreable, not refused.
+    "J-04": "earnings_quality@v3",
+    # ✏ `DX-101` (2026-09-13) — `@v3`: undisclosed covenant headroom is not "absent".
+    "J-05": "balance_sheet_resilience@v3",
+    # ✏ `DX-101` (2026-09-13) — `@v3`: a window with no buybacks is stated, not assumed.
+    "J-06": "capital_allocation@v3",
 }
 
 
@@ -700,15 +705,270 @@ def e01_v2() -> PromptBlock:
     return block("E-01", "v2", "extraction", E01_V2_TEXT)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ★★ `DX-85`ⓑ — the seven E-blocks whose evidence the `v2` rubric LEVELS cite,
+# declared 2026-09-12. ⚠ Text generated from the design doc, never retyped;
+# the drift guard pins it. Declaring them does NOT make J-03…J-06 scoreable:
+# `DX-85`ⓒ (a bundle part kind for extraction output) still stands between.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Verbatim from the design doc §E-04 `v1` — rubric cites `ng.adjustment`.
+#:
+#: ⚠ `DX-89` — `ng.recurrence_note` returns a LIST of periods gathered
+#: across several spans; one quote cannot contain it, so `X-01` may refuse the run.
+E04_V1_TEXT = """\
+Extract the full reconciliation from GAAP to every non-GAAP measure the company
+presents.
+
+  ng.measure          the non-GAAP measure's name as presented
+  ng.gaap_start       the GAAP figure it reconciles from
+  ng.adjustment       each adjusting line, its label and its amount
+  ng.recurrence_note  for each adjustment: has an item with this label appeared
+                      in the other periods in the bundle? Return the periods it
+                      appeared in. Do not judge whether it "should" recur.
+  ng.nongaap_end      the resulting non-GAAP figure
+
+★ `ng.recurrence_note` is a lookup across periods the bundle already contains,
+not an opinion. Return the list of periods; the judgement about what a recurring
+"non-recurring" charge means is a different call.
+"""
+
+#: `MP-5` — `E-04`'s item ids, parsed from its own item list.
+E04_ITEM_IDS = ("ng.measure", "ng.gaap_start", "ng.adjustment",
+                "ng.recurrence_note", "ng.nongaap_end")
+
+
+def e04_v1() -> PromptBlock:
+    """`E-04` `v1` — non-GAAP reconciliation."""
+    return block("E-04", "v1", "extraction", E04_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-06 `v1` — rubric cites `dm.ladder`, `dm.covenant`.
+#:
+#: ⚠ `DX-92` — `dm.revolver`'s *undrawn* capacity is a subtraction when the
+#: filing states only size and drawn amount; `dm.covenant`'s *direction of the
+#: test* must be copied wording, not a chosen label.
+E06_V1_TEXT = """\
+  dm.instrument    each debt instrument: type, principal, coupon, maturity
+  dm.ladder        principal due by year as the filing tabulates it
+  dm.covenant      each financial covenant: the ratio, the threshold, the
+                   direction of the test, and the tested entity
+  dm.headroom      the covenant's most recently disclosed actual value, if given
+  dm.revolver      undrawn revolver capacity and its expiry
+  dm.rating        credit rating and outlook, if the filing states one
+
+A covenant whose current value is not disclosed is `dm.headroom: not_found` —
+which is itself the finding, since a company comfortably inside its covenants
+usually says so.
+"""
+
+#: `MP-5` — `E-06`'s item ids, parsed from its own item list.
+E06_ITEM_IDS = ("dm.instrument", "dm.ladder", "dm.covenant", "dm.headroom",
+                "dm.revolver", "dm.rating")
+
+
+def e06_v1() -> PromptBlock:
+    """`E-06` `v1` — debt maturity and covenants."""
+    return block("E-06", "v1", "extraction", E06_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-07 `v1` — rubric cites `ca.capex` (`DX-86` ⓐ).
+#:
+#: ⚠ `DX-90` — `ca.dividend` *"and any change"* is a comparison when the
+#: company does not state the change: `gd.direction`'s shape (`DX-34`).
+#: ⚠ `DX-92` — `ca.authorisation` *remaining*; `ca.buyback`/`ca.issuance` pack
+#: several figures into one id and lean on `qualifier` rows.
+E07_V1_TEXT = """\
+Every deployment of capital DISCLOSED AS HAVING HAPPENED, per period:
+
+  ca.buyback        shares repurchased, dollars spent, average price paid if given
+  ca.authorisation  buyback authorisation size and remaining
+  ca.dividend       per-share and total, and any change
+  ca.acquisition    target, consideration, form (cash/stock/mixed), goodwill and
+                    intangibles recognised
+  ca.divestiture    what was sold, proceeds, gain or loss recognised
+  ca.capex          capital expenditure, and any split into maintenance vs growth
+                    IF the company itself makes that split
+  ca.rd             research and development expense
+  ca.issuance       equity or debt issued, amount and stated use of proceeds
+
+Never split capex into maintenance and growth yourself. If the company does not
+split it, return `not_found` for the split and the total for the whole.
+"""
+
+#: `MP-5` — `E-07`'s item ids, parsed from its own item list.
+E07_ITEM_IDS = ("ca.buyback", "ca.authorisation", "ca.dividend",
+                "ca.acquisition", "ca.divestiture", "ca.capex", "ca.rd",
+                "ca.issuance")
+
+
+def e07_v1() -> PromptBlock:
+    """`E-07` `v1` — capital-allocation actions."""
+    return block("E-07", "v1", "extraction", E07_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-09 `v1` — rubric cites `ap.change`.
+#:
+#: ⚠ `DX-92` — `ap.reserve`'s *direction of the P&L effect* is a label the
+#: model would choose unless the filing words it.
+E09_V1_TEXT = """\
+  ap.change        any change in accounting policy, estimate, or presentation,
+                   with the company's stated reason and quantified effect
+  ap.useful_life   changes to depreciation or amortisation lives
+  ap.reserve       changes to allowance, warranty, or return reserves, and the
+                   direction of the P&L effect
+  ap.capitalisation any change in what is capitalised vs expensed
+  ap.auditor       auditor change, disagreement, or a modified opinion
+  ap.icfr          any material weakness or significant deficiency disclosed
+  ap.late          any late-filing notification (NT 10-K / NT 10-Q)
+"""
+
+#: `MP-5` — `E-09`'s item ids, parsed from its own item list.
+E09_ITEM_IDS = ("ap.change", "ap.useful_life", "ap.reserve",
+                "ap.capitalisation", "ap.auditor", "ap.icfr", "ap.late")
+
+
+def e09_v1() -> PromptBlock:
+    """`E-09` `v1` — accounting-policy and estimate changes."""
+    return block("E-09", "v1", "extraction", E09_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-09 `v2` — ✏ `DX-96`, Victor's decision 2026-09-13.
+#:
+#: ⚠⚠ `v1` truncated on MU three times (20,000 out; the third instrumented at
+#: ZERO tool-call characters — thinking). `GW-9c` forbids thinking off. ★ `v2`
+#: adds scope, a rule on unadopted standards and a stated empty answer (`MP-7`);
+#: the item list — and so the enum — is unchanged.
+E09_V2_TEXT = """\
+From the filings in the bundle, extract changes the COMPANY ITSELF disclosed
+as having been made in the periods the filings cover, and only those.
+
+  ap.change        any change in accounting policy, estimate, or presentation,
+                   with the company's stated reason and quantified effect
+  ap.useful_life   changes to depreciation or amortisation lives
+  ap.reserve       changes to allowance, warranty, or return reserves, and the
+                   direction of the P&L effect
+  ap.capitalisation any change in what is capitalised vs expensed
+  ap.auditor       auditor change, disagreement, or a modified opinion
+  ap.icfr          any material weakness or significant deficiency disclosed
+  ap.late          any late-filing notification (NT 10-K / NT 10-Q)
+
+A standard issued but not yet adopted is not a change — do not report it.
+A routine estimate the company describes without saying it changed is not a
+change. If the filings disclose no change for an item, return that item ONCE as
+`not_found`, quoting the passage you checked (for example the note on recently
+issued accounting standards). Most quarterly filings disclose few or none; an
+empty answer is a correct answer.
+"""
+
+
+def e09_v2() -> PromptBlock:
+    """`E-09` `v2` — scoped, with a stated empty answer (`DX-96`)."""
+    return block("E-09", "v2", "extraction", E09_V2_TEXT)
+
+
+#: Verbatim from the design doc §E-10 `v1` — rubric cites `sc.diluted`, `sc.sbc_expense`.
+#:
+#: ⚠⚠ `DX-93` — the prompt names TWO ids on one line (`sc.basic / sc.diluted`).
+#: A first-token parse yields `sc.basic` alone and silently drops `sc.diluted`,
+#: which the rubric cites. ★ `sc.sbc_revenue_note` is NOT a computation: it asks
+#: for the revenue figure and says *"do NOT compute the ratio"*.
+E10_V1_TEXT = """\
+  sc.basic / sc.diluted     weighted-average share counts per period
+  sc.end_of_period          shares outstanding at period end
+  sc.sbc_expense            stock-based compensation expense
+  sc.sbc_revenue_note       revenue for the same period (for the reader's ratio —
+                            do NOT compute the ratio)
+  sc.unvested               unvested awards outstanding, if disclosed
+  sc.antidilutive           securities excluded as anti-dilutive
+"""
+
+#: `MP-5` — `E-10`'s item ids, parsed from its own item list.
+E10_ITEM_IDS = ("sc.basic", "sc.diluted", "sc.end_of_period",
+                "sc.sbc_expense", "sc.sbc_revenue_note", "sc.unvested",
+                "sc.antidilutive")
+
+
+def e10_v1() -> PromptBlock:
+    """`E-10` `v1` — share count and dilution."""
+    return block("E-10", "v1", "extraction", E10_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-12 `v1` — rubric cites `cp.statement`.
+#:
+#: ★ Pre-flight clean: the *ratio* in `cp.commitment` is one management
+#: stated. `cp.period` has `gd.stated_on`'s shape, which passes `X-01` by quoting
+#: the dated line.
+E12_V1_TEXT = """\
+From MD&A, the shareholder letter, and any prepared remarks in the bundle,
+extract what management SAID about how it intends to allocate capital.
+
+  cp.statement    verbatim quote
+  cp.period       when it was said
+  cp.commitment   the specific commitment, if any (a figure, a ratio, a date)
+  cp.condition    any condition attached to it
+
+Return statements only. Whether they were kept is J-06's question, and answering
+it here would contaminate an extraction with a judgement (RA-5).
+"""
+
+#: `MP-5` — `E-12`'s item ids, parsed from its own item list.
+E12_ITEM_IDS = ("cp.statement", "cp.period", "cp.commitment", "cp.condition")
+
+
+def e12_v1() -> PromptBlock:
+    """`E-12` `v1` — management's stated capital priorities."""
+    return block("E-12", "v1", "extraction", E12_V1_TEXT)
+
+
+#: Verbatim from the design doc §E-13 `v1` — rubric cites `cx.capacity`.
+#:
+#: ⛔ `DX-91` — needs NON-FILING evidence: a 10-Q holds no rival's
+#: announcement, so expect `not_found`. ⛔ `cx.status` is a closed label the
+#: model CHOOSES and `cx.source` is a pointer, not quotable text — both fail
+#: `X-01` once a bundle has real industry material. Declared `v1` as written
+#: (Victor, 2026-09-12).
+E13_V1_TEXT = """\
+From the industry material in the bundle:
+
+  cx.competitor    the company announcing
+  cx.capacity      what is being added, in the units the source uses
+  cx.timing        stated online date
+  cx.status        announced | under construction | commissioning | operating
+  cx.conditional   any stated condition ("subject to demand", "subject to
+                   government approval") — verbatim
+  cx.source        the bundle item this came from
+
+An announcement is not capacity. Return the announcement and its status; whether
+supply actually arrives is J-08's question.
+"""
+
+#: `MP-5` — `E-13`'s item ids, parsed from its own item list.
+E13_ITEM_IDS = ("cx.competitor", "cx.capacity", "cx.timing", "cx.status",
+                "cx.conditional", "cx.source")
+
+
+def e13_v1() -> PromptBlock:
+    """`E-13` `v1` — competitor capacity announcements."""
+    return block("E-13", "v1", "extraction", E13_V1_TEXT)
+
+
 #: The version this repo currently ships. ★ One name to change at the next bump.
 E01_CURRENT_VERSION = "v4"
 
 #: ★ Every declared block: id -> (factory, item ids, current version).
-#: ⚠ A block absent here is NOT runnable — `E-03`…`E-15` remain design-doc only,
-#: because a registry entry nothing calls is a claim, not a capability.
+#: ⚠ A block absent here is NOT runnable — `E-03` `E-05` `E-08` `E-11` `E-14`
+#: `E-15` remain design-doc only, because a registry entry nothing calls is a claim, not a capability.
 BLOCKS = {
     "E-01": (e01_v4, E01_ITEM_IDS, E01_CURRENT_VERSION),
     "E-02": (e02_v2, E02_V2_ITEM_IDS, "v2"),
+    "E-04": (e04_v1, E04_ITEM_IDS, "v1"),
+    "E-06": (e06_v1, E06_ITEM_IDS, "v1"),
+    "E-07": (e07_v1, E07_ITEM_IDS, "v1"),
+    "E-09": (e09_v2, E09_ITEM_IDS, "v2"),     # ✏ `DX-96` — v1 thought itself out of budget
+    "E-10": (e10_v1, E10_ITEM_IDS, "v1"),
+    "E-12": (e12_v1, E12_ITEM_IDS, "v1"),
+    "E-13": (e13_v1, E13_ITEM_IDS, "v1"),
     # ⚠ `J-01` is a JUDGEMENT block: its "item ids" are the closed option set,
     #   not evidence ids. ★ `RA-5` keeps extraction and judgement apart —
     #   extraction has ground truth, judgement has a recorded judge.

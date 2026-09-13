@@ -216,6 +216,21 @@ class ValueNotInSpanError(ResearchError):
         )
 
 
+class SubjectIsRegistrantError(ResearchError):
+    """⛔ `DX-97` — an item about ANOTHER company names the registrant itself.
+
+    ★★★ `X-01` checks that a value is IN the document, never that it ANSWERS
+    the question. Measured 2026-09-12: `E-13` (competitor capacity) returned 37
+    items, every one passing `X-01`, every one **Micron's own fabs** with
+    `cx.competitor = "Micron Technology, Inc."` — and loading them would have
+    opened `moat_durability` level 4 on the company's own capacity.
+    ⚠ The whole result is refused, not the item: the capacity rows cannot be
+    separated from the competitor rows that name whose capacity they are.
+    """
+
+    code = "RES.EXTRACT.SUBJECT_IS_REGISTRANT"
+
+
 class ExtractionKindError(ResearchError):
     """RA-5 / AC-1.4 — extraction and judgement mixed in one call.
 

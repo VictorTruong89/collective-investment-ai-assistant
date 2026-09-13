@@ -137,6 +137,7 @@ def traced_transport(
     cost_of: Callable[[str | None, dict], float | None] | None = None,
     prompt_version: str | None = None,
     envelope_hash: str | None = None,
+    bundle_hash: str | None = None,
 ) -> Callable[[dict], dict]:
     """Wrap a gateway transport so every vendor call becomes a `CT-2.2` record.
 
@@ -178,6 +179,10 @@ def traced_transport(
     put in front. ⚠ Without it, `prompt_version` names half the prompt and the
     recording cannot say which half changed.
 
+    ★★ `bundle_hash` (`DX-95`) is the EVIDENCE half, passed in for the same
+    reason: the transport cannot recover a bundle's identity from the composed
+    string. ⚠ Recorded on a FAILED call too — a failure read a bundle as well.
+
     ★ `cost_of` is injected rather than imported: pricing is **config** (`llm.pricing.*`),
     and `D-08` may not reach into `D-00`'s config to read it. Passing `None`
     keeps the old behaviour — an absent price is recorded as absent, never as 0,
@@ -196,7 +201,7 @@ def traced_transport(
             store.append(ExternalCall(
                 run_id=store.run_id, step_id=step_id, call_id=call_id, kind=kind,
                 request=request, response=None,
-                model_id=request.get("model"),
+                model_id=request.get("model"), bundle_hash=bundle_hash,
                 latency_ms=int((time.perf_counter() - t0) * 1000),
                 error=f"{type(exc).__name__}: {exc}"))
             raise                       # ⚠ the gateway's retry must still see it
@@ -219,6 +224,7 @@ def traced_transport(
             # The envelope is the other half, and it is per-block-independent,
             # so no version number anywhere named it.
             envelope_hash=envelope_hash,
+            bundle_hash=bundle_hash,
             # ⚠ `None` when no pricer was given — absent, never 0. A call
             # recorded as free is worse than one recorded as unpriced.
             cost_usd=cost_of(model_id, tokens) if cost_of else None,

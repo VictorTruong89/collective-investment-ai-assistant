@@ -106,3 +106,59 @@ def test_dx37_the_span_end_comes_from_the_locator_not_the_quote_length():
     assert start == 0
     assert end != start + len(quote), "the lengths must differ, or this proves nothing"
     assert doc[start:end].split() == quote.split()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⛔⛔ `DX-102` — the fixture's own annotations were INSIDE every bundle
+# ═══════════════════════════════════════════════════════════════════════════
+
+@pytest.mark.parametrize("name", ["MU_FY2025Q3_10Q", "AMD_FY2025Q3_10Q"])
+def test_dx_102_the_fixture_carries_no_repo_annotation_and_the_sidecar_does(name):
+    """★ Moved to `<NAME>.meta.txt` 2026-09-13 (approved). Measured first: 0 of
+    1,980 recorded extraction quotes and no judgement answer cited the header."""
+    from tools.run_extraction_once import REPO_ANNOTATION_MARKERS
+
+    text = (FIXTURES / f"{name}.txt").read_text(encoding="utf-8")
+    meta = (FIXTURES / f"{name}.meta.txt").read_text(encoding="utf-8")
+    assert not [m for m in REPO_ANNOTATION_MARKERS if m in text]
+    assert "PROVENANCE — do not edit below this header" in meta
+    first = next(i for i, ln in enumerate(text.split("\n")) if ln.strip())
+    assert all(not ln.strip() for ln in text.split("\n")[:first]), "the header's place is whitespace only"
+    assert first >= 50, "the whitespace keeps pre-move citations valid"
+
+
+def test_dx_102_line_citations_made_BEFORE_the_move_still_resolve():
+    """★ The golden `source` fields and the L3 log cite these MU line numbers;
+    deleting the header would have shifted every one by 57."""
+    lines = (FIXTURES / "MU_FY2025Q3_10Q.txt").read_text(encoding="utf-8").split("\n")
+    assert lines[1045 - 1].startswith("As of May 29, 2025 and August 29, 2024, customer prepayments")
+    assert lines[1229 - 1].startswith("Gross margin | 3,508 | 38%")
+    assert lines[882 - 1].startswith("Our Board of Directors has authorized the discretionary repurchase")
+
+
+def test_dx_102_build_bundle_REFUSES_a_fixture_that_carries_the_header_again(tmp_path, monkeypatch):
+    """⚠ The CALLER, not just the marker list (`DX-82`)."""
+    import tools.run_extraction_once as rx
+
+    bad = tmp_path / "X.txt"
+    bad.write_text("=====\nPROVENANCE — do not edit below this header, and do not edit the body at all.\n"
+                   "Total revenue was $9,301 million.\n", encoding="utf-8")
+    monkeypatch.setattr(rx, "FILING", bad)
+    with pytest.raises(ValueError, match="DX-102"):
+        rx.build_bundle()
+    assert "PROVENANCE" not in rx.__dict__["FILINGS"]["MU"]["path"]
+
+
+@pytest.mark.parametrize("name", ["MU_FY2025Q3_10Q", "AMD_FY2025Q3_10Q"])
+def test_dx_102_character_OFFSETS_are_preserved_by_the_move(name):
+    """⚠⚠ Found the hard way: a first version replaced the header with blank
+    LINES, which kept line numbers and shifted every character offset — and an
+    AMD golden selector pins `@22633:22914`. ★ The header's place is whitespace
+    of EXACTLY its length with EXACTLY its newlines, so the header placed back
+    over it restores the pre-move file character for character."""
+    header = (FIXTURES / f"{name}.meta.txt").read_text(encoding="utf-8").split("\n\n", 1)[1][:-1]
+    text = (FIXTURES / f"{name}.txt").read_text(encoding="utf-8")
+    blank = text[:len(header)]
+    assert blank.strip() == "" and text[len(header):len(header) + 1] == "\n"
+    assert blank.count("\n") == header.count("\n")
+    assert [len(a) for a in blank.split("\n")] == [len(b) for b in header.split("\n")]

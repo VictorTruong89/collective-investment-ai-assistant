@@ -19,6 +19,9 @@ from __future__ import annotations
 
 from src.fundamental.scorecard.models import Rubric
 
+#: `DX-99` — the prefix of an evidence requirement satisfied by a stated absence.
+SEARCHED = "searched:"
+
 
 class NoAvailableLevel(Exception):
     """⚠ Not one level's evidence is present — the block cannot be scored.
@@ -42,11 +45,20 @@ def evidence_ids_in(bundle) -> frozenset[str]:
     saying otherwise here would let the judging layer assume its own inputs.
 
     ★ A part declares its ids in `pins["evidence_ids"]`.
+
+    ★★ `DX-99` — and `searched:<id>` for every id in `pins["searched_ids"]`:
+    the block ran to completion, passed `X-01`, and explicitly RETURNED that
+    item, `found` or `not_found`. A rubric level cites `searched:ng.adjustment`
+    when its criterion rests on ABSENCE ("no non-GAAP add-back") — which a
+    found-only id can never support for the company that has none.
+    ⚠ `searched:` is NOT extraction (`RA-66` is unchanged): a `not_found` is the
+    model's stated, located answer, and `X-01` does not verify it.
     """
     ids: set[str] = set()
     for part in bundle.parts:
-        declared = (part.pins or {}).get("evidence_ids") or ()
-        ids.update(declared)
+        pins = part.pins or {}
+        ids.update(pins.get("evidence_ids") or ())
+        ids.update(f"{SEARCHED}{i}" for i in (pins.get("searched_ids") or ()))
     return frozenset(ids)
 
 
@@ -61,9 +73,40 @@ def available_levels(rubric: Rubric, present: frozenset[str]) -> tuple[int, ...]
                  if set(level.evidence_required) <= present)
 
 
+class PartialRubricEvidence(NoAvailableLevel):
+    """⛔ `DX-98` — SOME levels are available, but not all. The block is refused.
+
+    ★★★ A subclass on purpose: every caller that already refuses on
+    `NoAvailableLevel` refuses on this too, so no caller can score a partial
+    rubric by forgetting a second `except`.
+    """
+
+
 def require_levels(rubric: Rubric, present: frozenset[str]) -> tuple[int, ...]:
-    """`available_levels`, refusing loudly when the answer is empty (`P5`)."""
+    """The levels a rubric block may be offered — ALL of them, or it refuses (`P5`).
+
+    ⛔⛔ **`DX-98`, decided by Victor 2026-09-12: a dimension is scored only when
+    EVERY one of its levels is available.** The rubrics give higher scores more
+    evidence, so a partial bundle removes levels from the TOP: measured on MU,
+    with `E-10`/`E-12` truncated, `J-05`/`J-06` were offered `levels=(0,)` — one
+    option, a floor score by construction, on a 10-Q that discloses dividends
+    and buybacks. ★ A missing input must never be able to move a score; with
+    the full range or nothing, it cannot.
+    ✗ Rejected: refusing only below two levels (still biased low); scoring the
+    partial range and recording the gap (the gap would not survive into the
+    number anyone reads).
+    """
     levels = available_levels(rubric, present)
+    everything = tuple(level.score for level in rubric.levels)
+    if levels and levels != everything:
+        needed = sorted({e for lv in rubric.levels for e in lv.evidence_required})
+        raise PartialRubricEvidence(
+            f"{rubric.dimension}@v{rubric.version}: only levels {levels} of "
+            f"{everything} have their evidence. Missing: "
+            f"{sorted(set(needed) - present)}. ⛔ DX-98 — a partial rubric is "
+            f"refused: the levels it loses are the HIGH ones, so scoring it would "
+            f"let a missing input push the score down. This is NOT a score of 0."
+        )
     if not levels:
         needed = sorted({e for lv in rubric.levels for e in lv.evidence_required})
         raise NoAvailableLevel(

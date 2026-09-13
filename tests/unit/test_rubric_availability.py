@@ -70,23 +70,18 @@ def test_ra_32_a_part_declaring_evidence_ids_is_counted():
     assert evidence_ids_in(bundle) == frozenset({"seg.revenue", "seg.op_income"})
 
 
-def test_dx_85_the_bundle_contract_has_NO_part_kind_for_extraction_OUTPUT():
-    """⚠⚠⚠ The third layer of `DX-85`, and the one with the widest blast radius.
+def test_dx_85_the_bundle_contract_has_EXACTLY_ONE_part_kind_for_extraction_OUTPUT():
+    """✅ `DX-85`ⓒ CLOSED 2026-09-12 (approved by Victor). This test pinned the
+    broken state — *no* kind for the E-blocks' output — and was written to fail
+    the moment one was added. Rewritten to assert the fixed state; the
+    behaviour lives in `test_extraction_bundle_part.py`.
 
-    `PIN_FIELDS` declares `filing · news · computed · profile · prior_thesis ·
-    sector_file · observables · …` — and **nothing for the E-blocks' output**.
-    So a Stage-A bundle cannot carry `seg.revenue` even in principle, which is
-    why `RA-32` refuses every rubric block today.
-
-    ⚠⚠ Adding a kind is NOT a small change: `models.py` warns that *"a bundle
-    whose hash definition moves invalidates every baseline recorded against the
-    old one"* (`RA-2`, `RA-4`). ★ That is why this is recorded and left to the
-    fund manager rather than patched in passing.
+    ⚠ Exactly one: two kinds carrying extraction output would give one fact
+    two pins, and `RA-32` would count whichever a caller happened to use.
     """
     from src.fundamental.bundle.models import PIN_FIELDS
 
-    assert "extractions" not in PIN_FIELDS
-    assert not any("extract" in k for k in PIN_FIELDS)
+    assert [k for k in PIN_FIELDS if "extract" in k] == ["extraction"]
 
 
 def test_ra_32_no_available_level_is_NOT_a_score_of_zero():
@@ -102,6 +97,48 @@ def test_ra_32_no_available_level_is_NOT_a_score_of_zero():
     assert available_levels(r, frozenset({"seg.revenue"})) == ()
     with pytest.raises(NoAvailableLevel, match="NOT a score of 0"):
         require_levels(r, frozenset({"seg.revenue"}))
+
+
+def test_dx_98_a_PARTIAL_rubric_is_refused_not_scored():
+    """⛔⛔ `DX-98`, decided by Victor 2026-09-12: score only when EVERY level
+    is available. ★ Measured shape: higher levels need more evidence, so a
+    partial bundle removes levels from the TOP and leaves the floor."""
+    from src.fundamental.scorecard.availability import PartialRubricEvidence
+
+    r = _rubric(RubricLevel(4, "top", ("a", "b")),
+                RubricLevel(2, "mid", ("a",)),
+                RubricLevel(0, "floor", ("a",)))
+    assert available_levels(r, frozenset({"a"})) == (2, 0)
+    with pytest.raises(PartialRubricEvidence, match=r"Missing: \['b'\]"):
+        require_levels(r, frozenset({"a"}))
+    assert require_levels(r, frozenset({"a", "b"})) == (4, 2, 0)
+
+
+def test_dx_98_partial_IS_a_NoAvailableLevel_so_no_caller_can_score_it_by_omission():
+    """★ A caller written before `DX-98` catches `NoAvailableLevel` only. The
+    subclass makes it refuse a partial rubric too, with no second `except`."""
+    from src.fundamental.scorecard.availability import PartialRubricEvidence
+
+    assert issubclass(PartialRubricEvidence, NoAvailableLevel)
+    r = _rubric(RubricLevel(4, "top", ("a", "b")), RubricLevel(0, "floor", ("a",)))
+    with pytest.raises(NoAvailableLevel, match="NOT a score of 0"):
+        require_levels(r, frozenset({"a"}))
+
+
+def test_dx_98_on_MU_the_measured_bundle_refuses_all_four_dimensions():
+    """★★ The measurement that motivated `DX-98`, pinned: the evidence ids the
+    four good 2026-09-12 runs plus E-01/E-02 actually found. Before `DX-98`
+    this offered J-03 `(3,2,1,0)`, J-05 `(0,)`, J-06 `(0,)`."""
+    from src.fundamental.scorecard.rubrics.b43_v2 import B43_V2_RUBRICS
+
+    mu = frozenset({"seg.basis_note", "seg.name", "seg.op_income", "seg.revenue",
+                    "gd.language_note", "gd.metric", "gd.period", "gd.stated_on",
+                    "gd.value", "dm.covenant", "dm.instrument", "dm.ladder",
+                    "dm.revolver", "ca.authorisation", "ca.buyback", "ca.capex",
+                    "ca.dividend", "ca.issuance", "ca.rd"})
+    for rubric in B43_V2_RUBRICS:
+        with pytest.raises(NoAvailableLevel):
+            require_levels(rubric, mu)
 
 
 def test_ra_32_the_refusal_names_what_was_needed_and_what_was_there():

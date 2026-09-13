@@ -59,4 +59,115 @@
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-# ⏳ (empty — case 29 was signed and promoted to thesis.yaml on 2026-09-10)
+# ⏳ case 29 (`J-01`) was signed and promoted to thesis.yaml on 2026-09-10.
+#   The notes above are its history. The two drafts below are NEW.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳⏳ DRAFTED 2026-09-12 — TWO STAGE-A CASES, UNSIGNED. Every `____` is yours.
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# ★ WHAT A CASE IS, in one line: "for this recorded model call, the right
+#   answer to ONE field is X, and here is why I (Victor) hold that." The
+#   harness then replays the recording and fails if the model's field ≠ X.
+#   A prompt or model change that moves the answer turns the test red.
+#
+# ★ WHAT YOU ARE ANSWERING — read this before either case:
+#   The model saw ONLY Micron's 10-Q for the quarter ended May 29, 2025
+#   (file: tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt, as_of 2025-06-26),
+#   with no price, no valuation and no other document. Answer the question
+#   AS OF 2025-06-26, FROM THAT DOCUMENT.
+#   ⚠⚠ Not from what you know happened after June 2025. The model cannot know
+#     it (INV-1, no look-ahead), so a hindsight answer grades the calendar, not
+#     the model — the case would fail forever and teach nothing.
+#
+# ★ I have NOT shown you the model's answers, on purpose: read first, decide,
+#   sign — then compare. A value chosen after seeing the model's is anchored.
+#
+# ★ TO SIGN: replace every `____`, then MOVE the case (cut, not copy) into
+#   thesis.yaml under `cases:`. Then run:
+#       python3 -m pytest -q tests/integration/test_golden_regression.py
+#   Green = the recording agrees with you. Red = it does not — which is a
+#   FINDING, not a reason to change your answer.
+
+
+# ── DRAFT A · J-07 · cycle position ─────────────────────────────────────────
+#
+#   The question J-07 asks (verbatim): "Where in its industry cycle is this
+#   business, and on what evidence?"  Pick EXACTLY ONE of:
+#
+#     trough                 prices/margins at or near their worst; excess inventory
+#     early_recovery         off the bottom; prices and margins turning up
+#     mid                    recovering steadily; neither depressed nor stretched
+#     late                   strong and still rising, but stretched; supply responding
+#     peak                   prices/margins at or near their best; the next move is down
+#     not_applicable         you do not consider Micron cyclical (⚠ you said it is — case 29)
+#     insufficient_evidence  the 10-Q alone does not let a careful reader tell
+#
+#   ⚠ The one-line glosses are MINE, to help you choose; J-07 itself names the
+#     options without defining them. If you read a label differently, say how
+#     in `source` — that sentence is what makes the case defensible later.
+#
+#   STEP-BY-STEP — J-07 names six things to check. Where each is in the 10-Q:
+#     a) Prices (ASPs) vs their history ... lines 1250-1261 ("Sales of DRAM
+#        products increased …"): DRAM ASP moves, quarter-on-quarter and YTD.
+#     b) Inventory ....................... line 330 (balance sheet: Inventories
+#        8,727 vs 8,875) and line 1215 ("reduced customer inventories").
+#        ⚠ The filing gives no inventory DAYS; judge from what it does give.
+#     c) Capacity utilisation ............ line 1215 ("fab utilization consistent
+#        with our demand growth") — qualitative only.
+#     d) Orders / lead times / backlog ... line 1045 (customer prepayments to
+#        secure supply: $146M vs $907M). ⚠ No backlog or lead-time figure.
+#     e) Industry-wide capex ............. ⚠ NOT in this bundle — J-07 wants it
+#        from E-13 (competitors), which this run did not have. Your answer may
+#        treat it as a gap.
+#     f) Margins vs history .............. line 1229 (gross margin 38% this
+#        quarter; 17% for the first nine months a year earlier) and line 1213
+#        ("Industry Conditions" — "substantially improved industry supply and
+#        demand balance").
+#   Then ask J-07's own trap question: are trailing margins high because the
+#   cycle is peaking (dangerous), or because it is recovering (not yet)?
+#   ★ Reading time: ~20 minutes, all of it in lines 1209-1265 plus 330 and 1045.
+
+
+# ── DRAFT B · J-08 · supply read ────────────────────────────────────────────
+#
+#   The question (J-08 item 5, verbatim): "From E-13's announced capacity, and
+#   only from it: over the next eight quarters, is announced supply growing
+#   faster than, in line with, or slower than the demand evidence in the
+#   bundle?"  Pick EXACTLY ONE of:
+#
+#     supply_growing_faster · in_line · demand_growing_faster · insufficient_evidence
+#
+#   ⚠⚠ THE ONE DECISION ONLY YOU CAN MAKE — what this case grades:
+#     The prompt says "from E-13's announced capacity, and ONLY from it" — and
+#     this recorded run had NO E-13 output in its bundle (E-13 was declared
+#     today, and its first live run returned Micron's own fabs, DX-97). So:
+#
+#     (1) Grade DISCIPLINE — "did the model obey 'only from E-13' when E-13 was
+#         absent?" Then the bundle-correct answer is `insufficient_evidence`,
+#         whatever you believe about the memory market.  ★ My recommendation
+#         for THIS recording: it tests a rule the prompt states explicitly.
+#     (2) Grade the MARKET VIEW — your own read of DRAM/NAND supply vs demand
+#         as of June 2025. ⚠ The model had no competitor data to reach it, so
+#         a case like this measures the DATA GAP, not the model. Better
+#         established later, on a run whose bundle carries real E-13 material.
+#
+#   STEP-BY-STEP:
+#     1. Choose (1) or (2) above and write which in `source`.
+#     2. If (1): the answer is `insufficient_evidence`; confirm for yourself
+#        that the 10-Q holds no competitor CAPACITY figures. It NAMES the
+#        competitors (line 1566: Kioxia, Samsung, SK hynix, Sandisk, YMTC,
+#        CXMT) and says generically (line 1570) "We and our competitors
+#        generally seek to increase supply" — but no rival's fab, wafer or bit
+#        capacity, and no timing. Naming a rival is not announcing capacity.
+#     3. If (2): write your view and the evidence YOU rely on, with dates —
+#        and expect the case to stay red until E-13 has industry material.
+#   ★ Reading time: (1) ~5 minutes · (2) your own research.
+
+# ✅ MOVED 2026-09-13: both drafts (J-07 `late`, J-08 `insufficient_evidence`)
+#   were finalised and moved into thesis.yaml as cases 30 and 31. Nothing is
+#   pending in this file. The notes above are kept as the drafting record.
+
+# ✅ RE-ESTABLISHED 2026-09-13: the parked J-07 case was moved back into
+#   thesis.yaml by Victor Truong's decision, value `late` unchanged. Nothing is
+#   pending in this file.

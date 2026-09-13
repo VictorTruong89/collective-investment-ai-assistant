@@ -14,6 +14,7 @@ that version a statement about an unknown.
 from __future__ import annotations
 
 import pathlib
+import re
 
 from src.fundamental.prompts.e_blocks import E01_V2_TEXT, e01_v2
 
@@ -93,11 +94,71 @@ def test_mp_5_the_item_id_enum_matches_the_ids_named_in_the_prompt():
     the item list the prompt actually publishes.
     """
     from src.fundamental.prompts.e_blocks import E01_ITEM_IDS
-    named = {ln.strip().split()[0] for ln in _text_from_spec().splitlines()
-             if ln.startswith("  seg.")}
+    named = set(_item_ids_named_in(_text_from_spec()))
     assert set(E01_ITEM_IDS) == named, (
         "E01_ITEM_IDS and the ids listed in the E-01 prompt disagree"
     )
+
+
+#: An item-list line: two spaces, then an id — or TWO ids joined by `/`.
+_ITEM_LINE = re.compile(r"^  ([a-z]{2,3}\.[a-z_]+)(?:\s*/\s*([a-z]{2,3}\.[a-z_]+))?",
+                        re.M)
+
+
+def _item_ids_named_in(text: str) -> list[str]:
+    """The ids a prompt's item list names, in order.
+
+    ⚠⚠ `DX-93` — `E-10` names two ids on ONE line (`sc.basic / sc.diluted`). A
+    first-token parse returns `sc.basic` alone and drops `sc.diluted`, which
+    `v2`'s `share_count` level cites.
+    """
+    return [i for m in _ITEM_LINE.finditer(text) for i in m.groups() if i]
+
+
+def test_mp_5_EVERY_extraction_block_declares_exactly_the_ids_its_prompt_names():
+    """★★ MP-5, generalised from `E-01` to every declared E-block (`DX-85`ⓑ).
+
+    ⚠ The enum IS the API's shape: an id the prompt names but the enum omits
+    cannot be returned at all, and an id the enum offers but the prompt never
+    names invites the model to invent content for it.
+    """
+    from src.fundamental.prompts.e_blocks import BLOCKS
+
+    extraction = {b: v for b, v in BLOCKS.items() if v[0]().kind == "extraction"}
+    assert len(extraction) >= 9, sorted(extraction)
+    for block_id, (factory, ids, _v) in extraction.items():
+        named = _item_ids_named_in(factory().text)
+        assert named, f"{block_id}: no item ids parsed — the check would be vacuous"
+        assert tuple(ids) == tuple(named), (
+            f"{block_id}: declared {ids!r} but its prompt names {tuple(named)!r}")
+        assert len(set(ids)) == len(ids), f"{block_id}: duplicate ids"
+
+
+def test_dx_93_a_slash_joined_line_yields_BOTH_ids():
+    """⚠⚠ `DX-93` pinned on the real block, not a synthetic line."""
+    from src.fundamental.prompts.e_blocks import BLOCKS, E10_V1_TEXT
+
+    assert "  sc.basic / sc.diluted" in E10_V1_TEXT
+    assert _item_ids_named_in(E10_V1_TEXT)[:2] == ["sc.basic", "sc.diluted"]
+    assert "sc.diluted" in BLOCKS["E-10"][1]
+
+
+def test_dx_85b_every_id_a_v2_rubric_level_cites_is_emitted_by_a_DECLARED_block():
+    """★★★ The measurement that `DX-85`ⓑ is done — against the CODE's registry.
+
+    ⚠ `test_rubric_v2.py` checks the ids against the design DOC's 15 blocks,
+    which was true before a single one of these seven existed in `src/`. This
+    asserts what a run can actually emit.
+    """
+    from src.fundamental.prompts.e_blocks import BLOCKS
+    from src.fundamental.scorecard.rubrics.b43_v2 import B43_V2_RUBRICS
+
+    declared = {i for f, ids, _v in BLOCKS.values() if f().kind == "extraction"
+                for i in ids}
+    cited = {e for r in B43_V2_RUBRICS for lv in r.levels
+             for e in lv.evidence_required}
+    assert cited, "no cited ids — the check would be vacuous"
+    assert cited <= declared, f"cited but undeclared: {sorted(cited - declared)}"
 
 
 def test_mp_7_the_tool_schema_offers_a_stated_failure_output():
@@ -145,6 +206,14 @@ def test_v3_adds_a_reachable_exit_to_the_restatement_clause():
 _BLOCK_HEADINGS = {
     "E-01": "## E-01 · Segment revenue and operating income — `{v}`",
     "E-02": "## E-02 · Guidance, and its revision — `{v}`",
+    # ★★ `DX-85`ⓑ — the seven E-blocks the `v2` rubric levels cite, 2026-09-12.
+    "E-04": "## E-04 · Non-GAAP reconciliation — `{v}`",
+    "E-06": "## E-06 · Debt maturity and covenants — `{v}`",
+    "E-07": "## E-07 · Capital-allocation actions — `{v}`",
+    "E-09": "## E-09 · Accounting-policy and estimate changes — `{v}`",
+    "E-10": "## E-10 · Share count and dilution — `{v}`",
+    "E-12": "## E-12 · Management's stated capital priorities — `{v}`",
+    "E-13": "## E-13 · Competitor capacity announcements — `{v}`",
     # ⚠ `J-01` is a JUDGEMENT block and its section sits one level deeper
     #   (`###`) in the design doc. ★ Declared 2026-09-10 (`DX-64`) — the first
     #   J-block with text in `src/`, after `STAGE_BLOCKS` had named J-01…J-17
@@ -181,6 +250,21 @@ def test_ra_13_every_DECLARED_block_matches_its_spec_section():
         assert factory().text == spec, (
             f"{block_id} {version} in e_blocks.py has drifted from the design doc"
         )
+
+
+def test_the_registry_and_the_factory_agree_about_id_and_version():
+    """⚠⚠ Found by mutation 2026-09-12: `BLOCKS` holds a version AND the factory
+    builds a block with its own. A factory building `v2` under a `v1` entry
+    passed the drift guard clean — it looks the heading up by the REGISTRY's
+    version and compares text, which had not changed. ★ The mismatch would
+    surface only at run time, in `registry.get`."""
+    from src.fundamental.prompts.e_blocks import BLOCKS
+
+    for block_id, (factory, _ids, version) in BLOCKS.items():
+        blk = factory()
+        assert (blk.name, blk.version) == (block_id, version), (
+            f"BLOCKS[{block_id!r}] says {version} but the factory builds "
+            f"{blk.name} {blk.version}")
 
 
 def test_every_declared_block_is_covered_by_the_drift_guard():
@@ -282,3 +366,18 @@ def test_dx67_S3_the_citation_contract_reaches_every_block():
 
     for blk, kw in ((e01_v3(), {}), (e02_v2(), {}), (j01_v1(), {"stage_a": True})):
         assert S3.strip("\n") in compose_prompt(blk, **kw), f"{blk.name} lacks S-3"
+
+
+def test_dx_96_E09_ships_v2_and_v1_stays_pinned_to_its_own_section():
+    """✏ `DX-96` (Victor, 2026-09-13) — `v1` thought itself out of budget three
+    times on MU. ★ `v2` ships; `v1` stays declared and byte-identical to its doc
+    section, so its three failed recordings remain interpretable."""
+    from src.fundamental.prompts.e_blocks import BLOCKS, E09_V1_TEXT, E09_V2_TEXT
+
+    assert BLOCKS["E-09"][2] == "v2" and BLOCKS["E-09"][0]().text == E09_V2_TEXT
+    heading = "## E-09 · Accounting-policy and estimate changes — `v1`"
+    body = DOC.read_text(encoding="utf-8").split(heading, 1)[1]
+    assert body.split("```text", 1)[1].split("```", 1)[0].lstrip("\n") == E09_V1_TEXT
+    for clause in ("not yet adopted is not a change", "an\nempty answer is a correct answer"):
+        assert clause in E09_V2_TEXT
+    assert _item_ids_named_in(E09_V2_TEXT) == _item_ids_named_in(E09_V1_TEXT)

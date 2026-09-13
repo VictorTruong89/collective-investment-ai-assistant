@@ -1,55 +1,55 @@
-=============================================================================
-PROVENANCE — do not edit below this header, and do not edit the body at all.
-=============================================================================
-Filer          : ADVANCED MICRO DEVICES INC  (CIK 0000002488)
-Form           : 10-Q
-Fiscal period  : Q3 FY2025, quarter ended 2025-09-27
-Filed          : 2025-11-05
-Accession      : 0000002488-25-000166
-Source URL     : https://www.sec.gov/Archives/edgar/data/2488/000000248825000166/amd-20250927.htm
-Retrieved      : 2026-09-08 via EDGAR (SEC requires a declared User-Agent)
-Converted      : 2026-09-08 by tools/convert_filing.py -- HTML -> text, mechanical.
-                 Table cells joined with ' | ', one row per line, '$'/'%' folded
-                 into their value, exotic whitespace normalised. NO content
-                 removed, NO reordering.
+                                                                             
+                                                                            
+                                                                             
+                                                             
+                     
+                                                    
+                           
+                                     
+                                                                                                 
+                                                                          
+                                                                                   
+                                                                                
+                                                                           
+                                        
 
-WHY THIS FILING IS FILING 2  (see sdd/design/rel1_design/L7-golden-set-filing-1.md §7)
-  Chosen for what it EXPERIENCES that MU does not:
+                                                                                      
+                                                  
 
-  1. A 52/53-WEEK FISCAL CALENDAR ANCHORED IN DECEMBER (fiscalYearEnd 12-26).
-     MU's ends late Aug/Sep. Every period derivation in filing 1 was tuned
-     against MU's Aug-30 / Feb-28 boundaries; AMD's quarters end on SATURDAYS
-     (2025-09-27) where MU's ended on a Thursday.
-  2. ** A COMPLETED RETROSPECTIVE RESTATEMENT. ** AMD combined the Client and
-     Gaming segments and "All prior period segment data were retrospectively
-     adjusted". MU only ANNOUNCED a future recast, so E-01's restatement clause
-     -- "return BOTH the as-originally-reported and the as-restated figures,
-     each tagged, and never silently prefer one" -- was untestable on filing 1.
-  3. NESTED SUB-ROWS. 'Client and Gaming' is ONE reportable segment that
-     discloses two businesses inside it:
-         Client                  | 2,750 | ...
-         Gaming                  | 1,298 | ...
-         Total Client and Gaming | 4,048 | ...
-     The filing states plainly: "Neither of the Client and Gaming businesses
-     qualify as a separate reportable operating segment."
-     ==> An extractor that returns Client and Gaming as SEGMENTS has read the
-         indentation, not the sentence. MU's table was flat and could not
-         test this.
-  4. THREE reportable segments + All Other, where MU had four.
+                                                                             
+                                                                          
+                                                                             
+                                                 
+                                                                             
+                                                                            
+                                                                               
+                                                                            
+                                                                               
+                                                                        
+                                        
+                                              
+                                              
+                                              
+                                                                            
+                                                         
+                                                                             
+                                                                         
+                   
+                                                              
 
-COLUMN LAYOUT -- identical shape to MU, different dates
-      Three Months Ended                 Nine Months Ended
-      Sep 27, 2025 | Sep 28, 2024        Sep 27, 2025 | Sep 28, 2024
-  ==> cols 1-2 DISCRETE quarter; cols 3-4 CUMULATIVE year-to-date.
+                                                       
+                                                          
+                                                                    
+                                                                  
 
-WARNING - READ BEFORE ESTABLISHING A GOLDEN VALUE
-  * The cumulative-vs-discrete trap is here exactly as in MU.
-  * Arithmetic self-check: 4,341 + 4,048 + 857 = 9,246 = 'Total net revenue',
-    col 1. If your figures do not sum, you are mixing columns or counting a
-    sub-row as a segment.
-  * This rendering comes from a converter an AI agent wrote, and that converter
-    has been wrong four times. Verify any figure against the Source URL.
-=============================================================================
+                                                 
+                                                             
+                                                                             
+                                                                           
+                         
+                                                                               
+                                                                        
+                                                                             
 
 
 

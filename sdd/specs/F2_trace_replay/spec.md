@@ -137,6 +137,7 @@ counterfactual arm permanently.
   "model_id": "str | null — exact id, never an alias",
   "prompt_version": "str | null",
   "envelope_hash": "str | null — ★ DX-76, which SHARED ENVELOPE was composed in front",
+  "bundle_hash": "str | null — ★ DX-95, which EVIDENCE BUNDLE the call read (RA-2)",
   "tokens": {"input": "int", "output": "int"}, "cost_usd": "float | null",
   "latency_ms": "int", "error": "str | null" }
 ```
@@ -160,6 +161,15 @@ counterfactual arm permanently.
 > ⚠ `null` means **unknown** (a recording made before this field existed), never *"an empty
 > envelope"* — that case is the string `"none"`. The distinction matters: four recordings promoted
 > before 2026-09-11 carry `null` and **cannot be classified retroactively**.
+
+> ✏ **Amended `A6` 2026-09-13 (`DX-95`, approved by Victor) — `bundle_hash` added.** `prompt_version`
+> and `envelope_hash` together name the PROMPT; nothing named the EVIDENCE. `RA-2`: *two runs with the
+> same bundle hash are comparable; two with different hashes are not* — and no trace record could say
+> which bundle it read. ⚠⚠ It became load-bearing with `DX-85`ⓒ: a Stage-A bundle now differs by
+> **which extraction runs were loaded into it**, so two Stage-A recordings over different evidence
+> were indistinguishable in the trace. ★ Passed in by the caller, like `envelope_hash`: the transport
+> sees one composed string and cannot recover the bundle's identity from it. ⚠ `null` = unknown (a
+> recording made before this field), never *"no bundle"*.
 Rules: `request` **and** `response` are both required — a request without its response cannot be
 replayed. `model_id` records what actually served the call, so provider aliasing is visible.
 
@@ -493,7 +503,7 @@ plus `D4`'s export filter are what keep it out of the output path.* ⚠ This sho
 | AC | Test (file::test) | Code module |
 |---|---|---|
 | AC-2.1 | `tests/unit/test_trace.py::test_ac_2_1_every_record_carries_the_run_id_and_no_second_run_record` · `::test_ac_2_1_rejects_a_record_from_another_run` · `::test_ac_2_1_a_run_scoped_step_may_carry_no_decision_id` | `trace/models.py`, `trace/store.py` |
-| AC-2.2 | `tests/unit/test_trace.py::test_ac_2_2_*` (3) · ★ **call granularity**: `tests/integration/test_trace_replay.py::test_ac_2_2_a_gateway_transport_call_is_recorded_with_both_halves` · `::test_ac_2_2_a_failing_transport_is_recorded_AND_re_raised` | `trace/models.py::ExternalCall`, `trace/wire.py::traced_transport` |
+| AC-2.2 | `tests/unit/test_trace.py::test_ac_2_2_*` (3) · ★ **call granularity**: `tests/integration/test_trace_replay.py::test_ac_2_2_a_gateway_transport_call_is_recorded_with_both_halves` · `::test_ac_2_2_a_failing_transport_is_recorded_AND_re_raised` · ★ `A6`: `::test_ac_2_2_dx_95_the_call_records_WHICH_BUNDLE_it_read` · `tests/structural/test_judgement_runner_extractions.py::test_dx_95_both_runners_pass_bundle_hash_to_the_trace` | `trace/models.py::ExternalCall`, `trace/wire.py::traced_transport` |
 | AC-2.3 | `tests/integration/test_trace_replay.py::test_ac_2_3_*` (4) | `trace/replay.py::replay` |
 | AC-2.4 | `tests/integration/test_trace_replay.py::test_ac_2_4_divergence_names_the_first_step_and_field` | `trace/replay.py` |
 | AC-2.5 | `tests/unit/test_trace.py::test_ac_2_5_a_decision_record_is_complete` · `::test_ac_2_5_an_incomplete_decision_is_refused` (5 cases) | `trace/models.py::DecisionRecord` |

@@ -116,6 +116,26 @@ GATEWAY_VALUES = {
 # --------------------------------------------------------------------------- #
 # 2. the bundle
 # --------------------------------------------------------------------------- #
+#: `DX-102` — lines that only ever appear in THIS repo's annotations, never in
+#: an SEC filing. ★ Specific phrases, not a heuristic: a false refusal of a real
+#: filing would be worse than useless.
+REPO_ANNOTATION_MARKERS = (
+    "PROVENANCE — do not edit below this header",
+    "READ BEFORE ESTABLISHING A GOLDEN VALUE",
+    "tools/convert_filing.py",
+)
+
+
+def assert_no_repo_annotation(text: str, path) -> None:
+    """⛔ `DX-102` / `RA-1` — a bundle is evidence and nothing else (`P5`)."""
+    found = [m for m in REPO_ANNOTATION_MARKERS if m in text]
+    if found:
+        raise ValueError(
+            f"{path} carries repo annotation {found} inside the filing text. ⛔ "
+            f"DX-102 — it would be sent to the model as SEC evidence, and X-01 would "
+            f"accept a quote taken from it. Move it to the .meta.txt sidecar.")
+
+
 def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
     """`RA-1` — every LLM call takes an `EvidenceBundle` and nothing else.
 
@@ -124,6 +144,11 @@ def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
     fixture is the whole converted filing rather than an excerpt.
     """
     text = FILING.read_text(encoding="utf-8")
+    # ⛔⛔ `DX-102` — the fixture's repo annotations were INSIDE every bundle
+    #   (*"READ BEFORE ESTABLISHING A GOLDEN VALUE"*, *"a converter an AI agent
+    #   wrote"*), sent to the model as SEC evidence. They now live in a
+    #   `.meta.txt` sidecar; this refuses a fixture that carries them again.
+    assert_no_repo_annotation(text, FILING)
     if not whole_filing:
         # ★ The segment note only — ~18x cheaper, and enough for E-01.
         # ⚠ A narrower bundle is a DIFFERENT bundle_hash, so a golden case
@@ -368,6 +393,9 @@ def main() -> int:
                     choices=["low", "medium", "high", "xhigh", "max"],
                     help="⚠ overrides llm.deep.effort. Extraction is "
                          "transcription; thinking is what truncates a run")
+    # ★ `DX-96` — diagnostic only: show summarized thinking (still ON, `GW-9c`).
+    ap.add_argument("--thinking-display", default=None, choices=["summarized"],
+                    help="DIAGNOSTIC: record summarized thinking for a runaway call")
     ap.add_argument("--ticker", default="MU", choices=sorted(FILINGS),
                     help="which filing (default MU = filing 1)")
     ap.add_argument("--segment-note-only", action="store_true",
@@ -472,7 +500,8 @@ def main() -> int:
                 + tokens.get("output", 0) * rate_out / 1e6)
 
     transport = traced_transport(
-        anthropic_transport(tool=extraction_tool(item_ids)), store,
+        anthropic_transport(tool=extraction_tool(item_ids),
+                            thinking_display=args.thinking_display), store,
         step_id=f"extract:{args.block}", cost_of=_cost_of,
         # ⚠⚠ Without this the trace records `prompt_version: None` — so a
         # recording cannot say WHICH prompt produced it, and a golden case
@@ -482,7 +511,9 @@ def main() -> int:
         # which BLOCK version ran and stays silent about the shared
         # sections composed in front of it, which is the half `DX-67`
         # changed without bumping anything.
-        envelope_hash=envelope_hash("extraction"))
+        envelope_hash=envelope_hash("extraction"),
+        # ★ `DX-95` — WHICH bundle this call read (`RA-2`).
+        bundle_hash=bundle.bundle_hash)
     gateway = Gateway(Config(GATEWAY_VALUES, sources=("tools/run_extraction_once.py",)),
                       transport=transport)
     seam = AnalysisGateway(gateway, registry)

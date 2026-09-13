@@ -13,6 +13,16 @@ well as the extraction, and it breaks when a vendor reorganises a URL — ⚠ a 
 reds for reasons unrelated to the code teaches people to ignore red, which destroys it permanently
 (`F5` `D5`, the same reasoning that keeps live calls out of CI).
 
+## ⛔ Annotations go in the sidecar, never in the `.txt` (`DX-102`)
+
+Each fixture's provenance and warnings live in `<NAME>.meta.txt`. ⚠⚠ Until 2026-09-13 they were the
+first ~55 lines of the `.txt` itself, and `build_bundle` sent them to the model as part of the SEC filing
+— every call this project had made read *"READ BEFORE ESTABLISHING A GOLDEN VALUE"* as evidence.
+★ The header's place in the `.txt` is filled with SPACES, newlines kept, so every line number AND every
+character offset cited before the move still points at the same text. ⚠ Offsets matter: golden selectors
+pin spans (`@22633:22914`), and a blank-lines-only first attempt broke one. `build_bundle` refuses a fixture carrying the header
+again.
+
 ## How to add one
 
 1. Get the filing **from EDGAR**, not from a data vendor —

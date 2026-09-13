@@ -238,6 +238,30 @@ def test_ac_2_2_a_gateway_transport_call_is_recorded_with_both_halves(tmp_path):
     assert body["response"]["content"] == [{"text": "hi"}]
 
 
+def test_ac_2_2_dx_95_the_call_records_WHICH_BUNDLE_it_read(tmp_path):
+    """★★ `CT-2.2` `A6` (`DX-95`) — the evidence half of a call's identity.
+
+    ⚠ `prompt_version` + `envelope_hash` name the prompt; without `bundle_hash`
+    two Stage-A calls over different extraction sets (`DX-85`ⓒ) read as
+    comparable. ★ `None` stays `None` — unknown, never a made-up value."""
+    from src.orchestration.trace import traced_transport
+
+    s = TraceStore(tmp_path / "runs", run_id=RUN)
+    ok = lambda _req: {"model": "m", "tokens_in": 1, "tokens_out": 1}  # noqa: E731
+    traced_transport(ok, s, step_id="a", bundle_hash="sha256:abc")({"model": "m"})
+    traced_transport(ok, s, step_id="b")({"model": "m"})
+
+    def boom(_req):
+        raise RuntimeError("vendor down")
+    with pytest.raises(RuntimeError):
+        traced_transport(boom, s, step_id="c", bundle_hash="sha256:def")({"model": "m"})
+
+    by_step = {r["step_id"]: r for r in s.read_all() if r["type"] == "ExternalCall"}
+    assert by_step["a"]["bundle_hash"] == "sha256:abc"
+    assert by_step["b"]["bundle_hash"] is None
+    assert by_step["c"]["bundle_hash"] == "sha256:def", "a FAILED call read a bundle too"
+
+
 def test_ac_2_2_a_failing_transport_is_recorded_AND_re_raised(tmp_path):
     """⚠⚠ The gateway's own retry must still see the exception.
 

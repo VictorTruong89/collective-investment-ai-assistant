@@ -59,10 +59,10 @@ def _rubric_for(block_id: str):
     resolvable so a baseline recorded against it can still be read (`RA-52`).
     """
     from src.fundamental.scorecard.registry import RubricRegistry
-    from src.fundamental.scorecard.rubrics.b43_v1 import B43_RUBRICS
-    from src.fundamental.scorecard.rubrics.b43_v2 import B43_V2_RUBRICS
+    from src.fundamental.scorecard.rubrics.b43_v3 import PUBLISHED_RUBRICS
 
-    reg = RubricRegistry((*B43_RUBRICS, *B43_V2_RUBRICS))
+    # ★ `DX-99` — one list of every published version, shared with the tests.
+    reg = RubricRegistry(PUBLISHED_RUBRICS)
     dimension, _, version = EMITS_RUBRIC[block_id].partition("@v")
     return reg.get(dimension, int(version))
 
@@ -86,7 +86,7 @@ def answer_shape(block) -> str:
     return "prose"
 
 
-def judgement_tool(block, *, levels: tuple[int, ...] = ()) -> dict:
+def judgement_tool(block, *, criteria: tuple[str, ...] = ()) -> dict:
     """`MP-5` — the closed set is declared as an ENUM, never described.
 
     ⚠⚠ Both of `extraction_tool`'s measured defects were the same mistake:
@@ -133,32 +133,40 @@ def judgement_tool(block, *, levels: tuple[int, ...] = ()) -> dict:
         }
 
     if shape == "rubric":
+        from src.fundamental.scorecard.selection import INSUFFICIENT_EVIDENCE
+
         dimension = EMITS_RUBRIC[block.name].partition("@v")[0]
-        if not levels:
+        if not criteria:
             raise ValueError(
-                f"{block.name} emits {EMITS_RUBRIC[block.name]} and no levels "
+                f"{block.name} emits {EMITS_RUBRIC[block.name]} and no criteria "
                 f"were supplied. ⚠ RA-32 — a level whose `evidence_required` is "
                 f"absent from the bundle is UNAVAILABLE, so the enum is a "
                 f"property of THIS CALL's bundle, not of the rubric. Passing the "
-                f"full 0-4 by default would silently re-offer levels the "
+                f"full set by default would silently re-offer levels the "
                 f"evidence cannot support."
             )
         return {
             "name": f"score_{dimension}",
-            "description": f"Select one {dimension} rubric level and justify it.",
+            "description": (f"Select the ONE {dimension} criterion the evidence "
+                            f"satisfies, copied exactly, and justify it."),
             "input_schema": {
                 "type": "object",
                 "properties": {
-                    # ⚠ An INT enum, not a string: the rubric's levels are
-                    #   ordered and `MIN_SCORE`/`MAX_SCORE` are numeric. A string
-                    #   "3" would compare wrong against the scorecard.
-                    "level": {"type": "integer", "enum": list(levels)},
+                    # ⛔⛔ `DX-100` — this was `level: integer enum [4..0]` and
+                    #   the criterion text was sent NOWHERE: the model picked a
+                    #   number it was never told the meaning of. ★ `RA-31`: the
+                    #   answer is the CRITERION; the score is derived from it
+                    #   (`scorecard/selection.py::resolve` → `derive_score`).
+                    #   ★ `MP-7`: `insufficient_evidence` is a stated exit, so
+                    #   the floor is never used to mean "cannot grade".
+                    "criterion": {"type": "string",
+                                  "enum": [*criteria, INSUFFICIENT_EVIDENCE]},
                     "why": {"type": "string"},
                     # ★ Every rubric block ends with the same instruction:
                     #   "Name the observation that would move you down one level."
                     "what_would_move_it_down": {"type": "string"},
                 },
-                "required": ["level", "why", "what_would_move_it_down"],
+                "required": ["criterion", "why", "what_would_move_it_down"],
             },
         }
 
@@ -180,6 +188,84 @@ def judgement_tool(block, *, levels: tuple[int, ...] = ()) -> dict:
     }
 
 
+def build_payload(prompt: str, the_offer, body: str) -> str:
+    """The text one judgement call sends: prompt, then the rubric, then the bundle.
+
+    ★★ `DX-100` — a rubric block's CRITERIA sit between its instructions and the
+    evidence, so *"Select ONE rubric level"* finally has something to select
+    from. ⚠ Only the offered levels' criteria, never their scores (`RA-31`).
+    """
+    rubric = f"\n\n{the_offer.render()}" if the_offer else ""
+    return f"{prompt}{rubric}\n\n---\n\n{body}"
+
+
+#: Where a recorded extraction run may live: fresh, or promoted.
+RUN_ROOTS = (REPO / ".state/runs", REPO / "tests_src/fixtures/recordings")
+
+
+def load_extraction_parts(run_ids, filing_bundle, *, ticker: str) -> tuple:
+    """★★★ `DX-85`ⓒ — recorded E-block runs → VERIFIED `extraction` bundle parts.
+
+    ⚠⚠ Each recording is re-parsed and **re-verified by `X-01` against THIS
+    filing bundle** before it may enter. The trace does not record the bundle
+    hash an extraction ran over (`DX-95`), so re-verification is what proves the
+    quotes belong to this filing: a span that does not resolve here refuses.
+    ★ `P5` — a run that did not close `SUCCESS`, holds no extraction call, names
+    another ticker, or repeats a block already loaded REFUSES; nothing is
+    skipped quietly, because a silently dropped run is a rubric level closed
+    for a wiring reason.
+    """
+    from src.fundamental.bundle.assemble import extractions
+    from src.fundamental.claims.verify import x01_verify_extraction
+    from src.fundamental.filings.extract import ExtractionPass
+    from src.fundamental.filings.models import ExtractionResult
+    from tools.run_extraction_once import parse_items
+
+    class _Call:
+        def __init__(self, text):
+            self.text = self.parsed = text
+
+    text = filing_bundle.of_kind("filing")[0].content
+    parts, seen = [], {}
+    for run_id in run_ids:
+        root = next((r / run_id for r in RUN_ROOTS if (r / run_id).is_dir()), None)
+        if root is None:
+            raise FileNotFoundError(f"no recorded run {run_id} under {[str(r) for r in RUN_ROOTS]}")
+        if f"-{ticker.lower()}-" not in run_id:
+            raise ValueError(f"{run_id} is not a {ticker} run — its evidence is another company's")
+        records = [json.loads(ln) for ln in (root / "trace.jsonl").read_text().splitlines() if ln]
+        closed = [r for r in records if r.get("type") == "__run_closed__"]
+        if [c.get("status") for c in closed] != ["SUCCESS"]:
+            raise ValueError(f"{run_id} did not close SUCCESS ({closed!r}) — "
+                             f"a failed or open run is not evidence")
+        calls = [r for r in records if r.get("type") == "ExternalCall"
+                 and str(r.get("step_id", "")).startswith("extract:")]
+        if not calls:
+            raise ValueError(f"{run_id} holds no extraction call")
+        results, versions = [], {}
+        for call in calls:
+            block_id = call["step_id"].split(":", 1)[1]
+            if block_id in seen:
+                raise ValueError(
+                    f"{block_id} is loaded twice ({seen[block_id]}, {run_id}). ⚠ RA-32 "
+                    f"would count the union of two samples as one — pass one run per block")
+            seen[block_id] = run_id
+            payload = json.loads((root / "trace/payloads" / f"{call['payload_ref']}.json")
+                                 .read_text(encoding="utf-8"))["response"]
+            body = payload["text"] if isinstance(payload, dict) and "text" in payload else payload
+            items = parse_items(_Call(body if isinstance(body, str) else json.dumps(body)), text)
+            results.append(ExtractionResult(block_id, filing_bundle.bundle_hash, tuple(items)))
+            versions[block_id] = call["prompt_version"]
+        report = x01_verify_extraction(filing_bundle, [i for r in results for i in r.items])
+        # ⛔ `DX-97` — re-applied on load, so a run recorded BEFORE the guard
+        #   (the 2026-09-12 E-13) is refused here too.
+        from src.fundamental.filings.subject import assert_subject_is_not_registrant
+        assert_subject_is_not_registrant(results, filing_bundle)
+        parts.extend(extractions(ExtractionPass(results=tuple(results), report=report),
+                                 prompt_versions=versions, run_id=run_id))
+    return tuple(parts)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--live", action="store_true", help="⚠ spends money")
@@ -197,6 +283,14 @@ def main() -> int:
     #   that they belong together, which is precisely what `F2` exists to stop.
     ap.add_argument("--stage-a", action="store_true",
                     help="run ALL 8 Stage-A blocks into ONE run_id (k=1)")
+    # ★★★ `DX-85`ⓒ — the evidence a rubric level cites is EXTRACTION output,
+    #   so a rubric block can be scored only over a bundle that carries it.
+    ap.add_argument("--extractions", nargs="*", default=(), metavar="RUN_ID",
+                    help="recorded E-block runs to add as verified extraction parts")
+    # ★ `DX-100` / `RA-17` — the rubric option order is seeded by
+    #   `<seed>:<run tag>:<block>` and RECORDED with each call.
+    ap.add_argument("--seed", default="0",
+                    help="seed for the recorded rubric option order (RA-17)")
     args = ap.parse_args()
     if not (args.live or args.dry_run):
         ap.print_help()
@@ -209,6 +303,14 @@ def main() -> int:
         else [BLOCKS[args.block][0]()]
 
     full = build_bundle()
+    if args.extractions:
+        from src.fundamental.bundle.models import EvidenceBundle
+        extracted = load_extraction_parts(args.extractions, full, ticker=args.ticker)
+        full = EvidenceBundle(ticker=full.ticker, as_of=full.as_of,
+                              parts=(*full.parts, *extracted))
+        for p in extracted:
+            print(f"  extraction : {p.pins['block_id']} {p.pins['prompt_version']}  "
+                  f"{p.pins['run_id']}  found={p.pins['evidence_ids'] or 'none'}")
     # ★★ RA-14 / MP-3 — the blind bundle, built by the contract's own method.
     blind = full.redact()
     body = "\n\n".join(p.content for p in blind.parts)
@@ -227,31 +329,46 @@ def main() -> int:
         # inside `judgement_tool` where it would look like a property of the
         # schema. `DX-82` tracks closing it properly.
         levels: tuple[int, ...] = ()
+        the_offer = None
         gate_error = None
+        gate_label = ""
         if answer_shape(blk) == "rubric":
             # ★★★ `DX-82` CLOSED — `RA-32` is applied, not warned about.
             from src.fundamental.scorecard.availability import (
                 NoAvailableLevel,
+                PartialRubricEvidence,
                 evidence_ids_in,
                 require_levels,
             )
             rubric = _rubric_for(blk.name)
             try:
                 levels = require_levels(rubric, evidence_ids_in(blind))
+            except PartialRubricEvidence as exc:
+                # ⛔ `DX-98` — some levels available, not all: refused, and
+                #   said differently, because the fix is a missing E-block run.
+                gate_error = str(exc)
+                gate_label = "  ⛔ DX-98 REFUSES — partial rubric evidence"
             except NoAvailableLevel as exc:
                 gate_error = str(exc)
+                gate_label = "  ⛔ RA-32 REFUSES — no level's evidence is in the bundle"
+            if not gate_error:
+                # ★★ `DX-100` — the levels are OFFERED as criteria, in a seeded
+                #   order that is recorded with the call.
+                from src.fundamental.scorecard.selection import offer
+                the_offer = offer(rubric, levels, seed=f"{args.seed}:{blind.bundle_hash}:{blk.name}")
         # ⚠⚠ `DX-67` — the SHARED ENVELOPE. §4.0: *"Composed into every J-block:
         #   S-1…S-6, plus S-7 in Stage A."* ★ `stage_a` is declared from the
         #   block's own `view`, which `STAGE_VIEW` sets to "blind" for Stage A.
         prompt = compose_prompt(blk, stage_a=(blk.view == "blind"))
-        payload = f"{prompt}\n\n---\n\n{body}"
+        payload = build_payload(prompt, the_offer, body)
         # ⚠ MEASURED 2026-09-10: `//4` predicted 52,912 tokens and the call
         # billed **70,371** — a 33% underestimate. ★ Filing prose tokenises
         # nearer 3 chars/token than 4, so estimates for THIS corpus use 3.
         est_in = len(payload) // 3
-        plans.append((blk, levels, payload, est_in, gate_error))
-        gate = ("  ⛔ RA-32 REFUSES — no level's evidence is in the bundle"
-                if gate_error else f"  levels={levels}" if levels else "")
+        plans.append((blk, the_offer, payload, est_in, gate_error))
+        gate = (gate_label if gate_error
+                else f"  levels={levels} shown as {the_offer.permutation}" if the_offer
+                else "")
         print(f"   {blk.name} {blk.version}  {answer_shape(blk):<7} "
               f"hash={blk.declared_hash[:16]}…  ≈{est_in:,} in{gate}")
 
@@ -277,7 +394,8 @@ def main() -> int:
     store = TraceStore(REPO / ".state/runs", run_id)
 
     spent, answers, failed = 0.0, {}, []
-    for blk, levels, payload, _est, gate_error in plans:
+    for blk, the_offer, payload, _est, gate_error in plans:
+        criteria = the_offer.criteria if the_offer else ()
         if gate_error:
             # ★★★ `RA-32` refuses BEFORE the call, so it costs nothing. ⚠ The
             # ungated run answered these blocks anyway and returned 1 / 3 / 3 /
@@ -286,7 +404,7 @@ def main() -> int:
             print(f"   ⛔ {blk.name}: NOT SENT — {gate_error.splitlines()[0]}")
             continue
         transport = traced_transport(
-            anthropic_transport(tool=judgement_tool(blk, levels=levels),
+            anthropic_transport(tool=judgement_tool(blk, criteria=criteria),
                                 max_output=MAX_OUT),
             store, step_id=f"judge:{blk.name}", kind="llm",
             # ⚠⚠ `cost_of(model_id, TOKENS)` receives the NORMALISED `{input,
@@ -299,10 +417,18 @@ def main() -> int:
             # one (`S-7` is Stage-A only), so the hash uses the SAME flags
             # `compose_prompt` was given, not a constant.
             envelope_hash=envelope_hash("judgement",
-                                        stage_a=(blk.view == "blind")))
+                                        stage_a=(blk.view == "blind")),
+            # ★★ `DX-95` — the BLIND bundle this call read; since `DX-85`ⓒ it
+            #   differs by which extraction runs were loaded.
+            bundle_hash=blind.bundle_hash)
         try:
-            result = transport({"model": MODEL, "max_tokens": MAX_OUT,
-                                "payload": payload})
+            request = {"model": MODEL, "max_tokens": MAX_OUT, "payload": payload}
+            if the_offer:
+                # ★ `RA-17` — the order SHOWN, recorded in the call's own trace
+                #   payload (the transport ignores keys it does not read).
+                request["option_permutation"] = list(the_offer.permutation)
+                request["option_seed"] = the_offer.seed
+            result = transport(request)
         except Exception as exc:                       # noqa: BLE001
             # ⚠⚠ `P5` — one block failing must not discard the seven that
             # succeeded, and it must NOT be reported as a completed Stage A.
@@ -333,7 +459,7 @@ def main() -> int:
         # obliged to honour them on a degraded call. ★ `J-01`'s truncated run
         # dropped `why` and still parsed as JSON, so "it parsed" is not "it is
         # complete" — the same mistake `DX-68` taught about "it parses now".
-        missing = [f for f in judgement_tool(blk, levels=levels)["input_schema"]
+        missing = [f for f in judgement_tool(blk, criteria=criteria)["input_schema"]
                    ["required"] if f not in answers[blk.name]]
         if missing:
             failed.append((blk.name, f"missing required field(s) {missing}"))
@@ -342,7 +468,26 @@ def main() -> int:
         tin, tout = result.get("tokens_in", 0), result.get("tokens_out", 0)
         cost = tin * PRICE_IN + tout * PRICE_OUT
         spent += cost
-        print(f"   ✅ {blk.name}  {tin:,} in / {tout:,} out  ${cost:.4f}")
+        derived = ""
+        if the_offer:
+            # ★★★ `DX-100` — the score is DERIVED from the echoed criterion,
+            #   through `derive_score`; an invented or un-offered criterion, or
+            #   a level without its evidence, refuses (`RA-31`, `RA-32`).
+            from src.fundamental.errors import LevelUnavailableError, ScoreEmittedError
+            from src.fundamental.scorecard.availability import evidence_ids_in
+            from src.fundamental.scorecard.selection import resolve
+            try:
+                score = resolve(the_offer, answers[blk.name], evidence_ids_in(blind))
+            except (ScoreEmittedError, LevelUnavailableError) as exc:
+                failed.append((blk.name, f"{type(exc).__name__}: {exc}"))
+                print(f"   ⛔ {blk.name}: answered, but NO SCORE — {exc}")
+                continue
+            answers[blk.name]["_derived"] = (
+                {"score": score.score, "rubric_id": score.rubric_id} if score
+                else {"score": None, "outcome": "INSUFFICIENT_EVIDENCE"})
+            derived = (f"  → {score.rubric_id} score={score.score}" if score
+                       else "  → INSUFFICIENT_EVIDENCE (not a score)")
+        print(f"   ✅ {blk.name}  {tin:,} in / {tout:,} out  ${cost:.4f}{derived}")
     store.close()
 
     print(f"\n  run_id={run_id}   spent ${spent:.4f}   "

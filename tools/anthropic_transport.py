@@ -162,7 +162,8 @@ MODEL_MAX_OUTPUT = 128_000
 
 
 def anthropic_transport(*, tool: dict | None = None,
-                        max_output: int = MODEL_MAX_OUTPUT) -> Callable[[dict], dict]:
+                        max_output: int = MODEL_MAX_OUTPUT,
+                        thinking_display: str | None = None) -> Callable[[dict], dict]:
     """Build the transport. ⚠ The API key is read from the environment by the
     SDK (`ANTHROPIC_API_KEY`, or an `ant auth login` profile) — never passed in,
     never logged, never a CLI argument.
@@ -202,6 +203,11 @@ def anthropic_transport(*, tool: dict | None = None,
         # path is the supported one. `budget_tokens` is likewise removed.
         if "effort" in request:
             kwargs["thinking"] = {"type": "adaptive"}
+            # ★ `DX-96` — a DIAGNOSTIC knob, off by default. Thinking stays ON
+            #   (`GW-9c` forbids disabling it); `summarized` only makes it
+            #   VISIBLE, so a call that thinks out of budget can say what about.
+            if thinking_display:
+                kwargs["thinking"]["display"] = thinking_display
             kwargs["output_config"] = {"effort": request["effort"]}
         if tool is not None:
             kwargs["tools"] = [tool]
@@ -210,10 +216,66 @@ def anthropic_transport(*, tool: dict | None = None,
         # request that large risks an HTTP timeout, and this call already runs
         # ~230s. ★ `.get_final_message()` returns the same `Message`, so the
         # mapping below is unchanged.
+        #
+        # ★★ `DX-96` — the deltas are TALLIED while streaming. ⚠⚠ Without this a
+        #   truncated call's recording is `{}` and cannot say whether 20,000
+        #   tokens went to THINKING or to a TOOL CALL cut off mid-JSON: the final
+        #   message drops thinking text and a partial tool input alike. Two
+        #   opposite diagnoses were drawn from that `{}` on 2026-09-13, and
+        #   both were inference.
         with client.messages.stream(**kwargs) as stream:
-            return to_transport_result(stream.get_final_message())
+            tally = tally_stream(stream)
+            result = to_transport_result(stream.get_final_message())
+        return {**result, **tally_fields(tally, result["stop_reason"])}
 
     return transport
+
+
+def tally_stream(events) -> dict:
+    """★ `DX-96` — characters streamed per delta kind, and the partial tool JSON.
+
+    ⚠ Counts only RAW `content_block_delta` events: the SDK also yields its own
+    convenience events (`text`, `thinking`, `input_json`) for the same bytes,
+    and counting both would double every figure.
+    ⚠ Characters, not tokens — the API reports one output-token total. The
+    split is what diagnoses a truncation; the ratio is approximate.
+    """
+    tally = {"thinking": 0, "text": 0, "tool_input": 0}
+    partial: list[str] = []
+    thinking: list[str] = []
+    for event in events:
+        if getattr(event, "type", "") != "content_block_delta":
+            continue
+        delta = event.delta
+        kind = getattr(delta, "type", "")
+        if kind == "thinking_delta":
+            tally["thinking"] += len(delta.thinking)
+            thinking.append(delta.thinking)
+        elif kind == "text_delta":
+            tally["text"] += len(delta.text)
+        elif kind == "input_json_delta":
+            tally["tool_input"] += len(delta.partial_json)
+            partial.append(delta.partial_json)
+    return {"chars": tally, "partial_tool_input": "".join(partial),
+            "thinking_text": "".join(thinking)}
+
+
+def tally_fields(tally: dict, stop_reason: str | None) -> dict:
+    """The fields a transport result carries from the tally.
+
+    ★ The partial tool JSON is kept ONLY for a `max_tokens` stop: it is the
+    evidence of what the model was writing when the budget ran out. A completed
+    call's input is already in `text`, and a second copy would double the
+    payload for nothing. ⚠ A trace is evidence, not output (`F2` §4) — this
+    text is never parsed as an answer.
+    """
+    out = {"stream_chars": dict(tally["chars"])}
+    if stop_reason == "max_tokens":
+        out["partial_tool_input"] = tally["partial_tool_input"]
+        # ★ `DX-96` — whatever thinking was VISIBLE (only with `display:
+        #   summarized`): the evidence of what a runaway call deliberated.
+        out["thinking_text"] = tally.get("thinking_text", "")
+    return out
 
 
 def to_transport_result(message) -> dict:

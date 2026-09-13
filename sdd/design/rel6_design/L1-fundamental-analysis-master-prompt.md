@@ -758,6 +758,42 @@ answer is `not_stated` — never "probably a plan".
   ap.late          any late-filing notification (NT 10-K / NT 10-Q)
 ```
 
+## E-09 · Accounting-policy and estimate changes — `v2`
+
+```text
+From the filings in the bundle, extract changes the COMPANY ITSELF disclosed
+as having been made in the periods the filings cover, and only those.
+
+  ap.change        any change in accounting policy, estimate, or presentation,
+                   with the company's stated reason and quantified effect
+  ap.useful_life   changes to depreciation or amortisation lives
+  ap.reserve       changes to allowance, warranty, or return reserves, and the
+                   direction of the P&L effect
+  ap.capitalisation any change in what is capitalised vs expensed
+  ap.auditor       auditor change, disagreement, or a modified opinion
+  ap.icfr          any material weakness or significant deficiency disclosed
+  ap.late          any late-filing notification (NT 10-K / NT 10-Q)
+
+A standard issued but not yet adopted is not a change — do not report it.
+A routine estimate the company describes without saying it changed is not a
+change. If the filings disclose no change for an item, return that item ONCE as
+`not_found`, quoting the passage you checked (for example the note on recently
+issued accounting standards). Most quarterly filings disclose few or none; an
+empty answer is a correct answer.
+```
+
+> ✏ **`v2`, 2026-09-13 (`RA-13`, `DX-96`) — scope and a stated empty answer.** *(Victor's
+> decision.)* ⚠⚠ `v1` truncated on MU **three times** (20,000 output tokens each, $2.64), twice at
+> `effort: low`. Instrumented on the third: **zero characters of tool-call JSON** — the budget went to
+> thinking. ⛔ Disabling thinking is ruled out by `GW-9c`.
+>
+> ◐ **The hypothesis `v2` tests, stated as one:** MU's 10-Q discloses essentially no policy change —
+> three FASB standards *issued but not adopted* and critical estimates cross-referenced to the 10-K —
+> so the honest answer is almost all `not_found`, and `v1` gave no scope (*"any change in … estimate"*
+> reads on every estimate the filing mentions), no rule on unadopted standards, and no stated empty
+> answer. ★ `MP-7`: *an LLM with no stated way to say "I could not" will always find something to
+> say* — here it found something to deliberate. The item list is unchanged, so the enum is too.
+
 ## E-10 · Share count and dilution — `v1`
 
 ```text

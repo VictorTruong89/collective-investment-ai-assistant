@@ -118,6 +118,11 @@ class ExternalCall(TraceRecord):
     #: deliberately not "none", which means *an envelope was composed and it
     #: was empty*.
     envelope_hash: str | None = None
+    #: ★★ `DX-95` (`CT-2.2` `A6`) — WHICH EVIDENCE BUNDLE the call read.
+    #: `prompt_version` + `envelope_hash` name the prompt; this names the
+    #: evidence (`RA-2`). ⚠ Load-bearing since `DX-85`ⓒ: Stage-A bundles differ
+    #: by which extraction runs were loaded. `None` = unknown, pre-`DX-95`.
+    bundle_hash: str | None = None
     tokens: dict = field(default_factory=dict)
     cost_usd: float | None = None
     latency_ms: int = 0

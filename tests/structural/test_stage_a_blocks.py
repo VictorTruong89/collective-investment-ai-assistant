@@ -26,14 +26,11 @@ STAGE_A = ("J-01", "J-02", "J-03", "J-04", "J-05", "J-06", "J-07", "J-08")
 
 
 def _registry() -> RubricRegistry:
-    """★ v1 AND v2 — the same composition the judgement runner publishes."""
-    from src.fundamental.scorecard.rubrics.b43_v2 import B43_V2_RUBRICS
+    """★ Every published version — the SAME list the judgement runner reads
+    (`DX-99`), so the test cannot resolve a rubric the runner does not."""
+    from src.fundamental.scorecard.rubrics.b43_v3 import PUBLISHED_RUBRICS
 
-    reg = RubricRegistry()
-    for rubric in (MOAT_DURABILITY, EARNINGS_QUALITY,
-                   BALANCE_SHEET_RESILIENCE, CAPITAL_ALLOCATION, *B43_V2_RUBRICS):
-        reg.publish(rubric)
-    return reg
+    return RubricRegistry(PUBLISHED_RUBRICS)
 
 
 def test_dx_64_every_stage_a_block_is_declared():
@@ -159,7 +156,7 @@ def test_dx_81_the_judgement_tool_serves_every_declared_shape():
     #    and `J-08`'s per-competitor sentences are folded into `why`/`answer`.
     #    ★ They are real structured fields and this schema does not carry them.
     assert "intangible_assets" in BLOCKS["J-03"][0]().text
-    assert "mechanism" not in str(_tool("J-03", levels=(0, 1))["input_schema"])
+    assert "mechanism" not in str(_tool("J-03", criteria=CRITERIA)["input_schema"])
 
 
 @pytest.mark.parametrize("block_id", STAGE_A)
@@ -178,6 +175,8 @@ def test_every_stage_a_block_hashes_its_own_text(block_id):
 # ═══════════════════════════════════════════════════════════════════════════
 
 RUBRIC_BLOCKS = ("J-03", "J-04", "J-05", "J-06")
+#: Two stand-in criteria for schema-shape tests (the real ones come from an offer).
+CRITERIA = ("criterion alpha", "criterion beta")
 ENUM_BLOCKS = ("J-01", "J-07")
 PROSE_BLOCKS = ("J-02", "J-08")
 
@@ -191,7 +190,7 @@ def test_dx_81_every_stage_a_block_now_has_a_schema():
     """★★ The gap `DX-81` named: six of eight blocks were declared and had no
     answer shape. ⚠ A declared block nothing can call is `DX-23`'s state."""
     for block_id in STAGE_A:
-        kw = {"levels": (0, 1, 2, 3, 4)} if block_id in RUBRIC_BLOCKS else {}
+        kw = {"criteria": CRITERIA} if block_id in RUBRIC_BLOCKS else {}
         schema = _tool(block_id, **kw)
         assert schema["input_schema"]["required"], block_id
 
@@ -231,15 +230,18 @@ def test_dx_81_a_rubric_block_REFUSES_a_default_level_set():
             _tool(block_id)
 
 
-def test_dx_81_a_rubric_level_is_an_INTEGER_enum():
-    """⚠ The rubric's levels are ORDERED and `MIN_SCORE`/`MAX_SCORE` are
-    numeric. A string "3" compares wrong against the scorecard."""
-    from src.fundamental.scorecard.models import MAX_SCORE, MIN_SCORE
+def test_dx_100_a_rubric_answer_is_a_CRITERION_never_a_number():
+    """⛔⛔ `DX-100` — REWRITTEN. This test used to assert the opposite
+    (`test_dx_81_a_rubric_level_is_an_INTEGER_enum`), and in doing so pinned
+    the defect: an integer enum whose meaning the model was never shown.
+    ★ `RA-31`: the answer is the criterion text, the score is derived; and
+    `MP-7`: `insufficient_evidence` is a stated exit, not the floor."""
+    from src.fundamental.scorecard.selection import INSUFFICIENT_EVIDENCE
 
-    schema = _tool("J-04", levels=(0, 1, 2, 3, 4))
-    level = schema["input_schema"]["properties"]["level"]
-    assert level["type"] == "integer"
-    assert level["enum"] == list(range(MIN_SCORE, MAX_SCORE + 1))
+    props = _tool("J-04", criteria=CRITERIA)["input_schema"]["properties"]
+    assert "level" not in props and "score" not in props
+    assert props["criterion"]["type"] == "string"
+    assert props["criterion"]["enum"] == [*CRITERIA, INSUFFICIENT_EVIDENCE]
 
 
 def test_dx_81_the_rubric_tool_is_named_for_the_dimension_it_scores():
@@ -250,7 +252,7 @@ def test_dx_81_the_rubric_tool_is_named_for_the_dimension_it_scores():
 
     for block_id in RUBRIC_BLOCKS:
         dimension = EMITS_RUBRIC[block_id].partition("@v")[0]
-        assert _tool(block_id, levels=(0, 1))["name"] == f"score_{dimension}"
+        assert _tool(block_id, criteria=CRITERIA)["name"] == f"score_{dimension}"
 
 
 def test_dx_81_j02_item_5_is_a_REQUIRED_FIELD_not_a_sentence():
@@ -382,7 +384,7 @@ def test_dx_82_the_runner_APPLIES_the_RA_32_gate_and_does_not_merely_compute_it(
         "ignored is worse than none, because it logs reassuringly"
     )
     # ⚠ The refusal must happen BEFORE the request is built and sent.
-    assert src.index("if gate_error:") < src.index('transport({"model"')
+    assert src.index("if gate_error:") < src.index("result = transport(request)")
 
 
 def test_dx_82_no_rubric_block_is_billable_from_a_bare_filing_bundle():
@@ -390,12 +392,6 @@ def test_dx_82_no_rubric_block_is_billable_from_a_bare_filing_bundle():
     unsendable today, so the ~$2.6 the ungated run spent on them cannot be
     spent again by accident."""
     from src.fundamental.scorecard.availability import available_levels
-    from src.fundamental.scorecard.rubrics.b43_v1 import (
-        BALANCE_SHEET_RESILIENCE,
-        CAPITAL_ALLOCATION,
-        EARNINGS_QUALITY,
-        MOAT_DURABILITY,
-    )
     for rubric in (MOAT_DURABILITY, EARNINGS_QUALITY,
                    BALANCE_SHEET_RESILIENCE, CAPITAL_ALLOCATION):
         assert available_levels(rubric, frozenset()) == ()

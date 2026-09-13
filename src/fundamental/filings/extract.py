@@ -118,6 +118,10 @@ def run_extraction(seam, *, block_ids, bundle, run_id: str,
 
     # ★ Step 3 — deterministic, and it ABORTS. No LLM is asked anything.
     report = x01_verify_extraction(bundle, [i for r in results for i in r.items])
+    # ⛔ `DX-97` — X-01 proves the words are in the filing, not that they answer
+    #   the item. An item about ANOTHER company naming the registrant aborts too.
+    from src.fundamental.filings.subject import assert_subject_is_not_registrant
+    assert_subject_is_not_registrant(results, bundle)
     return ExtractionPass(results=tuple(results), report=report)
 
 

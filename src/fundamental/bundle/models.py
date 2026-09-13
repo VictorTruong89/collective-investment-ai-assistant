@@ -53,6 +53,23 @@ PIN_FIELDS: dict[str, tuple[str, ...]] = {
     #: weigh. The 26 price-derived keys in the same vendor payload go to
     #: `computed` instead — see `for_ticker.OPERATING_RATIOS`.
     "operating_ratios": ("contract_name", "contract_version"),
+    #: ★★★ `DX-85`ⓒ — one E-block's VERIFIED output, so a judgement bundle can
+    #: carry the evidence ids a rubric level cites (`RA-32`). *Approved by
+    #: Victor 2026-09-12.* ⚠ Raw filing text carries no evidence id (`MP-4`):
+    #: until this kind existed, `J-03`…`J-06` could not be scored even in
+    #: principle.
+    #: ★ Pinned by WHICH prompt ran over WHICH bundle in WHICH recorded run, and
+    #: by the ids it found — `evidence_ids` is checked against the content in
+    #: `__post_init__`, because a declared id the content does not carry is a
+    #: rubric level made available by assertion.
+    #: ⚠ Adding a kind moves no existing hash: `bundle_hash` covers each part's
+    #: kind, pins and content, never this table.
+    #: ★★ `searched_ids` (`DX-99`) — every item the block explicitly RETURNED,
+    #: `found` or `not_found`. It lets a rubric level rest on a stated ABSENCE
+    #: ("no non-GAAP add-back"), which `evidence_ids` (found only, `RA-66`)
+    #: cannot express. ⚠ Added before any baseline existed for this kind.
+    "extraction": ("block_id", "prompt_version", "source_bundle_hash", "run_id",
+                   "evidence_ids", "searched_ids"),
 }
 
 #: Parts a BLIND view withholds (RA-14). ★ The qualitative passes run with price,
@@ -64,6 +81,45 @@ PIN_FIELDS: dict[str, tuple[str, ...]] = {
 #: is worth. Withholding it made J-15 unable to obey its own instruction, and
 #: RA-14 withholds **anchors, not vocabulary**.
 BLIND_WITHHELD_KINDS = ("computed",)
+
+
+def _assert_extraction_ids_match_content(pins: dict, content: str) -> None:
+    """`DX-85`ⓒ — an `extraction` part's declared ids ARE its found items' ids.
+
+    ★★ `evidence_ids_in` trusts `pins["evidence_ids"]`, and `RA-32` makes a
+    rubric level available on that set. ⚠ So a pin claiming an id the content
+    does not carry would open a level by assertion — and one omitting a found
+    id would close a level for a naming reason. Both refuse (`P5`).
+    ⚠ `RA-66`: a `not_found` item is NOT evidence and must not be declared.
+    """
+    declared = pins["evidence_ids"]
+    # ★ Compared as a LIST against the sorted found set below, so an unsorted
+    #   or duplicated declaration refuses too (`RA-4` — one set, one hash).
+    if not isinstance(declared, (list, tuple)):
+        raise ValueError(
+            f"extraction part {pins.get('block_id')}: `evidence_ids` must be a "
+            f"list, got {type(declared).__name__}")
+    try:
+        items = json.loads(content)["items"]
+        found = sorted({i["evidence_id"] for i in items if i["status"] == "found"})
+    except (ValueError, KeyError, TypeError) as exc:
+        raise ValueError(
+            f"extraction part {pins.get('block_id')}: content is not an "
+            f"extraction result ({exc!r}) — its evidence ids cannot be checked") from exc
+    if list(declared) != found:
+        raise ValueError(
+            f"extraction part {pins.get('block_id')}: pins declare "
+            f"{list(declared)} but the content's FOUND items are {found}. ⚠ RA-32 "
+            f"would open or close rubric levels on a set the evidence does not "
+            f"support (RA-66: not_found is not evidence)")
+    # ★ `DX-99` — the same check for what the block SEARCHED.
+    searched = pins["searched_ids"]
+    returned = sorted({i["evidence_id"] for i in items})
+    if not isinstance(searched, (list, tuple)) or list(searched) != returned:
+        raise ValueError(
+            f"extraction part {pins.get('block_id')}: pins declare searched "
+            f"{searched!r} but the content RETURNED {returned}. ⚠ A `searched:` "
+            f"level would rest on an absence nobody stated (DX-99)")
 
 
 @dataclass(frozen=True, slots=True)
@@ -94,6 +150,8 @@ class BundlePart:
                 f"{self.kind} by {list(PIN_FIELDS[self.kind])} — an unpinned part "
                 f"makes the bundle unreproducible (RA-2, RA-4)"
             )
+        if self.kind == "extraction":
+            _assert_extraction_ids_match_content(self.pins, self.content)
 
     @property
     def sort_key(self) -> tuple:

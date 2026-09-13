@@ -48,12 +48,14 @@ def test_v2_is_PUBLISHED_alongside_v1_never_over_it():
         assert reg.get(new.dimension, 2) is new
 
 
-def test_the_judgement_path_EMITS_v2():
-    """✅ `DX-86` — every Stage-A scoring block now emits `@v2`. ⚠ A block still
-    emitting `@v1` could never be scored once `RA-32` applied."""
+def test_the_judgement_path_EMITS_v2_or_later():
+    """✅ `DX-86` — no Stage-A scoring block emits `@v1`, whose ids resolve to
+    no extractor. ✏ `DX-99` moved `J-04` on to `@v3`; the others stay `@v2`."""
     from src.fundamental.prompts.e_blocks import EMITS_RUBRIC
 
-    assert all(key.endswith("@v2") for key in EMITS_RUBRIC.values())
+    assert EMITS_RUBRIC == {"J-03": "moat_durability@v2", "J-04": "earnings_quality@v3",
+                            "J-05": "balance_sheet_resilience@v3",
+                            "J-06": "capital_allocation@v3"}
 
 
 def test_v2_changes_ONLY_the_wiring_not_a_single_criterion_or_score():

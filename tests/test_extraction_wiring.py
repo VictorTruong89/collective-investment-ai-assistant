@@ -179,6 +179,11 @@ def test_the_transport_does_not_silently_lower_the_requested_max_tokens():
             return self
         def __exit__(self, *a):
             return False
+        def __iter__(self):
+            # ⚠ `DX-96` — the real `MessageStream` is iterable and the transport
+            #   now tallies its deltas; a stub that is not would fail for a
+            #   reason the SDK never produces.
+            return iter(())
         def get_final_message(self):
             return _tool_use_message([])
 
@@ -245,3 +250,102 @@ def test_dx_33_the_currency_rule_is_scoped_to_BARE_FIGURES():
     assert "approximately $14 billion" in desc, (
         "the worked example is the whole point — it is the case that failed"
     )
+
+
+# ── `DX-96` — what a truncated call was DOING ──────────────────────────────
+
+def _delta(kind, **payload):
+    return SimpleNamespace(type="content_block_delta",
+                           delta=SimpleNamespace(type=kind, **payload))
+
+
+def test_dx_96_the_stream_tally_separates_thinking_from_a_cut_off_tool_call():
+    """⚠⚠ A truncated call recorded `{}`, which cannot say whether the budget
+    went to thinking or to a tool call cut off mid-JSON — and two opposite
+    diagnoses were drawn from it. The tally measures it instead."""
+    from tools.anthropic_transport import tally_fields, tally_stream
+
+    events = [
+        _delta("thinking_delta", thinking="let me look"),
+        SimpleNamespace(type="thinking", thinking="let me look"),   # SDK helper: NOT counted
+        _delta("input_json_delta", partial_json='{"items": [{"evid'),
+        SimpleNamespace(type="input_json", partial_json='{"items"'),  # helper: NOT counted
+        _delta("text_delta", text="ok"),
+        SimpleNamespace(type="message_stop"),
+    ]
+    tally = tally_stream(events)
+    assert tally["chars"] == {"thinking": 11, "text": 2, "tool_input": 17}
+
+    cut = tally_fields(tally, "max_tokens")
+    assert cut["partial_tool_input"] == '{"items": [{"evid'
+    done = tally_fields(tally, "tool_use")
+    assert "partial_tool_input" not in done and done["stream_chars"]["thinking"] == 11
+
+
+def test_dx_96_the_CALLER_attaches_the_tally_to_the_transport_result():
+    """★ `DX-82`'s lesson — the pure tally is tested above; this proves the live
+    transport actually streams through it and returns the fields."""
+    import tools.anthropic_transport as mod
+
+    class _Stream:
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+        def __iter__(self):
+            return iter([_delta("thinking_delta", thinking="x" * 40),
+                         _delta("input_json_delta", partial_json='{"it')])
+        def get_final_message(self):
+            return SimpleNamespace(content=[SimpleNamespace(type="tool_use", input={})],
+                                   usage=SimpleNamespace(input_tokens=1, output_tokens=20_000),
+                                   stop_reason="max_tokens")
+
+    client = SimpleNamespace(messages=SimpleNamespace(stream=lambda **kw: _Stream()))
+    real = mod.anthropic
+    mod.anthropic = SimpleNamespace(Anthropic=lambda **kw: client)
+    try:
+        out = mod.anthropic_transport(tool=None)({"model": "m", "max_tokens": 20_000,
+                                                  "payload": "x"})
+    finally:
+        mod.anthropic = real
+    assert out["text"] == "{}" and out["stop_reason"] == "max_tokens"
+    assert out["stream_chars"] == {"thinking": 40, "text": 0, "tool_input": 4}
+    assert out["partial_tool_input"] == '{"it'
+
+
+def test_dx_96_summarized_thinking_is_REQUESTED_only_when_asked_and_KEPT_on_truncation():
+    """★ `DX-96` — the diagnostic knob. Thinking stays ON either way (`GW-9c`);
+    `display: summarized` only makes it visible, and the text is kept only for a
+    `max_tokens` stop, where it is the evidence of what the call deliberated."""
+    import tools.anthropic_transport as mod
+
+    sent = {}
+
+    class _Stream:
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+        def __iter__(self):
+            return iter([_delta("thinking_delta", thinking="weighing ASU 2023-07")])
+        def get_final_message(self):
+            return SimpleNamespace(content=[SimpleNamespace(type="tool_use", input={})],
+                                   usage=SimpleNamespace(input_tokens=1, output_tokens=20_000),
+                                   stop_reason="max_tokens")
+
+    def stream(**kw):
+        sent.update(kw)
+        return _Stream()
+
+    real = mod.anthropic
+    mod.anthropic = SimpleNamespace(Anthropic=lambda **kw: SimpleNamespace(
+        messages=SimpleNamespace(stream=stream)))
+    try:
+        req = {"model": "m", "max_tokens": 20_000, "payload": "x", "effort": "low"}
+        out = mod.anthropic_transport(tool=None, thinking_display="summarized")(req)
+        assert sent["thinking"] == {"type": "adaptive", "display": "summarized"}
+        assert out["thinking_text"] == "weighing ASU 2023-07"
+        mod.anthropic_transport(tool=None)(req)
+        assert sent["thinking"] == {"type": "adaptive"}, "the default must not change"
+    finally:
+        mod.anthropic = real

@@ -1,0 +1,63 @@
+⚠ SIDECAR — moved out of the fixture 2026-09-13 (DX-102, approved by Victor Truong).
+This header used to be the first lines of the .txt, and build_bundle sent it to
+the model as if it were part of the SEC filing. It is repo annotation, not
+evidence. Its place in the .txt is filled with SPACES (newlines kept), so every line number
+AND every character offset cited before the move still points at the same text (57 lines).
+
+=============================================================================
+PROVENANCE — do not edit below this header, and do not edit the body at all.
+=============================================================================
+Filer          : MICRON TECHNOLOGY INC  (CIK 0000723125)
+Form           : 10-Q
+Fiscal period  : Q3 FY2025, quarter ended 2025-05-29
+Filed          : 2025-06-26
+Accession      : 0000723125-25-000021
+Source URL     : https://www.sec.gov/Archives/edgar/data/723125/000072312525000021/mu-20250529.htm
+Retrieved      : 2026-09-06 via EDGAR (SEC requires a declared User-Agent)
+Converted      : 2026-09-07 by tools/convert_filing.py (v3) -- HTML -> text, mechanical.
+                 Table cells joined with ' | ', one table row per line.
+                 NO content removed, NO reordering. Verified token-for-token
+                 against the previous rendering: 30,990 tokens both ways.
+
+RE-RENDERED 2026-09-07 -- C13. READ THIS IF YOU HAVE AN OLDER COPY.
+  The first rendering split '$' and '%' into pipe-separated cells OF THEIR OWN:
+      SBU | 1,451 | 16 | % | 1,392 | 17 | % | 1,353 | 20 | % | ...
+      CNBU | $ | 5,069 | $ | 2,573 | ...
+  Nobody can reproduce that character-for-character. It caused THREE of the six
+  failures in the DX-23 live runs; a model quoting it inserted '$ |' cells the
+  document did not have, and X-01 correctly refused the citation. The delimiter
+  artefact was wrong, not the reading.
+  A SECOND pass the same day removed non-breaking spaces: the fixture read
+  `Form\xa010-K` and a model asked to quote it returned `Form\x0cfff10-K` --
+  it GARBLES U+00A0 rather than copying it. &nbsp; is HTML rendering, carries
+  no meaning, and is un-quotable. All exotic whitespace is now a plain space.
+
+  Now every cell is a semantic unit:
+      SBU | 1,451 | 16% | 1,392 | 17% | 1,353 | 20% | ...
+      CNBU | $5,069 | $2,573 | $14,028 | $6,495
+
+  ==> This is a DIFFERENT bundle_hash. A golden case recorded against the old
+      rendering does not transfer. F5 cases 1 and 2 must be re-checked.
+
+WHERE THE SEGMENT TABLE IS
+  Note "Segment and Other Information" begins around line 1037 of the BODY.
+  The revenue table's column headers read:
+
+      Quarter Ended                    Nine Months Ended
+      May 29, 2025 | May 30, 2024      May 29, 2025 | May 30, 2024
+
+  ==> FOUR numeric columns per segment row, in that order.
+  ==> Columns 1-2 are the DISCRETE quarter. Columns 3-4 are CUMULATIVE YTD.
+
+WARNING - READ BEFORE ESTABLISHING A GOLDEN VALUE
+  1. The two column PAIRS are adjacent and differ only by their header. This
+     is the cumulative-vs-discrete trap (fmp-api trap 1) in its natural habitat.
+  2. Micron REORGANISED its business units effective Q4 FY2025 and stated it
+     will RECAST segment reporting in the FY2025 10-K. The figures here are
+     AS-ORIGINALLY-REPORTED under the old four-unit structure (CNBU / SBU /
+     MBU / EBU). Per E-01: return both, tagged; never silently prefer one.
+     Add a SECOND case when the 10-K lands; never edit this one.
+  3. This rendering is produced by a converter an AI agent wrote, and that
+     converter has been wrong three times. Verify any figure you establish
+     against the Source URL above, not against this file.
+=============================================================================

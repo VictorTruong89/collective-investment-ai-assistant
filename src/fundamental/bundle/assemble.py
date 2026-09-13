@@ -13,6 +13,7 @@ otherwise happily record.
 
 from __future__ import annotations
 
+import json
 from datetime import date
 
 from src.fundamental.bundle.models import BundlePart, EvidenceBundle
@@ -160,3 +161,41 @@ def sector_file(file) -> BundlePart:
         lines.append("")
         lines.extend(f"OMITTED  {o.source_id}: {o.reason}" for o in file.omissions)
     return BundlePart("sector_file", file.pin(), "\n".join(lines))
+
+
+def extractions(verified_pass, *, prompt_versions: dict, run_id: str) -> tuple[BundlePart, ...]:
+    """★★★ `DX-85`ⓒ — a VERIFIED extraction pass as bundle parts, one per E-block.
+
+    ⚠⚠ **Only a pass X-01 has checked may enter.** `run_extraction` returns an
+    `ExtractionPass` only after `x01_verify_extraction` ran and did not abort, and
+    its report counts every FOUND item. ★ That count is asserted here, so a pass
+    assembled by hand from unverified items — the shape `RA-66` forbids, *"an
+    item counts as extracted only if X-01 passed"* — refuses rather than handing
+    a rubric evidence nobody checked.
+
+    ★ `RA-19`: mechanical. Every result becomes a part, `not_found` items
+    included in the content (where the model looked is evidence of absence), and
+    nothing is filtered by relevance to the judgement about to read it.
+    """
+    results = tuple(verified_pass.results)
+    found = sum(1 for r in results for i in r.items if i.status == "found")
+    if verified_pass.report.checked != found:
+        raise BundleInconsistentError(
+            f"extraction pass for run {run_id}: X-01 checked "
+            f"{verified_pass.report.checked} item(s) but the results carry {found} "
+            f"found item(s). Only verified evidence may enter a bundle (RA-66)")
+    parts = []
+    for r in results:
+        if r.block_id not in prompt_versions:
+            raise BundleInconsistentError(
+                f"no prompt_version given for {r.block_id} — an extraction part "
+                f"that cannot say which prompt produced it is unpinned (RA-2, RA-13)")
+        parts.append(BundlePart(
+            "extraction",
+            {"block_id": r.block_id, "prompt_version": prompt_versions[r.block_id],
+             "source_bundle_hash": r.bundle_hash, "run_id": run_id,
+             "evidence_ids": sorted(r.evidence_ids),
+             # ★ `DX-99` — every id the block explicitly returned, found or not.
+             "searched_ids": sorted({i.evidence_id for i in r.items})},
+            json.dumps(r.to_json_obj(), sort_keys=True, ensure_ascii=False, indent=1)))
+    return tuple(parts)
