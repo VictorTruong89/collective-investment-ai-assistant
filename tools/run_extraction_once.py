@@ -67,6 +67,13 @@ FILING = REPO / FILINGS[TICKER]["path"]
 ACCESSION = FILINGS[TICKER]["accession"]
 
 
+def _declared_versions() -> list[str]:
+    """Every prompt version any E-block declares (`DX-88`)."""
+    import src.fundamental.prompts.e_blocks as eb
+    return sorted({m.group(1).lower() for name in dir(eb)
+                   if (m := re.match(r"E\d\d_(V\d+)_TEXT$", name))})
+
+
 def _select(ticker: str) -> None:
     """Point the module at another filing. ⚠ Explicit, never implicit."""
     global TICKER, FILING, ACCESSION
@@ -343,10 +350,18 @@ def main() -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--dry-run", action="store_true", help="★ free — plan + cost")
     g.add_argument("--live", action="store_true", help="⚠ SPENDS MONEY")
-    ap.add_argument("--block", default="E-01", choices=sorted(BLOCKS),
+    # ⚠ `DX-88` — `choices=sorted(BLOCKS)` offered J-01…J-08 once Stage A was
+    #   declared, so `--block J-03` would have been sent down the EXTRACTION
+    #   path with an extraction tool. ★ Filtered by kind (`RA-5`).
+    ap.add_argument("--block", default="E-01",
+                    choices=sorted(b for b in BLOCKS
+                                   if BLOCKS[b][0]().kind == "extraction"),
                     help="which E-block to run (default E-01 = filing 1's)")
+    # ⚠ `DX-88` — the choices were hardcoded `["v2", "v3"]` while `E-01` ships
+    #   `v4`: `DX-72`'s shape (a list pinned to the versions that existed when it
+    #   was written). ★ Derived from the declared `E0n_Vn_TEXT` constants.
     ap.add_argument("--prompt-version", default=None,
-                    choices=["v2", "v3"],
+                    choices=_declared_versions(),
                     help="⚠ v3 is a CANDIDATE; shipping it retires filing 1's "
                          "recording (L7 §5), so it is opt-in")
     ap.add_argument("--effort", default=None,

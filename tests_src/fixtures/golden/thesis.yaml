@@ -19,7 +19,23 @@ cases:
   #      analytical questions the rest of the analysis is allowed to ask"* — so a
   #      drift here silently redirects every downstream block.
   - case_id: mu-fy2025q3-j01-archetype
-    input_ref: "run-2026-09-11T111240-mu-j01/judge:J-01:llm:1"
+    # ⚠⚠⚠ RE-POINTED BACK 2026-09-11 (`DX-84`). This case pointed at
+    #    run-2026-09-11T111240-mu-j01 for several hours. That recording is
+    #    **TRUNCATED** — `stop_reason: max_tokens`, 4,000 out, and the required
+    #    `why` field is ABSENT. ★ The case still PASSED, because `F5` §4's
+    #    subset rule means it asserts only `archetype` — which is the subset
+    #    rule earning its keep, not a reason to keep grading a degraded call.
+    # ★ `run-2026-09-11T025139-mu-j01` is the only COMPLETE J-01 recording:
+    #   757 out, `stop_reason: tool_use`, all four required fields present.
+    # ✅ RESOLVED 2026-09-12. The `DX-84` re-run produced a J-01 that is BOTH
+    #   complete (5,416 out, `tool_use`, all four required fields) AND
+    #   post-envelope AND carries an `envelope_hash` — so the compromise above
+    #   (a complete PRE-envelope answer vs a truncated post-envelope one) no
+    #   longer has to be made. ★ It also comes from a run where all 8 Stage-A
+    #   blocks succeeded, so the recording is a STAGE rather than a lone call.
+    # ⚠ `archetype` is `cyclical_commodity` here as in all three prior runs —
+    #   the value you established is unchanged; only the artefact moved.
+    input_ref: "run-2026-09-12T024848-mu-stage-a/judge:J-01:llm:1"
     expected:
       archetype: cyclical_commodity
     source: >-

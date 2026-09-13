@@ -150,6 +150,18 @@ _BLOCK_HEADINGS = {
     #   J-block with text in `src/`, after `STAGE_BLOCKS` had named J-01…J-17
     #   for months with none of them constructible.
     "J-01": "### J-01 · Industry archetype — `{v}`",
+    # ★★ The rest of Stage A, declared 2026-09-11 (`DX-64`). ⚠ Several headings
+    #   carry a tail after the version — `— emits <rubric>`, `— mandatory for
+    #   <archetype>`. It is kept VERBATIM rather than trimmed: the tail is where
+    #   `DX-80`'s two mismatches live, and a guard that normalised the heading
+    #   away would have hidden the very text that disagrees with the code.
+    "J-02": "### J-02 · Business-model comprehension — `{v}`",
+    "J-03": "### J-03 · Moat durability — `{v}` — emits `moat_durability@v2`",
+    "J-04": "### J-04 · Earnings quality — `{v}` — emits `earnings_quality@v1`",
+    "J-05": "### J-05 · Balance-sheet resilience — `{v}` — emits `balance_sheet@v1`",
+    "J-06": "### J-06 · Capital allocation — `{v}` — emits `capital_allocation@v1`",
+    "J-07": "### J-07 · Cycle position — `{v}` — mandatory for `cyclical_commodity`",
+    "J-08": "### J-08 · Industry structure and supply — `{v}`",
 }
 
 

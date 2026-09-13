@@ -50,7 +50,7 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — ★★★ **all 11 specs COMPLETE**, updated 2026-09-11
+## 2.1 Current position — ★★★ platform COMPLETE · analysis 29 % · updated 2026-09-12
 
 ```text
    ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
@@ -58,51 +58,51 @@ the machinery that records what it changed.
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-1 … MS-7 · THE PLATFORM ─────────── ★★★ 148/148 ACs ───────┐
-   │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18   (closed before 09-09) │
-   │  F6a 11 · F9 10 · F7a 12 · F6b 12 · F8 20 · F7b 9  (2026-09-09)│
-   │  ✅ 1,937 tests · 12 CI guarantees · ruff clean · 148/148 traced│
+   │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18 · F6a 11 · F9 10        │
+   │  F7a 12 · F6b 12 · F8 20 · F7b 9                               │
+   │  ✅ 2,006 tests · 12 CI guarantees · ruff clean · 148/148 traced│
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-8/9 · ABSORPTION + WRITE-UP ─────────────── ONE TREE ──────┐
-   │  ✅ 15 domains · ~38,000 lines · upstream src/ is GONE         │
+   │  ✅ 15 domains · ~40,000 lines · upstream src/ is GONE         │
    │  ⛔ 8.9 retire the old repo · publishing — both Victor's       │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ★★★ THE GOLDEN SET ────────── MEASURING, AND IT FOUND THINGS ─┐
-   │  ★★ 29 LIVE: 28 extraction · 1 THESIS  ·  0 PARKED             │
-   │  ★ ALL recordings post-envelope; E-01 v4; envelope now HASHED  │
-   │  ★★ THE INSTRUMENT WORKED: it refused to rebaseline 2 findings │
-   │     and exonerated the envelope on a third (DX-75)             │
+   ┌─ ★★★ THE ANALYSIS LAYER — 10 of 34 prompt blocks (29 %) ───────┐
+   │  E-blocks  2/15  E-01 v4 · E-02 v2                             │
+   │  J-blocks  8/19  J-01…J-08 = ALL OF STAGE A  (3 answer shapes) │
+   │  ★ Stage A RUN once, k=1, MU: 8/8 complete, $4.86 (DX-84)      │
+   │  ⛔ J-03…J-06 UNSCOREABLE until E-04/06/07/09/10/12/13 exist    │
+   │     — RA-32 now refuses them BEFORE sending (DX-82, DX-85)     │
+   │  ✅ rubrics v2 PUBLISHED (DX-86) — evidence ids now real       │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ★★ MEASURED, NOT JUST BUILT ──────────────────────────────────┐
-   │  F7a HAS RUN — T1 ratio 1.032 · INSUFFICIENT · F6b ADVISORY    │
-   │  ⚠ FINDING: T1 cannot measure social-pressure resistance for   │
-   │     a seat that CANNOT VERIFY (F7a §8.1). A spec limit.        │
-   │  ✅ E2E checklist CLEARED — E1-E9 closed/deferred/answered      │
+   ┌─ ★★ THE GOLDEN SET ─────────────────────────────── MEASURING ──┐
+   │  29 LIVE: 28 extraction · 1 thesis · 0 parked                  │
+   │  ★ graded blocks: E-01 · E-02 · J-01  (J-02…J-08: none)        │
+   │  ★ envelope hashed (DX-76); J-01 case on a complete recording  │
    └────────────────────────────────────────────────────────────────┘
                               ▼
-   ┌─ ⬜ WHAT REMAINS ──────── all DECISIONS or RUNS, no unbuilt code ┐
-   │  ✅ NOTHING IS WAITING ON VICTOR — pending file is EMPTY        │
-   │  ⬜ THE BUILD                                                   │
-   │   0. DX-79  run choice can decide whether a case passes ⚠      │
-   │   3. DX-64  16 of 17 J-blocks undeclared ⇒ no CT-9.2 thesis    │
-   │   4. DX-60  QR-20's cost premise unpriced (needs a thesis)     │
-   │   5. DX-57  T1's DELETE arm needs ~96 DISTINCT situations      │
-   │   6. DX-61  relay carries no spans ⇒ QR-16 unreachable there   │
-   │   7. DX-78  X-01 refuses a whole RUN over one capital letter   │
-   │   8. DX-44  five AC prefixes still collide (deliberate)        │
+   ┌─ ⬜ NEXT — in dependency order ─────────────────────────────────┐
+   │   1. declare E-04 · E-06 · E-07 · E-09 · E-10 · E-12 · E-13    │
+   │        (the evidence J-03…J-06's v2 levels cite)  — free       │
+   │   2. DX-85ⓒ a bundle part kind for extraction OUTPUT ⚠ Victor  │
+   │        (hash-contract change — do ONCE, after step 1)          │
+   │   3. golden cases for Stage A — start with J-06     ⚠ Victor   │
+   │   4. declare J-09…J-17 (Stages B–D) → a CT-9.2 thesis          │
+   │   5. remaining E-blocks · J-18 · J-19                          │
+   │  open: DX-57 60 61 78 79 85ⓑⓒ 87 · partial: DX-44 71 80        │
    └────────────────────────────────────────────────────────────────┘
 ```
 
 | | Result |
 |---|---|
-| tests | **1,958 pass · 6 skip · 0 fail** — ★ the `DX-73` xfail is GONE: its declaration expired when the 6 YTD cases were re-established, and was deleted with them |
+| tests | **2,006 pass · 6 skip · 0 fail** |
 | guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` |
-| findings | **79 `DX` logged — 75 closed**; ⬜ `DX-57`, `DX-60`, `DX-61`, `DX-64`, `DX-78`, **`DX-79`** await a decision or a run, ◐ `DX-44` and `DX-71` deliberately partial |
-| golden set | **29 live** (28 extraction · 1 thesis), **nothing parked**, every one established by the fund manager and replaying green against **four recordings all made on 2026-09-11 under one prompt envelope**. ★ Eight cases were withdrawn and re-established the same day rather than rebaselined |
-| recordings | ★ **all 5 are now post-envelope** (`DX-67`) — MU/AMD `E-01` on `v4`, MU `E-02`, MU `J-01`. The pre-envelope recordings are retired |
-| spend | **~$20.04 total** — $8.54 first-pass extraction · $1.63 `F7a` + `J-01` · **$8.61 this session** (4 re-records $2.33 · `E-02` truncation $0.68 wasted · `E-02` retry $0.59 · `E-01 v4` ×2 $1.13 · `DX-75`'s 3× `E-02` $2.02, of which **$0.67 bought a run `X-01` refused** — `DX-78`) · rest diagnostics |
+| findings | **88 `DX` logged — 82 closed** · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-85`ⓑⓒ `DX-87` · ◐ partial: `DX-44` `DX-71` `DX-80` |
+| golden set | **29 live** (28 extraction · 1 thesis), nothing parked, every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
+| recordings | graded: `run-2026-09-11T082002-mu-e01` (E-01 v4) · `…T082118-amd-e01` (E-01 v4) · `…T115548-mu-e02` · `run-2026-09-12T024848-mu-stage-a` (J-01…J-08, complete, envelope-hashed). ⚠ `run-2026-09-12T021719-mu-stage-a` is the TRUNCATED Stage A (`DX-84`) — not promoted, and `spend_report.py` still labels its calls `SUCCESS` because it reports the RUN's close status, not the call's `stop_reason` |
+| spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$33.20 over 57 calls** all-time · **$6.44 on 2026-09-11 · $8.54 on 2026-09-12**. ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
 | lint | ruff clean on all code this repo authored |
 
 ⚠⚠ **What "148/148" does and does not mean.** Every acceptance criterion has a passing test in the
@@ -125,6 +125,247 @@ them have now been fired.**
 > regression from noise — and `DX-75`'s 25 % `E-02` drop therefore stays **unattributed**, because
 > attributing it would be exactly the unmeasured confident claim this log keeps catching.
 > ★ That is a premise the golden set's design had been assuming, and it is now known to be false.
+
+## 2.1b ★★★ 2026-09-11 — the day the golden set was pointed at itself
+
+> **One sentence:** a plan to re-record four calls and re-point the golden set — believed mechanical —
+> produced **twelve findings (`DX-68`…`DX-79`)**, cost **$8.61**, and ended with 29 live cases where
+> only 11 of 28 had passed at the midpoint. **Not one established value was overwritten by the system.**
+
+### What was actually being done
+
+`DX-67` (2026-09-11, earlier) found that the shared prompt envelope — `S-1`…`S-6`, declared in the
+design doc as *"composed into every E-block"* — **had never been implemented**. Every call the project
+had ever made went out without it. The envelope was implemented and four calls re-recorded. This
+section is what happened when the golden set was asked to accept the new recordings.
+
+### ⓘ The four-line summary of the mechanism
+
+| | |
+|---|---|
+| what broke | the envelope's `S-2` says **"Do not compute"**, correctly |
+| what that suppressed | any value the model would have had to **derive** — and some it only *looked* like it would |
+| why it cascaded | `MP-18`'s identity, `F5`'s selector and 17 case selectors all rested on a **derived** field |
+| why it was survivable | `D2` had kept the fund manager's values out of the system's reach, so nothing could be quietly rebaselined |
+
+### The findings, and why each was fixed the way it was
+
+| | finding | fix | why NOT the obvious alternative |
+|---|---|---|---|
+| `DX-68` | `period_start` vanished ⇒ **20 duplicate identities**, result refused | add `cumulative_ytd` to `MP-18`'s identity | reverting the envelope discards `S-3`, the reason for `DX-67`. ★ `AP-5`: **a derived quantity does not belong in an identity** |
+| `DX-69` | `E-02` truncated at `max_tokens`, $0.68 wasted | cap 12,000 → 20,000 | ⚠ the retry produced **8,479 — below the cap that truncated it**. So the cap was raised against **variance**, not a larger requirement, and the constant says so rather than claiming evidence it does not have |
+| `DX-70` | `promote_recording` wrote `filing.json → MU` for the **AMD** run | derive the ticker from the **recorded bundle** | reading a module global was the bug; a different global would repeat it. ★ Evidence over convention |
+| `DX-71` | only **11 of 28** cases passed; re-pointing would rebaseline two regressions | **HELD the re-point**, reported | re-pointing 11 splits the set across two prompt regimes — `DX-67`'s own rejected option |
+| `DX-72` | the prompt drift guard pinned **`v2`**, retired since 09-08 | discover every declared version | a hardcoded list reproduces the defect at the next bump |
+| `DX-73` | 6 YTD cases assert a start **the filing never states** | `E-01 v4` + fund manager re-established with `start: null` | pushing the prompt harder would train the model to do the arithmetic the envelope exists to stop |
+| `DX-74` | `qualifier` **vanished** between two runs 82 min apart ⇒ 4 notes on one selector | teach the selector the **span** `identity` already carried | the docstring claimed *"the selector IS `MP-18`'s identity"* and that was **false** for non-figures |
+| `DX-75` | `E-02` lost 25 % of its items | **3 more runs, $2.02** | ⛔ the tidy story (*`S-2` suppressed it*) was **unsupported** — a refusing model records a gap and this one recorded none |
+| `DX-76` | the envelope is **unversioned** ⇒ the drift guard is blind to it | `envelope_hash` on `CT-2.2` | `prompt_version` names the block; the envelope is per-block-**independent** |
+| `DX-77` | 2 cases pin a **quote boundary** the model chooses | assert the **span**, not the value | ★ the span was identical in **4 of 4** runs; the value text varied |
+| `DX-78` | `X-01` refused a whole run over **one capital letter** | recorded, **not fixed** | case-insensitivity weakens the guard everywhere to fix a first-character artefact |
+| `DX-79` | which run gets promoted can decide whether a case passes | named, not fixed | ⚠ the pre-registered rule protected against **me** choosing — a different hazard — and left this untouched |
+
+### ★★★ The three that are one finding
+
+`DX-73` (a period start the filing never states) · `DX-74` (a qualifier the model invents) ·
+`DX-77` (a quote boundary the model chooses).
+
+> **The golden set kept asserting things the MODEL authors rather than things the DOCUMENT fixes.**
+> Those assertions cannot be stable, because nothing external holds them still.
+
+★ `F5` §4's subset rule was already the answer; what these three establish is that it must apply to
+**`value` itself**, not only to `quote`/`span`/`note`. ⚠ `DX-79` is the same finding wearing a
+different hat: under value-pinning, a case's pass/fail was partly a **coin flip on which run got
+promoted** — measured 3-in-4 on one reading.
+
+### ⚠⚠ What went wrong in the WORK, recorded because the log is not a press release
+
+1. **I read "it parses now" as "the problem is solved."** `DX-68`ⓐ was necessary and **not
+   sufficient**; 10 cases still failed on a value the fund manager had established, and I moved on
+   to re-recording before checking.
+2. **I called re-pointing mechanical** and proposed it as a one-line step. It was not: 17 of 28
+   cases needed a judgement, and 8 needed the fund manager.
+3. **I estimated `DX-71`'s blast radius at "17 case selectors"** from case names. Measured, it was
+   **6**. ★ The habit that caught it is the one that keeps working: *measure before specifying.*
+4. **I parked 2 cases without re-pointing them**, so a later signature passed against the
+   **pre-envelope** recording and settled nothing. Caught only by building `DX-76`'s guard.
+5. **I quoted `$1.20` and spent `$2.02`** on `DX-75` — a refused run was still billed.
+6. **My own `source` prose was refused by `D2`** for the phrase *"the model's"*. ★ Correctly: the
+   guard fired on my writing, not on the fund manager's.
+
+### ★★ What this says about the instrument
+
+**The golden set did the job it exists to do, and the evidence is that it was inconvenient.** It
+refused to rebaseline two regressions (`DX-71`), forced eight signed cases back to the fund manager
+rather than letting the system edit them (`D2`), and exonerated the envelope on a third
+(`DX-75`) — which is the outcome that was *least* convenient to the story I had already half-written.
+
+⚠ It also nearly failed silently in three places, each closed here: a guard pinned to a retired
+version (`DX-72`), a selector weaker than the identity it claimed to mirror (`DX-74`), and a prompt
+change no version number could name (`DX-76`). ★ **Fourth, fifth and sixth instances of one shape** —
+after `DX-41`, `DX-63`, `DX-67`: *a guard keeps checking exactly what it was written to check while
+the thing beside it goes unchecked.*
+
+## 2.1c ★★★ WHERE THE BUILD ACTUALLY IS — the block census, 2026-09-11
+
+⚠⚠ **"148/148 ACs" and "all 11 specs complete" are true and they are the wrong number to quote.**
+They measure the **platform** — the machinery that runs, records, replays and grades prompts. They say
+nothing about how much of the **analytical content** exists, and that is where the remaining work is.
+
+### The measurement
+
+| | in the design doc | declared in `src/` | % |
+|---|---|---|---|
+| **E-blocks** (extraction) | **15**, all with prompt text | **2** — `E-01`, `E-02` | **13 %** |
+| **J-blocks** (judgement) | **19**, all with prompt text | **8** — `J-01`…`J-08` ✅ | **42 %** |
+| **total** | **34** blocks · 40,386 chars of prompt text | **10** | ★ **29 %** |
+
+★ **Declared · schema'd · RUN** are three different things, and the census above measures only the
+first. As of 2026-09-11: **10 declared**, **10 schema'd**, **9 run live at least once** (`E-01`,
+`E-02`, `J-01`…`J-08` — the last eight in one Stage-A run), **3 covered by golden cases**.
+
+> ✅ **Updated 2026-09-11 — Stage A is complete.** `J-02`…`J-08` declared, verbatim, pinned to the
+> design doc by `RA-13`'s drift guard, 15 new structural tests, **4 of 4 mutations caught**.
+> ✅ **And now callable** — `DX-81` closed the same day: `judgement_tool` serves all three shapes
+> (`enum` · `rubric` · `prose`), `--block` selects any of the eight, and every one dry-runs.
+> ⬜ `DX-82`: `RA-32`'s evidence-gating of rubric levels is deliberately still open and **warns out
+> loud** on every rubric call rather than defaulting quietly.
+
+★★★ **The single most important fact for planning: every one of the 34 already has its prompt text
+written in `L1-fundamental-analysis-master-prompt.md`.** The remaining work is **transcription,
+wiring and verification** — not authoring, not design. ⚠ This corrects `DX-64`'s framing, which read
+as though the J-blocks needed to be invented.
+
+### What one block costs, measured on the three that exist
+
+Per block: the text constant (verbatim) · an item-id enum or option list · a factory · a `BLOCKS`
+entry · a drift test pinning it to its doc section · and — only if it is to be **graded** — a live
+recording (~$0.55-0.70) plus golden cases the fund manager establishes.
+
+⚠ `e_blocks.py` is **325 lines for 3 blocks**, but most of that is `DX` commentary, not mechanism.
+
+### ⚠ Two honest qualifications
+
+- **`STAGE_BLOCKS` names J-01…J-17; the doc defines J-01…J-19.** Not a defect: `J-18` (pre-event
+  brief) and `J-19` (industry-vs-company attribution) were added for the **event and attribution
+  workflows**, not for the `CT-9.2` thesis pipeline. ★ They are real work, outside the thesis.
+- **Declaring a block is not the same as covering it.** The golden set grades **3 of 34** blocks.
+  Coverage is the expensive half, because it needs a live call **and** the fund manager's time.
+
+### ⬜ The order this should be built in, and why
+
+1. ✅ **`J-02`…`J-08` DECLARED and ✅ SCHEMA'D — 2026-09-11.** Seven blocks verbatim under the drift
+   guard, plus three answer shapes in `judgement_tool` (`enum` · `rubric` · `prose`) and a `--block`
+   flag. **All 8 Stage-A blocks dry-run.** ⬜ Not yet RUN live, and `DX-82` (`RA-32` level gating)
+   is open.
+   ★ **Next concrete step: run Stage A once, on MU.** 8 blocks × 1 run ≈ **$3.1** at the measured
+   $0.39/call — the first time this project would hold a complete Stage A rather than one block of
+   it. ⚠ `K_RUNS`=3 makes it ~$9.4; **k=1 first** is the cheap-test-before-the-expensive-one habit
+   that has paid off four times (`DX-31`, `DX-55`, `DX-57`, `DX-75`).
+2. ⚠⚠ **CORRECTED 2026-09-12 (twice) — `E-04` · `E-06` · `E-07` · `E-09` · `E-10` · `E-12` · `E-13`
+   come BEFORE Stages B-D.** `DX-85` measured that `J-03`…`J-06` cannot be scored at all until the
+   evidence their `v2` levels cite exists: `ng.adjustment` (`E-04`), `dm.ladder`/`dm.covenant` (`E-06`),
+   `ca.capex` (`E-07`), `ap.change` (`E-09`), `sc.diluted`/`sc.sbc_expense` (`E-10`), `cp.statement`
+   (`E-12`), `cx.capacity` (`E-13`). ⚠ The first version of this line named `E-05` (cited by no level)
+   and missed `E-09`/`E-10`/`E-12` — it was written from the `E` dict, not from what the LEVELS cite. ★ Declaring more J-blocks first would add more blocks that cannot be answered — the
+   earlier plan had this backwards, and only wiring `RA-32` revealed it.
+3. **`J-09`…`J-17`** — Stages B-D. Completes a `CT-9.2` thesis: **17 blocks × `K_RUNS`=3 = 51 calls**,
+   which is also what finally prices `QR-20` (`DX-60`).
+4. **the remaining `E-blocks`** — `E-03`, `E-08`…`E-12`, `E-14`, `E-15`. ★ Cheapest per block and
+   lowest risk: the pattern is proven twice and `X-01` already backstops them in code.
+5. **`J-18`, `J-19`** — only when the event/attribution workflows are being built.
+
+⚠⚠ **Do not grade every block.** 34 blocks × a live recording × the fund manager establishing cases
+is the most expensive thing in this plan, and `D2` makes his time the binding constraint, not money.
+★ The `DX-77`ⓒ lesson applies directly: assert what the **document** fixes, and a case survives
+re-recording instead of needing re-establishment each time.
+
+## 2.1d ★★ 2026-09-11/12 — Stage A declared, schema'd, and run
+
+### What exists now that did not this morning
+
+| | |
+|---|---|
+| `J-02`…`J-08` | declared verbatim, pinned to the design doc by `RA-13`'s drift guard |
+| `judgement_tool` | **three** answer shapes (`enum` · `rubric` · `prose`), was one |
+| `--stage-a` | runs all 8 Stage-A blocks into **one** `run_id` and trace |
+| `GW-23` on judgement | a truncated response is now refused on a path that never reaches the Gateway |
+
+### ⚠⚠ The expensive lesson: `DX-84`
+
+**The first Stage-A run reported `8/8 block(s)` and 7 of the 8 were truncated.** $3.68 spent,
+$3.22 of it unusable. Two causes, both real:
+
+1. **The judgement path never reaches `Gateway.call`**, so `GW-23` — the check that had caught
+   `DX-69` on the extraction side **three hours earlier the same day** — did not exist here at all.
+2. **`MAX_OUT = 4_000`** was a THIRD output budget, *smaller than either already declared*
+   (`call.py`: 20,000 / 16,000), living in a runner nobody had diffed against them.
+
+★★★ **The re-run measured what 4,000 was actually costing.** Untruncated, the rubric blocks want
+**9,322 – 13,516** output tokens:
+
+| | `J-01` | `J-02` | `J-03` | `J-04` | `J-05` | `J-06` |
+|---|---|---|---|---|---|---|
+| out (untruncated) | 5,416 | 3,224 | 11,272 | 10,681 | 13,516 | 9,322 |
+| under the old cap | 4,000 ⛔ | 3,391 ✅ | 4,000 ⛔ | 4,000 ⛔ | 4,000 ⛔ | 4,000 ⛔ |
+
+⇒ the rubric blocks were being cut off at roughly **a third of their answer**. ⚠ And the cost
+estimate for a Stage A was wrong in the same direction: **~$4.7, not ~$3.7**, because the $0.46/call
+figure came from measuring *truncated* calls. ★ A price measured on a broken run is a broken price.
+
+### ★★ Why it was not caught by anything
+
+`J-02` — the one block that fit in 4,000 — returned cleanly, so the run had a plausible-looking
+member. The other seven returned **valid JSON that parsed**: `J-01` parsed and was simply *missing
+its required `why`*. ⚠⚠ **"It parsed" is not "it is complete"** — the same mistake `DX-68` taught
+about *"it parses now"*, recurring nine hours later on a different path.
+
+⚠ It reached a **signed golden case**: the thesis case had been re-pointed onto
+`run-2026-09-11T111240-mu-j01`, which is also truncated. It passed throughout, because `F5` §4's
+subset rule means it asserts only `archetype`. ★ That is the subset rule earning its keep — and not
+a reason to keep grading a degraded call. Re-pointed back to the only complete `J-01` recording.
+
+### ✅ The re-run — the first complete Stage A this project has produced
+
+`run-2026-09-12T024848-mu-stage-a` · **8/8 `tool_use`, no truncation, every required field present** ·
+**$4.8646**
+
+| block | shape | answer | out |
+|---|---|---|---|
+| `J-01` | enum | `archetype = cyclical_commodity` | 5,416 |
+| `J-02` | prose | 3,907 chars + `what_i_do_not_understand` | 3,224 |
+| `J-03` | rubric | `moat_durability = 1` — *"the moat is a story about a moat"* | 11,272 |
+| `J-04` | rubric | `earnings_quality = 3` | 10,681 |
+| `J-05` | rubric | `balance_sheet_resilience = 3` | 13,516 |
+| `J-06` | rubric | `capital_allocation = 0` — *"the bundle does not disclose capital-allocation actions"* | 9,322 |
+| `J-07` | enum | `cycle_position = mid` | 12,092 |
+| `J-08` | prose | `supply_read = insufficient_evidence` | 13,291 |
+
+★ `J-01` agrees with all three prior runs and with the fund manager's own view.
+★ `J-06 = 0` and `J-08 = insufficient_evidence` are the floors **used as designed** — `MP-7`/`S-4`,
+a block that can say *"I could not"* rather than inventing something.
+
+> ⚠⚠⚠ **`PG-10` — NONE OF THESE FIGURES IS VERIFIED, and none may be quoted as a finding about
+> Micron.** Zero golden cases grade `J-02`…`J-08`; `D2` reserves establishing them to the fund
+> manager. ★ `J-06 = 0` is the one to distrust first: the MU 10-Q **does** disclose a declared
+> dividend and buyback activity, so a floor score there is a claim worth checking before it is
+> believed. ⚠ And `RA-32` is ungated (`DX-82`) — every level was selectable regardless of whether
+> its `evidence_required` was present.
+
+★ `J-01` from this run is complete, post-envelope and hashed, so the **thesis golden case moved onto
+it** — resolving `DX-84`'s forced choice between a complete pre-envelope answer and a truncated
+post-envelope one. The established value is unchanged; only the artefact moved.
+
+### ⬜ What Stage A still is NOT
+
+- **Not covered.** Eight blocks have run; **zero** have golden cases. A run is evidence that the
+  pipe works, not that the answer is right — and `D2` reserves the second to the fund manager.
+- ⛔ **Not SCOREABLE at all** (`DX-82` closed → `DX-85` opened). `RA-32` is now applied, and it
+  **refuses all four rubric blocks**: zero levels are available from a bare-filing bundle. ★ The four
+  scores the 2026-09-12 run produced (`moat=1 · earnings=3 · balance=3 · capital=0`) rest on nothing
+  structural and may not be quoted (`PG-10`).
+- **Not k=3.** `K_RUNS`=3 is what `CT-9.2` requires; this is k=1.
+- **Not a thesis.** Stage A is 8 of 17 blocks. Stages B-D (`J-09`…`J-17`) are undeclared.
 
 ## 2.2b ✅ `MS-2.7` — D-08 absorbed, 2026-09-04
 
@@ -1648,6 +1889,15 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-77** | 2026-09-11 | F5 · 2 E-02 golden cases | `DX-75`'s re-record settled `E-02`, and 6 of 8 cases re-pointed cleanly onto it | ⚠ **2 cases pin a TRANSCRIPTION BOUNDARY the document does not fix.** `gd.period` signed as *"in the next 12 months"*, now *"the next 12 months"*; `gd.value` signed as `"0.115 per share"` with unit `"USD per share"`, now `"0.115"` with the same unit | `tests_src/fixtures/golden/extraction.pending.yaml` | ⚠ low | ✅ **CLOSED 2026-09-11 — ⓒ adopted and BOTH SIGNED by Victor Truong the same day.** `expected` now asserts **evidence_id + status + unit + span** and is SILENT about `value` and `qualifier` — the two fields the model authors. ★ Measured across 4 runs: the SPAN was identical in all 4 (`[55427,55615]`, `[51931,52127]`); the VALUE text varied 3/1 and 1/3. ⚠ Not a weaker case — each subset still matches exactly 1 of 63 items and both RED under span mutation | ★★ **The second is arguably an IMPROVEMENT, which is the uncomfortable part.** `E-01`'s own prompt says *"give the figure without a currency symbol — the currency belongs in the unit"*, and the SIGNED value carries *"per share"* in **both** fields. ⚠ **A golden case is not automatically right because it is signed** — and `D2` is what stops that observation being acted on by the system rather than the fund manager. ★★★ **Third instance today of one pattern**, and it is the day's real theme: `DX-73` a period start the filing never states · `DX-74` a qualifier the model invents · `DX-77` a quote boundary the model chooses. **The golden set keeps asserting things the MODEL authors rather than things the DOCUMENT fixes** — and those assertions cannot be stable, because nothing external holds them still. ★ `F5` §4's subset rule is the existing answer; what these three show is that it has to be applied to `value` itself, not only to `quote`/`span`/`note` |
 | **DX-78** | 2026-09-11 | X-01 · quote verification | `X-01` refuses any item whose value is not VERBATIM inside its own quote — *"a value that cannot be found in its own quote cannot be checked, and is refused"* | ⚠ One of three `E-02` runs was refused **whole** ($0.6679, 48–63 items lost) because a quote began `'we have also signed a non-binding term sheet...'` where the filing reads `'We have also signed...'`. **A single capital letter** | `filings/verify.py` · `X-01` | ⚠ low | ⬜ **OPEN — recorded, NOT fixed; it is not obviously a defect** | ★★ **Stated as a trade rather than a bug, because both sides are real.** Strict verbatim is what makes `X-01` worth having: it is the check that catches a paraphrase presented as a quote, and `E-01 v1` was retired for letting exactly that through. ⚠ But the failure mode is **all-or-nothing on a whole run** — one mid-sentence capital cost ~$0.67 and every other item in it. ★ The cheap options are not equal: case-insensitive matching would weaken the guard everywhere to fix a first-character artefact, whereas refusing **that item** rather than the **run** keeps the strictness and bounds the blast radius. ⚠ Neither is free: partial acceptance collides with `MP-7`/`P5`'s *a degraded result is not a short result*, so this needs a decision, not a patch |
 | **DX-79** | 2026-09-11 | F5 · which run gets promoted | `DX-75` produced three verified `E-02` runs. To avoid choosing the one that suited the cases, the run was picked by a rule stated BEFORE measuring: **the first verified run** | ⚠⚠ **That rule selected the ONE run of four where the hedge wording differs.** Had `run-…T115923` been promoted instead, BOTH `DX-77` cases would have passed unchanged and the finding would never have surfaced | `tools/promote_recording.py` · `F5` `CT-5.5` | ⚠ medium | ⬜ **OPEN — named, not fixed** | ★★★ **Under a `value`-pinning scheme, whether a golden case passes was partly a COIN FLIP on which run got promoted.** Measured on one reading across 4 runs: *"in the next 12 months"* ×3, *"the next 12 months"* ×1. A case pinning the majority wording passes 3 times in 4 and fails once, for no reason connected to the system being right or wrong. ⚠ **The pre-registered rule did not protect against this** — it protected against ME choosing, which is a different hazard, and it is worth being clear that it worked as intended while leaving this untouched. ★★ `DX-77`ⓒ removes the exposure for these two cases by asserting the SPAN, which was stable 4/4 — but the general problem stands for every case still pinning model-authored text. ★ **The honest framing: the finding surfaced by luck, and is more important for it.** ⬜ Options: ⓐ promote by majority across k runs rather than first-verified (⚠ costs k× every time); ⓑ keep first-verified and require every case to assert only document-fixed fields, so run choice stops mattering (★ this is `DX-77`ⓒ generalised, and the cheaper answer); ⓒ accept it and record `n` on each case |
+| **DX-80** | 2026-09-11 | J-blocks · scorecard rubrics | The design doc's `J-03`…`J-06` headings each name the rubric the block emits — *"emits `moat_durability@v2`"* — and `RubricRegistry.published` returns exactly that `<dimension>@v<n>` form | ⛔ **Two of the four do not resolve.** Doc says `moat_durability@v2`; the registry publishes **`@v1`**. Doc says `balance_sheet@v1`; the dimension is **`balance_sheet_resilience`**. ⚠ `RA-52` calls the four dimensions *fixed, versioned and closed* | `scorecard/rubrics/b43_v1.py` · `prompts/e_blocks.py::EMITS_RUBRIC` · doc §J-03/§J-05 | ⚠ medium | ◐ **NARROWED 2026-09-12** — with `v2` published, `J-03`'s *"emits `moat_durability@v2`"* now RESOLVES and matches what the block emits. ⬜ Still open, doc-side only: `J-04`/`J-06` headings say `@v1` (resolves, but the blocks now emit `@v2`), and `J-05`'s `balance_sheet@v1` names a dimension that does not exist. ⚠ Editing those headings also means editing `_BLOCK_HEADINGS` in the drift guard, which pins them verbatim. ◐ **CODE SIDE CLOSED 2026-09-11** — `EMITS_RUBRIC` carries the names the registry can actually resolve, and a structural test now asserts every one resolves. ⬜ **The DOC still says otherwise** and only Victor should reconcile it: `@v2` may record a rubric revision that was designed and never implemented | ★★★ **Nothing caught this because the two documents had never been asked to agree.** The rubric registry has existed since `MS-2`; the J-blocks that emit rubrics were declared **today**. ⚠ A cross-reference with no consumer is not checked, and it reads as settled precisely because it has sat still. ★ The version mismatch is the more interesting half: `@v2` is not a typo shape — someone wrote *v2* meaning a **revised moat rubric**, and what exists is v1. So either a revision is missing or the heading is aspirational, and **the code cannot tell which**. ★★ Recorded rather than reconciled: silently rewriting the doc to match the code would erase the evidence that a v2 was once intended |
+| **DX-81** | 2026-09-11 | J-blocks · judgement tool | `DX-64` asked for `J-02`…`J-08`. All seven are now declared verbatim and pinned to the design doc by `RA-13`'s drift guard | ⚠⚠ **Declared is not callable.** `judgement_tool` returns ONE schema — `classify_archetype`, with `archetype`/`runner_up` enums — and `run_judgement_once.main` hardcodes `blk = j01_v1()`. It fits `J-01` and `J-07`; for the other **six** it would demand an enum answer the block never asks for | `tools/run_judgement_once.py::judgement_tool`, `answer_shape`, `main` · `e_blocks.py::ENUM_ANSWER`, `PROSE_REQUIRED`, `FIELD_ENUMS` | ⚠ medium | ✅ **CLOSED 2026-09-11.** Three shapes implemented; `--block` added; **all 8 Stage-A blocks construct a schema and dry-run.** 14 tests, **5 of 5 mutations caught**. ⬜ `RA-32` gating deferred to `DX-82`; `J-03`'s mechanism table and `J-08`'s per-competitor rows remain unmodelled and are asserted-as-absent so they are not assumed present | ★★★ **`DX-23`'s shape one layer up, and the parallel is exact.** `DX-23` found `E-01`'s prompt living only in the design doc with nothing in `src/` able to send it. Here the text is in `src/` and pinned — and still unsendable, because the **answer schema** is the half that was only ever built for one block. ★★ **Three answer shapes live in these seven**, which is the actual work: `enum` (`J-07`, like `J-01` — the only shape tooled) · `rubric level` (`J-03`–`J-06`, 0–4 from `scorecard/rubrics`, with `RA-32` making a level UNAVAILABLE when its `evidence_required` is absent) · `prose` (`J-02`, five numbered parts under a 400-word cap) · and `J-08` is prose with one closed FIELD enum. ⚠ **`E-02` is the warning**: `MP-5` was learned there — *a closed set is DECLARED, never described* — after a free-string `evidence_id` returned all 56 items tagged with the BLOCK id. A rubric block handed `classify_archetype` would repeat that class of error with a 0–4 score. ★ Pinned as a KNOWN LIMIT by `test_dx_81_the_judgement_tool_serves_only_the_enum_shape`, which is written to FAIL when the tool grows a second shape |
+| **DX-82** | 2026-09-11 | J-03…J-06 · RA-32 | `RA-32`: *a level whose `evidence_required` items are absent from the bundle is UNAVAILABLE*, and each rubric level in `b43_v1.py` carries its own `evidence_required` tuple | ⚠ **The level enum is currently the full published 0-4, ungated.** `judgement_tool` REFUSES to default it (`P5`), so the composition root passes the full range **explicitly and prints a warning** — but nothing yet intersects the rubric's `evidence_required` with what the bundle actually contains | `tools/run_judgement_once.py::main` · `scorecard/rubrics/b43_v1.py` | ⚠ medium | ✅ **CLOSED 2026-09-12.** `scorecard/availability.py` implements `RA-32`: `available_levels` (ALL of a level's evidence, not any) and `require_levels`, which REFUSES rather than defaulting. The runner now declines a rubric block **before sending**. 10 tests, 4 of 4 mutations caught — the 4th (`if False and gate_error:`) survived the first pass because every test covered the pure function and none covered the CALLER | ★★★ **Where the shortcut was put matters more than that there is one.** The tempting version is `levels=(0,1,2,3,4)` as a default argument inside `judgement_tool` — one line, no warning, and the rubric's entire discipline discarded somewhere nobody reads. ★ Instead the tool RAISES without levels, and the caller must state the range it is offering, in the composition root, out loud. ⚠⚠ **The risk this leaves is real and specific**: `MOAT_DURABILITY` level 4 requires segment income AND competitor capacity evidence; offered ungated, a model with neither can still select it, and the scorecard would record a 4 that the rubric's own criteria forbid. ★ Same family as `PG-10`: *declare the limit on the artifact rather than withhold the artifact* — the block runs, and says what it has not checked |
+| **DX-83** | 2026-09-11 | J-blocks · run identity | `run_judgement_once` built `run_id` as `run-<ts>-<ticker>-j01` and ran one block per invocation | ⚠ The `j01` suffix was **hardcoded**, so a `J-05` run would have been filed under `j01`; and eight separate invocations produce eight unrelated `run_id`s with nothing recording that they are one STAGE | `tools/run_judgement_once.py::main` | ⚠ medium | ✅ **CLOSED 2026-09-11** — suffix names what ran; `--stage-a` runs all 8 into ONE `run_id`/trace | ★ `DX-70` had already shown what a mislabelled recording costs, on `filing.json`. ★★ The grouping half matters more: **a stage is a unit**, and `CT-9.2` needs 17 blocks × `K_RUNS` in one replayable trace — eight loose runs would have had to be re-associated by timestamp, which is exactly the kind of after-the-fact reconstruction `F2` exists to make unnecessary |
+| **DX-84** | 2026-09-11 | ⛔⛔ Stage A k=1 · GW-23 | `GW-23`: *a truncated response is a failure, not a short answer*, enforced in `Gateway.call` and proven on `DX-69`'s `E-02` truncation | ⛔⛔⛔ **7 of 8 Stage-A calls came back `stop_reason: max_tokens` and ALL 8 printed ✅.** The run reported *"8/8 block(s)"* on **$3.22 of unusable output**. ⚠ `J-01` parsed as valid JSON while MISSING its required `why`; 5 of 8 were unparseable | `tools/run_judgement_once.py` · `MAX_OUT` · `golden/thesis.yaml` | ⛔⛔ **high** | ◐ **CODE FIXED 2026-09-11; the RUN is discarded and NOT promoted** | ★★★ **The judgement path never reaches the Gateway.** It wires `anthropic_transport` straight into `traced_transport`, so `GW-23` — the check that caught `DX-69` on the extraction side three hours earlier — **did not exist on this path at all**. ⚠⚠ Two independent causes, and both had to be fixed: (1) no truncation check; (2) `MAX_OUT = 4_000`, a **THIRD** output budget, **smaller than either already declared** (`call.py`: 20,000 extraction / 16,000 judgement), sitting in a runner nobody had diffed against them. ★ Now sourced FROM `call.py` — one fact, one place. ★★★ **It reached a signed golden case.** Earlier the same day the thesis case was re-pointed onto `run-2026-09-11T111240-mu-j01` — which is **also truncated** (4,000 out, `max_tokens`, no `why`). It PASSED throughout, because `F5` §4's subset rule means it asserts only `archetype`. ★ That is the subset rule earning its keep — and **not** a reason to keep grading a degraded call. Re-pointed back to `run-2026-09-11T025139-mu-j01`, the only COMPLETE `J-01` recording (757 out, `tool_use`, all four fields). ⚠ That one is PRE-envelope, which is a real cost, recorded rather than hidden: **a complete answer under an older prompt is worth more than a cut-off one under the current prompt.** ⚠⚠ **What I did wrong, plainly**: I read `✅ 4,000 out` as success on a number that is *exactly the cap*, and `DX-69` had taught that same signature earlier the same day. The runner told me what I wanted; nothing made it tell me what happened. ✅ **Stage A re-run 2026-09-12: 8/8 `tool_use`, $4.8646.** ⚠ The re-run also corrected the PRICE: ~$4.7, not ~$3.7 — the $0.46/call figure came from measuring TRUNCATED calls. ★ **A price measured on a broken run is a broken price**, and it had already been quoted to the fund manager twice |
+| **DX-85** | 2026-09-12 | ⛔⛔ rubrics · E-blocks · bundle | `b43_v1.py`'s `E` dict maps 13 evidence ids the four rubrics require, with its own warning: *"⚠ These must match what B4.2's extractors emit, or a level is unavailable for a NAMING reason rather than an evidential one — which would read as thin evidence and be a wiring bug."* | ⛔⛔⛔ **It is that wiring bug. 3 of 13 match.** The rubrics require prefixes `con. debt. cap. shr. ngp. acc. cmp.` and **not one of those prefixes exists** among the **74** ids the 15 E-blocks emit (`cc. dm. ca. sc. ng. rf. cx.` …). ⚠ And a third layer: `PIN_FIELDS` declares no part kind for extraction OUTPUT at all, so a Stage-A bundle cannot carry `seg.revenue` **even in principle** | `scorecard/rubrics/b43_v1.py::E` · `bundle/models.py::PIN_FIELDS` · doc §E-03…§E-15 | ⛔⛔ **high** | ◐ **ⓐ CLOSED 2026-09-12** (`DX-86`: `v2` approved and published). ⬜ **ⓑ OPEN** — declare the E-blocks the `v2` levels cite: **`E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13`** (⚠ corrected: an earlier list said `E-04 E-05 E-06 E-07 E-13` — `E-05` is cited by NO level, and `E-09`/`E-10`/`E-12` were missed; measured from `B43_V2_RUBRICS`). ⬜ **ⓒ OPEN** — a bundle part kind carrying extraction output (hash-contract change) | ★★★ **`DX-82`'s fix is what made it visible, and that is the argument for building gates before running things.** Wiring `RA-32` turned an unnoticed vocabulary mismatch into a refusal that names itself. ⚠⚠ **Measured consequence**: all four rubrics return **ZERO available levels** against a bare-filing bundle — and the 2026-09-12 Stage A answered all four anyway, returning `moat=1 · earnings=3 · balance=3 · capital=0` for ~$2.6. **Those four numbers rest on nothing structural and must not be quoted** (`PG-10`). ★★ `capital_allocation = 0` is the sharpest illustration: its criterion is *"the bundle does not disclose capital-allocation actions"*, and the MU 10-Q **does** disclose a declared dividend and buybacks — so a WIRING GAP read as an analytical finding, which is precisely what `NoAvailableLevel` now refuses to let happen. ★★ **Refined on drafting: 9 broken of 11, not 10 of 13.** The `E` dict is 13 wide, but `guidance` and `concentration` are cited by NO level — so the load-bearing count is 9. ⚠ `con.customer_pct` has been wrong since it was written and **could not have failed anything**, which is the one place a wrong id is free and therefore permanent. ★ The three reconciliations, in dependency order: ⓐ correct `E`'s ids to the real extractor vocabulary (⚠ a rubric content change — `RA-52` calls the set *fixed, versioned and closed*, so it needs a version bump, and `DX-80`'s unexplained `moat_durability@v2` heading may be exactly this, already anticipated); ⓑ declare the E-blocks that emit them — `E-04` `ng.*`, `E-05` `cc.*`, `E-06` `dm.*`, `E-07` `ca.*`, `E-13` `cx.*`; ⓒ add a bundle part kind carrying extraction output (⚠ `RA-2`/`RA-4` — *"a bundle whose hash definition moves invalidates every baseline recorded against the old one"*) |
+| **DX-86** | 2026-09-12 | rubrics · `v2` draft | `DX-85`ⓐ — correct the rubrics' evidence ids to the real extractor vocabulary | ℹ Drafted for review, not applied. **Only `evidence_required` changes: not one `criterion` string is edited and no score moves** | `scorecard/rubrics/b43_v2.py` (was `b43_v2_draft.py`) | ℹ info | ✅ **APPROVED & PUBLISHED 2026-09-12 by Victor Truong — `capital_actions` = ⓐ `ca.capex`.** Published ALONGSIDE `v1` (`RA-52` versioning; `v1` and `B43_RUBRICS` untouched). `EMITS_RUBRIC` → `@v2` for `J-03`…`J-06`. Draft test rewritten to assert the published state | ★★ **Why the criteria are deliberately untouched.** Correcting a wiring fault and revising analytical criteria are two different changes; mixed together, a later score move could not be attributed to either. ★ A test asserts the criteria are byte-identical to `v1`, so the review is *"are these 10 ids right?"* and nothing else. ★★★ **Measured value, stated as a measurement.** It buys **nothing today** — with only `E-01`/`E-02` declared, `v1` and `v2` give identical availability, because the three ids that already resolved are the three `v2` does not change. The gain appears when `E-04`…`E-13` land: `v1` can still score **1 of 4** dimensions, `v2` scores **4 of 4** at every level. ⚠⚠ **One entry is a judgement, not a lookup**: `v1`'s `cap.action` was ONE generic slot and `E-07` emits EIGHT specific ids. The draft picks `ca.capex` (ⓐ) — every operating company deploys capital, so the dimension stays scoreable for one that runs no buyback. ⚠ Rejected ⓑ *cite several ids per level*: `RA-32` requires ALL of a level's evidence, so level 4 would become UNAVAILABLE for a company that does not both buy back and pay dividends — reading as *"could not assess"* when the truth is *"it does not do buybacks"*, which is `RA-32`'s own failure mode arriving from the other side. ⬜ ⓒ *add a generic `ca.action` to `E-07`* is cleanest and most expensive: it moves an E-block's item list, so `E-07`'s prompt text and enum both change and any recording against the old one retires |
+| **DX-87** | 2026-09-12 | scorecard · coverage/confidence | `coverage_report(rubrics, extracted)` computes `evidence_coverage` over the union of the rubrics' `evidence_required` (`RA-134`), and `assess_confidence` caps on it | ⚠ **`DX-85` reaches this path too, latently.** `B43_RUBRICS` (v1) is what it is exported with, and v1's ids resolve to no extractor — so any caller passing REAL extraction ids would get near-zero coverage for a NAMING reason, and a confidence cap that reads as thin evidence | `scorecard/coverage.py` · `src/fundamental/__init__.py::B43_RUBRICS` | ⚠ medium | ⬜ **OPEN — latent: nothing in `src/` calls it with real ids yet** | ★ Found while publishing `v2`, and deliberately NOT fixed in the same change: `B43_RUBRICS` is imported by the inherited confidence path and characterization-tested in `tests_src/` (`test_fundamental_b43.py`, `b46.py` — both use synthetic ids, so they stay green either way). ⚠ That is exactly why it would go unnoticed: **the tests that cover this path cannot see the bug**. ⬜ Decide when the first real caller is wired: move the confidence path onto `B43_V2_RUBRICS`, and add a test with REAL extractor ids |
+| **DX-88** | 2026-09-12 | runners · choice lists | `run_extraction_once.py` built `--block` choices from `sorted(BLOCKS)` and hardcoded `--prompt-version` to `["v2", "v3"]` | ⚠ Once Stage A was declared, the EXTRACTION runner offered `J-01`…`J-08`; and `E-01`'s shipped `v4` was not selectable | `tools/run_extraction_once.py` | ⚠ low | ✅ **CLOSED 2026-09-12** — block choices filtered by `kind` (`RA-5`); versions derived from the declared `E0n_Vn_TEXT` constants; 1 test | ★ Found while writing the next-session recipe, not by a test: **`DX-72`'s shape a third time** — a list pinned to what existed when it was written. ⚠ The block half was the worse one: `--block J-03` would have sent a judgement prompt through the extraction tool schema |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
