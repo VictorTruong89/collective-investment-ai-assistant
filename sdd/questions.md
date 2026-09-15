@@ -61,6 +61,7 @@ rather than one file per decision, because tracking in a single place was the re
 | **QR-22** | ★★ **How do two repos that both root at `src/` coexist before absorption?** | platform | ✅ | `L3` `DX-1`/`DX-2` · `L4` §4 · `MS-2`/`MS-8` |
 | **QR-23** | ★ **May absorption touch domains the daily run depends on?** | platform | ✅ | `CLAUDE.md` · `L3` §2.2a · `MS-2.7` |
 | **QR-24** | **Is the `MS-9.4` demo needed in 2026?** | platform | ✅ | `L3` `MS-9.4` · §2.4 D |
+| **QR-25** | **Who owns normalised earnings — a D-02 rule or a judgement block?** | D-01 · D-02 | ✅ | `F10` §7 `D1` |
 | ⬆ | Upstream questions that block this repo | various | ⬆ | §9 |
 
 ---
@@ -509,6 +510,35 @@ measurement may dissolve.
 
 **Action:** pull the usage and cost report before revisiting. ★ Ten minutes of work that either
 validates the concern or removes it.
+
+---
+
+## ✅ QR-25 — Normalised earnings are a judgement that feeds D-02's mechanics
+
+**Origin:** writing `F10` (D-02 valuation trail), 2026-09-13 — the one choice in a valuation that is
+not arithmetic. **Status:** ✅ decided 2026-09-13. **Binds:** `F10` §7 `D1`.
+
+**Victor's decision:** *"normalized earnings is owned by a judgement block that feeds D-02."*
+
+**Context.** For a cyclical like Micron, *which* earnings are capitalised — trough, peak, a cycle
+average, adjusted for one-offs — largely IS the valuation. `L0`'s valuation split already placed
+*"which earnings to capitalise"* on D-01's judgement side, while `J-07`'s prompt says the opposite
+(*"You are NOT estimating normalised earnings. That is arithmetic and belongs to D-02"*).
+
+**Why it does not breach the firewall.** `FE-21` forbids a D-02 **feature** taking a D-01 input, and
+`INV-014` keeps seat 3 from reading seat 2's judgement. `VS-4` is the resolution: arithmetic a
+judgement parameterises is D-01's, even when it calls D-02's pure function. So the judgement's basis
+runs through the same mechanics and the result is **`fv_analyst`** — a distinct type, never stored by
+D-02, never in the panel. D-02's own **`fv_model`** stays judgement-free (`VS-1`, `VS-2`).
+
+**Rejected.**
+- *D-02 normalises by rule* — the window and method are exactly what two reasonable analysts disagree
+  about, which is `L1-feature-engineering` §1.3's test for a judgement.
+- *D-02 publishes the judgement-based value as its own output* — one name for arithmetic and a
+  conclusion (`VS-1`), and seat 2's judgement in an artifact seat 3 may read (`VS-3`).
+
+**Consequences.** The judgement block runs **blind** (Stage A), so it cannot back-solve earnings from
+the price; `J-07`'s sentence needs rewriting (`F10` `Q3`, a prompt change and version bump).
 
 ---
 

@@ -953,6 +953,95 @@ def e13_v1() -> PromptBlock:
     return block("E-13", "v1", "extraction", E13_V1_TEXT)
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# ★★ `F10` `D5` (2026-09-13) — the normalised-earnings judgement, and `J-07`'s
+# sentence that contradicted it. Text generated from the design doc.
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: Verbatim from the design doc §J-07 `v2`. ⚠ A CANDIDATE, not shipped: `BLOCKS`
+#: still sends `v1`, because `J-07`'s golden case grades a `v1` recording and
+#: shipping `v2` retires it — a live re-record (money) comes first.
+J07_V2_TEXT = """\
+Where in its industry cycle is this business, and on what evidence?
+
+Select one: trough | early_recovery | mid | late | peak | not_applicable |
+insufficient_evidence
+
+Each of these must be addressed, with bundle evidence or an explicit gap:
+  a) Realised prices or ASPs against their range across the bundle's history.
+  b) Inventory: the company's, and the channel's where disclosed, in days.
+  c) Capacity utilisation against its own history.
+  d) Order patterns: lead times, backlog, cancellations, contract duration.
+  e) Industry-wide capital expenditure — is the industry building or starving?
+     (E-13) This is the leading variable, and it is about the industry, not this
+     company.
+  f) Margin position relative to the bundle's own history.
+
+★ The trap, stated so it is checked rather than assumed: at a cyclical peak,
+trailing earnings are at their highest and trailing multiples at their lowest,
+so the business looks cheapest exactly when it is most dangerous — and at a
+trough the reverse. State explicitly which side of that trap the present
+evidence puts you on. If you cannot tell, that is `insufficient_evidence` and it
+is a legitimate answer.
+
+You are NOT choosing normalised earnings here. Which level of earnings a
+valuation should capitalise is J-20's judgement, made separately; D-02 does
+the arithmetic on J-20's choice. Do not name a normalised figure in this answer.
+"""
+
+
+def j07_v2() -> PromptBlock:
+    """`J-07` `v2` — candidate: J-20 now owns the normalised-earnings choice."""
+    return block("J-07", "v2", "judgement", J07_V2_TEXT, view="blind", options=J07_OPTIONS)
+
+
+#: Verbatim from the design doc §J-20 `v1`.
+#:
+#: ★★ **The block CHOOSES; code CALCULATES** (`VS-4`, `F10` `D5`). It returns a
+#: method from `J20_METHODS` and a window; `src/fundamental/valuation/normalise.py`
+#: turns that into a `CashFlowBasis(origin="judgement")`. ⚠ Blind (`MP-3`): a
+#: normaliser that can see the price can pick the window that justifies it.
+J20_V1_TEXT = """\
+Choose the level of free cash flow a valuation of this business should
+capitalise, and defend the choice. You do not compute it: you choose a METHOD
+and a WINDOW, and code applies them to the figures in the annual history part
+of the bundle.
+
+That part gives, per fiscal year, free cash flow to the firm and its margin on
+revenue, already computed. Do not add, average, rescale or restate them.
+
+Select one method:
+  reported_ttm              the latest trailing twelve months, unadjusted
+  cycle_average_fcff        the average free cash flow over the window
+  cycle_average_fcff_margin the average free-cash-flow margin over the window,
+                            applied to trailing revenue
+  insufficient_evidence     the bundle does not let you choose
+
+For cycle_average_fcff and cycle_average_fcff_margin, name the WINDOW as the
+first and last fiscal year, both present in the annual history, spanning at
+least three fiscal years. A cycle window should contain a trough and a peak you
+can point to; name the trough year and the peak year.
+
+List any one-off item you would exclude, each with its evidence_id and a
+verbatim quote. It is recorded with your choice; do not quantify it.
+
+State in one sentence the observation that would make you choose a different
+method or window.
+
+For a cyclical business the level you choose largely IS the valuation, and you
+are choosing it before you have seen any price.
+"""
+
+#: ★ `MP-5` — the closed method set, DECLARED (the schema enum), never described.
+J20_METHODS = ("reported_ttm", "cycle_average_fcff", "cycle_average_fcff_margin",
+               "insufficient_evidence")
+
+
+def j20_v1() -> PromptBlock:
+    """`J-20` — normalised earnings. ★ Stage-A view (blind); answers a METHOD."""
+    return _stage_a("J-20", J20_V1_TEXT)
+
+
 #: The version this repo currently ships. ★ One name to change at the next bump.
 E01_CURRENT_VERSION = "v4"
 
@@ -982,4 +1071,7 @@ BLOCKS = {
     "J-06": (j06_v1, (), "v1"),
     "J-07": (j07_v1, J07_OPTIONS, "v1"),
     "J-08": (j08_v1, (), "v1"),
+    # ★★ `F10` `D5` — declared 2026-09-13. ⚠ Not in `STAGE_A_ORDER` yet: adding it
+    #   changes what `--stage-a` sends and costs; run it with `--block J-20`.
+    "J-20": (j20_v1, (), "v1"),
 }

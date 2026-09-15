@@ -174,6 +174,7 @@ declared below. ⚠ The check asks only *"is it written down?"* — meaning stay
 | **`Q-n`** | 50 | `L0-system-vision` | ⚠ Open questions — **a fourth meaning of `Q`**; see below |
 | **`QP`/`QS`/`QK`/`QO`/`QC`/`QB`/`QX`-nn** | 20-44 | per-domain L1s | Domain open-question families (portfolio, strategy, knowledge, ops, recording, combination, experiments) |
 | **`DQ-nn`** | 39 | `L0-system-vision` | Data-quality questions |
+| **`VS-n`** | 33 | `L0-system-vision` §4.2 | ★ **Valuation split** — D-02 arithmetic vs D-01 judgement (`VS-1` `fv_model` ≠ `fv_analyst` · `VS-4` judgement-parameterised arithmetic is D-01's). *Declared 2026-09-13 when `F10` took its use count past the threshold* |
 | **`IM-n`** | 38 | `L3-build-sequence` | Implementation-method rules |
 | **`LG-n`** | 37 | `L2-shared-infrastructure` | Logging rules |
 | **`SI-n`** | 36 | `L2-shared-infrastructure` | Shared-infrastructure rules — ★ `SI-1` is `DX-3`'s vacuous fence |

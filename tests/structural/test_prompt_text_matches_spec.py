@@ -231,6 +231,7 @@ _BLOCK_HEADINGS = {
     "J-06": "### J-06 · Capital allocation — `{v}` — emits `capital_allocation@v1`",
     "J-07": "### J-07 · Cycle position — `{v}` — mandatory for `cyclical_commodity`",
     "J-08": "### J-08 · Industry structure and supply — `{v}`",
+    "J-20": "### J-20 · Normalised earnings — `{v}` — Stage A, blind, feeds D-02",
 }
 
 
@@ -381,3 +382,29 @@ def test_dx_96_E09_ships_v2_and_v1_stays_pinned_to_its_own_section():
     for clause in ("not yet adopted is not a change", "an\nempty answer is a correct answer"):
         assert clause in E09_V2_TEXT
     assert _item_ids_named_in(E09_V2_TEXT) == _item_ids_named_in(E09_V1_TEXT)
+
+
+def test_f10_d5_J07_v2_candidate_matches_its_doc_section_and_changes_ONE_paragraph():
+    """★ `J-07` `v2` is a candidate (not shipped). Its text is pinned to the doc,
+    and it differs from `v1` only in the normalised-earnings paragraph."""
+    from src.fundamental.prompts.e_blocks import BLOCKS, J07_V1_TEXT, J07_V2_TEXT
+
+    heading = "### J-07 · Cycle position — `v2` — mandatory for `cyclical_commodity`"
+    body = DOC.read_text(encoding="utf-8").split(heading, 1)[1]
+    assert body.split("```text", 1)[1].split("```", 1)[0].lstrip("\n") == J07_V2_TEXT
+    assert BLOCKS["J-07"][2] == "v1", "v2 must not ship before J-07's recording is re-made"
+    head_v1, _, tail_v1 = J07_V1_TEXT.partition("You are NOT estimating normalised earnings.")
+    head_v2, _, tail_v2 = J07_V2_TEXT.partition("You are NOT choosing normalised earnings here.")
+    assert head_v1 == head_v2 and tail_v1 and tail_v2
+    assert "J-20" in tail_v2 and "belongs to\nD-02" in tail_v1
+
+
+def test_f10_d5_J20_names_exactly_the_declared_method_set_and_the_window_rule():
+    """`MP-5` — every method in the schema enum appears verbatim in the prompt,
+    and the prompt's three-year window rule is the one the normaliser enforces."""
+    from src.fundamental.prompts.e_blocks import J20_METHODS, J20_V1_TEXT
+    from src.fundamental.valuation.normalise import MIN_WINDOW_YEARS
+
+    for method in J20_METHODS:
+        assert f"  {method}" in J20_V1_TEXT, method
+    assert MIN_WINDOW_YEARS == 3 and "at least three fiscal years" in " ".join(J20_V1_TEXT.split())

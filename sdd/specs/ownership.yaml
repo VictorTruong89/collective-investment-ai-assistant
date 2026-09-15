@@ -193,6 +193,19 @@ map:
   # glob. First matching entry wins, so F5's entry covers them.
   # First matching entry wins, so F5's entry covers it; F7a is cited from F5's ACs.
 
+  - globs:
+      - "src/feature_engineer/valuation/**"
+    spec: sdd/specs/F10_valuation_trail/spec.md
+    why: >
+      F10 — D-02's valuation trail: the pure two-stage DCF mechanics, fv_model on a
+      judgement-free basis, the sensitivity band and implied expectations, each with
+      its full arithmetic trail. ★ Governed because D1 (Victor, 2026-09-13) lets a
+      JUDGEMENT's normalised earnings run through these mechanics — and VS-1/FE-21
+      make the type boundary between fv_model and fv_analyst load-bearing: an edit
+      here can put seat 2's judgement into a seat-8 artifact seat 3 reads.
+      ⚠ Only the valuation/ subtree: the rest of src/feature_engineer/ is inherited
+      D-02 code governed by its L1 design, not by F10.
+
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
   # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 

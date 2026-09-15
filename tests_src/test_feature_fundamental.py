@@ -300,7 +300,9 @@ def test_ac_2_46_changing_membership_bumped_the_version():
     ⚠ Group C took `fundamental` from **45 to 47** features and the version
     stayed at 1, so two different feature sets shared one identity.
     """
-    assert FUNDAMENTAL_V1.version == 2
+    # ✏ v3 (2026-09-14, `DX-103`): `CANONICAL` gained fallback tags, so the SAME
+    #   membership takes different inputs — the version moved with the values.
+    assert FUNDAMENTAL_V1.version == 3
     assert len(FUNDAMENTAL_V1.features) == 47
 
 
@@ -337,7 +339,7 @@ def test_ac_2_46_parity_fails_on_a_membership_change_under_one_version():
 
     class _Manifest:
         feature_contract = FeatureContractRef(
-            "fundamental", 2, "sha256:a-different-membership")
+            "fundamental", FUNDAMENTAL_V1.version, "sha256:a-different-membership")
         decision_anchor = "open"
 
     class _Artifact:

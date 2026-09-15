@@ -62,6 +62,7 @@ metric-gate · unit · integration.
 | **F7b** | [Deliberation outcome study (Tier B)](F7b_deliberation_outcome_study/spec.md) — never gates | 🟡 **draft** — 9 ACs, ⚠ 2 blocked (Q1, Q2) | AC-7b.1 … AC-7b.9 | ⛔ none |
 | **F8** | [Human control surface](F8_control_surface/spec.md) | 🟡 **draft** — 20 ACs incl. directives; ⏳ vocabulary at E2E | AC-8.1 … AC-8.20 | ⛔ none |
 | **F9** | [Thesis source port](F9_thesis_source_port/spec.md) | 🟡 **draft** — 10 ACs, ⚠ 2 blocked (Q1) | AC-F9.1 … AC-F9.10 | ⛔ none |
+| **F10** | [Valuation trail (D-02)](F10_valuation_trail/spec.md) — ★ gates Stage B | 🟢 **approved 2026-09-13** — 17 ACs; `Q1`/`Q3`/`Q4`/`Q5` → `D4`–`D7`; ⬜ `Q2` declared on results | AC-F10.1 … AC-F10.17 | ✅ **17/17 green** · ⬜ AC-F10.7 recorded fixture |
 
 ★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if
 nothing after it landed.

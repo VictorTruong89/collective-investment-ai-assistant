@@ -105,7 +105,8 @@ _PANEL_META = (
 
 
 def bundle_for(ticker: str, *, as_of: date, engine, panel=None, contract=None,
-               periods: int = 4, consumer: str = D01_CONSUMER):
+               periods: int = 4, consumer: str = D01_CONSUMER,
+               valuation_assumptions=None):
     """The bundle for one `(ticker, as_of)` — ★ **deterministic (RA-4)**.
 
     `engine` is D-07's `DataEngine`; `panel` and `contract` are D-02's feature
@@ -131,6 +132,13 @@ def bundle_for(ticker: str, *, as_of: date, engine, panel=None, contract=None,
         parts.append(numbers)
 
     parts.append(observables(observable_fields(engine, ticker, as_of, contract)))
+
+    # ★★ `F10` — Stage B's evidence. Opt-in: `None` keeps every existing bundle,
+    #   and therefore every recorded `bundle_hash`, exactly as it was (`RA-2`).
+    if valuation_assumptions is not None:
+        from src.fundamental.bundle.assemble import valuation_part
+        parts.append(valuation_part(ticker, as_of, engine=engine,
+                                    assumptions=valuation_assumptions))
     return assemble(ticker=ticker, as_of=as_of, parts=parts)
 
 

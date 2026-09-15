@@ -1216,6 +1216,43 @@ it does not, that is a data gap.
 **Provenance:** Lynch's cyclical rules; the legacy mega-prompt's Rules 7 and Section 3 —
 **with its mid-cycle-EPS computation removed and reassigned to D-02** (P2, AP-5, RA-45).
 
+### J-07 · Cycle position — `v2` — mandatory for `cyclical_commodity`
+
+```text
+Where in its industry cycle is this business, and on what evidence?
+
+Select one: trough | early_recovery | mid | late | peak | not_applicable |
+insufficient_evidence
+
+Each of these must be addressed, with bundle evidence or an explicit gap:
+  a) Realised prices or ASPs against their range across the bundle's history.
+  b) Inventory: the company's, and the channel's where disclosed, in days.
+  c) Capacity utilisation against its own history.
+  d) Order patterns: lead times, backlog, cancellations, contract duration.
+  e) Industry-wide capital expenditure — is the industry building or starving?
+     (E-13) This is the leading variable, and it is about the industry, not this
+     company.
+  f) Margin position relative to the bundle's own history.
+
+★ The trap, stated so it is checked rather than assumed: at a cyclical peak,
+trailing earnings are at their highest and trailing multiples at their lowest,
+so the business looks cheapest exactly when it is most dangerous — and at a
+trough the reverse. State explicitly which side of that trap the present
+evidence puts you on. If you cannot tell, that is `insufficient_evidence` and it
+is a legitimate answer.
+
+You are NOT choosing normalised earnings here. Which level of earnings a
+valuation should capitalise is J-20's judgement, made separately; D-02 does
+the arithmetic on J-20's choice. Do not name a normalised figure in this answer.
+```
+
+> ✏ **`v2`, 2026-09-13 (`RA-13`, `F10` `D5`) — the last paragraph only.** *(Victor's decision.)*
+> `v1` said *"You are NOT estimating normalised earnings. That is arithmetic and belongs to D-02"*.
+> `F10` `D1` moved the CHOICE of normalised earnings to a judgement block (`J-20`) and left D-02
+> the arithmetic, so `v1`'s sentence became false. ⚠ **Declared as a CANDIDATE, not shipped:**
+> `J-07`'s golden case grades a `v1` recording, and shipping `v2` retires it — a live re-record
+> (money) comes first. Every other line is byte-identical to `v1`.
+
 ### J-08 · Industry structure and supply — `v1`
 
 ```text
@@ -1247,6 +1284,50 @@ oversupplying industry loses money.
 table for item 5.
 
 ---
+
+### J-20 · Normalised earnings — `v1` — Stage A, blind, feeds D-02
+
+```text
+Choose the level of free cash flow a valuation of this business should
+capitalise, and defend the choice. You do not compute it: you choose a METHOD
+and a WINDOW, and code applies them to the figures in the annual history part
+of the bundle.
+
+That part gives, per fiscal year, free cash flow to the firm and its margin on
+revenue, already computed. Do not add, average, rescale or restate them.
+
+Select one method:
+  reported_ttm              the latest trailing twelve months, unadjusted
+  cycle_average_fcff        the average free cash flow over the window
+  cycle_average_fcff_margin the average free-cash-flow margin over the window,
+                            applied to trailing revenue
+  insufficient_evidence     the bundle does not let you choose
+
+For cycle_average_fcff and cycle_average_fcff_margin, name the WINDOW as the
+first and last fiscal year, both present in the annual history, spanning at
+least three fiscal years. A cycle window should contain a trough and a peak you
+can point to; name the trough year and the peak year.
+
+List any one-off item you would exclude, each with its evidence_id and a
+verbatim quote. It is recorded with your choice; do not quantify it.
+
+State in one sentence the observation that would make you choose a different
+method or window.
+
+For a cyclical business the level you choose largely IS the valuation, and you
+are choosing it before you have seen any price.
+```
+
+> ★ **Why this block exists — `F10` `D1`/`D5` (Victor, 2026-09-13).** For a cyclical, *which* earnings
+> are capitalised decides the value: Micron's judgement-free `fv_model` read **$14.13/share** on
+> trailing cash flow at 2025-06-26 and **$363.40** at 2026-09-13 — the same arithmetic on two points of
+> one cycle. ★ **The block chooses; code calculates** (`VS-4`): the method is a closed set, the window is
+> two years the history contains, and `src/fundamental/valuation/normalise.py` produces the figure. The
+> result is `fv_analyst`, never `fv_model` (`VS-1`).
+> ⚠ **Blind on purpose** (`MP-3`): a normaliser that could see the price could choose the window that
+> justifies it. The valuation part is `computed`, which Stage A's bundle withholds.
+> ⚠ **Exclusions are recorded, not applied**, in `v1`: the basis is CASH flow, so a non-cash write-down
+> barely moves it, and quantifying an exclusion would put a figure in the model's hands.
 
 ## Stage B — reveal the price (bundle `view:full`)
 

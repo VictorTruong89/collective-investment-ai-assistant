@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 from datetime import date
+from decimal import Decimal
 
 from src.fundamental.bundle.models import BundlePart, EvidenceBundle
 from src.fundamental.errors import BundleInconsistentError
@@ -199,3 +200,65 @@ def extractions(verified_pass, *, prompt_versions: dict, run_id: str) -> tuple[B
              "searched_ids": sorted({i.evidence_id for i in r.items})},
             json.dumps(r.to_json_obj(), sort_keys=True, ensure_ascii=False, indent=1)))
     return tuple(parts)
+
+
+def valuation_part(ticker: str, as_of: date, *, engine, assumptions) -> BundlePart:
+    """★★ `F10` `CT-F10.4` / `T4` — D-02's `fv_model` trail as a Stage-B bundle part.
+
+    ★ The part is `computed`, the kind the blind view withholds (`RA-14`), so
+    Stage A — including the normalised-earnings block (`F10` `D1`) — never sees a
+    price, a value or a band it could anchor to.
+
+    ⚠ **An unavailable valuation is still a part** (`P5`, `PG-10`): it names what
+    was missing, so `J-09` answers *"insufficient evidence — no trailing interest
+    expense"* instead of reasoning over a bundle that silently lacks the numbers.
+    It is never a default value.
+    """
+    from src.feature_engineer.errors import ValuationUnavailable
+    from src.feature_engineer.valuation import as_bundle_part, valuation
+
+    try:
+        return BundlePart(**as_bundle_part(
+            valuation(ticker, as_of, engine=engine, assumptions=assumptions)))
+    except ValuationUnavailable as exc:
+        return BundlePart(
+            "computed",
+            {"contract_name": f"valuation.{assumptions.name}.unavailable",
+             "contract_version": assumptions.version},
+            f"D-02 VALUATION UNAVAILABLE — {ticker} as of {as_of.isoformat()}\n"
+            f"missing: {', '.join(exc.missing)}\nreason: {exc.reason}\n"
+            f"No fair value, band or implied growth exists for this bundle. Treat any "
+            f"question that needs them as insufficient evidence.")
+
+
+def annual_history_part(annual_rows, *, ticker: str, as_of: date) -> BundlePart:
+    """★ `J-20`'s evidence: per fiscal year, `D6` FCFF and its margin PRE-COMPUTED.
+
+    ★ `operating_ratios` kind — visible in the blind view on purpose: FCFF levels and
+    margins are not price anchors, and `J-20` must choose a window WITHOUT doing
+    arithmetic (`S-2` item 3). ⚠ A year that cannot be computed is SHOWN with its
+    reason (e.g. a pretax loss) — a hidden gap would invite a window around it.
+    """
+    from src.feature_engineer.valuation.basis import FORMULA_ID, TAX_LOSS_YEAR_ZERO
+    from src.feature_engineer.valuation.normalised import annual_history
+
+    lines = [f"ANNUAL HISTORY — {ticker} as of {as_of.isoformat()} — D-02 formula "
+             f"{FORMULA_ID}, computed per fiscal year.",
+             "Figures are pre-computed. Do not add, average or rescale them.",
+             "fiscal_year | year_end | revenue | fcff | fcff_margin | tax_rate | status"]
+    for y in annual_history(annual_rows, ticker=ticker, as_of=as_of):
+        if y.basis is None:
+            lines.append(f"FY{y.fiscal_year} | {y.fiscal_year_end} | — | — | — | — | "
+                         f"UNAVAILABLE: {y.unavailable}")
+            continue
+        b, margin = y.basis, y.margin              # ★ D-02 computed both (RA-45)
+        lines.append(f"FY{y.fiscal_year} | {y.fiscal_year_end} | "
+                     f"{b.revenue.amount_minor // 100:,} {b.revenue.currency} | "
+                     f"{b.fcff.amount_minor // 100:,} {b.fcff.currency} | "
+                     f"{margin.quantize(Decimal('0.0001'))} | "
+                     f"{b.tax_rate.quantize(Decimal('0.0001'))} | "
+                     f"{'ok (pretax loss: tax rate 0)' if b.tax_rule == TAX_LOSS_YEAR_ZERO else 'ok'}")
+    # ✏ v2 (2026-09-14, `DX-104`): loss years now resolve, marked in `status`.
+    return BundlePart("operating_ratios",
+                      {"contract_name": "annual_history.fcff_d6", "contract_version": 2},
+                      "\n".join(lines))

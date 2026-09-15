@@ -272,7 +272,7 @@ def _wire():
     ledger = FactLedger(_state("facts"))
     key = os.environ.get("FMP_API_KEY")
     client = FMPClient(Secret("FMP_API_KEY", key)) if key else None
-    contact = os.environ.get("GMAIL_SMTP_USER")
+    contact = os.environ.get("EDGAR_CONTACT") or os.environ.get("GMAIL_SMTP_USER")
     edgar = EdgarClient(Secret("EDGAR_CONTACT", contact)) if contact else None
     return (ledger, ObservationLedger(_state("obs"))), ledger, client, edgar, cik_map
 

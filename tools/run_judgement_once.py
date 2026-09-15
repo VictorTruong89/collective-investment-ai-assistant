@@ -83,6 +83,8 @@ def answer_shape(block) -> str:
         return "enum"
     if block.name in EMITS_RUBRIC:
         return "rubric"
+    if block.name == "J-20":
+        return "normalisation"        # ★ `F10` `D5` — a method + window, never a figure
     return "prose"
 
 
@@ -170,6 +172,36 @@ def judgement_tool(block, *, criteria: tuple[str, ...] = ()) -> dict:
             },
         }
 
+    if shape == "normalisation":
+        from src.fundamental.prompts.e_blocks import J20_METHODS
+
+        year = {"type": ["integer", "null"]}
+        return {
+            "name": "choose_normalised_earnings",
+            "description": "Choose the method and window code will apply. Never a figure.",
+            "input_schema": {
+                "type": "object",
+                "properties": {
+                    # ★ `MP-5` — the closed set is the enum. ⚠ There is no field
+                    #   for an amount: `F10` `D5` keeps every figure out of the model.
+                    "method": {"type": "string", "enum": list(J20_METHODS)},
+                    "first_fiscal_year": year, "last_fiscal_year": year,
+                    "trough_year": year, "peak_year": year,
+                    "exclusions": {"type": "array", "items": {
+                        "type": "object",
+                        "properties": {"item": {"type": "string"},
+                                       "evidence_id": {"type": "string"},
+                                       "quote": {"type": "string"}},
+                        "required": ["item", "evidence_id", "quote"]}},
+                    "what_would_change_it": {"type": "string"},
+                    "why": {"type": "string"},
+                },
+                "required": ["method", "first_fiscal_year", "last_fiscal_year",
+                             "trough_year", "peak_year", "exclusions",
+                             "what_would_change_it", "why"],
+            },
+        }
+
     props: dict = {"answer": {"type": "string"}}
     required = ["answer"]
     for name in PROSE_REQUIRED.get(block.name, ()):
@@ -197,6 +229,55 @@ def build_payload(prompt: str, the_offer, body: str) -> str:
     """
     rubric = f"\n\n{the_offer.render()}" if the_offer else ""
     return f"{prompt}{rubric}\n\n---\n\n{body}"
+
+
+def add_annual_history(bundle, ledger_dir, *, ticker: str):
+    """`F10` `D5` — the blind-visible annual FCFF history `J-20` chooses a window from."""
+    from pathlib import Path
+
+    from src.data_engine.pit.ledger import FactLedger
+    from src.data_engine.pit.snapshot import assemble_rows
+    from src.fundamental.bundle.assemble import annual_history_part
+    from src.fundamental.bundle.models import EvidenceBundle
+
+    rows = assemble_rows(FactLedger(Path(ledger_dir)).read(ticker.upper()), bundle.as_of,
+                         source="edgar")
+    part = annual_history_part(rows[rows["period_type"] == "annual"], ticker=ticker,
+                               as_of=bundle.as_of)
+    return (EvidenceBundle(ticker=bundle.ticker, as_of=bundle.as_of,
+                           parts=(*bundle.parts, part)), rows)
+
+
+def _answer_hash(answer: dict) -> str:
+    """The committed answer's content hash — what `CT-F10.3` `stage_commit_hash` cites."""
+    import hashlib
+    body = json.dumps({k: v for k, v in answer.items() if not k.startswith("_")},
+                      sort_keys=True, separators=(",", ":"))
+    return "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest()
+
+
+def normalisation_outcome(answer: dict, rows, *, ticker: str, as_of, provenance: dict) -> str:
+    """`J-20`'s choice → the D-01 basis, or the named reason there is none (`P5`).
+
+    ⚠ Stops at the BASIS: `fv_analyst` also needs a price, which this runner has no
+    source for (FMP is paid; `value_on_basis` is the next step once one is wired).
+    """
+    from src.feature_engineer.errors import ValuationUnavailable
+    from src.fundamental.valuation.normalise import NoNormalisedBasis, normalise
+
+    if rows is None:
+        answer["_basis"] = {"status": "NOT_COMPUTED", "reason": "no --annual-history"}
+        return "  → basis NOT computed (no --annual-history)"
+    try:
+        basis = normalise(answer, quarterly_rows=rows[rows["period_type"] == "quarterly"],
+                          annual_rows=rows[rows["period_type"] == "annual"],
+                          ticker=ticker, as_of=as_of, provenance=provenance)
+    except (NoNormalisedBasis, ValuationUnavailable) as exc:   # ⚠ only the DESIGNED refusals
+        answer["_basis"] = {"status": "NO_BASIS", "reason": f"{type(exc).__name__}: {exc}"}
+        return f"  → NO normalised basis — {type(exc).__name__}: {str(exc)[:120]}"
+    answer["_basis"] = json.loads(json.dumps(basis.to_json_obj()))
+    return (f"  → normalised basis {basis.label} = "
+            f"{basis.base_fcff.amount_minor / 100:,.0f} {basis.base_fcff.currency}")
 
 
 #: Where a recorded extraction run may live: fresh, or promoted.
@@ -289,6 +370,10 @@ def main() -> int:
                     help="recorded E-block runs to add as verified extraction parts")
     # ★ `DX-100` / `RA-17` — the rubric option order is seeded by
     #   `<seed>:<run tag>:<block>` and RECORDED with each call.
+    # ★★ `F10` `D5` — J-20 needs the per-year FCFF history, pre-computed, in the
+    #   BLIND bundle. Reads D-07's fact ledger (EDGAR, already ingested — free).
+    ap.add_argument("--annual-history", default=None, metavar="LEDGER_DIR",
+                    help="D-07 fact ledger dir (e.g. .state/facts) for J-20's history part")
     ap.add_argument("--seed", default="0",
                     help="seed for the recorded rubric option order (RA-17)")
     args = ap.parse_args()
@@ -311,6 +396,10 @@ def main() -> int:
         for p in extracted:
             print(f"  extraction : {p.pins['block_id']} {p.pins['prompt_version']}  "
                   f"{p.pins['run_id']}  found={p.pins['evidence_ids'] or 'none'}")
+    history_rows = None
+    if args.annual_history:
+        full, history_rows = add_annual_history(full, args.annual_history,
+                                                ticker=args.ticker)
     # ★★ RA-14 / MP-3 — the blind bundle, built by the contract's own method.
     blind = full.redact()
     body = "\n\n".join(p.content for p in blind.parts)
@@ -487,6 +576,13 @@ def main() -> int:
                 else {"score": None, "outcome": "INSUFFICIENT_EVIDENCE"})
             derived = (f"  → {score.rubric_id} score={score.score}" if score
                        else "  → INSUFFICIENT_EVIDENCE (not a score)")
+        if answer_shape(blk) == "normalisation":
+            derived = normalisation_outcome(answers[blk.name], history_rows,
+                                            ticker=args.ticker, as_of=full.as_of,
+                                            provenance={"prompt_version": blk.version,
+                                                        "run_id": run_id,
+                                                        "stage_commit_hash": _answer_hash(answers[blk.name]),
+                                                        "bundle_hash": blind.bundle_hash})
         print(f"   ✅ {blk.name}  {tin:,} in / {tout:,} out  ${cost:.4f}{derived}")
     store.close()
 

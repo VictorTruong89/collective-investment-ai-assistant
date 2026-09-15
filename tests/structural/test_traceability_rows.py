@@ -34,8 +34,10 @@ def test_dx53_the_check_covers_every_spec_and_every_row():
     from tools.check_traceability_rows import _iter_rows
     rows = list(_iter_rows())
     specs = {s.parent.name for s, _ in rows}
-    assert len(rows) == 148, "148 ACs, 148 rows"
-    assert len(specs) == 11, "all eleven specs carry a table"
+    # ✏ 2026-09-13 — `F10` (17 ACs) joined. ⚠ Still pinned on purpose: a spec that
+    #   loses its table must turn this red, and a count that silently grew would too.
+    assert len(rows) == 168, "148 + F10's 20 ACs, one row each"
+    assert len(specs) == 12, "all twelve specs carry a table"
 
 
 # ── ⓑ basename fallback — the decision that made this shippable ───────────

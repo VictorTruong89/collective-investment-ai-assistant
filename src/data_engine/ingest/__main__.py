@@ -432,9 +432,11 @@ def _facts(universe) -> int:
     from src.data_engine.src.edgar.client import EdgarClient
     from src.shared.secrets import Secret
 
-    contact = os.environ.get("GMAIL_SMTP_USER")
+    # ✏ 2026-09-14 — read `EDGAR_CONTACT` first, as `_restatements` and the SEC
+    #   snapshot in this file already do; `.env` carries it and not the Gmail name.
+    contact = os.environ.get("EDGAR_CONTACT") or os.environ.get("GMAIL_SMTP_USER")
     if not contact:
-        print("BLOCKED: GMAIL_SMTP_USER is not set (EDGAR needs a contact "
+        print("BLOCKED: EDGAR_CONTACT is not set (EDGAR needs a contact "
               "address in its User-Agent)", file=sys.stderr)
         return EXIT_FAILED
 

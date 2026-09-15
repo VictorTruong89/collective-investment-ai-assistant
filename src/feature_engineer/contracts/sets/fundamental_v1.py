@@ -83,7 +83,12 @@ FUNDAMENTAL_V1 = FeatureContract(
     #   `f_graham_number_ratio`, taking membership from **45 to 47**, and the
     #   version stayed at 1 — so two different feature sets shared one identity
     #   and `check_parity` compared only name and version.
-    version=2,
+    # ★★ **v3 — `DX-103` (2026-09-14).** `CANONICAL` gained fallback tags for
+    #   `interest_expense`, `long_term_debt` and `current_debt`, so `f_interest_coverage`,
+    #   `f_roic` and every feature built on them take values where they were null (MU:
+    #   a decade). Same names and formulas, different inputs ⇒ a new version, or an
+    #   artifact trained on v2 would pass parity against different numbers.
+    version=3,
     created="2026-08-27",
     note=("§5.3's 45 f_* features plus Group C's 2. ⚠ Computed PER FILING and joined as-of "
           "afterwards — the reverse order silently nulls every multi-period "

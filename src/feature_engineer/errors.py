@@ -175,3 +175,43 @@ class DuplicateDefinitionError(FeatureError):
             f"one owning module — the second definition is always the one nobody tests "
             f"(FE-4, FE-25)"
         )
+
+
+# --------------------------------------------------------------------------- #
+# F10 — the valuation trail
+# --------------------------------------------------------------------------- #
+
+class ValuationUnavailable(FeatureError):
+    """`CT-F10.5` / `AC-F10.8` — a required input is absent, so there is no value.
+
+    ★ `FE-14` and `P5`: a valuation computed around a gap is a plausible number
+    about a different company. `missing` names exactly what was absent, so the
+    caller can say *why* there is no fair value instead of showing none.
+    """
+
+    code = "FEAT.VALUATION.UNAVAILABLE"
+
+    def __init__(self, ticker: str, as_of, missing, reason: str) -> None:
+        self.ticker, self.as_of, self.missing, self.reason = ticker, as_of, list(missing), reason
+        super().__init__(
+            f"{ticker} @ {as_of}: no valuation — missing {self.missing}: {reason} "
+            f"(F10 CT-F10.5, FE-14, P5)"
+        )
+
+
+class NoFiniteValueError(FeatureError):
+    """`AC-F10.3` — the arithmetic has no finite answer (discount rate ≤ terminal
+    growth, or a non-positive share count). ⚠ A clamp would be a fabricated value."""
+
+    code = "FEAT.VALUATION.NO_FINITE_VALUE"
+
+
+class AssumptionsMutatedError(FeatureError):
+    """`AC-F10.12` — a published assumption set's content changed under one version.
+
+    ★ `FE-2`'s rule applied to valuation: a trail citing `dcf_two_stage@v1` must
+    mean one set of numbers forever, or two valuations a month apart are not
+    comparable and nothing says so.
+    """
+
+    code = "FEAT.VALUATION.ASSUMPTIONS_MUTATED"

@@ -52,10 +52,24 @@ CANONICAL: dict[str, tuple[str, ...]] = {
     "operating_cash_flow": ("NetCashProvidedByUsedInOperatingActivities",),
     "capex": ("PaymentsToAcquirePropertyPlantAndEquipment",),
     "rd_expense": ("ResearchAndDevelopmentExpense",),
-    "interest_expense": ("InterestExpense",),
-    "long_term_debt": ("LongTermDebtNoncurrent",),
-    "current_debt": ("LongTermDebtCurrent",),
+    # ✏ `DX-103` (Victor, 2026-09-14): the concepts filers moved to, AFTER the old
+    #   ones. ⚠ Measured on Micron: `InterestExpense` stops May 2024 and both
+    #   `LongTermDebt*` tags stop in 2013, so these three items were null for MU for
+    #   a decade. ⚠ The lease-inclusive debt tags make a filer's series include
+    #   finance leases from the switch on — accepted, and why `fundamental` is `v3`.
+    "interest_expense": ("InterestExpense", "InterestExpenseNonoperating"),
+    "long_term_debt": ("LongTermDebtNoncurrent", "LongTermDebtAndCapitalLeaseObligations"),
+    "current_debt": ("LongTermDebtCurrent", "DebtCurrent"),
     "diluted_shares": ("WeightedAverageNumberOfDilutedSharesOutstanding",),
+    # ★ `F10` `D6` (2026-09-13) — the three facts the valuation's cash-flow formula
+    #   needs: `OCF + interest × (1 − t) − capex − SBC`, `t = tax ÷ pretax`.
+    #   ⚠ Pretax income has two common tags; the continuing-operations one first.
+    "income_tax": ("IncomeTaxExpenseBenefit",),
+    "pretax_income": (
+        "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+        "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+    ),
+    "sbc": ("ShareBasedCompensation",),
 }
 
 #: ★★ **Canonical items that are COUNTS, not money.** ⚠ *Found 2026-08-27:*

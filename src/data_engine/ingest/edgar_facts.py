@@ -53,6 +53,23 @@ FEATURE_TAGS = THESIS_TAGS | frozenset({
     "InterestExpense",
     "LongTermDebtNoncurrent", "LongTermDebtCurrent",
     "WeightedAverageNumberOfDilutedSharesOutstanding",
+    # ★ `F10` `D6` (2026-09-13) — the valuation's cash-flow formula needs tax,
+    #   pretax income and stock-based compensation. Client-side filter: no extra
+    #   network, only ledger rows (see the measurement above).
+    "IncomeTaxExpenseBenefit",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesExtraordinaryItemsNoncontrollingInterest",
+    "IncomeLossFromContinuingOperationsBeforeIncomeTaxesMinorityInterestAndIncomeLossFromEquityMethodInvestments",
+    "ShareBasedCompensation",
+    # ⚠ Measured on MU 2026-09-13: the concepts it files TODAY — `InterestExpense`
+    #   stops May 2024 and `LongTermDebt*` stop in 2013 (`F10` fallbacks, `DX-103`).
+    "InterestExpenseNonoperating", "DebtCurrent", "LongTermDebtAndCapitalLeaseObligations",
+    # ★ `F10` `D8` (2026-09-14) — net debt counts marketable securities and finance
+    #   leases (`valuation/basis.py::NET_DEBT_TAGS`).
+    "MarketableSecuritiesCurrent", "AvailableForSaleSecuritiesDebtSecuritiesCurrent",
+    "AvailableForSaleSecuritiesCurrent", "ShortTermInvestments",
+    "MarketableSecuritiesNoncurrent", "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent",
+    "AvailableForSaleSecuritiesNoncurrent",
+    "FinanceLeaseLiabilityCurrent", "FinanceLeaseLiabilityNoncurrent",
 })
 
 #: ⚠⚠ **Deliberately NOT ingested, and this is the reason.** `extract_facts`

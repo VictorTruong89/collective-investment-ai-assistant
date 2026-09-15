@@ -200,7 +200,8 @@ of the platform*, not a feature of the investment strategy.
 | **F7b** | Deliberation outcome study (Tier B) — calibration and hit-rate against resolved outcomes | C6 | 9 | 🔵 idea — accrues, **never gates** |
 | **F8** | Human control surface — API, directives, drill-down, resume | C5·C4 | 7 | 🔵 idea |
 | **F9** | Thesis source port — API and relay adapters behind one contract | C1·C8 | 2 | 🔵 idea |
-| F10+ | *reserved* | — | — | — |
+| **F10** | Valuation trail — D-02 `valuation`, `fv_model`, sensitivity band, implied expectations | C3 | 8 (D-02) | 🟢 **approved 2026-09-13** — gates the `CT-9.2` thesis path (`J-09` onward) |
+| F11+ | *reserved* | — | — | — |
 
 ★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if nothing after
 it landed.

@@ -695,6 +695,24 @@ The cost is a less compelling demo.
   permitted to read both analyst views. *Seats 2/3 do not own D-13; they carry an obligation it
   consumes.*
 
+- **2026-09-13 — `QR-25` · Normalised earnings are a judgement block feeding D-02; `F10` graduates.**
+  Measured first: `J-09`/`J-10`/`J-11`/`J-16` all consume a D-02 valuation trail that exists nowhere in
+  `src/`, so declaring Stage B-D before it would repeat `DX-85` (blocks with no evidence to answer from).
+  Victor chose valuation first, and put normalisation on the judgement side. *Rationale: for a cyclical
+  the earnings choice IS the valuation; `VS-4` keeps the firewall — the judgement's basis runs through
+  D-02's pure mechanics and the result is `fv_analyst`, never `fv_model`.* Rejected: a D-02
+  normalisation rule; D-02 publishing the judgement-based value. Spec: `F10_valuation_trail` 🟡 draft,
+  16 ACs, 5 open questions (assumption values, net debt items, the judgement block, the implied variable,
+  the FCFF formula).
+
+- **2026-09-14 — `F10` `Q2` → `D8` · `DX-103` · `DX-104`.** Victor: net debt counts marketable securities
+  and leases; `CANONICAL` takes the valuation's fallback tags (`fundamental` contract → v3); a loss year
+  takes `t = 0` (`D6` formula → v2). *Rationale: a cycle average needs its troughs, and MU's real balance
+  sheet holds $2B of securities.* ⚠ **Operating leases held, not applied** — `D6`'s operating cash flow
+  already pays them, so the liability would count them twice; ⓐ leave out vs ⓑ count + add back lease cost
+  is Victor's (L3 `DX-106`). Rejected: a statutory rate in loss years; adding finance-lease tags on top of
+  MU's lease-inclusive debt tags (measured: ~$3.1B double count).
+
 ### ⏳ Open questions — now tracked in the register
 
 ★ **All questions from this release, answered and open, moved to
