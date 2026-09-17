@@ -36,7 +36,7 @@ def test_dx53_the_check_covers_every_spec_and_every_row():
     specs = {s.parent.name for s, _ in rows}
     # ✏ 2026-09-13 — `F10` (17 ACs) joined. ⚠ Still pinned on purpose: a spec that
     #   loses its table must turn this red, and a count that silently grew would too.
-    assert len(rows) == 168, "148 + F10's 20 ACs, one row each"
+    assert len(rows) == 169, "148 + F10's 21 ACs, one row each"
     assert len(specs) == 12, "all twelve specs carry a table"
 
 

@@ -96,6 +96,11 @@ OPERATING_RATIOS = (
 #: pass — they go in as `computed`, which `BLIND_WITHHELD_KINDS` strips.
 VALUATION_FIELD_SETS = ("key_metrics_ttm", "financial_scores")
 
+#: `DX-126` — how many recent reported periods decide whether a tag is still in use. ★ Four:
+#: one reporting year, so a tag a filer dropped mid-year is still offered for a while and one
+#: it abandoned years ago is not.
+_OBSERVABLE_PERIODS = 4
+
 #: Columns of CT-7.2 that are provenance rather than line items.
 _PANEL_META = (
     "ticker", "period_start", "period_end", "period_type", "source",
@@ -402,8 +407,20 @@ def observable_fields(engine, ticker: str, as_of: date, contract) -> tuple:
     except Exception:                          # noqa: BLE001 — vocabulary only
         rows = None
     if rows is not None and len(rows):
-        fields.update(c[: -len("_minor")] for c in rows.columns
-                      if c.endswith("_minor") and c not in _PANEL_META)
+        # ⚠⚠ `DX-126` (2026-09-16) — only a tag this filer HAS REPORTED. A column exists for
+        #   every canonical item, so the list offered `LongTermDebtNoncurrent` for Micron,
+        #   which files the lease-inclusive tag instead and has left that one null since 2013.
+        #   ★ `J-15` duly wrote a falsifier on it, and the checker found it can NEVER resolve:
+        #   *"a falsifier naming a field this system does not receive is not checkable,
+        #   however precise it sounds"* (`RA-35`) — and one naming a field the COMPANY does not
+        #   report is the same defect one layer down.
+        # ★ …and reported RECENTLY: Micron filed `LongTermDebtNoncurrent` until 2013, so an
+        #   "ever non-null" test still offers a tag it has not used in a decade. A falsifier
+        #   is a claim about FUTURE filings, so the window is the latest reported periods.
+        recent = rows.sort_values("period_end", kind="mergesort").tail(_OBSERVABLE_PERIODS)
+        fields.update(c[: -len("_minor")] for c in recent.columns
+                      if c.endswith("_minor") and c not in _PANEL_META
+                      and any(not _missing(v) for v in recent[c]))
     if not fields:
         raise BundleInconsistentError(
             f"{ticker}: no observable fields at {as_of}. ★ J-15 would be told to "

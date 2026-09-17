@@ -14,78 +14,27 @@ from __future__ import annotations
 
 from src.fundamental.prompts.registry import PromptRegistry, block
 
-#: `L1-fundamental-analysis-master-prompt.md` §J-15, verbatim.
-J15_TEXT = """Before any verdict exists, state what would prove the emerging thesis wrong.
+#: ✏✏ **`DX-110` (Victor, 2026-09-14/15): ONE declaration per block.** This file held its
+#: own `J-11 v1` text (*"State the strongest case that this investment is a mistake…"*) —
+#: a DIFFERENT prompt from the master prompt's `J-11 v1`, under the same name and version —
+#: and ran J-11 and J-15 on the BLIND view, while the master prompt and `author.py`'s own
+#: `STAGE_VIEW` put Stages C and D on `view:full`. ★ The blocks now come from `e_blocks.py`,
+#: the drift-guarded copy of the doc, so a recording under `J-11 v1` means one prompt.
+from src.fundamental.prompts.e_blocks import (  # noqa: E402
+    J11_V1_TEXT,
+    J15_V1_TEXT,
+    J16_V1_TEXT,
+    J16_VERDICTS,
+    j11_v1,
+    j15_v1,
+)
 
-Write two to four conditions. Each must be ALL of:
-
-  observable   from data this system already receives — a filing line item, a
-               computed metric, a disclosed figure. Not "sentiment worsens".
-  dated        with a deadline or an evaluation window. Not "eventually".
-  checkable    without a further judgement call. ★ The test: could a script
-               decide it? "Competition intensifies" fails. "Gross margin below
-               55% in two consecutive quarters" passes.
-  material     if it fired, the thesis would be wrong — not merely dented. State
-               in one line what it would mean.
-
-For each, name the specific metric or field the check reads, choosing from the
-supplied list of available observables. A falsifier naming a field this system
-does not receive is not checkable, however precise it sounds.
-
-★ At least one condition must be about the BUSINESS rather than the price. A
-falsifier set that consists only of price levels is a stop-loss wearing a
-thesis's clothing, and it will fire on volatility rather than on being wrong.
-
-You may not write "the thesis is invalidated if the investment case no longer
-holds" or any variant. That is a tautology and it fails the run."""
-
-#: §J-16, verbatim. ⚠ Item 4 is `confidence` with the model taken out of it.
-J16_TEXT = """You have: the Stage-A scorecard and its evidence, the reconciliation (J-09), the
-base-rate check (J-10), the bear case (J-11), the pre-mortem (J-12), the
-forgery hunt (J-13), the disconfirming sweep (J-14), and the falsifiers you have
-already committed to (J-15).
-
-Select one verdict:
-  BUY                 the evidence supports acquiring or adding at this price
-  HOLD                the evidence supports neither acquiring nor exiting
-  SELL                the evidence supports exiting
-  INSUFFICIENT_DATA   the evidence does not support a directional view
-
-And one conviction: Low | Medium | Medium-High | High.
-
-Then, and this is the substance of the call:
-  1. The three considerations that most determined the verdict, ranked, each
-     naming the call it came from.
-  2. ★ The strongest consideration pointing the OTHER way, and why it did not
-     govern. If nothing points the other way, the analysis is incomplete —
-     return INSUFFICIENT_DATA and say so.
-  3. What would move this verdict one step more conservative, and by when.
-  4. Your conviction is a claim about EVIDENCE, not about feeling. State it as:
-     "of the evidence a verdict like this needs, the bundle supplied <what>, and
-     did not supply <what>."
-
-You are not sizing a position, setting a stop, setting a target, or naming an
-entry price. Those belong to other domains and a number from you here would be
-an LLM-authored price wearing an analyst's authority.
-
-Length cap: 350 words."""
-
-#: §J-11 — ★ RA-15: a **separate call**, so the bear case cannot be written by
-#: the same pass that argued the bull.
-J11_TEXT = """State the strongest case that this investment is a mistake, in its own terms.
-
-Do not hedge it, do not answer it, and do not weaken it so the bull case
-survives. Name the single condition that would confirm it.
-
-Length cap: 500 words."""
-
-#: ★ RA-14/MP-3 — J-11 and J-15 run on the BLIND view: price, market cap and
-#: valuation withheld, so the qualitative view is committed before the anchor.
-J15 = block("J-15", "v1", "judgement", J15_TEXT, view="blind")
-J11 = block("J-11", "v1", "judgement", J11_TEXT, view="blind")
-#: J-16 sees the full bundle — the reconciliation stage (§4A.2 step 5).
-J16 = block("J-16", "v1", "judgement", J16_TEXT, view="full",
-            options=("BUY", "HOLD", "SELL", "INSUFFICIENT_DATA"))
+J15_TEXT, J16_TEXT, J11_TEXT = J15_V1_TEXT, J16_V1_TEXT, J11_V1_TEXT
+J15 = j15_v1()
+J11 = j11_v1()
+#: J-16 sees the full bundle — the reconciliation stage. ★ Declared with its options here
+#: (same text, same hash) because `RA-17` permutes them per call on this path.
+J16 = block("J-16", "v1", "judgement", J16_TEXT, view="full", options=J16_VERDICTS)
 
 #: ★ RA-17 — the enumerated options are **order-randomised per call**, which is
 #: one of RM-1's three perturbations. Declaring them here is what makes that

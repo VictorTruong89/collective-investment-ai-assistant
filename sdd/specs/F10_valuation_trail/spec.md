@@ -3,7 +3,7 @@
 > **Spec-ID:** F10 · **Status:** 🟢 **approved 2026-09-13** (Victor Truong) · **Drafted:** 2026-09-13
 > ✅ **Approved with `Q1`, `Q3`, `Q5` answered as suggested → `D4`, `D5`, `D6`; `Q4` adopted with the
 > contract → `D7`.** ✅ `Q2` answered 2026-09-14 (Victor): marketable securities
-> and leases count in net debt → `D8` (⚠ operating leases held — see `D8`). `DX-103`, `DX-104` decided
+> and finance leases count in net debt → `D8`; operating leases stay OUT (`DX-106`, Victor, same day). `DX-103`, `DX-104` decided
 > the same day (`D6` amended).
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` Decisions log 2026-09-13 · `sdd/questions.md`
 > `QR-25` · `L3` §2.1e *What remains* · design tier `sdd/design/rel6_design/L1-feature-engineering.md`
@@ -146,8 +146,10 @@ grid point, checked at load.
   "terminal": {"fcff_n_plus_1": "Money", "value": "Money", "present_value": "Money"},
   "enterprise_value": "Money",
   "net_debt": {"value": "Money", "components": ["…input refs, each with its tag"],
-               "known_omissions": ["subset of: marketable_securities, finance_leases, operating_leases"]},
+               "known_omissions": ["subset of: marketable_securities, finance_leases"],
+               "excluded_by_design": {"operating_leases": "str — why (D8)"}},
   "equity_value": "Money", "diluted_shares": "int", "value_per_share": "Money",
+  "known_limits": ["str — a figure this valuation CANNOT compute, and why (D9)"],
   "price": {"value": "Money", "date": "date", "series": "raw"},
   "band": {"grid": [{"discount_rate": "decimal", "terminal_growth": "decimal",
                      "value_per_share": "Money"}], "low": "Money", "high": "Money"},
@@ -159,7 +161,9 @@ null exactly when `status = NO_ROOT_IN_BRACKET`. ★ **Net debt (`D8`)** = debt 
 inside a debt tag − cash − marketable securities (current and non-current). ★ **Rounding (`MO-5`):** each present value is rounded
 to minor units ONCE, and `enterprise_value` is the exact sum of the rounded fields — so the trail adds
 up to the cent. ⚠ `net_debt.known_omissions` names every net-debt item NOT counted in this result (`PG-10`): one the
-filer does not report, and operating leases while `D8`'s hold stands. Never a fixed list.
+filer does not report. Never a fixed list. `net_debt.excluded_by_design` names what is left out ON PURPOSE —
+operating leases, which `D6`'s operating cash flow already pays (`D8`) — so a reader never mistakes a choice
+for a gap, or a gap for a choice.
 
 **CT-F10.3 — `CashFlowBasis`** (the one input shape the mechanics accept):
 ```json
@@ -261,12 +265,19 @@ returned as a value.
   `P5`) ✏ *added 2026-09-13: the first `D5` build put the averaging in D-01 and `RA-45`'s structural
   guard refused it (L3 `DX-105`).*
 
+- **AC-F10.21** *(★ a result declares what it cannot compute — `D9`)* — **Given** any valuation,
+  **when** its trail is read, **then** `known_limits` names every figure `D6`/`D8` cannot compute from
+  D-07's facts — today: government-incentive proceeds are not credited against capex — each with its
+  reason; **and** a limit that IS computable (lease-funded equipment, which `D8` already counts as debt)
+  does not appear. → *data contract.* (`PG-10`, `DX-116`) ✏ *added 2026-09-16.*
+
 - **AC-F10.20** *(★ net debt counts securities and finance leases — `D8`)* — **Given** a latest quarter
   reporting marketable securities (current and/or non-current) and finance-lease liabilities, **when**
   net debt is computed, **then** it subtracts the securities and adds each finance-lease side whose debt
   tag does not already include leases, every counted amount a component with its tag; **and given** an
   item the filer does not report, **then** it is named in `known_omissions`, never counted as zero;
-  **and** operating leases are always in `known_omissions` while `D8`'s hold stands. → *unit* +
+  **and** operating leases are never counted and are declared under `excluded_by_design`, not
+  `known_omissions`. → *unit* +
   *integration* (Micron's recorded facts against the 10-Q). ✏ *added 2026-09-14.*
 
 ## 7. Decisions (resolved questions — kept with their rejected options)
@@ -346,15 +357,28 @@ the owners' cash).
 **`D8` — Net debt counts marketable securities and leases (was `Q2`).** *(Victor Truong, 2026-09-14.)*
 Net debt = debt + finance leases not already inside a lease-inclusive debt tag − cash − marketable
 securities (current and non-current; MU: $648M + $1,402M, 10-Q line 559). A finance lease's principal is
-paid in FINANCING cash flow, so it is debt `D6`'s flow does not bear. ⚠⚠ **Operating leases HELD, not
-applied:** under ASC 842 an operating lease's payments run through OPERATING cash flow, which `D6`
-already subtracts — adding the liability to net debt would count the lease twice, `D-19`'s mistake in
-miniature. The coherent alternatives are Victor's: ⓐ leave them out (the flow bears them) or ⓑ count the
-liability AND add back operating lease cost in `D6` (a `v3` formula; ⚠ MU stopped tagging
-`OperatingLeaseCost` after 2025-11-27, so ⓑ would refuse MU today). Until chosen, every result declares
-`operating_leases` in `known_omissions`. **`DX-103` (same day):** `CANONICAL` gained the fallback tags
+paid in FINANCING cash flow, so it is debt `D6`'s flow does not bear. ★ **Operating leases are OUT —
+ⓐ, Victor, 2026-09-14 (`DX-106`):** under ASC 842 an operating lease's payments run through OPERATING
+cash flow, which `D6` already subtracts, so the flow bears them; adding the liability to net debt would
+count the lease twice, `D-19`'s mistake in miniature. Every result declares it under
+`net_debt.excluded_by_design`. ✗ Rejected — ⓑ count the liability AND add back operating lease cost in `D6`
+(a `v3` formula, more items; ⚠ MU stopped tagging `OperatingLeaseCost` after 2025-11-27, so ⓑ would refuse
+MU today). **`DX-103` (same day):** `CANONICAL` gained the fallback tags
 (`InterestExpenseNonoperating`, `DebtCurrent`, `LongTermDebtAndCapitalLeaseObligations`) — `fundamental`
 feature contract → `v3` (`FE-2`).
+
+**`D9` — The two capex questions the analysis raised, answered (`DX-116`).** *(2026-09-16.)*
+`J-09` and `J-11` each found a way `D6`'s capex term could misstate the base. Measured on Micron:
+
+| Raised by | Claim | Answer |
+|---|---|---|
+| `J-11` | Equipment arrives through finance leases, OUTSIDE the capex line, so FCFF is flattered | ✅ **No change — `D6` is already coherent.** `D8` counts finance leases IN NET DEBT ($3,107M at 2025-05-29). Charging the $1,394M of lease-funded additions to capex as well would count the same equipment TWICE — once as debt subtracted from equity value, once as investment reducing the flow. ★ `J-14` reached this independently when it contradicted `J-11` |
+| `J-09` | Capex is charged GROSS; the 10-Q guides it *"net of proceeds from government incentives"* ($1,294M in 9M FY25) | ⚠ **Cannot be computed, and is DECLARED.** No tagged fact for incentive PROCEEDS exists anywhere in Micron's `companyfacts` (`GovernmentAssistance*` carries balances, not the cash line); the figure lives only in filing prose. A TTM figure would need an extraction item per filing, which is `E-07`'s territory, not D-02's |
+
+★ **So the rule is: state the limit on the result** (`PG-10`, `CT-F10.2` `known_limits`) rather than
+silently valuing as if it did not exist. ⚠ It is material — crediting 9M incentives alone would roughly
+double MU's $1,349M trailing base. ✗ Rejected: applying only the computable half (it biases the base
+DOWN by the whole lease amount); a statutory or estimated incentive rate (a fabricated input, `P5`).
 
 **`D7` — Implied expectations solves for stage-1 growth (was `Q4`).** *(Adopted with the contract at
 approval.)* It reads as *"the price requires X % a year for N years"* — the sentence `J-09` reasons
@@ -369,7 +393,7 @@ question in the least-knowable number).
   and if CAPM, whose beta (D-02's own from our prices, `§6.4`, not the vendor snapshot)? Terminal growth,
   explicit years, band steps, implied bracket. ★ **Policy, the fund manager's.** Blocks the NUMBERS of
   `fv_model`, not the mechanics or any AC except the published set in `AC-F10.12`.
-- ~~**Q2 — Net debt's definition.**~~ → `D8` (operating leases held). The canonical items (`src/feature_engineer/fundamental/items.py`) carry
+- ~~**Q2 — Net debt's definition.**~~ → `D8` (operating leases out by design, `DX-106`). The canonical items (`src/feature_engineer/fundamental/items.py`) carry
   `cash`, `long_term_debt`, `current_debt` — **not marketable investments, finance leases or operating
   leases.** ⚠ Measured on MU: cash $10,163M vs cash + investments **$12,213M** (10-Q line 559) — a $2B
   swing in equity value. Adding canonical items is D-07 definitional work. Blocks `AC-F10.2`'s
@@ -408,10 +432,11 @@ question in the least-knowable number).
 | AC-F10.16 | `tests/structural/test_valuation_isolation.py::test_ac_f10_16_a_vendor_dcf_is_never_read_as_fv_model` | `src/feature_engineer/valuation/service.py` |
 | AC-F10.17 | `tests/unit/test_valuation_f10.py::test_ac_f10_17_the_reported_basis_is_ocf_plus_after_tax_interest_minus_capex_minus_sbc` · `::test_ac_f10_17_a_loss_year_uses_a_zero_tax_rate` (2) · `::test_ac_f10_17_an_out_of_range_rate_on_a_profit_refuses_and_names_it` (2) | `src/feature_engineer/valuation/basis.py::reported_basis` |
 | AC-F10.18 | `tests/unit/test_valuation_f10.py::test_ac_f10_18_annual_basis_applies_D6_to_one_fiscal_year` · `::test_ac_f10_18_a_non_annual_span_refuses` (3) · `::test_ac_f10_18_trailing_total_sums_the_same_four_quarters` | `src/feature_engineer/valuation/basis.py::annual_basis`, `::trailing_total`, `::_d6` |
-| AC-F10.20 | `tests/unit/test_valuation_f10.py::test_ac_f10_20_net_debt_counts_securities_and_finance_leases` · `::test_ac_f10_20_a_lease_inclusive_debt_tag_is_not_counted_twice` · `::test_ac_f10_20_an_unreported_item_is_declared_never_zero` · `tests/integration/test_valuation_real_mu.py::test_ac_f10_20_real_net_debt_matches_the_10q` | `src/feature_engineer/valuation/basis.py::balance`, `::known_omissions` |
+| AC-F10.21 | `tests/unit/test_valuation_f10.py::test_ac_f10_21_the_result_declares_what_it_cannot_compute` | `src/feature_engineer/valuation/basis.py::KNOWN_LIMITS`, `src/feature_engineer/valuation/types.py` |
+| AC-F10.20 | `tests/unit/test_valuation_f10.py::test_ac_f10_20_net_debt_counts_securities_and_finance_leases` · `::test_ac_f10_20_a_lease_inclusive_debt_tag_is_not_counted_twice` · `::test_ac_f10_20_an_unreported_item_is_declared_never_zero` · `::test_ac_f10_20_operating_leases_are_excluded_by_design_not_omitted` · `tests/integration/test_valuation_real_mu.py::test_ac_f10_20_real_net_debt_matches_the_10q` | `src/feature_engineer/valuation/basis.py::balance`, `::known_omissions` |
 | AC-F10.19 | `tests/unit/test_normalise_d5.py::test_ac_f10_19_the_averages_are_D02_functions_and_D01_holds_no_series_arithmetic` · `::test_ac_f10_19_a_year_filed_after_as_of_is_absent_and_a_mixed_currency_window_refuses` · `tests_src/test_architecture.py::test_architectural_rule_holds` (RA-45) | `src/feature_engineer/valuation/normalised.py::cycle_average_fcff`, `::cycle_average_fcff_margin`, `::annual_history` |
 
-✅ **20 of 20 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
+✅ **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
 weak tests were strengthened (a contiguity test that tripped the COUNT check first, and a refusal test
 that passed through the second guard instead of the first). Also required by `D-03`'s `AC-3.14`: three
 MethodEntries under `src/feature_engineer/methods/entries/` — the FCFF formula, the DCF mechanics and

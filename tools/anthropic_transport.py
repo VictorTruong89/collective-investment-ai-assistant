@@ -197,7 +197,16 @@ def anthropic_transport(*, tool: dict | None = None,
             # ★★ A clamp that quietly lowers the ask makes every downstream
             #    error message a lie about what was requested.
             "max_tokens": min(int(request["max_tokens"]) or max_output, max_output),
-            "messages": [{"role": "user", "content": str(request["payload"])}],
+            # ★★ `DX-127` — prompt caching. When a request carries `cache_prefix`, the
+            #   STABLE evidence goes in its own content block marked `cache_control`, and the
+            #   variable part (this call's commits and its instructions) follows. ⚠ Caching is
+            #   a PREFIX match: any byte change before the breakpoint invalidates it, which is
+            #   why the prefix must be the one thing every call in a stage shares.
+            "messages": [{"role": "user", "content": (
+                [{"type": "text", "text": str(request["cache_prefix"]),
+                  "cache_control": {"type": "ephemeral"}},
+                 {"type": "text", "text": str(request["payload"])}]
+                if request.get("cache_prefix") else str(request["payload"]))}],
         }
         # ⚠ Opus 5 rejects `temperature` (400) — the gateway's `effort` control
         # path is the supported one. `budget_tokens` is likewise removed.
@@ -305,4 +314,9 @@ def to_transport_result(message) -> dict:
         "tokens_in": message.usage.input_tokens,
         "tokens_out": message.usage.output_tokens,
         "stop_reason": message.stop_reason,
+        # ★ `DX-127` — what the cache actually did. ⚠ Reported, never assumed: a silent
+        #   invalidator shows up here as a read of 0 across calls that should have shared a
+        #   prefix, and nowhere else.
+        "cache_read": getattr(message.usage, "cache_read_input_tokens", None),
+        "cache_write": getattr(message.usage, "cache_creation_input_tokens", None),
     }

@@ -54,7 +54,14 @@ def cases():
 #: the provenance is known to the session that made them and to nobody else,
 #: which is precisely the state the field exists to end. They are admitted here
 #: rather than re-recorded at ~$1.7 to buy a hash we already know the value of.
-DECLARED_ENVELOPES = {"None"}
+#:
+#: ✏ `DX-111` (2026-09-15) — ★ the Stage-A envelope WITHOUT `S-8`. Every graded judgement
+#: recording (J-01, J-05, J-06, J-07, J-08) was made before Stage A composed `S-8`; the
+#: split is held on purpose until the next paid Stage-A re-record, and declared here so it
+#: stays visible (`DX-76`).
+from src.fundamental.prompts.envelope import envelope_hash as _envelope_hash  # noqa: E402
+
+DECLARED_ENVELOPES = {"None", _envelope_hash("judgement", stage_a=True)}
 
 
 def test_ac_5_7_the_golden_set_replays_green(cases):
@@ -220,8 +227,8 @@ def test_dx_76_the_golden_set_does_not_grade_two_PROMPT_REGIMES_at_once():
     # judgement legitimately differ (`S-7` is Stage-A only), so "one envelope
     # for the whole set" would be wrong; what must hold is that every graded
     # recording carries an envelope this repo STILL SHIPS.
-    current = {envelope_hash("extraction"), envelope_hash("judgement"),
-               envelope_hash("judgement", stage_a=True)}
+    current = {envelope_hash("extraction"), envelope_hash("judgement", fresh=True),
+               envelope_hash("judgement", stage_a=True, fresh=True)}      # ✏ DX-111
     unexpected = {h: r for h, r in seen.items()
                   if h not in current and h not in DECLARED_ENVELOPES}
     assert not unexpected, (

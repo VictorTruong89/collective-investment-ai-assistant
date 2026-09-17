@@ -1042,6 +1042,317 @@ def j20_v1() -> PromptBlock:
     return _stage_a("J-20", J20_V1_TEXT)
 
 
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ★★ STAGES B–D — `J-09`…`J-17`, declared 2026-09-14 (L3 §2.1g steps 4–5).
+#
+# ✏ `DX-109` ⓐ (Victor): declared VERBATIM. Where a block names an input the build
+#   cannot supply (J-09's consensus view, implied margin and duration, multiples),
+#   the BUNDLE names the absence (`assemble.declared_absences`) — the text is not
+#   rewritten to fit the build.
+# ★ `view="full"` for every one: Stage B is where the price is revealed (`MP-3`),
+#   and the Stage-A output reaches them as a frozen `stage_output` part (`RA-108`).
+# ═══════════════════════════════════════════════════════════════════════════
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-09 `v1`.
+J09_V1_TEXT = """\
+You now have the price, the market capitalisation, the multiples, D-02's fair
+value with its sensitivity band and its arithmetic trail, and the consensus view.
+You also have your own Stage-A conclusions, which are FIXED. You may not revise
+them here; if the valuation makes you want to, say so explicitly as a finding.
+
+  1. ★ What does the current price require to be true? D-02 supplies the
+     reverse-engineered figures — the growth, margin and duration implied by the
+     present price. Read them out and state, in one sentence each, what the
+     world looks like if each holds.
+  2. Set those requirements against your Stage-A view. For each, select:
+       required_less_than_evidenced | roughly_consistent |
+       required_more_than_evidenced | insufficient_evidence
+  3. Where the gap is widest, is it explained by something you found in Stage A,
+     or is it unexplained? An unexplained gap is not an opportunity; it is a
+     question you have not answered yet, and it belongs in the data gaps.
+  4. ★ The differential view. State the consensus position in one sentence, then
+     state where and why you differ, or state plainly that you do not differ. If
+     you do not differ, say so — "I hold the consensus view with the consensus
+     confidence" is a legitimate and useful output, and pretending to a
+     contrarian angle is how an analyst manufactures one.
+  5. Which method in D-02's trail does the most work in the fair value, and how
+     sensitive is the conclusion to it? D-02 supplies the sensitivity band; state
+     what the band means for this decision in one sentence.
+
+You do not produce a fair value, a target, a stop, or a price. Those are D-02's
+and D-06's outputs. You are stating whether the story and the numbers describe
+the same company.
+
+Length cap: 450 words.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-10 `v1`.
+J10_V1_TEXT = """\
+For each forward-looking claim implied by the analysis so far — including the
+claims the price requires (J-09) — place it against a reference class.
+
+  1. Name the reference class: the set of companies or situations this one
+     resembles, in the terms the bundle supports.
+  2. State the base rate the bundle gives you for that class, or state that the
+     bundle does not contain one. ★ Do NOT supply a base rate from memory — an
+     invented base rate is worse than none, because it wears the clothing of
+     evidence.
+  3. State whether the claim asks this company to be typical of the class or
+     exceptional within it.
+  4. Where exceptional: what specifically, in the Stage-A evidence, justifies the
+     exception? "Strong management" is not a justification; a mechanism is.
+
+★ Most forecasts are built from the inside — from this company's story. This call
+asks the other question: of the companies that have looked like this, how many
+went on to do what this analysis assumes?
+
+Length cap: 300 words.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-11 `v1`.
+J11_V1_TEXT = """\
+You are a short-side analyst. Your job is to establish that this is a bad
+investment at this price, and you are paid on whether that turns out to be true —
+not on whether it is persuasive.
+
+You have the same bundle. You have NOT seen any bull case and must not construct
+one to argue against.
+
+  1. The single strongest reason this business is worse than its accounts
+     suggest. One reason, the strongest, with its evidence.
+  2. The three most load-bearing assumptions the current price requires (J-09
+     supplies what the price requires), and for each: what breaks it, and what
+     the observable early symptom of the break would be.
+  3. What the accounts would look like two years from now if the bear case is
+     correct — the specific lines, with direction and rough magnitude in the
+     terms the bundle supports.
+  4. ★ The falsification condition for YOUR OWN case: what observation over the
+     next four quarters would establish the bear case is wrong? A bear case that
+     nothing could disprove is a mood.
+  5. What you would need that the bundle does not contain, and what you would do
+     with it (S-4).
+
+Do not hedge, and do not write "of course, the bull case is…". You are not
+required to be balanced here; the balance is structural — this is one of several
+calls and the reader sees them side by side.
+
+Length cap: 500 words.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-12 `v1`.
+J12_V1_TEXT = """\
+It is three years from today. This investment lost roughly half its value. The
+loss is a fact; your task is to explain how it happened.
+
+Do not hedge, do not assign probabilities, and do not write "if". Write the
+history.
+
+  1. The four most plausible causal paths, each as a short narrative with dates
+     and the order events occurred in.
+  2. For each: the earliest observable symptom, and how many quarters it
+     preceded the damage.
+  3. ★ Which path, if any, was ALREADY visible in the present bundle and
+     dismissed? Name where in the evidence it was visible.
+  4. Rank the four by how early the symptom appears — not by likelihood. The
+     reader can only act on paths that announce themselves in time.
+
+Length cap: 500 words.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-13 `v1`.
+J13_V1_TEXT = """\
+You are a sceptical forensic analyst. You are NOT trying to establish that
+<METRIC> is good. You are enumerating every mechanism by which <METRIC> could
+look better than the underlying business, and stating what evidence would settle
+each one.
+
+For each mechanism below: present | absent | insufficient_evidence, with its
+bundle evidence and — for anything not `absent` — the specific item that would
+settle it.
+
+  1. Leverage or capital-structure effects flattering the ratio.
+  2. A shrinking denominator: buybacks, write-downs, impairments, or
+     distributions reducing the base rather than the numerator improving.
+  3. Non-recurring gains inside the numerator (E-04, E-07).
+  4. Asset sales or revaluations booked through earnings.
+  5. Reserve or provision releases (E-09).
+  6. Cash conversion: does the metric's improvement appear in operating cash
+     flow, and if not, where did it go?
+  7. Receivables: growing faster than revenue?
+  8. Inventory: growing faster than cost of sales?
+  9. Accounting-policy, estimate or presentation changes (E-09).
+ 10. Capitalisation of costs that were previously expensed (E-09).
+ 11. Cyclical position: is the metric near a cycle extreme rather than a
+     structural level? (J-07)
+ 12. Definitional: is the company's stated definition of <METRIC> the standard
+     one? Quote its definition.
+
+Then, in one sentence: what fraction of the metric's level do the mechanisms you
+found `present` plausibly account for — stated as a range, with the mechanisms
+named. If nothing is present, say so plainly; a clean answer here is a real
+finding and you must not manufacture a concern to appear rigorous.
+
+★ Do not speculate into fact. A mechanism you cannot evidence is
+`insufficient_evidence` with the settling item named — never "possible" or
+"cannot be ruled out", which are true of everything.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-14 `v1`.
+J14_V1_TEXT = """\
+You are given the analysis produced so far. Re-read the bundle looking ONLY for
+material that contradicts it. You are not weighing, not balancing, and not
+concluding.
+
+  1. Every item in the bundle inconsistent with a stated claim: the item, the
+     claim, and the nature of the conflict.
+  2. Every item that was available and is not cited anywhere in the analysis,
+     where its content bears on a stated claim. ★ Silent omission is the
+     footprint of confirmation bias, and it is invisible in the output that
+     contains it.
+  3. Anywhere the analysis cites part of a passage while the rest of that same
+     passage qualifies or contradicts it. Quote both parts.
+  4. Anywhere a claim rests on a single item that no other item corroborates.
+
+Return findings only. If there are none, say so — but check item 2 twice before
+you do, because it is the one that is hardest to see from inside the analysis
+that omitted it.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-15 `v1`.
+J15_V1_TEXT = """\
+Before any verdict exists, state what would prove the emerging thesis wrong.
+
+Write two to four conditions. Each must be ALL of:
+
+  observable   from data this system already receives — a filing line item, a
+               computed metric, a disclosed figure. Not "sentiment worsens".
+  dated        with a deadline or an evaluation window. Not "eventually".
+  checkable    without a further judgement call. ★ The test: could a script
+               decide it? "Competition intensifies" fails. "Gross margin below
+               55% in two consecutive quarters" passes.
+  material     if it fired, the thesis would be wrong — not merely dented. State
+               in one line what it would mean.
+
+For each, name the specific metric or field the check reads, choosing from the
+supplied list of available observables. A falsifier naming a field this system
+does not receive is not checkable, however precise it sounds.
+
+★ At least one condition must be about the BUSINESS rather than the price. A
+falsifier set that consists only of price levels is a stop-loss wearing a
+thesis's clothing, and it will fire on volatility rather than on being wrong.
+
+You may not write "the thesis is invalidated if the investment case no longer
+holds" or any variant. That is a tautology and it fails the run.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-16 `v1`.
+J16_V1_TEXT = """\
+You have: the Stage-A scorecard and its evidence, the reconciliation (J-09), the
+base-rate check (J-10), the bear case (J-11), the pre-mortem (J-12), the
+forgery hunt (J-13), the disconfirming sweep (J-14), and the falsifiers you have
+already committed to (J-15).
+
+Select one verdict:
+  BUY                 the evidence supports acquiring or adding at this price
+  HOLD                the evidence supports neither acquiring nor exiting
+  SELL                the evidence supports exiting
+  INSUFFICIENT_DATA   the evidence does not support a directional view
+
+And one conviction: Low | Medium | Medium-High | High.
+
+Then, and this is the substance of the call:
+  1. The three considerations that most determined the verdict, ranked, each
+     naming the call it came from.
+  2. ★ The strongest consideration pointing the OTHER way, and why it did not
+     govern. If nothing points the other way, the analysis is incomplete —
+     return INSUFFICIENT_DATA and say so.
+  3. What would move this verdict one step more conservative, and by when.
+  4. Your conviction is a claim about EVIDENCE, not about feeling. State it as:
+     "of the evidence a verdict like this needs, the bundle supplied <what>, and
+     did not supply <what>."
+
+You are not sizing a position, setting a stop, setting a target, or naming an
+entry price. Those belong to other domains and a number from you here would be
+an LLM-authored price wearing an analyst's authority.
+
+Length cap: 350 words.
+"""
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-17 `v1`.
+J17_V1_TEXT = """\
+List everything you wanted and did not have. For each:
+
+  gap          the specific item
+  why_wanted   the judgement it would have informed
+  impact       which scorecard dimension or conclusion is weaker without it
+  obtainable   is this something that exists and was not fetched, something the
+               company does not disclose, or something nobody knows?
+  would_change what your conclusion becomes if the item existed and said X, and
+               what if it said Y
+
+★ `obtainable` sorts the list into three different actions: fetch it, accept it,
+or stop pretending it is knowable. Collapsing them produces a gap list nobody
+can act on, which is how the block becomes decorative.
+
+This list may not be empty. A bundle that answered every question you had means
+you did not ask enough of them.
+"""
+
+#: `J-09` item 2's closed set — a FIELD enum on each requirement (`MP-5`).
+J09_VERSUS_OPTIONS = ("required_less_than_evidenced", "roughly_consistent",
+                      "required_more_than_evidenced", "insufficient_evidence")
+#: `J-10` item 3 — typical of the class, or exceptional within it.
+J10_TYPICALITY = ("typical", "exceptional")
+#: `J-13` — one status per mechanism.
+J13_STATUS = ("present", "absent", "insufficient_evidence")
+#: `J-13`'s standing metric set, one call each (the doc's binding note). ⚠ `book_value`
+#: is *(financials)* only, so a non-financial runs the first five.
+J13_METRICS = ("return_on_equity", "operating_margin", "free_cash_flow", "revenue_growth",
+               "non_gaap_eps", "book_value")
+J13_FINANCIALS_ONLY = ("book_value",)
+#: `J-13`'s placeholder, bound per call. ★ The DECLARED text keeps it, so the hash and
+#: the drift guard see one text; the bound metric is recorded with each call.
+METRIC_PLACEHOLDER = "<METRIC>"
+#: `J-16`'s closed sets — the SAME tuples `Thesis` validates (`thesis/models.py`).
+J16_VERDICTS = ("BUY", "HOLD", "SELL", "INSUFFICIENT_DATA")
+J16_CONVICTIONS = ("Low", "Medium", "Medium-High", "High")
+#: `J-17`'s `obtainable` — the three actions the prompt names, as a declared enum.
+J17_OBTAINABLE = ("exists_not_fetched", "not_disclosed", "unknowable")
+
+
+def _full_view(name: str, text: str) -> PromptBlock:
+    """Stages B–D — `view="full"` without exception (`STAGE_VIEW`, `MP-3`)."""
+    return block(name, "v1", "judgement", text, view="full")
+
+def j09_v1() -> PromptBlock:
+    """`J-09` — full view."""
+    return _full_view("J-09", J09_V1_TEXT)
+
+def j10_v1() -> PromptBlock:
+    """`J-10` — full view."""
+    return _full_view("J-10", J10_V1_TEXT)
+
+def j11_v1() -> PromptBlock:
+    """`J-11` — full view."""
+    return _full_view("J-11", J11_V1_TEXT)
+
+def j12_v1() -> PromptBlock:
+    """`J-12` — full view."""
+    return _full_view("J-12", J12_V1_TEXT)
+
+def j13_v1() -> PromptBlock:
+    """`J-13` — full view."""
+    return _full_view("J-13", J13_V1_TEXT)
+
+def j14_v1() -> PromptBlock:
+    """`J-14` — full view."""
+    return _full_view("J-14", J14_V1_TEXT)
+
+def j15_v1() -> PromptBlock:
+    """`J-15` — full view."""
+    return _full_view("J-15", J15_V1_TEXT)
+
+def j16_v1() -> PromptBlock:
+    """`J-16` — full view."""
+    return _full_view("J-16", J16_V1_TEXT)
+
+def j17_v1() -> PromptBlock:
+    """`J-17` — full view."""
+    return _full_view("J-17", J17_V1_TEXT)
+
+
 #: The version this repo currently ships. ★ One name to change at the next bump.
 E01_CURRENT_VERSION = "v4"
 
@@ -1071,7 +1382,16 @@ BLOCKS = {
     "J-06": (j06_v1, (), "v1"),
     "J-07": (j07_v1, J07_OPTIONS, "v1"),
     "J-08": (j08_v1, (), "v1"),
-    # ★★ `F10` `D5` — declared 2026-09-13. ⚠ Not in `STAGE_A_ORDER` yet: adding it
-    #   changes what `--stage-a` sends and costs; run it with `--block J-20`.
+    # ★★ `F10` `D5` — declared 2026-09-13; in `STAGE_A_ORDER` since 2026-09-14.
     "J-20": (j20_v1, (), "v1"),
+    # ★★ Stages B–D — declared 2026-09-14, full view; run by `tools/run_thesis_once.py`.
+    "J-09": (j09_v1, (), "v1"),
+    "J-10": (j10_v1, (), "v1"),
+    "J-11": (j11_v1, (), "v1"),
+    "J-12": (j12_v1, (), "v1"),
+    "J-13": (j13_v1, (), "v1"),
+    "J-14": (j14_v1, (), "v1"),
+    "J-15": (j15_v1, (), "v1"),
+    "J-16": (j16_v1, (), "v1"),
+    "J-17": (j17_v1, (), "v1"),
 }

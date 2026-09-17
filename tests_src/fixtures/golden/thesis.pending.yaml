@@ -171,3 +171,79 @@
 # ✅ RE-ESTABLISHED 2026-09-13: the parked J-07 case was moved back into
 #   thesis.yaml by Victor Truong's decision, value `late` unchanged. Nothing is
 #   pending in this file.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳⏳ DRAFTED 2026-09-15 — J-20 and J-09, UNSIGNED. Every `____` is yours (D2).
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# ⚠ Anchoring, stated honestly: both model answers were already reported to you in
+#   conversation (J-20 cycle_average_fcff FY2016–FY2024; J-09 widest gap
+#   "unexplained"). A value you hold because the model said it is circular (D2) —
+#   decide from the evidence below first, and write your OWN reason in `source`.
+#
+# ⚠ BEFORE MOVING either case into thesis.yaml, its recording must be promoted:
+#     python3 tools/promote_recording.py run-2026-09-14T122547-mu-j20
+#     python3 tools/promote_recording.py run-2026-09-15T022801-mu-thesis
+#   (both runs are in `.state/runs/` today, which the golden replay does not read).
+#   ⚠ The thesis run's J-09 call has step_id `judge:B:J-09` — confirm the promoter
+#   carries a colon-bearing step id before relying on it.
+
+cases:
+
+# ── DRAFT C · J-20 · normalised earnings — which METHOD ─────────────────────
+#
+#   The question (J-20, verbatim): "Choose the level of free cash flow a valuation
+#   of this business should capitalise, and defend the choice." Pick ONE method:
+#     reported_ttm · cycle_average_fcff · cycle_average_fcff_margin · insufficient_evidence
+#   ★ Assert the METHOD only (recommended). The window is a second judgement; add
+#     `first_fiscal_year`/`last_fiscal_year` only if you hold a specific window.
+#
+#   STEP-BY-STEP (~20 min), as of 2025-06-26, from the bundle only:
+#     1. Read the ANNUAL HISTORY table (L3 §2.1g "Real MU annual D6 FCFF"): FY2016
+#        −2,403 · FY2017 3,792 · FY2018 8,661 · FY2019 3,281 · FY2020 −69 · FY2021 2,231
+#        · FY2022 2,771 · FY2023 −6,325 · FY2024 −354 ($M). FY2025 is not complete.
+#     2. Ask: does the trailing year ($1,349M) describe a normal year for this business?
+#        If the business is cyclical (you established `cyclical_commodity`, case 29),
+#        a level spanning a trough and a peak is the textbook answer; `reported_ttm`
+#        says the current year is representative.
+#     3. Margin vs level: `cycle_average_fcff_margin` assumes MARGINS revert and the
+#        revenue base has grown (FY2016 $12.4B → FY2024 $25.1B); `cycle_average_fcff`
+#        assumes LEVELS revert. Which do you hold for a memory maker?
+- case_id: mu-fy2025q3-j20-normalised-earnings-method
+  input_ref: "run-2026-09-14T122547-mu-j20/judge:J-20:llm:1"
+  expected:
+    method: "____"
+  source: >-
+    ____ (Victor's reason, as of 2025-06-26, from the bundle only)
+  established_at: "____"
+  established_by: "____"
+
+# ── DRAFT D · J-09 · is the price's requirement EXPLAINED by Stage A? ───────
+#
+#   The question (J-09 item 3, verbatim): "Where the gap is widest, is it explained
+#   by something you found in Stage A, or is it unexplained?" Pick ONE:
+#     explained_by_stage_a · unexplained
+#   ★ The facts (all in the Stage-B bundle): price $126.00 raw (2025-06-26);
+#     fv_model $15.96; every one of 12 band cells $10.76–$22.50; the price requires
+#     stage-1 FCFF growth of 28.3 % a year for 10 years (D-02 `implied`). Stage A
+#     found: cyclical_commodity (J-01), cycle position `mid` (J-07 — ⚠ you hold
+#     `late`), supply read `insufficient_evidence` (J-08), balance sheet level 3,
+#     capital allocation level 4.
+#
+#   STEP-BY-STEP (~15 min):
+#     1. Does anything in Stage A's findings support ten years of ~28 % FCFF growth?
+#        (HBM / data-centre mix shift is in the 10-Q — is it evidence of a DECADE?)
+#     2. ⚠ DX-116: the FCFF base itself is contested (government incentives not
+#        credited; finance-lease equipment not charged — roughly offsetting for MU).
+#        Your answer should not hinge on it; if it does, say so in `source`.
+#     3. `explained_by_stage_a` means Stage A contains a reason the market could hold;
+#        `unexplained` means it does not — J-09 routes that to the data gaps.
+- case_id: mu-fy2025q3-j09-widest-gap-explained
+  input_ref: "run-2026-09-15T022801-mu-thesis/judge:B:J-09:llm:1"
+  expected:
+    widest_gap:
+      explained: "____"
+  source: >-
+    ____ (Victor's reason, as of 2025-06-26, from the Stage-B bundle only)
+  established_at: "____"
+  established_by: "____"

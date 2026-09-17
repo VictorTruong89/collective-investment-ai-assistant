@@ -202,6 +202,42 @@ def extractions(verified_pass, *, prompt_versions: dict, run_id: str) -> tuple[B
     return tuple(parts)
 
 
+def stage_output(*, stage: str, block_id: str, prompt_version: str, run_id: str,
+                 commit_hash: str, answer: dict) -> BundlePart:
+    """★★ A committed stage output, as evidence a later stage reads (`RA-108`).
+
+    ⚠ The content is the answer AS COMMITTED — rendered, never summarised, because a
+    summary would be this layer choosing what the next stage sees (`RA-19`). The
+    header says it may not be revised: `J-09`'s *"your own Stage-A conclusions, which
+    are FIXED"* is otherwise a request with nothing marking what is fixed.
+    """
+    header = (f"FROZEN STAGE {stage} OUTPUT — {block_id} {prompt_version} · run {run_id} · "
+              f"commit {commit_hash}\nCommitted before this call. It is evidence you may not "
+              f"revise; if you would revise it, state that as a finding.")
+    body = json.dumps(answer, indent=1, sort_keys=True, ensure_ascii=False, default=str)
+    return BundlePart("stage_output",
+                      {"stage": stage, "block_id": block_id, "prompt_version": prompt_version,
+                       "run_id": run_id, "commit_hash": commit_hash},
+                      f"{header}\n{body}")
+
+
+def declared_absences(name: str, absences: dict[str, str], *, version: int = 1) -> BundlePart:
+    """★ `DX-109` ⓐ — inputs a block asks for that this bundle does NOT carry, named.
+
+    ⚠ An absent input with no mention reads, to the model, as an input it overlooked
+    or one that does not matter; named, it is a data gap the block can route
+    (`J-09` item 3, `J-17`). ★ `computed` kind: the names concern price-stage inputs.
+    """
+    if not absences:
+        raise BundleInconsistentError(f"{name}: a declared-absence part with nothing absent")
+    lines = [f"DECLARED ABSENT INPUTS — {name}",
+             "The inputs below are NOT in this bundle. Do not supply them from memory; "
+             "treat any question that needs one as a data gap."]
+    lines += [f"- {item}: {why}" for item, why in sorted(absences.items())]
+    return BundlePart("computed", {"contract_name": f"absent.{name}",
+                                   "contract_version": int(version)}, "\n".join(lines))
+
+
 def valuation_part(ticker: str, as_of: date, *, engine, assumptions) -> BundlePart:
     """★★ `F10` `CT-F10.4` / `T4` — D-02's `fv_model` trail as a Stage-B bundle part.
 

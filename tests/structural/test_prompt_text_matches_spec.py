@@ -232,6 +232,15 @@ _BLOCK_HEADINGS = {
     "J-07": "### J-07 · Cycle position — `{v}` — mandatory for `cyclical_commodity`",
     "J-08": "### J-08 · Industry structure and supply — `{v}`",
     "J-20": "### J-20 · Normalised earnings — `{v}` — Stage A, blind, feeds D-02",
+    "J-09": "### J-09 · Expectations reconciliation — `{v}`",
+    "J-10": "### J-10 · Base-rate check — `{v}`",
+    "J-11": "### J-11 · Bear case — `{v}`",
+    "J-12": "### J-12 · Pre-mortem — `{v}`",
+    "J-13": "### J-13 · Metric-forgery hunt — `{v}` — ★ parameterised over any headline metric",
+    "J-14": "### J-14 · Disconfirming-evidence sweep — `{v}`",
+    "J-15": "### J-15 · Falsifier authoring — `{v}` — ★ runs BEFORE the verdict",
+    "J-16": "### J-16 · Verdict selection — `{v}`",
+    "J-17": "### J-17 · Data-gap census — `{v}`",
 }
 
 

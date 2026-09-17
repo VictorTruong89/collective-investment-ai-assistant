@@ -27,7 +27,6 @@ from __future__ import annotations
 
 from src.fundamental.prompts.registry import content_hash
 
-
 #: §3.0 — the extraction preamble, composed before `S-1`…`S-6`.
 EXTRACTION_PREAMBLE = """\
 TASK TYPE: EXTRACTION.

@@ -1,0 +1,13 @@
+{
+ "title": "Samsung Electronics Earnings Presentation: 1Q 2025 Financial Results",
+ "url": "https://images.samsung.com/is/content/samsung/assets/global/ir/docs/2025_1Q_conference_eng.pdf",
+ "published_date": "2025-04-30",
+ "published_date_source": "the 1Q 2025 earnings conference date; \u26a0 the deck itself carries no date line",
+ "subject": "Samsung Electronics Co., Ltd.",
+ "converter": "pdftotext -layout",
+ "source_id": "samsung-ir",
+ "retrieved_at": "2026-09-15",
+ "chars": 23703,
+ "sha256": "sha256:ceb0751e9bceeff649aaadbc7361170903ab2f6ef02d360d251e7d39b2cecc0a",
+ "removed": []
+}

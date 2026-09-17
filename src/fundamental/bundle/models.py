@@ -70,6 +70,11 @@ PIN_FIELDS: dict[str, tuple[str, ...]] = {
     #: cannot express. ⚠ Added before any baseline existed for this kind.
     "extraction": ("block_id", "prompt_version", "source_bundle_hash", "run_id",
                    "evidence_ids", "searched_ids"),
+    #: ★★ A COMMITTED stage output a later stage reads and may not revise (`RA-108`,
+    #: `S-9`'s relationship; L3 §2.1g step 4, 2026-09-14). Pinned by the commit's own
+    #: content hash, so a later call's `bundle_hash` proves WHICH commitment it read.
+    #: ⚠ Withheld from every blind view (below): Stage B–D outputs carry the price.
+    "stage_output": ("stage", "block_id", "prompt_version", "run_id", "commit_hash"),
 }
 
 #: Parts a BLIND view withholds (RA-14). ★ The qualitative passes run with price,
@@ -80,7 +85,11 @@ PIN_FIELDS: dict[str, tuple[str, ...]] = {
 #: values — `f_gross_margin` tells the model what is checkable, never what it
 #: is worth. Withholding it made J-15 unable to obey its own instruction, and
 #: RA-14 withholds **anchors, not vocabulary**.
-BLIND_WITHHELD_KINDS = ("computed",)
+#:
+#: ✏ 2026-09-14 — `stage_output` joins: a Stage B–D commitment has READ the price, so
+#: it is an anchor by construction. ★ No blind call reads any stage output, so this
+#: withholds nothing any existing bundle carries (every recorded hash is unchanged).
+BLIND_WITHHELD_KINDS = ("computed", "stage_output")
 
 
 def _assert_extraction_ids_match_content(pins: dict, content: str) -> None:

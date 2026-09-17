@@ -93,7 +93,7 @@ def assert_extraction_block(block: PromptBlock) -> PromptBlock:
 
 
 def run_extraction(seam, *, block_ids, bundle, run_id: str,
-                   parse) -> ExtractionPass:
+                   parse, subject: str | None = None) -> ExtractionPass:
     """Run the E-blocks over one bundle, then verify — steps 2 and 3.
 
     `parse` maps a raw response to `list[ExtractedItem]`; it is injected because
@@ -121,7 +121,9 @@ def run_extraction(seam, *, block_ids, bundle, run_id: str,
     # ⛔ `DX-97` — X-01 proves the words are in the filing, not that they answer
     #   the item. An item about ANOTHER company naming the registrant aborts too.
     from src.fundamental.filings.subject import assert_subject_is_not_registrant
-    assert_subject_is_not_registrant(results, bundle)
+    #   ✏ `DX-119` — over an INDUSTRY bundle there is no cover page, so the caller
+    #     declares the company being analysed.
+    assert_subject_is_not_registrant(results, bundle, subject=subject)
     return ExtractionPass(results=tuple(results), report=report)
 
 

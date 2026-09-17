@@ -1,0 +1,15 @@
+{
+ "title": "SK hynix Announces 1Q25 Financial Results",
+ "url": "https://news.skhynix.com/sk-hynix-announces-1q25-financial-results/",
+ "published_date": "2025-04-24",
+ "published_date_source": "the release's own dateline (\"April 24, 2025\")",
+ "subject": "SK hynix Inc.",
+ "converter": "tools/convert_filing.py",
+ "source_id": "skhynix-ir",
+ "retrieved_at": "2026-09-15",
+ "chars": 6253,
+ "sha256": "sha256:3c55cb1c62df3362739c2ca2376fce4a0616b7f4d3108edf3a7d90d07f402d09",
+ "removed": [
+  "AI Summary block (the site's own generated text, not the company's)"
+ ]
+}

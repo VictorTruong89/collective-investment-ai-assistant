@@ -270,8 +270,8 @@ def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
     `net debt = debt + finance leases not inside a debt tag − cash − marketable securities`.
     ★ Securities and finance leases are counted WHEN REPORTED; an unreported one is
     named by `known_omissions`, never counted as zero (`AC-F10.20`, `FE-14`).
-    ⚠ Operating leases are not counted: `D6`'s operating cash flow already pays them,
-    so the liability would count them twice (`D8`'s hold).
+    ★ Operating leases are not counted, by design (`D8`, `DX-106`): `D6`'s operating
+    cash flow already pays them, so the liability would count them twice.
     """
     q = trailing_quarters(rows, as_of=as_of, ticker=ticker)
     latest = q.iloc[-1]
@@ -305,6 +305,22 @@ def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
     return net_debt, components, shares
 
 
+#: ★ `D9` / `AC-F10.21` (`DX-116`) — figures `D6` CANNOT compute from D-07's facts, declared on
+#: every result (`PG-10`). ⚠ A limit belongs here only when it is REAL and UNCOMPUTABLE:
+#: ✗ lease-funded equipment is NOT here — `D8` already counts finance leases as debt, so charging
+#:   the additions to capex too would count the same equipment twice (measured on MU: $3,107M of
+#:   finance leases in net debt against $1,394M of trailing ROU additions).
+#: ⚠ Government-incentive proceeds ARE here: no tagged fact exists anywhere in `companyfacts`
+#:   (`GovernmentAssistance*` carries balances, not the cash line), so a trailing figure cannot be
+#:   computed at all. Measured on MU: $1,294M over 9M FY2025 against a $1,349M trailing base —
+#:   material enough that valuing silently would misstate the flow.
+KNOWN_LIMITS: tuple[str, ...] = (
+    "capex is charged GROSS: government-incentive proceeds are not credited against it, because no "
+    "EDGAR fact carries them (the figure appears only in filing prose) — D6 cannot compute it "
+    "(F10 D9, DX-116)",
+)
+
+
 def known_omissions(components) -> tuple[str, ...]:
     """`CT-F10.2` — what net debt does NOT count, derived from the components USED.
 
@@ -318,5 +334,13 @@ def known_omissions(components) -> tuple[str, ...]:
     if any(by_item.get(debt) not in LEASE_INCLUSIVE_TAGS and lease not in by_item
            for debt, lease in LEASE_SIDE.items()):
         omitted.append("finance_leases")
-    omitted.append("operating_leases")             # ⚠ `D8`'s hold
     return tuple(omitted)
+
+
+#: `CT-F10.2` — what net debt leaves out ON PURPOSE, with the reason (`D8`, `DX-106`).
+#: ★ Kept apart from `known_omissions`: a choice and a gap are different facts, and
+#: one list for both would let a reader mistake either for the other (`PG-10`).
+EXCLUDED_BY_DESIGN = {
+    "operating_leases": ("paid inside operating cash flow, which the D6 cash-flow basis already "
+                         "subtracts — counting the liability too would count the lease twice"),
+}

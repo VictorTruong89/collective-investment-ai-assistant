@@ -52,7 +52,7 @@ def test_dx_103_real_balance_matches_the_10q(quarters):
     assert by["current_debt"] == (538, "DebtCurrent")                             # line 344
     assert shares == 1_125_000_000                                                 # line 1090
     assert net_debt.amount_minor // 100_000_000 == 15_003 + 538 - 10_163 - 648 - 1_402
-    assert known_omissions(comps) == ("operating_leases",)
+    assert known_omissions(comps) == ()
 
 
 def test_ac_f10_20_real_net_debt_matches_the_10q(quarters):

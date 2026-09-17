@@ -38,14 +38,42 @@ class NoNormalisedBasis(Exception):
     choice the history cannot support. ⚠ Never a default basis (`P5`)."""
 
 
+def assert_exclusions_quoted(choice: dict, bundle) -> None:
+    """`L3` `DX-108`(1) — every exclusion's quote must be IN the bundle the block read.
+
+    ★ `X-01`'s comparison rule, applied to a quote with no offsets: whitespace and
+    typography are transport artifacts, nothing else is normalised. ⚠ Found on the
+    first live `J-20` (2026-09-14): three quotes were verbatim, but only a HAND check
+    said so — and an exclusion travels into the frozen Stage-A commit as evidence.
+    """
+    from src.fundamental.claims.verify import _collapse_whitespace, _normalise_typography
+
+    def norm(text: str) -> str:
+        return _collapse_whitespace(_normalise_typography(text))
+
+    corpus = norm("\n".join(p.content for p in bundle.parts))
+    for n, exclusion in enumerate(choice.get("exclusions") or (), start=1):
+        quote = norm(str(exclusion.get("quote", "")))
+        if not quote or quote not in corpus:
+            raise NoNormalisedBasis(
+                f"exclusion {n} ({str(exclusion.get('item', ''))[:60]!r}) quotes text that is "
+                f"not in the bundle: {quote[:80]!r} — an unverifiable quote is not evidence "
+                f"(X-01, S-3)")
+
+
 def normalise(choice: dict, *, quarterly_rows, annual_rows, ticker: str, as_of: date,
-              provenance: dict) -> CashFlowBasis:
-    """Validate `J-20`'s choice and have D-02 compute it."""
+              provenance: dict, bundle) -> CashFlowBasis:
+    """Validate `J-20`'s choice and have D-02 compute it.
+
+    ★ `bundle` is REQUIRED: the exclusions' quotes are verified against it before any
+    basis exists (`assert_exclusions_quoted`).
+    """
     method = choice.get("method")
     if method not in METHODS:
         raise NoNormalisedBasis(f"method {method!r} is not one of {METHODS} (MP-5)")
     if method == "insufficient_evidence":
         raise NoNormalisedBasis("J-20 answered insufficient_evidence — no normalised basis")
+    assert_exclusions_quoted(choice, bundle)
 
     prov = {**provenance, "block": BLOCK, "method": method, "computed_by": COMPUTED_BY,
             "exclusions": [dict(e) for e in (choice.get("exclusions") or [])],

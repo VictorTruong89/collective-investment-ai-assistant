@@ -349,3 +349,49 @@ def test_dx_96_summarized_thinking_is_REQUESTED_only_when_asked_and_KEPT_on_trun
         assert sent["thinking"] == {"type": "adaptive"}, "the default must not change"
     finally:
         mod.anthropic = real
+
+
+# ── `DX-127` · prompt caching — the breakpoint is on the STABLE block ───────
+
+def test_dx_127_a_cache_prefix_is_sent_as_its_own_block_with_the_breakpoint():
+    """★★ Caching only happens if `cache_control` marks the prefix; without it the two-block
+    message is merely two blocks, and every call pays full price while everything looks fine.
+    ⚠ Measured value at stake: a Micron thesis is $17.57 uncached, $11.38 cached."""
+    from tools.anthropic_transport import anthropic_transport
+    captured = {}
+
+    class _Stub:
+        def __enter__(self):
+            return self
+        def __exit__(self, *a):
+            return False
+        def __iter__(self):
+            return iter(())
+        def get_final_message(self):
+            return _tool_use_message([])
+
+    class _Msgs:
+        def stream(self, **kw):
+            captured.update(kw)
+            return _Stub()
+
+    class _Client:
+        messages = _Msgs()
+
+    import tools.anthropic_transport as mod
+    real = mod.anthropic
+    mod.anthropic = SimpleNamespace(Anthropic=lambda **kw: _Client())
+    try:
+        send = anthropic_transport(tool=None)
+        send({"model": "claude-opus-5", "max_tokens": 1_000,
+              "payload": "the question", "cache_prefix": "the evidence"})
+        blocks = captured["messages"][0]["content"]
+        assert [b["text"] for b in blocks] == ["the evidence", "the question"]
+        assert blocks[0]["cache_control"] == {"type": "ephemeral"}
+        assert "cache_control" not in blocks[1], "the variable half must not be a breakpoint"
+
+        # ⚠ Without a prefix the message stays ONE string — every pre-DX-127 call's shape.
+        send({"model": "claude-opus-5", "max_tokens": 1_000, "payload": "just this"})
+        assert captured["messages"][0]["content"] == "just this"
+    finally:
+        mod.anthropic = real

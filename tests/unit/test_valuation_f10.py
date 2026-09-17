@@ -627,11 +627,11 @@ def test_dx_103_a_filer_on_the_2023_taxonomy_is_valued_via_fallback_tags(assumpt
     assert tags == {"cash": "CashAndCashEquivalentsAtCarryingValue",
                     "long_term_debt": "LongTermDebtAndCapitalLeaseObligations",
                     "current_debt": "DebtCurrent"}
-    assert obj["net_debt"]["known_omissions"] == ["marketable_securities", "operating_leases"]
+    assert obj["net_debt"]["known_omissions"] == ["marketable_securities"]
     same = json.loads(_value(FakeEngine(rows()), assumptions).to_json())
     assert same["value_per_share"] == obj["value_per_share"], "same numbers, different tags"
     assert same["net_debt"]["known_omissions"] == [
-        "marketable_securities", "finance_leases", "operating_leases"]
+        "marketable_securities", "finance_leases"]
 
 
 def test_dx_103_CANONICAL_carries_the_fallbacks_AFTER_the_old_tags_and_the_contract_moved():
@@ -668,7 +668,7 @@ def test_ac_f10_20_net_debt_counts_securities_and_finance_leases(assumptions):
         "marketable_securities_noncurrent": TAGS["marketable_securities_noncurrent"],
         "finance_lease_current": TAGS["finance_lease_current"],
         "finance_lease_noncurrent": TAGS["finance_lease_noncurrent"]}
-    assert known_omissions(comps) == ("operating_leases",)
+    assert known_omissions(comps) == ()
     out = json.loads(_value(FakeEngine(frame), assumptions).to_json())
     assert out["net_debt"]["value"] == usd(3000).to_json_obj()
 
@@ -686,13 +686,13 @@ def test_ac_f10_20_a_lease_inclusive_debt_tag_is_not_counted_twice():
     assert net_debt == usd(8000 + 1000 + 700 - 5000)
     items = {c["item"] for c in comps}
     assert "finance_lease_current" not in items and "finance_lease_noncurrent" in items
-    assert known_omissions(comps) == ("marketable_securities", "operating_leases")
+    assert known_omissions(comps) == ("marketable_securities",)
 
 
 @pytest.mark.parametrize(("extra", "omitted"), [
-    ({}, ("marketable_securities", "finance_leases", "operating_leases")),
-    ({"marketable_securities_noncurrent": 50}, ("finance_leases", "operating_leases")),
-    ({"finance_lease_current": 10}, ("marketable_securities", "finance_leases", "operating_leases")),
+    ({}, ("marketable_securities", "finance_leases")),
+    ({"marketable_securities_noncurrent": 50}, ("finance_leases",)),
+    ({"finance_lease_current": 10}, ("marketable_securities", "finance_leases")),
 ])
 def test_ac_f10_20_an_unreported_item_is_declared_never_zero(extra, omitted):
     """AC-F10.20 / `FE-14` — absent is named, not counted as 0; a lease on ONE
@@ -771,3 +771,35 @@ def test_ac_f10_18_trailing_total_sums_the_same_four_quarters():
     assert trailing_total(rows(), "capex", as_of=AS_OF, ticker="XYZ") == usd(8000)
     used = {str(i["period_end"]) for i in basis.inputs if i["item"] == "capex"}
     assert used == {str(e) for _, e, _ in QUARTERS}
+
+
+def test_ac_f10_20_operating_leases_are_excluded_by_design_not_omitted(assumptions):
+    """AC-F10.20 ✏ `DX-106` (Victor, 2026-09-14, ⓐ): `D6`'s operating cash flow already
+    pays operating leases, so net debt leaves them out ON PURPOSE — declared with its
+    reason, never listed as a gap, and no operating-lease amount moves net debt."""
+    frame = _stock(marketable_securities_current=600, finance_lease_current=300,
+                   finance_lease_noncurrent=700)
+    frame["OperatingLeaseLiabilityNoncurrent_minor"] = 999_999 * 100
+    frame["OperatingLeaseLiabilityNoncurrent_currency"] = USD
+    obj = json.loads(_value(FakeEngine(frame), assumptions).to_json())
+    assert "operating_leases" not in obj["net_debt"]["known_omissions"]
+    assert "twice" in obj["net_debt"]["excluded_by_design"]["operating_leases"]
+    assert obj["net_debt"]["value"] == usd(8000 + 1000 + 300 + 700 - 5000 - 600).to_json_obj()
+
+
+def test_ac_f10_21_the_result_declares_what_it_cannot_compute(assumptions):
+    """AC-F10.21 / `D9` (`DX-116`) — ★ the analysis found two capex questions; one is a real
+    UNCOMPUTABLE limit and is declared, the other was already coherent and must NOT be listed.
+
+    ⚠ `J-11` argued lease-funded equipment flatters FCFF. `D8` counts finance leases as DEBT
+    ($3,107M on MU), so charging the additions to capex too would count them twice — `J-14`
+    reached the same conclusion. A "limit" that is not one trains the reader to skip the list.
+    """
+    from src.feature_engineer.valuation.basis import KNOWN_LIMITS
+
+    obj = json.loads(_value(FakeEngine(rows()), assumptions).to_json())
+    assert obj["known_limits"] == list(KNOWN_LIMITS)
+    (incentives,) = [limit for limit in obj["known_limits"] if "incentive" in limit]
+    assert "no EDGAR fact carries them" in incentives and "DX-116" in incentives
+    assert not any("lease" in limit for limit in obj["known_limits"]), (
+        "finance leases are counted in net debt (D8); listing them as a limit would be false")

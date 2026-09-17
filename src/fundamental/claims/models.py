@@ -65,8 +65,12 @@ class EvidenceSpan:
         """
         from src.fundamental.errors import SpanUnresolvableError
 
-        for part in bundle.of_kind("filing"):
-            if part.pins.get("accession_id") == self.accession_id:
+        for part in (*bundle.of_kind("filing"), *bundle.of_kind("sector_file")):
+            # ✏ `DX-121` (2026-09-15): a `sector_file` part is citable too. Its documents
+            #   are the industry evidence `E-13` reads, and a quote from one must be
+            #   checkable exactly as a filing quote is. ★ The id is DERIVED from the pins
+            #   (`sector:<industry>:v<file_version>`), so no pin contract changes.
+            if self.accession_id in (part.pins.get("accession_id"), sector_citation(part.pins)):
                 if self.end > len(part.content):
                     raise SpanUnresolvableError(
                         f"span [{self.start}, {self.end}] runs past the end of "
@@ -80,6 +84,13 @@ class EvidenceSpan:
 
     def to_json_obj(self) -> dict:
         return {"accession_id": self.accession_id, "offset": [self.start, self.end]}
+
+
+def sector_citation(pins: dict) -> str:
+    """`DX-121` — what a quote from a `sector_file` part cites, derived from its pins."""
+    if "industry" not in pins:
+        return ""
+    return f"sector:{pins['industry']}:v{pins.get('file_version')}"
 
 
 @dataclass(frozen=True, slots=True)

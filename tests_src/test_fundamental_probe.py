@@ -112,14 +112,17 @@ def test_ra15_the_bear_case_is_a_separate_call():
     assert [p for p, _ in fake.seen].count("J-11") == 1
 
 
-def test_ra14_the_blind_calls_never_see_the_computed_part():
-    """RA-14 / MP-3 — ★ price, market cap and valuation **withheld**, physically."""
+def test_ra14_stage_c_and_d_calls_read_the_full_bundle_per_stage_view():
+    """RA-14 / MP-3 — ✏ `DX-110` (2026-09-15). ⚠ This asserted J-11 and J-15 ran BLIND,
+    pinning the old path's contradiction of the master prompt and `author.STAGE_VIEW`
+    (Stages C and D are `view:full`). ★ The blind view is Stage A's, and the Stage-A
+    freeze is still made over `bundle.redact()` inside `run.author`."""
+    from src.fundamental.thesis.author import STAGE_C, STAGE_D, STAGE_VIEW
+
+    assert STAGE_VIEW[STAGE_C] == STAGE_VIEW[STAGE_D] == "full"
     _, fake, _ = probe(k=1)
-    blind = {kinds for prompt, kinds in fake.seen if prompt in ("J-11", "J-15")}
-    for kinds in blind:
-        assert "computed" not in kinds
-    full = [kinds for prompt, kinds in fake.seen if prompt == "J-16"][0]
-    assert "computed" in full, "J-16 is the reconciliation stage"
+    for prompt, kinds in fake.seen:
+        assert "computed" in kinds, f"{prompt} is Stage C/D and reads the full bundle"
 
 
 # --------------------------------------------------------------------------- #
@@ -245,7 +248,10 @@ def test_the_j_blocks_are_the_master_prompts_text_and_are_hashed():
     registry = production_registry()
     registry.check_all()
     assert {b.name for b in ALL_BLOCKS} == {"J-11", "J-15", "J-16"}
-    assert (J11.view, J15.view, J16.view) == ("blind", "blind", "full")
+    assert (J11.view, J15.view, J16.view) == ("full", "full", "full")      # ✏ DX-110
+    from src.fundamental.prompts.e_blocks import BLOCKS
+    for blk in (J11, J15, J16):                  # ★ one text per name and version
+        assert blk.text == BLOCKS[blk.name][0]().text
     object.__setattr__(J15, "text", J15.text + " edited")
     from src.fundamental import PromptDriftError
     with pytest.raises(PromptDriftError):

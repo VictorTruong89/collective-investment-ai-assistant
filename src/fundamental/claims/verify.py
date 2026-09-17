@@ -33,6 +33,10 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 
 from src.fundamental.claims.models import ASSUMPTION, FACT, INFERENCE, Claim, ClaimSet
+from src.fundamental.claims.classification import (
+    assert_declared_value,
+    is_classification,
+)
 from src.fundamental.errors import (
     SpanMismatchError,
     UncitedClaimError,
@@ -98,7 +102,13 @@ def x01_verify_extraction(bundle, items) -> VerificationReport:
             not_found += 1
             continue
         _assert_quote_matches_document(bundle, item)      # ① RA-131
-        _assert_value_in_quote(item)                      # ② RA-6, RA-132
+        # ✏ `DX-122` — ② asks the value to appear in its quote. For a CLASSIFICATION item
+        #   (`cx.status`) the value is a label the document does not carry, so ② is replaced
+        #   by its declared closed set. ⚠ ① is never relaxed.
+        if is_classification(item.evidence_id):
+            assert_declared_value(item.evidence_id, item.value)
+        else:
+            _assert_value_in_quote(item)                  # ② RA-6, RA-132
         checked += 1
     return VerificationReport(checked=checked, facts=checked, inferences=0,
                               assumptions=0, not_found=not_found)

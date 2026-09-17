@@ -23,9 +23,10 @@ from src.shared.money import Money
 JUDGEMENT_PROVENANCE = ("block", "prompt_version", "run_id", "stage_commit_hash",
                         "bundle_hash", "method", "window", "exclusions", "computed_by")
 
-#: `CT-F10.2` — the omissions net debt CAN carry (`Q2`, `PG-10`). ★ Which apply
-#: to a given result is derived from the tags it used (`basis.known_omissions`).
-NET_DEBT_KNOWN_OMISSIONS = ("marketable_securities", "finance_leases", "operating_leases")
+#: `CT-F10.2` — the omissions net debt CAN carry (`D8`, `PG-10`). ★ Which apply
+#: to a given result is derived from the components it used (`basis.known_omissions`).
+#: Operating leases are not here: they are excluded by design (`basis.EXCLUDED_BY_DESIGN`).
+NET_DEBT_KNOWN_OMISSIONS = ("marketable_securities", "finance_leases")
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,9 +126,20 @@ class Implied:
                 "residual": None if self.residual is None else self.residual.to_json_obj()}
 
 
+def _known_limits() -> tuple[str, ...]:
+    """`AC-F10.21` — what this valuation cannot compute, on the artifact (`PG-10`)."""
+    from src.feature_engineer.valuation.basis import KNOWN_LIMITS
+    return KNOWN_LIMITS
+
+
 def _omissions(components) -> tuple[str, ...]:
     from src.feature_engineer.valuation.basis import known_omissions
     return known_omissions(components)
+
+
+def _excluded_by_design() -> dict:
+    from src.feature_engineer.valuation.basis import EXCLUDED_BY_DESIGN
+    return dict(EXCLUDED_BY_DESIGN)
 
 
 def _common_json(v) -> dict:
@@ -142,7 +154,9 @@ def _common_json(v) -> dict:
         "enterprise_value": v.trail.enterprise_value.to_json_obj(),
         "net_debt": {"value": v.net_debt.to_json_obj(),
                      "components": [_input_json(c) for c in v.net_debt_components],
-                     "known_omissions": list(_omissions(v.net_debt_components))},
+                     "known_omissions": list(_omissions(v.net_debt_components)),
+                     "excluded_by_design": _excluded_by_design()},
+        "known_limits": list(_known_limits()),
         "equity_value": v.equity_value.to_json_obj(),
         "diluted_shares": v.diluted_shares,
         "value_per_share": v.value_per_share.to_json_obj(),

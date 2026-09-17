@@ -48,11 +48,20 @@ def _quarterly_with_revenue():
     return frame
 
 
+def _bundle(text="evidence"):
+    from src.fundamental.bundle.models import BundlePart, EvidenceBundle
+    return EvidenceBundle(ticker="XYZ", as_of=AS_OF,
+                          parts=(BundlePart("filing", {"accession_id": "acc"}, text),))
+
+
+_BUNDLE = _bundle()
+
+
 def _normalise(choice, annual=None):
     from src.fundamental.valuation.normalise import normalise
     return normalise(choice, quarterly_rows=_quarterly_with_revenue(),
                      annual_rows=history() if annual is None else annual,
-                     ticker="XYZ", as_of=AS_OF, provenance=PROV)
+                     ticker="XYZ", as_of=AS_OF, provenance=PROV, bundle=_BUNDLE)
 
 
 CYCLE = {"first_fiscal_year": 2019, "last_fiscal_year": 2024, "trough_year": 2020,
@@ -195,3 +204,24 @@ def test_ac_f10_19_a_year_filed_after_as_of_is_absent_and_a_mixed_currency_windo
         frame.loc[mask, col] = "CAD"
     with pytest.raises(WindowUnavailable, match="mixes currencies"):
         cycle_average_fcff(frame, 2019, 2021, ticker="XYZ", as_of=AS_OF)
+
+
+@pytest.mark.parametrize(("quote", "ok"), [
+    ("an impairment  of \u201cgoodwill\u201d", True),      # whitespace + typography only
+    ("an impairment of goodwill!", False),                 # a changed character
+    ("", False),                                           # no quote at all
+])
+def test_dx_108_an_exclusion_quote_must_be_in_the_bundle(quote, ok):
+    """`DX-108`(1) — X-01's comparison rule; ⚠ an unmatched quote refuses the BASIS."""
+    from src.fundamental.valuation.normalise import NoNormalisedBasis, normalise
+
+    choice = {**CYCLE, "method": "cycle_average_fcff",
+              "exclusions": [{"item": "impairment", "evidence_id": "e", "quote": quote}]}
+    kwargs = dict(quarterly_rows=_quarterly_with_revenue(), annual_rows=history(), ticker="XYZ",
+                  as_of=AS_OF, provenance=PROV,
+                  bundle=_bundle('Note 4: an impairment of "goodwill" was recorded.'))
+    if ok:
+        assert normalise(choice, **kwargs).provenance["exclusions"][0]["quote"] == quote
+    else:
+        with pytest.raises(NoNormalisedBasis, match="not in the bundle"):
+            normalise(choice, **kwargs)

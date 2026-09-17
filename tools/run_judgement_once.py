@@ -31,6 +31,7 @@ from datetime import datetime, timezone
 REPO = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
+from src.fundamental.claims.models import sector_citation  # noqa: E402
 from src.fundamental.prompts.e_blocks import (  # noqa: E402
     BLOCKS,
     EMITS_RUBRIC,
@@ -39,7 +40,12 @@ from src.fundamental.prompts.e_blocks import (  # noqa: E402
     PROSE_REQUIRED,
 )
 from src.fundamental.prompts.envelope import compose_prompt  # noqa: E402
-from tools.run_extraction_once import ACCESSION, build_bundle  # noqa: E402
+from tools.run_extraction_once import (  # noqa: E402
+    ACCESSION,
+    SUBJECT_NAMES,
+    build_bundle,
+    sector_bundle,
+)
 
 MODEL = "claude-opus-5"
 PRICE_IN, PRICE_OUT = 5 / 1_000_000, 25 / 1_000_000
@@ -67,7 +73,9 @@ def _rubric_for(block_id: str):
     return reg.get(dimension, int(version))
 
 
-STAGE_A_ORDER = ("J-01", "J-02", "J-03", "J-04", "J-05", "J-06", "J-07", "J-08")
+#: ✏ 2026-09-14 — `J-20` joins (Victor, L3 §2.1g step 1): +≈$0.50 per `--stage-a`, and
+#:   `--stage-a` now REQUIRES `--annual-history`, the part `J-20` chooses a window from.
+STAGE_A_ORDER = ("J-01", "J-02", "J-03", "J-04", "J-05", "J-06", "J-07", "J-08", "J-20")
 
 
 def answer_shape(block) -> str:
@@ -256,7 +264,8 @@ def _answer_hash(answer: dict) -> str:
     return "sha256:" + hashlib.sha256(body.encode("utf-8")).hexdigest()
 
 
-def normalisation_outcome(answer: dict, rows, *, ticker: str, as_of, provenance: dict) -> str:
+def normalisation_outcome(answer: dict, rows, *, ticker: str, as_of, provenance: dict,
+                          bundle) -> str:
     """`J-20`'s choice → the D-01 basis, or the named reason there is none (`P5`).
 
     ⚠ Stops at the BASIS: `fv_analyst` also needs a price, which this runner has no
@@ -271,7 +280,7 @@ def normalisation_outcome(answer: dict, rows, *, ticker: str, as_of, provenance:
     try:
         basis = normalise(answer, quarterly_rows=rows[rows["period_type"] == "quarterly"],
                           annual_rows=rows[rows["period_type"] == "annual"],
-                          ticker=ticker, as_of=as_of, provenance=provenance)
+                          ticker=ticker, as_of=as_of, provenance=provenance, bundle=bundle)
     except (NoNormalisedBasis, ValuationUnavailable) as exc:   # ⚠ only the DESIGNED refusals
         answer["_basis"] = {"status": "NO_BASIS", "reason": f"{type(exc).__name__}: {exc}"}
         return f"  → NO normalised basis — {type(exc).__name__}: {str(exc)[:120]}"
@@ -284,7 +293,7 @@ def normalisation_outcome(answer: dict, rows, *, ticker: str, as_of, provenance:
 RUN_ROOTS = (REPO / ".state/runs", REPO / "tests_src/fixtures/recordings")
 
 
-def load_extraction_parts(run_ids, filing_bundle, *, ticker: str) -> tuple:
+def load_extraction_parts(run_ids, filing_bundle, *, ticker: str, sector=None) -> tuple:
     """★★★ `DX-85`ⓒ — recorded E-block runs → VERIFIED `extraction` bundle parts.
 
     ⚠⚠ Each recording is re-parsed and **re-verified by `X-01` against THIS
@@ -306,7 +315,13 @@ def load_extraction_parts(run_ids, filing_bundle, *, ticker: str) -> tuple:
         def __init__(self, text):
             self.text = self.parsed = text
 
-    text = filing_bundle.of_kind("filing")[0].content
+    # ✏ `DX-124` (2026-09-16) — a recorded run is re-verified against THE BUNDLE IT READ, not
+    #   always the filing. An industry `E-13` quotes the peer documents in the sector file, and
+    #   those spans cannot resolve in Micron's 10-Q. ★ `DX-95` put `bundle_hash` in every trace
+    #   record, which is what makes the choice a LOOKUP rather than a guess.
+    sources = {filing_bundle.bundle_hash: filing_bundle}
+    if sector is not None:
+        sources[sector.bundle_hash] = sector
     parts, seen = [], {}
     for run_id in run_ids:
         root = next((r / run_id for r in RUN_ROOTS if (r / run_id).is_dir()), None)
@@ -323,6 +338,20 @@ def load_extraction_parts(run_ids, filing_bundle, *, ticker: str) -> tuple:
                  and str(r.get("step_id", "")).startswith("extract:")]
         if not calls:
             raise ValueError(f"{run_id} holds no extraction call")
+        # ⚠ A run recorded BEFORE `DX-95` carries no bundle hash; it predates the sector path
+        #   entirely, so the filing is the only bundle it can have read.
+        read = {c.get("bundle_hash") for c in calls}
+        source = next((sources[h] for h in read if h in sources), filing_bundle)
+        if read - {None} and not (read & set(sources)):
+            # ⚠ Not a refusal: a hash can legitimately fail to match a bundle whose TEXT is
+            #   unchanged — `DX-102` re-rendered the fixture (header → spaces), so every
+            #   recording made before it carries a hash nothing now reproduces. ★ X-01 is the
+            #   real check: if the quotes do not resolve in the filing, the load fails loudly
+            #   two lines below. This only says WHICH bundle was used and why.
+            print(f"  ⚠ {run_id} recorded bundle {sorted(read)[0][:23]}…, which matches neither "
+                  f"source; verifying against the filing (a pre-DX-102 recording, RA-2)")
+        text = source.of_kind("filing")[0].content if source.of_kind("filing") \
+            else source.parts[0].content
         results, versions = [], {}
         for call in calls:
             block_id = call["step_id"].split(":", 1)[1]
@@ -334,14 +363,21 @@ def load_extraction_parts(run_ids, filing_bundle, *, ticker: str) -> tuple:
             payload = json.loads((root / "trace/payloads" / f"{call['payload_ref']}.json")
                                  .read_text(encoding="utf-8"))["response"]
             body = payload["text"] if isinstance(payload, dict) and "text" in payload else payload
-            items = parse_items(_Call(body if isinstance(body, str) else json.dumps(body)), text)
-            results.append(ExtractionResult(block_id, filing_bundle.bundle_hash, tuple(items)))
+            items = parse_items(_Call(body if isinstance(body, str) else json.dumps(body)), text,
+                                # ⚠ `DX-124` — an industry item cites the SECTOR FILE; the
+                                #   default is the analysed filing's accession (`DX-121`).
+                                accession_id=sector_citation(source.parts[0].pins) or None)
+            results.append(ExtractionResult(block_id, source.bundle_hash, tuple(items)))
             versions[block_id] = call["prompt_version"]
-        report = x01_verify_extraction(filing_bundle, [i for r in results for i in r.items])
+        report = x01_verify_extraction(source, [i for r in results for i in r.items])
         # ⛔ `DX-97` — re-applied on load, so a run recorded BEFORE the guard
         #   (the 2026-09-12 E-13) is refused here too.
         from src.fundamental.filings.subject import assert_subject_is_not_registrant
-        assert_subject_is_not_registrant(results, filing_bundle)
+        assert_subject_is_not_registrant(
+            results, source,
+            # ★ `DX-119` — over the industry bundle the subject is DECLARED: the analysed
+            #   company has no cover page there.
+            subject=SUBJECT_NAMES[ticker.upper()] if source is not filing_bundle else None)
         parts.extend(extractions(ExtractionPass(results=tuple(results), report=report),
                                  prompt_versions=versions, run_id=run_id))
     return tuple(parts)
@@ -356,14 +392,17 @@ def main() -> int:
     #    exactly one of the eight declared Stage-A blocks. ⚠ Default stays
     #    `J-01` so every existing invocation and recording is unaffected.
     ap.add_argument("--block", default="J-01",
+                    # ✏ 2026-09-14 — BLIND blocks only: `J-09`…`J-17` are full-view and
+                    #   need frozen Stage-A evidence; `tools/run_thesis_once.py` runs them.
                     choices=[b for b in sorted(BLOCKS)
-                             if BLOCKS[b][0]().kind == "judgement"],
+                             if BLOCKS[b][0]().kind == "judgement"
+                             and BLOCKS[b][0]().view == "blind"],
                     help="which Stage-A judgement block to run")
     # ★★★ `DX-83` — a STAGE is a unit, not eight unrelated calls. Running the
     #   blocks one invocation at a time produced eight `run_id`s with no record
     #   that they belong together, which is precisely what `F2` exists to stop.
     ap.add_argument("--stage-a", action="store_true",
-                    help="run ALL 8 Stage-A blocks into ONE run_id (k=1)")
+                    help="run ALL Stage-A blocks (STAGE_A_ORDER) into ONE run_id (k=1)")
     # ★★★ `DX-85`ⓒ — the evidence a rubric level cites is EXTRACTION output,
     #   so a rubric block can be scored only over a bundle that carries it.
     ap.add_argument("--extractions", nargs="*", default=(), metavar="RUN_ID",
@@ -372,6 +411,11 @@ def main() -> int:
     #   `<seed>:<run tag>:<block>` and RECORDED with each call.
     # ★★ `F10` `D5` — J-20 needs the per-year FCFF history, pre-computed, in the
     #   BLIND bundle. Reads D-07's fact ledger (EDGAR, already ingested — free).
+    # ★★ `DX-117` — the industry evidence an `E-13` run was extracted from, so its recorded
+    #   quotes can be re-verified. ⚠ The peer DOCUMENTS do not enter the judgement bundle:
+    #   the verified items do, at a fraction of the tokens.
+    ap.add_argument("--sector", default=None, metavar="SECTOR_FILE_JSON",
+                    help="sector file an --extractions run read (re-verification source)")
     ap.add_argument("--annual-history", default=None, metavar="LEDGER_DIR",
                     help="D-07 fact ledger dir (e.g. .state/facts) for J-20's history part")
     ap.add_argument("--seed", default="0",
@@ -384,13 +428,20 @@ def main() -> int:
     from tools.run_extraction_once import _select
     _select(args.ticker)
 
+    if args.stage_a and not args.annual_history:
+        # ⚠ `J-20` is in Stage A; without its history part it can only answer
+        #   `insufficient_evidence` — a paid call with a known answer (`P5`).
+        print("BLOCKED: --stage-a includes J-20 and needs --annual-history LEDGER_DIR")
+        return 2
     blocks = [BLOCKS[b][0]() for b in STAGE_A_ORDER] if args.stage_a \
         else [BLOCKS[args.block][0]()]
 
     full = build_bundle()
     if args.extractions:
         from src.fundamental.bundle.models import EvidenceBundle
-        extracted = load_extraction_parts(args.extractions, full, ticker=args.ticker)
+        extracted = load_extraction_parts(
+            args.extractions, full, ticker=args.ticker,
+            sector=sector_bundle(args.sector, ticker=args.ticker) if args.sector else None)
         full = EvidenceBundle(ticker=full.ticker, as_of=full.as_of,
                               parts=(*full.parts, *extracted))
         for p in extracted:
@@ -404,7 +455,8 @@ def main() -> int:
     blind = full.redact()
     body = "\n\n".join(p.content for p in blind.parts)
 
-    label = "STAGE A · all 8 blocks, k=1" if args.stage_a else blocks[0].name
+    label = (f"STAGE A · all {len(STAGE_A_ORDER)} blocks, k=1" if args.stage_a
+             else blocks[0].name)
     print(f"── {label} (judgement, blind) ──")
     print(f"  ticker     : {args.ticker}   accession {ACCESSION}")
     print(f"  bundle     : {len(body):,} chars (blind)")
@@ -448,7 +500,10 @@ def main() -> int:
         # ⚠⚠ `DX-67` — the SHARED ENVELOPE. §4.0: *"Composed into every J-block:
         #   S-1…S-6, plus S-7 in Stage A."* ★ `stage_a` is declared from the
         #   block's own `view`, which `STAGE_VIEW` sets to "blind" for Stage A.
-        prompt = compose_prompt(blk, stage_a=(blk.view == "blind"))
+        # ✏ `DX-111` (2026-09-15): `fresh=True` — §4.0 composes `S-8` into every J-block
+        #   in fresh authoring, and Stage A IS fresh authoring. Every earlier Stage-A
+        #   recording went out without it; that split is DECLARED in the golden test.
+        prompt = compose_prompt(blk, stage_a=(blk.view == "blind"), fresh=True)
         payload = build_payload(prompt, the_offer, body)
         # ⚠ MEASURED 2026-09-10: `//4` predicted 52,912 tokens and the call
         # billed **70,371** — a 33% underestimate. ★ Filing prose tokenises
@@ -506,7 +561,7 @@ def main() -> int:
             # one (`S-7` is Stage-A only), so the hash uses the SAME flags
             # `compose_prompt` was given, not a constant.
             envelope_hash=envelope_hash("judgement",
-                                        stage_a=(blk.view == "blind")),
+                                        stage_a=(blk.view == "blind"), fresh=True),
             # ★★ `DX-95` — the BLIND bundle this call read; since `DX-85`ⓒ it
             #   differs by which extraction runs were loaded.
             bundle_hash=blind.bundle_hash)
@@ -582,7 +637,8 @@ def main() -> int:
                                             provenance={"prompt_version": blk.version,
                                                         "run_id": run_id,
                                                         "stage_commit_hash": _answer_hash(answers[blk.name]),
-                                                        "bundle_hash": blind.bundle_hash})
+                                                        "bundle_hash": blind.bundle_hash},
+                                            bundle=blind)
         print(f"   ✅ {blk.name}  {tin:,} in / {tout:,} out  ${cost:.4f}{derived}")
     store.close()
 

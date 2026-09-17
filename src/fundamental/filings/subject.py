@@ -67,24 +67,34 @@ def names_registrant(value: str, registrant: str, ticker: str) -> bool:
             or joined in _SELF_REFERENCES)
 
 
-def assert_subject_is_not_registrant(results, bundle) -> None:
-    """Refuse any extraction result whose other-company item names the registrant.
+def assert_subject_is_not_registrant(results, bundle, *, subject: str | None = None) -> None:
+    """Refuse any extraction result whose other-company item names the SUBJECT.
 
     ⚠ Checked only when such an item was FOUND; a bundle with no cover page is
     refused only then — a block that never names another company needs no
     registrant to be checked against.
+
+    ✏ **`DX-119` (2026-09-15): `subject` may be declared.** The guard read the SUBJECT off
+    the bundle's own filing cover page, which is right when `E-13` runs over the analysed
+    company's 10-Q — and wrong over an INDUSTRY bundle, where the documents are the
+    competitors' own and there is no cover page to read. ★ The company that may not appear
+    as its own competitor is the one being ANALYSED; when the bundle cannot say who that is,
+    the caller declares it.
     """
     for result in results:
         suspects = [i for i in result.items
                     if i.evidence_id in OTHER_COMPANY_ITEMS and i.status == "found"]
         if not suspects:
             continue
-        filings = bundle.of_kind("filing")
-        if not filings:
-            raise SubjectIsRegistrantError(
-                f"{result.block_id}: names other companies but the bundle has no "
-                f"filing to read the registrant from (DX-97, P5)")
-        registrant = registrant_name(filings[0].content)
+        if subject:
+            registrant = subject
+        else:
+            filings = bundle.of_kind("filing")
+            if not filings:
+                raise SubjectIsRegistrantError(
+                    f"{result.block_id}: names other companies, the bundle has no filing to "
+                    f"read the registrant from, and no subject was declared (DX-97/DX-119, P5)")
+            registrant = registrant_name(filings[0].content)
         hits = [i for i in suspects
                 if names_registrant(i.value, registrant, bundle.ticker)]
         if hits:

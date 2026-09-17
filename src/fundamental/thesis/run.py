@@ -1,10 +1,10 @@
 """D-01 §4A.2 — one authoring pass, end to end. RA-14, RA-15, RA-16, RA-19.
 
 ```text
-  1  BLIND VIEW      bundle.redact()      RA-14 — price WITHHELD, physically
+  1  BLIND VIEW      bundle.redact()      RA-14 — price WITHHELD, physically (Stage A)
   2  STAGE-A FREEZE  hashed               RA-108 — before anything sees price
-  3  J-11 BEAR CASE  separate call        RA-15 — not the pass that argued bull
-  4  J-15 FALSIFIERS separate call        RA-16 — BEFORE the verdict
+  3  J-11 BEAR CASE  separate call, full  RA-15 — not the pass that argued bull
+  4  J-15 FALSIFIERS separate call, full  RA-16 — BEFORE the verdict
   5  PERSIST         commit hash          ★ the write that makes 4 provable
   6  J-16 VERDICT    full bundle          the reconciliation stage
 ```
@@ -129,13 +129,15 @@ def author_once(*, bundle, gateway, run: AuthoringRun, index: int,
     """
     from src.fundamental.thesis.probe import evidence_rotation
 
-    blind = bundle.redact()                     # RA-14 — physical, not asked for
+    # ✏ `DX-110` (2026-09-15): J-11 and J-15 read the FULL bundle — Stage C and D per the
+    #   master prompt and `author.STAGE_VIEW`. They ran blind here, which contradicted both;
+    #   the blind view belongs to Stage A, and `run.author` still freezes Stage A over it.
     # ★ RM-1's second perturbation, applied where it reaches the model. The
     #   bundle — and therefore `bundle_hash` — is identical across the k runs.
     rotation = evidence_rotation(bundle, index)
 
     bear_call = gateway.call(prompt_name="J-11", prompt_version="v1",
-                             bundle=blind, run_id=run_id, step="bear_case",
+                             bundle=bundle, run_id=run_id, step="bear_case",
                              evidence_rotation=rotation)
     bear = BearCase(text=bear_call.text[:4000],
                     falsification_condition=_first_condition(bear_call.text),
@@ -143,7 +145,7 @@ def author_once(*, bundle, gateway, run: AuthoringRun, index: int,
 
     # ★ RA-16 — J-15 runs BEFORE the verdict, as its own call.
     falsifier_call = gateway.call(prompt_name="J-15", prompt_version="v1",
-                                  bundle=blind, run_id=run_id, step="falsifiers",
+                                  bundle=bundle, run_id=run_id, step="falsifiers",
                                   evidence_rotation=rotation)
     falsifiers = parse_falsifiers(falsifier_call.text, deadline=deadline,
                                   observables=observables)

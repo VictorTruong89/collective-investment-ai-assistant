@@ -30,6 +30,7 @@ from datetime import date, datetime
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))
 
 from src.fundamental.bundle.models import BundlePart, EvidenceBundle  # noqa: E402
+from src.fundamental.claims.models import sector_citation  # noqa: E402
 from src.fundamental.filings.extract import (  # noqa: E402
     item,
     not_found,
@@ -62,6 +63,11 @@ FILINGS = {
 
 #: ★ Module-level defaults, unchanged: `golden_replay` and the wiring tests
 #: import `FILING`, and filing 1's cases resolve against it.
+#: ★ `DX-119` — who the analysis is ABOUT, for a bundle that cannot say so itself (an
+#: industry bundle carries the competitors' documents, not the subject's). ⚠ Declared, never
+#: inferred: guessing the subject is how `E-13` came to name Micron as its own competitor.
+SUBJECT_NAMES = {"MU": "Micron Technology, Inc.", "AMD": "Advanced Micro Devices, Inc."}
+
 TICKER = "MU"
 FILING = REPO / FILINGS[TICKER]["path"]
 ACCESSION = FILINGS[TICKER]["accession"]
@@ -136,6 +142,33 @@ def assert_no_repo_annotation(text: str, path) -> None:
             f"accept a quote taken from it. Move it to the .meta.txt sidecar.")
 
 
+def sector_bundle(path, *, ticker: str) -> EvidenceBundle:
+    """`DX-117` — the industry evidence as ONE pinned `sector_file` part.
+
+    ★ Every document travels verbatim, in the file's one permitted order (`RA-99`), with its
+    source and date; `X-01` then verifies every quote `E-13` returns against this text.
+    """
+    import json as _json
+
+    from src.fundamental.bundle.assemble import sector_file
+    from src.fundamental.sector.models import Omission, SectorFile, SectorRecord
+
+    doc = _json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
+    file = SectorFile(
+        industry=doc["industry"], as_of=date.fromisoformat(doc["as_of"]),
+        file_version=int(doc["file_version"]), source_list_version=doc["source_list_version"],
+        records=tuple(SectorRecord(record_id=r["record_id"],
+                                   date=date.fromisoformat(r["date"]), kind=r["kind"],
+                                   subject=r["subject"], source_id=r["source_id"],
+                                   url=r.get("url", ""), quote=r["quote"],
+                                   status=r.get("status", ""),
+                                   prior_status=r.get("prior_status", ""))
+                      for r in doc["records"]),
+        omissions=tuple(Omission(**o) for o in doc.get("omissions", ())))
+    return EvidenceBundle(ticker=ticker.upper(), as_of=file.as_of,
+                          parts=(sector_file(file),))
+
+
 def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
     """`RA-1` — every LLM call takes an `EvidenceBundle` and nothing else.
 
@@ -168,7 +201,7 @@ def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
 # --------------------------------------------------------------------------- #
 # 3. the parse — response -> ExtractedItem[]
 # --------------------------------------------------------------------------- #
-def parse_items(call, bundle_text: str | None = None) -> list:
+def parse_items(call, bundle_text: str | None = None, accession_id: str | None = None) -> list:
     """Map one `CallResult` to `ExtractedItem`s (`MP-5`, `MP-18`).
 
     ⚠ **Offsets are computed here, not asked for.** A model-supplied character
@@ -236,7 +269,7 @@ def parse_items(call, bundle_text: str | None = None) -> list:
             # holds `'State of\n\n\nNew York'` where the quote holds
             # `'State of\nNew York'`, so the span ended 2 chars early on
             # `'…provides fo'`.
-            quote=quote, accession_id=ACCESSION, offset=(start, end),
+            quote=quote, accession_id=accession_id or ACCESSION, offset=(start, end),
             period_start=row.get("period_start"), period_end=row.get("period_end"),
             cumulative_ytd=bool(row.get("cumulative_ytd")),
             qualifier=row.get("qualifier", ""), note=row.get("note", ""),
@@ -398,6 +431,11 @@ def main() -> int:
                     help="DIAGNOSTIC: record summarized thinking for a runaway call")
     ap.add_argument("--ticker", default="MU", choices=sorted(FILINGS),
                     help="which filing (default MU = filing 1)")
+    # ★★ `DX-117` — run an E-block over the INDUSTRY sector file instead of the filing.
+    #   The subject (the company being analysed) is declared, because the documents are
+    #   the competitors' own and carry no cover page for it (`DX-119`).
+    ap.add_argument("--sector", default=None, metavar="SECTOR_FILE_JSON",
+                    help="run over the sector file (tools/ingest_sector_file.py output)")
     ap.add_argument("--segment-note-only", action="store_true",
                     help="⚠⚠ DIAGNOSTIC ONLY (DX-32) — never for a recording "
                          "a golden case grades: the slice omits the evidence a "
@@ -426,7 +464,13 @@ def main() -> int:
     if args.block == "E-01" and args.prompt_version == "v2":
         factory = e01_v2
     registry.register(factory())
-    bundle = build_bundle(whole_filing=not args.segment_note_only)
+    subject = SUBJECT_NAMES[args.ticker] if args.sector else None
+    bundle = (sector_bundle(args.sector, ticker=args.ticker) if args.sector
+              else build_bundle(whole_filing=not args.segment_note_only))
+    if subject:
+        # ★ `DX-119` — printed because it is a DECLARATION, not a default: a reader of the
+        #   run must see which company may not appear among its own competitors.
+        print(f"  subject    : {subject} (declared — the industry bundle has no cover page)")
     chars = sum(len(p.content) for p in bundle.parts)
     # ⚠ MEASURED 2026-09-07: this filing tokenised at 2.78 chars/token, not the
     # 4.0 assumed here first — table text with `|` separators and digits is far
@@ -524,8 +568,13 @@ def main() -> int:
     # can disagree with its own run is worse than no trace.
     try:
         result = run_extraction(seam, block_ids=[(args.block, args.prompt_version)], bundle=bundle,
+                                subject=subject,
                                 run_id=run_id,
-                                parse=lambda c: parse_items(c, bundle.parts[0].content))
+                                parse=lambda c: parse_items(
+                                    c, bundle.parts[0].content,
+                                    # ⚠ `DX-121` — an industry quote cites the SECTOR FILE,
+                                    #   not the analysed company's accession.
+                                    accession_id=sector_citation(bundle.parts[0].pins) or None))
     except Exception as exc:                       # noqa: BLE001
         store.close("FAILED")
         if "authentication" in str(exc).lower() or "api_key" in str(exc).lower():

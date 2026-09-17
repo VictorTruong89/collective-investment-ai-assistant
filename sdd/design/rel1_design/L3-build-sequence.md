@@ -50,7 +50,7 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — ★★★ platform COMPLETE · F10 valuation BUILT · analysis 51 % declared · 40 % working · 20 % graded · updated 2026-09-14
+## 2.1 Current position — ★★★ platform COMPLETE · FIRST THESIS (MU SELL — 2 of 4 falsifiers FIRED, computed) · ★★ scorecard coverage **1.000** (E-09 solved) · analysis 77 % declared · 74 % working · updated 2026-09-17
 
 ```text
    ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
@@ -60,7 +60,7 @@ the machinery that records what it changed.
    ┌─ MS-1 … MS-7 · THE PLATFORM ─────────── ★★★ 148/148 ACs ───────┐
    │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18 · F6a 11 · F9 10        │
    │  F7a 12 · F6b 12 · F8 20 · F7b 9                               │
-   │  ⛔ 1 red: J-07 golden (re-established) · 2,196 pass           │
+   │  ⛔ 1 red: J-07 golden (re-established) · 2,243 pass           │
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-8/9 · ABSORPTION + WRITE-UP ─────────────── ONE TREE ──────┐
@@ -69,9 +69,12 @@ the machinery that records what it changed.
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ ★★★ THE ANALYSIS LAYER — 35 prompt blocks (+J-20) ────────────┐
-   │  declared 18 (51 %) · working 14 (40 %) · graded 7 (20 %)      │
-   │  E 9/15 declared · 7 working · ✗ E-09 truncates · ✗ E-13 subject│
-   │  J 9/20 declared · 7 working · ✗ J-03 · ✗ J-04 · ✅ J-20 ran   │
+   │  declared 27 (77 %) · working 23 (66 %) · graded 7 (20 %)      │
+   │  E 9/15 declared · ★ 9 working — E-09 solved at effort low     │
+   │  J 18/20 declared · 17 working · ⬜ J-04 scoreable now (~$0.90) │
+   │  ★★ FIRST CT-1.1 THESIS: MU SELL · Medium · 4 falsifiers · 9 gaps│
+   │  ⛔ falsifiers #1 #2 FIRED on later filings — thesis WRONG      │
+   │  ★ moat=2 bs=3 cap=4 · coverage 1.000 · earnings quality open  │
    │  ★ first DERIVED rubric scores: bs@v3=3·3·3  cap@v3=4·4·4     │
    │  ✅ bundle: extraction parts · subject guard · no repo header  │
    └────────────────────────────────────────────────────────────────┘
@@ -83,25 +86,27 @@ the machinery that records what it changed.
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ ⬜ NEXT — in dependency order ─────────────────────────────────┐
-   │   ✅ F10 20/20 · D8 net debt · DX-103/104 applied · J-20 live  │
-   │      MU J-20: cycle avg FY2016–24 = $1,287M ($15.09/sh, no px) │
-   │   1. ⚠ Victor: DX-106 operating leases ⓐ out / ⓑ in + add-back │
-   │   2. ⚠ Victor: J-20 golden case (answer in §2.1g)              │
-   │   3. price source (FMP 💲) → fv_analyst, implied expectations  │
-   │   4. declare J-09…J-17 → a CT-9.2 thesis                       │
-   │   5. J-20 into STAGE_A_ORDER · exclusion quotes via X-01       │
+   │   ✅ price $126 raw · fv_model $15.96 · implied g₁ 28.3 %/10y  │
+   │   ✅ DX-110 DX-111 DX-115 closed · DX-116 measured             │
+   │   ✅ DX-118: coverage floors wired · conviction de-rated       │
+   │   ★ NEXT (§2.1m · _TEMP_for_victor_2026-09-16.md):             │
+   │   1. ✅ E-09 SOLVED ($0.42) ⇒ coverage 1.000                    │
+   │   2. 💲 J-04 now scoreable (~$0.90) · ⚠ check falsifier tests   │
+   │   3. ⚠ Victor: sign J-20 / J-09 golden cases · J-03 case       │
+   │   4. 💲 when wanted: E-13 v2 (cx.status span) · J-15 v2         │
+   │   5. free: J-13's 6th metric · E-03/E-05/E-08/E-11 declarations │
    │  open: DX-57 60 61 78 79 87 89-92 · ⏸ 96 · partial 44 71 80    │
    └────────────────────────────────────────────────────────────────┘
 ```
 
 | | Result |
 |---|---|
-| tests | **2,196 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
+| tests | **2,299 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
 | guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` |
-| findings | **108 `DX` logged — 97 closed** · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` · ◐ `DX-106` (operating leases held — Victor) · ◐ `DX-108` (J-20 follow-ups) · ⏸ `DX-96` (E-09 skipped) · ◐ partial: `DX-44` `DX-71` `DX-80` |
+| findings | **129 `DX` logged — 120 closed** · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ⏸ `DX-96` (E-09 skipped) · ◐ partial: `DX-44` `DX-71` `DX-80` |
 | golden set | **33 live** (28 extraction · 5 thesis: J-01 ✅ · J-05 ✅ `balance_sheet_resilience@v3` L3 · J-06 ✅ `capital_allocation@v3` L4 · J-08 ✅ · ⛔ J-07 `late` vs recorded `mid` — parked and RE-ESTABLISHED 2026-09-13 by Victor's decision, red on purpose) · every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
 | recordings | graded: `run-2026-09-11T082002-mu-e01` (E-01 v4) · `…T082118-amd-e01` (E-01 v4) · `…T115548-mu-e02` · `run-2026-09-12T024848-mu-stage-a` (J-01…J-08, complete, envelope-hashed). ⚠ `run-2026-09-12T021719-mu-stage-a` is the TRUNCATED Stage A (`DX-84`) — not promoted, and `spend_report.py` still labels its calls `SUCCESS` because it reports the RUN's close status, not the call's `stop_reason` |
-| spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$51.01 over 81 calls** all-time · **$0.50 on 2026-09-14** (J-20 live, `run-2026-09-14T122547-mu-j20`) · **$6.44 on 2026-09-11 · $13.28 on 2026-09-12 · $12.57 on 2026-09-13** (`DX-96` $4.39 incl. E-09 v2 + summarized-thinking diagnostic · J-05+J-06 blind-criteria run $1.72, VOID · criterion-selected re-run $1.69 · k=3 under v3 $4.77) (incl. the seven E-block runs, **$4.74**, of which `DX-96`'s three truncations **$2.64**). ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
+| spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$71.66 over 104 calls** all-time · **$0.42 on 2026-09-17** (`E-09` at effort low — the block that had never completed) · **$3.31 on 2026-09-15/16** (industry evidence: $1.88 on three failed `E-13` attempts, then `J-03` $0.61 + `J-08` $0.81 — the `E-13` itself was REPLAYED free, `DX-123`) · **$16.93 on 2026-09-15** (the first thesis, 4 runs: $2.54 · $2.79 · $6.73 · $4.87 — $5.33 of it lost to three failed calls) · **$0.50 on 2026-09-14** (J-20) · ⚠ one FMP call 2026-09-14 (subscription quota, not in this figure) · **$6.44 on 2026-09-11 · $13.28 on 2026-09-12 · $12.57 on 2026-09-13** (`DX-96` $4.39 incl. E-09 v2 + summarized-thinking diagnostic · J-05+J-06 blind-criteria run $1.72, VOID · criterion-selected re-run $1.69 · k=3 under v3 $4.77) (incl. the seven E-block runs, **$4.74**, of which `DX-96`'s three truncations **$2.64**). ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
 | lint | ruff clean on all code this repo authored |
 
 ⚠⚠ **What "148/148" does and does not mean.** Every acceptance criterion has a passing test in the
@@ -382,6 +387,325 @@ post-envelope one. The established value is unchanged; only the artefact moved.
 - **Not k=3.** `K_RUNS`=3 is what `CT-9.2` requires; this is k=1.
 - **Not a thesis.** Stage A is 8 of 17 blocks. Stages B-D (`J-09`…`J-17`) are undeclared.
 
+## 2.1m ★★ 2026-09-16 — bypassing the paid work: a free re-deration and a decided `RM-13`
+
+> **$0.** Victor: *"no paid run, too expensive, find a way to bypass this."* ⇒ `DX-128`, and a
+> temporary hand-off file, `_TEMP_for_victor_2026-09-16.md`, for what could NOT be bypassed.
+
+### Already done before the instruction — and not re-run
+
+`E-13` (industry, replayed free), `J-03` (**moat = 2**, $0.61) and `J-08` (`insufficient_evidence`,
+$0.81) had all completed earlier in the session. ★ Nothing was re-run; **$0 spent after the instruction**.
+
+### Two bypasses that worked
+
+| Paid thing | Bypass | Result |
+|---|---|---|
+| Re-authoring the thesis (~$11.38) to see the new coverage | `tools/rederate_thesis.py` — recompute only what is ARITHMETIC over evidence | coverage → **0.917**, conviction **Medium → Low**, verdict **unchanged**; the record states in its own `limitation` field that `J-09`…`J-17` never saw the new evidence |
+| A `J-15` re-run to get machine-checkable conditions | `DX-128` — the structured test is written by HAND beside the prose, in a declared grammar | **#1 #2 FIRED · #3 #4 HELD**, reproducing the hand analysis exactly, deterministically, free |
+
+### ⛔ What could NOT be bypassed, and why (detail in the temp file)
+
+**`E-09`** — `earnings_quality@v3` needs `searched:ap.change`. No other block emits it; the marker
+cannot be synthesised (`DX-85`ⓒ: evidence by assertion); and it cannot be REPLAYED because all five
+attempts TRUNCATED, so no complete call exists on disk — `DX-123`'s guard refuses them, correctly.
+⇒ It needs one live call (~$0.50–0.90) at `--effort low`, the lever never tried on that block.
+
+★ **The replay path has a shape worth noting:** it recovers a defect in OUR code, never a failure of
+the model. `E-09` is the case that proves the distinction — nothing to recover.
+
+## 2.1l ★★ 2026-09-16 — `DX-116` answered, and two instruments built free
+
+> **$0.** `DX-116` closed (half solved, half declared), `DX-125`…`DX-127` built. 2,287 tests pass.
+
+### `DX-116` — attempted, and it splits cleanly in two
+
+| Half | Outcome |
+|---|---|
+| `J-11`: lease-funded equipment escapes capex | ✅ **No change needed.** `D8` counts finance leases as DEBT ($3,107M on MU at 2025-05-29). Charging the $1,394M of trailing ROU additions to capex as well would count the same equipment twice — once as debt subtracted from equity value, once as investment reducing the flow. ★ `J-14` said so first, when it contradicted `J-11` |
+| `J-09`: capex is gross of government incentives | ⚠ **Unsolvable from D-07, so DECLARED.** A namespace-wide scan of Micron's `companyfacts` finds no tagged incentive-PROCEEDS fact at all; the $1,294M exists only in filing prose. Every result now carries it in `known_limits` (`F10` `D9`, AC-F10.21) — material, since crediting 9M alone would roughly double the $1,349M base |
+
+★ The rule that falls out: **a limit is declared only when it is real AND uncomputable.** Listing the
+lease half would have been false, and a limits list with a false entry trains the reader to skip it.
+
+### The two instruments
+
+- **`RM-13`'s falsifier checker** (`tools/check_falsifiers.py`) — deterministic gathering of every
+  reported period since a thesis, with deadline state. ⚠ It does NOT decide a prose condition:
+  `DECIDABLE_BY_READER` is an honest status, and automatic firing needs a structured `test` in a future
+  `J-15` (`DX-125`). ★ On its first run it found `DX-126`.
+- **`DX-126`** — falsifier #4 of the Micron thesis names `LongTermDebtNoncurrent`, a tag Micron **last
+  filed in 2013**. The observable list offered it because the COLUMN exists. ⚠ Its silence looks
+  identical to a condition holding, so the thesis carried an unfalsifiable falsifier through every
+  check. Fixed: only tags non-null in the latest 4 reported periods are offered (31 → 25 for MU).
+- **`DX-127`** — prompt caching: the ~140k-token base bundle is now one `cache_control` block shared by
+  all 13 Stage B–D calls. **$17.57 → $11.38** per thesis, arithmetic until a live run reports a non-zero
+  `cache_read`. ⚠ The model now reads evidence → commits → instructions; `--no-cache` restores the old
+  order exactly.
+
+### ⬜ What next
+
+1. ⛔ **`E-09`** — the last evidence gap (earnings quality 0.67, the only dimension short). Five
+   truncations; the untried lever is `--effort low` with a raised cap, the one that fixed `J-13`/`J-14`.
+2. 💲 **Re-author the thesis** on 0.92 coverage with caching (**≈$11.38**) — it would also validate
+   `DX-127` against the vendor and re-run `J-15` with the corrected observable list (`DX-126`).
+3. **Victor:** a structured `test` on `J-15` (`DX-125`) · `E-13 v2` so `cx.status` quotes the sentence it
+   is read from (`DX-122`) · sign the pending `J-20`/`J-09` cases and consider one for `J-03`.
+4. **Free, smaller:** `J-13`'s `book_value` metric for financials; declaring `E-03`/`E-05`/`E-08`/`E-11`.
+
+## 2.1k ★★★ 2026-09-16 — the industry file: `DX-117` unblocked, and the first moat score
+
+> **$3.31** (⚠ $1.88 of it on three failed `E-13` attempts) plus free fetching. `DX-119`…`DX-124`.
+> ★ Scorecard coverage **0.583 → 0.917**; `J-03` scored for the first time in this project's history.
+
+### What exists now
+
+- **A versioned source list** — `config/sector/memory_v1.yaml` (`memory.v1`): **Sandisk** (EDGAR CIK
+  0002023554, also the declared reporter for the Kioxia joint-venture fabs), **SK hynix**, **Samsung**
+  (peer set: Victor, *"relative size and similar product lines"*). Kioxia, YMTC/CXMT and the paid trade
+  trackers are EXCLUDED with their reasons ON the file, so announced supply here is a declared LOWER BOUND.
+- **Three real documents**, fetched 2026-09-16 with Victor's authorisation, each with a `.meta.json`
+  sidecar carrying url, published date, WHERE THE DATE CAME FROM, and a content hash: Sandisk's 10-Q
+  (filed 2025-05-12), SK hynix's 1Q25 release (2025-04-24), Samsung's 1Q25 IR deck (2025-04-30). All three
+  predate the bundle's `as_of`; a later document is omitted WITH ITS REASON rather than dropped (`INV-1`).
+- **`tools/ingest_sector_file.py`** visits every source and cannot skip one silently;
+  **`run_extraction_once --sector`** renders the file as one pinned `sector_file` part;
+  **`tools/reverify_recording.py`** replays a COMPLETE recorded call under fixed verification code.
+- **Live results:** `E-13` over the industry file returned **10 verified items** — Kioxia's Kitakami
+  K1/Y7/K2 fabs (through Sandisk's own facility agreements), Samsung's *"Ramp up enhanced HBM3E 12H"*,
+  SK hynix's *"when demand ramps up"*. `J-03` then scored **moat_durability@v2 = 2**: *"A mechanism is
+  described in the filings and the outcome tests are inconclusive on the bundle's periods."* `J-08`'s
+  supply read stays **`insufficient_evidence`**, and its own sentence is the finding: *"the aggregate
+  supply decision is precisely the quantity this bundle does not disclose."*
+
+### ⚠⚠ What went wrong — three paid failures, $1.88, one of them a repeat
+
+| # | Failure | Cost | Cause |
+|---|---|---|---|
+| 1 | `DX-121` | $0.52 | Every item was stamped with MICRON's accession and spans resolved only against `filing` parts — an industry quote had nothing to cite |
+| 2 | `DX-122` | $0.50 | `X-01` ② asks the value to appear in its quote; `cx.status` is a LABEL no filing contains |
+| 3 | `DX-123` | $0.88 | ⚠⚠ **Truncation — the `DX-115` lesson I had just written and did not apply.** The runner has `--effort`; I ran a 205k-char bundle without it |
+
+★ **A dry run cannot catch 1 or 2: it never verifies.** An end-to-end test with a synthetic item costs
+nothing and would have caught both before any call — that test exists now. ★ Attempts 1 and 2 COMPLETED;
+only our verifier refused them, so the evidence was recovered by REPLAY at $0 under a four-part guard
+(`DX-123`), and attempt 3 (truncated) is refused by that same guard.
+
+### The coverage move, measured
+
+| | moat | earnings quality | balance sheet | capital allocation | aggregate |
+|---|---|---|---|---|---|
+| before | 0.00 | 0.33 | 1.00 | 1.00 | **0.583** |
+| after (E-01 + industry E-13) | **1.00** | 0.67 | 1.00 | 1.00 | **0.917** |
+
+⇒ The thesis runner loads both by default now, and Stage A freezes **8 blocks with only `J-04` absent**.
+⚠ The conviction cap (`DX-118`) still fires: `J-08`'s supply read and `J-09`'s consensus remain absent.
+
+### ⬜ What next
+
+1. ⛔ **`E-09` is the last evidence gap** (earnings quality 0.67). It failed five times on thinking
+   runaways; the untried lever is the one that fixed `J-13`/`J-14`: `--effort low` with a raised cap.
+2. **Free:** the deterministic falsifier checker (`RM-13`), and prompt caching for Stages B–D (~80 % off
+   the repeated bundle).
+3. **Victor:** `DX-116` (declare the capex limits) · an `E-13 v2` making `cx.status` quote the sentence it
+   is read FROM (`DX-122`'s stated gap) · sign the pending `J-20`/`J-09` golden cases, and consider one for
+   `J-03`'s new score.
+4. 💲 **Re-author the thesis on 0.92 coverage** — ≈$17.57, or ≈$6 once caching lands. ★ After 1 and 2, so
+   the re-run measures better evidence rather than the same gaps.
+
+## 2.1j ★★ 2026-09-15 — the `INSUFFICIENT_DATA` question, decided: no hard cap
+
+> **Free.** Victor, 2026-09-15: *"by investment nature, there is no such concrete evidence for
+> any investment or valuation decision, all contains unomittable risks. Fundamental Analyst agent
+> should proceed with known limitation and risk."*
+
+### The question and the answer
+
+`J-16`'s SELL on Micron was governed by considerations that rested on inputs the bundle had
+DECLARED absent (no consensus, no base rates, no competitor supply). The proposal was a **hard
+cap**: forbid a directional verdict whenever that is true. ⛔ **Rejected**, on three measured
+grounds: (1) every bundle this system can build today lacks those inputs, so the rule is an OFF
+SWITCH, not a filter; (2) it would starve `RM-1`, `RM-13` and `F5` — the instruments that caught
+this very error — of the verdicts they measure; (3) `PG-1`'s retirement and `PG-10` say **declare
+the limit on the artifact, do not withhold the artifact**. ★ And it was aimed off-target: the
+error came from a trough-year BASE, not from the absent consensus.
+
+### What was built instead (`DX-118`) — the ladder the house already specified
+
+| Lever | Rule | On the MU thesis |
+|---|---|---|
+| `INV-012` | coverage < 0.30 ⇒ the system DECLINES (`INSUFFICIENT_DATA`) | not reached |
+| `INV-013` | coverage < 0.50 ⇒ verdict **met** with HOLD (`BUY`→`HOLD`; ★ `SELL` unchanged — `DN-9`, §5.4: *a cap can stop you buying, never selling*) | not reached |
+| `RA-67` | a GOVERNING consideration resting on a declared-absent input ⇒ conviction capped at `Low`, each absence named | **fired** |
+
+★ **Measured on the recorded thesis** (recomputed free, the artifact is not rewritten): coverage
+**0.583** — moat 0.00 · earnings quality 0.33 · balance sheet 1.00 · capital allocation 1.00 ⇒
+verdict stays **SELL**, conviction **Medium → Low**, with three named absences (J-09 consensus,
+J-09 unmatched price requirement, J-10 base rates). The thesis's `confidence` is no longer the
+`{"value": null, "basis": "not_measured"}` placeholder (`AB-1`) — it is the measured ratio, the
+per-dimension sets, both as-authored values, and the reason each cap fired.
+
+⚠ Derived in CODE from the committed answers, not asked of the model: every extra required schema
+field is one more way a paid call can fail (`DX-113`, measured on J-11). ⚠ The `J-16` prompt text is
+unchanged, so no re-record — a `v2` that also asked the model to name them costs ≈$1.10 a run.
+
+12 unit tests + an end-to-end assertion; 5/5 mutations caught (including the one that matters: a cap
+that turned `SELL` into `HOLD`).
+
+### ⛔ The next BLOCKER, named by the measurement itself
+
+**Coverage 0.583 is two dimensions of four.** `moat_durability` is 0.00 and `earnings_quality` 0.33
+because `E-13` has no valid run (`DX-97`, the subject guard) and `E-09` was skipped (`DX-96`). ⇒ Every
+thesis from here carries a conviction cap and a half-empty scorecard until **`DX-117`'s industry source
+list** exists (Victor's — it unblocks E-13, J-03 and J-08's supply read, the input this thesis most
+lacked) and `E-09` is retried or replaced. ★ That is the same gap `J-16`'s own coverage sentence named.
+
+## 2.1i ★★★ 2026-09-15 — THE FIRST THESIS: Micron SELL · Medium — and its own falsifiers say it was wrong
+
+> `run-2026-09-15T042754-mu-thesis/thesis.json` (with `commits.jsonl`, carried from the three earlier runs, every
+> commit hash re-derived). **$16.93 for the whole thesis**, of which **$5.33 was lost** to three failed calls.
+> ⚠ `PG-10`: this is ONE authoring pass (k=1) by an unpromoted system — not a recommendation, not a performance figure.
+
+### What it says (as of 2025-06-26, MU FY2025 Q3 10-Q, price $126.00 raw)
+
+- **Verdict `SELL`, conviction `Medium`** (`J-16`). The three considerations it ranked: ① **J-09** — the price requires
+  28.3 % a year of FCFF growth for 10 years; all 12 band cells ($10.76–$22.50) sit below $126, so the gap is not a
+  discount-rate or terminal-growth artefact; ② **J-10** — four negative FCFF years in nine, no base rate for a decade of
+  compounding; ③ **J-07 + J-13** — gross margin 38 % (highest disclosed) on DRAM ASPs above the company's own five-year
+  range, with sequential ASPs already falling.
+- **Strongest consideration the other way** (item 2, which it did state): clean earnings quality from J-13 (receivables
+  flat on +50 % revenue, OCF $11.8B vs net income $5.3B) and **J-14's finding that J-11's lease argument is contradicted**
+  (D-02's net debt already carries finance leases); rejected because nothing in the bundle closes an eight-fold gap.
+- **Falsifiers** (committed BEFORE the verdict, `RA-16`; commit `sha256:baae26c5…`), all about the business:
+  1. OCF − capex positive in each of the four quarters reported after 2025-06-26, summing to more than $5B — by 2026-09-30
+  2. Gross profit rising sequentially in each of those four quarters — by 2026-09-30
+  3. Capex below $2.5B in two consecutive quarters with gross profit ≥ $3,508M — by 2026-06-30 (⇒ HOLD, per item 3)
+  4. Debt above $22B with cash below $6B — by 2026-06-30
+- **9 data gaps** (`J-17`), sorted by `obtainable`: consensus and rating actions, competitor capacity, E-09's accrual work,
+  a completed FY2025 cash-flow statement (*exists, not fetched*); multiples and market cap, net leverage, HBM revenue and
+  margin (*not disclosed*); whether 28.3 % holds under a shorter explicit period (*unknowable*).
+- **J-14** found 6 inconsistencies, 9 uncited items bearing on claims, 5 partial citations, 5 single-source claims.
+
+### ⛔ The falsifiers, checked against what Micron later filed (free — EDGAR ledger, 2026-09-14)
+
+| Quarter end | OCF − capex ($M) | Gross profit ($M) | Debt ($M) | Cash ($M) |
+|---|---|---|---|---|
+| 2025-05-29 (the bundle's) | 1,671 | 3,508 | 15,541 | 10,163 |
+| 2025-08-28 | 72 | 5,054 | 14,577 | 9,642 |
+| 2025-11-27 | 3,022 | 7,646 | 11,756 | 9,731 |
+| 2026-02-26 | 5,516 | 17,755 | 10,142 | 13,908 |
+| 2026-05-28 | 17,562 | 35,056 | 5,722 | 24,995 |
+
+⇒ **#1 FIRED** (all four positive; sum **$26,172M** > $5B) · **#2 FIRED** (3,508 → 5,054 → 7,646 → 17,755 → 35,056) ·
+#3 not fired · #4 not fired. ★★ **By its own stated conditions the SELL thesis was wrong** — and it could be said without a
+judgement call, which is exactly what `RA-35` and `RM-13` exist for: *a thesis that died by its own condition, not one quietly abandoned.*
+
+### ⚠⚠ Why it was wrong — what the evidence says, and what it cannot say
+
+1. **The system's base was the trough's base.** `fv_model` capitalised trailing FCFF of $1,349M; J-20 chose a cycle
+   average of $1,287M. Four quarters later the trailing year was $26B. Every judgement block reasoned correctly FROM a
+   base that did not describe the business a year out — J-09 said so itself (*"the gap is not an artefact of base
+   selection — it is entirely in the growth requirement"*).
+2. **The deciding variable was named as absent, and the verdict went ahead anyway.** J-08's supply read was
+   `insufficient_evidence`, competitor capacity and consensus were declared absent, and J-16's own coverage statement
+   lists them — yet J-16's rule *"if nothing points the other way, return INSUFFICIENT_DATA"* was satisfied (something did
+   point the other way), so a directional verdict was permitted. ★ Question for the prompt (not answered here): should a
+   verdict whose governing consideration rests on a `insufficient_evidence` input be capped at `INSUFFICIENT_DATA`?
+3. **Stage A disagreed with Victor on the cycle.** J-07 recorded `mid`; Victor holds `late` (the red golden case). The thesis
+   used `mid`. ⚠ The real outcome (margins 38 % → far higher) fits NEITHER reading well; it was an up-cycle acceleration.
+4. **`DX-116`** — the FCFF base carried two known, roughly offsetting capex issues; they do not explain a 20× move.
+5. ⚠ **What this cannot establish**: one thesis, one company, one date is an anecdote, not a hit rate (`PG-5.1` Tier B).
+   ⚠ **Contamination:** Opus 5's training data runs past 2025-06-26, so an as-of test on 2025 is not blind to the model —
+   here it did not help the model, but a correct call on this date would not have proven skill either.
+
+### The issues this run closed
+
+`DX-115` (J-14…J-17 bounded — 4/4 succeeded) · `DX-110` (one text per block; J-11/J-15 full view — ⚠ changes the
+orchestrated `thesis` job) · `DX-111` (S-8 in Stage A; golden split declared) · `DX-116` measured · `DX-117` assessed.
+
+### ★★ What remains — measured 2026-09-15
+
+| | done | remaining |
+|---|---|---|
+| **Platform** (`F1`…`F10`) | 168 / 168 ACs | **0 %** |
+| **Analysis blocks — declared** | 27 / 35 (77 %) | **23 %** — `E-03` `E-05` `E-08` `E-11` `E-14` `E-15`, `J-18` `J-19` |
+| **Analysis blocks — working** | 23 / 35 (66 %) | **34 %** — 8 undeclared + `E-09` `E-13` `J-03` `J-04` |
+| **Thesis path** (30 blocks) | 22 working (73 %) | **27 %** — `E-03` `E-05` `E-08` `E-11` undeclared; `E-09` `E-13` `J-03` `J-04` blocked on evidence |
+| **Theses produced** | 1 (k=1) | `RM-1` needs k ≥ 3 before any agreement figure means anything |
+| **Golden coverage** | 7 / 35 graded (+2 drafted, unsigned) | 80 % ungraded (a ceiling, not a target) |
+
+### ⬜ What next
+
+1. ✅ **The prompt question in item 2 is DECIDED — `DX-118`, no hard cap** (§2.1j).
+2. **Free: a falsifier checker in code** — the table above was computed by hand; `RM-13` needs it deterministic, dated and
+   run on every new filing. And **prompt caching**: ~140k of each Stage B–D call's input is the same bundle — putting it
+   first would cut the input cost of the 11 later calls by roughly 80 %.
+3. **Victor: `DX-116`** (declare both capex limits now) and **`DX-117`** (the industry source list — it unblocks
+   J-03, E-13 and J-08's supply read, the input this thesis most lacked).
+4. **Victor: sign or change the two pending golden cases** (J-20, J-09).
+5. **Paid, later: k=3 theses** — only after 2–3, or the three runs measure the same missing inputs three times.
+
+## 2.1h ★★★ 2026-09-14/15 — Stages B–D built, and run live on Micron up to J-14
+
+> **Spend $12.06** over three approved runs (all capped; the $15 total was held) + one FMP price call.
+> `DX-108`(1)(5) `DX-109` closed · `DX-110`…`DX-116` new. No thesis yet: the run stopped at `J-14`.
+
+### What exists now
+
+- **Micron's raw price**, recorded once from FMP (`tests_src/fixtures/prices/MU_raw_eod_2025-06.json`,
+  `non-split-adjusted` — trap 2 confirmed: `adj*` field names, raw values): **$126.00 on 2025-06-26**.
+  ⇒ `fv_model` **$15.96**, band **$10.76–$22.50** (every one of 12 cells below price), implied stage-1
+  FCFF growth **28.3 % a year for 10 years**; `fv_analyst` on J-20's basis **$15.09** (recorded, never in a bundle, `VS-3`).
+- **`J-09`…`J-17` declared verbatim** (`DX-109` ⓐ), full view, drift-guarded; J-13 binds `<METRIC>` per call.
+- **`tools/run_thesis_once.py`** — Stage A loaded from recordings and re-validated (a pre-`DX-100` rubric answer
+  is VOID and refused), frozen and committed; every later output committed to `commits.jsonl` BEFORE any call
+  can read it, as a `stage_output` part pinned by commit hash (new kind, blind-withheld); the staging rule
+  (`J-11`…`J-13` never read Stage C; J-14 reads all); J-15's falsifiers must pass `Falsifier` and be on disk
+  before J-16 is issued; strict tool schemas; a hard `--budget-usd`; `--resume-from` that carries a failed run's
+  commits only if every commit and bundle hash re-derives. **41 tests, every guard mutation-tested.**
+- **J-20's exclusion quotes are verified in code**; J-20 is in `STAGE_A_ORDER`.
+
+### What the live run produced (committed, `run-2026-09-15T034909-mu-thesis/commits.jsonl`)
+
+| Block | Result |
+|---|---|
+| `J-09` | Price requires 28.3 % FCFF growth × 10 years — `required_more_than_evidenced`, gap **unexplained** by Stage A (J-07 `mid`, J-08 supply `insufficient_evidence`); consensus and differential view **insufficient** (declared absent); band insensitive to rate/terminal growth. ★ Finding: `D6` charges GROSS capex and does not credit government-incentive proceeds ($1,294M in 9M FY25) → `DX-116` |
+| `J-10` | 5 claims; 4 of 5 require Micron to be **exceptional** within its class; base rates mostly absent |
+| `J-11` | Bear case: equipment enters through **non-cash finance leases, outside the capex line**, so the FCFF the price is solved against is flattered → `DX-116`. Own falsifier: 4 quarters of rising gross profit with OCF > capex by 2026-06-30 |
+| `J-12` | 4 loss paths; earliest-symptom ranking [2, 4, 1, 3]; path 1 = DRAM following NAND's sequential ASP declines |
+| `J-13` ×5 | Cyclical position (mechanism 11) `present` in all five metrics; FCF has the most mechanisms present (finance leases, receivables, inventory, cash conversion) |
+| `J-14`…`J-17` | ⛔ not produced — J-14 thinking runaway (`DX-115`) |
+
+### The issues, in order — and what was chosen
+
+| # | Issue, plainly | Chosen | Rejected |
+|---|---|---|---|
+| `DX-110` | The old WF-1 path declares a DIFFERENT `J-11 v1` text and runs J-11/J-15 blind | Recorded, untouched (its tests pin inherited behaviour) | Silent overwrite |
+| `DX-111` | Stage-A calls never composed `S-8` (fresh authoring) | Stages B–D compose it; Stage A deferred to the next paid re-record | Changing Stage A's envelope hash now |
+| `DX-112` | A mutant of the spend guard ran the real composition (no vendor call, $0) | Guard test patched to raise | — |
+| `DX-113` | J-11 returned 4/6 fields — the schema was not strict; failed trace closed `SUCCESS`; estimate −9 % | Strict schema (bounds as descriptions, validated client-side) · `close("FAILED")` · 2.7 chars/token · verified resume | Retrying unchanged |
+| `DX-114` | J-13 thinking runaway (16k, tool_input 0); resume-of-resume mis-pinned commits (caught by the hash check) | J-13 `effort: medium` + 32k → **5/5 succeeded** (10k–19k out) · pin to producing run | Cap alone |
+| `DX-115` | J-14 thinking runaway at default effort, input 193k | ⬜ apply J-13's settings to J-14…J-17 (free), then resume (paid) | — |
+| `DX-116` | Two opposite `D6` capex questions raised BY the analysis: incentives not credited (base too low) · finance-lease equipment not charged (base too high) | ⬜ Victor | — |
+
+### ⚠ What went wrong in the WORK
+
+1. **Three paid stops in one thesis** ($0.83 J-11, $1.12 J-13, $1.37 J-14 lost). Each was caught before a thesis was
+   built on it, and each fix was free — but the J-13 runaway should have prompted the same setting for J-14 at once:
+   ★ **when a block fails from a GENERAL cause (thinking), apply the fix to every block sharing the cause, not just the one that failed.**
+2. **Estimates ran low twice**: 3 chars/token (−9 %), then J-13's outputs (10k–19k, projected 7.5k) made J-14's input 193k vs 174k estimated.
+3. **A stray run directory from a mutation test** (`DX-112`) — found by listing `.state/runs`, not by the test output.
+
+### ★★ What remains — measured 2026-09-15
+
+| | done | remaining |
+|---|---|---|
+| **Platform** (`F1`…`F10`) | 168 / 168 ACs | **0 %** |
+| **Analysis blocks — declared** | 27 / 35 | **23 %** — `E-03` `E-05` `E-08` `E-11` `E-14` `E-15`, `J-18` `J-19` |
+| **Analysis blocks — working** (a successful live call) | 19 / 35 | **46 %** — 8 undeclared + `E-09` `E-13` `J-03` `J-04` + `J-14`…`J-17` |
+| **Thesis path** (`E-01`…`E-13` + `J-01`…`J-17`, 30 blocks) | 18 working | **40 %** — ★ but only **4 blocks (J-14…J-17, ≈$4–5)** stand between now and the FIRST thesis |
+| **Golden coverage — blocks graded** | 7 / 35 | **80 %** ungraded (a ceiling, not a target — §2.1c) |
+
 ## 2.1g ★★ 2026-09-14 — Q2 / DX-103 / DX-104 applied, `J-20` run live on Micron
 
 > **Spend $0.50** (one approved J-20 call; EDGAR re-ingest free; FMP not called). `DX-106`…`DX-108`.
@@ -415,12 +739,33 @@ post-envelope one. The established value is unchanged; only the artefact moved.
 
 | # | Issue, plainly | Chosen | Rejected, and why |
 |---|---|---|---|
-| `DX-106` | Counting OPERATING leases in net debt while `D6`'s operating cash flow already pays them counts them twice | Held: always in `known_omissions`; Victor picks ⓐ/ⓑ | ⓑ now (needs `OperatingLeaseCost`, which MU stopped tagging after 2025-11-27 — would refuse MU today) · applying the literal decision (a `D-19`-class mismatch) |
+| `DX-106` | Counting OPERATING leases in net debt while `D6`'s operating cash flow already pays them counts them twice | ✅ **ⓐ, Victor 2026-09-14: left out by design** — declared per result under a NEW `net_debt.excluded_by_design` (with the reason), no longer in `known_omissions`, so a choice never reads as a gap | ⓑ count + add back lease cost (a `v3` formula; MU stopped tagging `OperatingLeaseCost` after 2025-11-27 — would refuse MU today) · applying the literal first answer (a `D-19`-class mismatch) |
 | `DX-107` | ⛔ Mutation testing was UNRELIABLE for same-size edits: `__pycache__` is invalidated by mtime + size, and a mutant restored within the same second left the MUTANT's bytecode loaded — one real test "failed" on correct code | Re-ran all 10 mutations with `PYTHONDONTWRITEBYTECODE=1` and caches cleared: 10/10 caught | Trusting the first run (a same-size mutant can also read as CAUGHT or SURVIVED wrongly) |
 | `DX-108` | J-20 follow-ups found by the run | ⬜ recorded, not built: exclusion quotes are not `X-01`-verified in code (checked by hand here) · `J-20` not in `STAGE_A_ORDER` · the history shows a D-07 FY2008 row with a **0-day "annual" span** · revenue absent FY2009–FY2015 (older tag) | — |
 
 ⚠ **Also fixed:** the facts ingest CLI read only `GMAIL_SMTP_USER`; it now reads `EDGAR_CONTACT` first,
 like the rest of that file (`src/data_engine/ingest/__main__.py::_facts`, and `src/models/train/__main__.py`).
+
+### ★★ What next — the build is at Stage B (measured 2026-09-14)
+
+**Where it stands:** Stage A is declared (8 blocks + `J-20`), 7 of 9 work on MU; D-02's valuation trail
+exists and is wired as a `computed` part; **no CT-9.2 thesis has ever been produced**, and every block that
+remains to reach one (`J-09`…`J-17`) runs on the FULL view — which needs a price. **There is no price in
+`.state/`** (FMP is the only source; EDGAR has none). So the next work is Stage B, in this order:
+
+| # | Step | Cost | Why this order |
+|---|---|---|---|
+| 1 | `DX-108`(1) run `J-20`'s exclusion quotes through `X-01` before a basis is recorded; add `J-20` to `STAGE_A_ORDER` (⚠ +$0.50 per future `--stage-a`) | free | A Stage-B block will read `J-20`'s answer as FROZEN evidence; its quotes must be verified in code first, not by hand |
+| 2 | Fetch MU's RAW daily close around 2025-06-26 from FMP (`historical-price-eod/non-split-adjusted`, Class A — `fmp-api` trap 2) into the price store | 💲 1 FMP call (subscription quota), **approval needed** | Unlocks `valuation()` end to end on real data: `fv_model` WITH price, implied stage-1 growth (`D7`), and `fv_analyst` on `J-20`'s basis — the three figures `J-09` item 1 reads |
+| 3 | **Victor: `DX-109`** — `J-09`'s declared inputs the build cannot supply as written (below) | a decision | Declaring `J-09` verbatim now would repeat `DX-85`: a block asked for evidence nobody provides |
+| 4 | Declare `J-09` + `J-10` (drift guard, pre-flight for arithmetic), and a Stage-B runner: full view, Stage A's committed answers as a hashed, non-revisable part (`S-9`) | free to build · ≈ $1–2 live, approval | Stage B is the first stage that reads Stage A as given — the frozen-output mechanism is new code |
+| 5 | `J-11`…`J-14` (Stage C, adversarial) → `J-15`…`J-17` (Stage D, commit) | free to declare · live ≈ $0.5–0.8/block | Completes the first `CT-9.2` thesis on MU; `K_RUNS=3` prices `QR-20` (`DX-60`) |
+
+⬜ **Not first, stated so they are not forgotten:** golden cases for `J-20` (Victor, optional); `DX-108`(3)(4)
+the FY2008 0-day row and the pre-FY2016 revenue tag; the six undeclared E-blocks; `E-09` (skipped) and
+`E-13`/`J-03` (need an industry part kind) — they limit two rubric dimensions, not the thesis path.
+
+## 2.1f ★★★ 2026-09-13 (late) — F10 built, Micron valued from EDGAR, `J-20` declared
 
 ## 2.1f ★★★ 2026-09-13 (late) — F10 built, Micron valued from EDGAR, `J-20` declared
 
@@ -2102,9 +2447,30 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-103** | 2026-09-13 | F10 · real EDGAR data · `CANONICAL` | `AC-F10.7`: trailing = four discrete, contiguous EDGAR quarters; `FE-2`: a canonical-item change versions the feature contract | ★ **Micron's real facts broke two synthetic assumptions.** (1) Quarters ABUT — gaps **[1, 0, 0]** days — so the first rule (1–7 days) refused a valid trailing year. (2) MU reports interest as `InterestExpenseNonoperating` and debt as `DebtCurrent` / `LongTermDebtAndCapitalLeaseObligations` (lease-inclusive); `CANONICAL` maps none of them, so the valuation was `ValuationUnavailable` on real data | `src/feature_engineer/valuation/basis.py` · `src/data_engine/ingest/edgar_facts.py::FEATURE_TAGS` · `tests_src/fixtures/edgar/MU_facts_valuation_subset.parquet` | ⚠ medium | ✅ **CLOSED 2026-09-14 — Victor: into `CANONICAL`.** Fallbacks moved to `CANONICAL` (second in preference order); `VALUATION_FALLBACKS` removed; `fundamental` feature contract v2 → v3. ~~FIXED for valuation 2026-09-13; `CANONICAL` decision OPEN.~~ Contiguity 0–7 days. `VALUATION_FALLBACKS` consulted by `basis.py` only; `LEASE_INCLUSIVE_TAGS` make `known_omissions` truthful per result. Real-data integration tests assert cash/debt/shares against 10-Q lines. ⬜ Victor: add the fallbacks to `CANONICAL` (a feature-contract version) or keep them valuation-only | ✗ Adding to `CANONICAL` silently (would move every `f_*` feature under `FE-2`) · ✗ 1–7 days kept (refuses real data). ★ Lesson: synthetic rows encoded my assumption about filings; only a real ingest tested it |
 | **DX-104** | 2026-09-13 | F10 `D6` · `D5` cycle averages | `AC-F10.17`: `t = income_tax ÷ pretax_income`; pretax ≤ 0 refuses, never a substituted rate | ⛔ **The rule that keeps the trailing basis honest makes a cycle average impossible for a cyclical.** MU FY2016 and FY2023 (THE trough) have pretax losses ⇒ no D6 FCFF ⇒ any window spanning the trough refuses. Averaging the remaining years would silently drop exactly the years a cycle average exists to include | `src/feature_engineer/valuation/normalised.py::_window` · `basis.py::_d6` | ⚠ high (blocks `J-20` on MU) | ✅ **CLOSED 2026-09-14 — Victor: ⓐ `t = 0`.** `D6` → `fcff…v2`, `tax_rule` recorded, AC-F10.17 amended; MU FY2016/FY2023 now computed and J-20's live window spans the trough. ~~OPEN — Victor.~~ Before: refuse, naming every unusable year (`AC-F10.19`). ⓐ `t = 0` when pretax ≤ 0 (no tax shield on interest in a loss year; amends `AC-F10.17`, new `FORMULA_ID` version) · ⓑ keep refusing (J-20 must choose a window without loss years — biased) · ⓒ statutory rate (✗ a substituted default, `P5`). ★ Recommend ⓐ | ★ A formula can be right for its first use and wrong for its second; the second use (`D5`) arrived the same day |
 | **DX-105** | 2026-09-13 | F10 `D5` · `RA-45` · `VS-4` | `RA-45`: *"D-01 performs no arithmetic that D-02 could perform"* (structural: no pandas in `src/fundamental`) | ⛔ **The first `D5` build put the cycle averages in D-01** (`src/fundamental/valuation/normalise.py` imported pandas and averaged). `tests_src/test_architecture.py::test_architectural_rule_holds[RA-45]` and `test_fundamental_b46.py::test_src_fundamental_computes_no_series_arithmetic` went red. My spec text (`D5`, `CT-F10.3`) had said *"plain D-01 code computes"* — reading `VS-4` literally | `src/fundamental/valuation/normalise.py` · `src/fundamental/bundle/assemble.py::annual_history_part` | ⚠ medium | ✅ **CLOSED 2026-09-13.** Averages, per-year margin and the annual history moved to D-02 `valuation/normalised.py` (`FORMULA_ID normalised.cycle_average_fcff_or_margin.v1` + MethodEntry); D-01 validates the choice and records provenance (`computed_by` names the D-02 function); `annual_history_part` renders D-02's margins. `AC-F10.19` added (spec first), traceability 167 rows. Tests: D-02 known answer, gap refusal, `as_of` filter, mixed currency, and a check that the D-01 file holds no arithmetic tokens. Mutations: 6/6 D-02, 4/4 D-01 guards caught (2 survivors found and closed) | ✗ Exempting the file from `RA-45` (the rule is right: given a method and window, averaging is judgement-free). ★ `VS-5` had warned that `VS-4`'s wording invites this misreading — it did |
-| **DX-106** | 2026-09-14 | F10 `D8` · net debt · operating leases | `D2`: FCFF at a firm rate minus net debt; `D6`: OCF-based flow | ⚠ **Victor's `Q2` answer ("leases count in net debt") is incoherent for OPERATING leases under `D6`.** ASC 842 puts operating-lease payments in operating cash flow, which `D6` already subtracts; adding the liability to net debt counts the lease twice (`D-19` in miniature). Finance leases are coherent: principal is financing cash flow | `src/feature_engineer/valuation/basis.py::balance`, `::known_omissions` | ⚠ low in $ (MU: liability ~$0.7B vs ~$400B equity at the 2026 value) | ◐ **Securities + finance leases APPLIED; operating leases HELD** — always in `known_omissions`. ⬜ Victor: ⓐ leave out (the flow bears them) · ⓑ count the liability AND add back operating lease cost in `D6` (`v3`; ⚠ MU stopped tagging `OperatingLeaseCost` after 2025-11-27, so ⓑ refuses MU today). ★ Recommend ⓐ | ★ A decision taken on a question that did not mention the flow side. ⚠ Measured the same day: both MU debt tags ALREADY include finance leases (`DebtCurrent` = `FinanceLeaseLiabilityCurrent` 538 = 538; `LongTermDebtAndCapitalLeaseObligations` 15,003 = `LongTermDebt` 12,434 + finance-lease non-current 2,569) — adding the lease tags would have double-counted ~$3.1B |
+| **DX-106** | 2026-09-14 | F10 `D8` · net debt · operating leases | `D2`: FCFF at a firm rate minus net debt; `D6`: OCF-based flow | ⚠ **Victor's `Q2` answer ("leases count in net debt") is incoherent for OPERATING leases under `D6`.** ASC 842 puts operating-lease payments in operating cash flow, which `D6` already subtracts; adding the liability to net debt counts the lease twice (`D-19` in miniature). Finance leases are coherent: principal is financing cash flow | `src/feature_engineer/valuation/basis.py::balance`, `::known_omissions` | ⚠ low in $ (MU: liability ~$0.7B vs ~$400B equity at the 2026 value) | ✅ **CLOSED 2026-09-14 — Victor: ⓐ leave them out.** Declared on every result under `net_debt.excluded_by_design` with the reason, removed from `known_omissions` (a choice is not a gap); spec `D8` / `CT-F10.2` / AC-F10.20 amended; test `::test_ac_f10_20_operating_leases_are_excluded_by_design_not_omitted` (a 999,999 operating-lease liability moves nothing; removing the field is caught). ~~HELD~~ · ✗ ⓑ count + add back lease cost (`v3`; MU stopped tagging `OperatingLeaseCost` after 2025-11-27) | ★ A decision taken on a question that did not mention the flow side. ⚠ Measured the same day: both MU debt tags ALREADY include finance leases (`DebtCurrent` = `FinanceLeaseLiabilityCurrent` 538 = 538; `LongTermDebtAndCapitalLeaseObligations` 15,003 = `LongTermDebt` 12,434 + finance-lease non-current 2,569) — adding the lease tags would have double-counted ~$3.1B |
 | **DX-107** | 2026-09-14 | mutation testing · Python bytecode cache | "Mutation-test every guard and its caller" (working method) | ⛔ **A mutation run can report the WRONG mutant.** CPython revalidates `__pycache__/*.pyc` by source mtime (1 s) and size; the `any(` → `all(` mutant has the same size and was restored in the same second, so the next full suite ran the MUTANT's bytecode against correct source — `test_ac_f10_20_an_unreported_item_is_declared_never_zero[extra2]` failed on correct code | the mutation scripts of 2026-09-13 and 09-14 | ⚠ medium (every same-size mutation since the practice began is suspect) | ✅ **CLOSED 2026-09-14** for this change: caches cleared and all 10 mutations re-run under `PYTHONDONTWRITEBYTECODE=1` — 10/10 caught. ★ Rule from now: run mutations with `PYTHONDONTWRITEBYTECODE=1` (or `-B`) and clear `__pycache__` after | ★ Found because a test failed on code I could read was right, and I checked the loaded function instead of the file. ⬜ Earlier same-size mutation results (e.g. `<`/`>` swaps) were not re-run |
-| **DX-108** | 2026-09-14 | `J-20` live · D-07 history | `S-2`, `X-01`, `RA-1` | Found by the first live `J-20` (`run-2026-09-14T122547-mu-j20`, $0.5026, `tool_use`): (1) `exclusions[].quote` is NOT verified in code — all three were verbatim by hand; (2) the model labelled nine-month figures "FY2024"; (3) the annual history shows a D-07 **FY2008 row with a 0-day span** (an instant fact classified annual?); (4) revenue absent FY2009–FY2015 (older revenue tag not in `CANONICAL`); (5) `J-20` not in `STAGE_A_ORDER` | `tools/run_judgement_once.py::normalisation_outcome` · `src/data_engine/pit/snapshot.py` · `src/feature_engineer/fundamental/items.py` | ⚠ medium (1) · low (2-5) | ⬜ **OPEN.** (1) run the exclusion quotes through `X-01` before the basis is recorded; (3) find the 0-day annual row's source; (4) add `SalesRevenueNet` to revenue (another `fundamental` contract version); (5) Victor: add J-20 to Stage A (+$0.50/run) | ★ The answer itself was sound and hand-checked: $11,585M ÷ 9 = $1,287M |
+| **DX-108** | 2026-09-14 | `J-20` live · D-07 history | `S-2`, `X-01`, `RA-1` | Found by the first live `J-20` (`run-2026-09-14T122547-mu-j20`, $0.5026, `tool_use`): (1) `exclusions[].quote` is NOT verified in code — all three were verbatim by hand; (2) the model labelled nine-month figures "FY2024"; (3) the annual history shows a D-07 **FY2008 row with a 0-day span** (an instant fact classified annual?); (4) revenue absent FY2009–FY2015 (older revenue tag not in `CANONICAL`); (5) `J-20` not in `STAGE_A_ORDER` | `tools/run_judgement_once.py::normalisation_outcome` · `src/data_engine/pit/snapshot.py` · `src/feature_engineer/fundamental/items.py` | ⚠ medium (1) · low (2-5) | ◐ **(1) and (5) CLOSED 2026-09-14:** exclusion quotes verified in code before any basis (`normalise.py::assert_exclusions_quoted`, X-01's whitespace/typography rule; `normalise(..., bundle=)` now required; caller test on the real J-20 quote); `J-20` is last in `STAGE_A_ORDER` and `--stage-a` refuses without `--annual-history`. ⬜ (3) (4) open. ~~OPEN.~~ (1) run the exclusion quotes through `X-01` before the basis is recorded; (3) find the 0-day annual row's source; (4) add `SalesRevenueNet` to revenue (another `fundamental` contract version); (5) Victor: add J-20 to Stage A (+$0.50/run) | ★ The answer itself was sound and hand-checked: $11,585M ÷ 9 = $1,287M |
+| **DX-109** | 2026-09-14 | `J-09` v1 · Stage B inputs · planning | `J-09` text: *"the price, the market capitalisation, the multiples, D-02's fair value with its sensitivity band and its arithmetic trail, and the consensus view"*; item 1: *"D-02 supplies the reverse-engineered figures — the growth, margin and duration implied"* | Found while planning Stage B, before any declaration: **two of `J-09`'s inputs do not exist and one cannot exist as written.** (1) **Consensus at a past `as_of` is only partly reconstructable**: `analyst-estimates` is Class B (`date` = TARGET period, no publication axis — `fmp-api` trap 5), so the MU 2025-06-26 bundle cannot carry the forward estimates a person saw; rating actions and price-target changes ARE event-dated (Class A: `grades`, `price-target-news`). (2) **D-02 solves only stage-1 growth** (`F10` `D7`); item 1 asks for implied margin and duration too. (3) No multiples output exists in D-02 (`F10` non-goal) | `sdd/design/rel6_design/L1-fundamental-analysis-master-prompt.md` §Stage B · `F10` `D7` | ⚠ medium (blocks declaring `J-09` verbatim) | ✅ **CLOSED 2026-09-14 — Victor: ⓐ.** `J-09`…`J-17` declared verbatim (drift-guarded); the absent inputs are a `computed` part `absent.stage_b_to_d_inputs` naming each with its reason (`tools/run_thesis_once.py::STAGE_B_ABSENCES`, `assemble.declared_absences`). ~~OPEN — Victor.~~ ⓐ declare `J-09` v1 verbatim and let the bundle say what is absent (consensus forward estimates, implied margin/duration, multiples as named gaps — `J-09` already routes unexplained gaps to the data gaps) · ⓑ write `J-09` v2 naming exactly what D-02 supplies (implied stage-1 growth, band, trail) and consensus as Class-A rating/target actions only · ⓒ move the first thesis to a CURRENT `as_of` (new 10-Q fixture; consensus snapshot capturable today, but Stage A and every golden case sit on the 2025-06-26 bundle). ★ Recommend ⓐ for the first thesis — the block's own item 3 handles gaps, and it measures what is missing before building it | ★ `DX-85`'s shape caught before spending: a block declared against evidence nobody supplies |
+| **DX-110** | 2026-09-14 | two declarations of `J-11 v1` · the old WF-1 path | `RA-13`: the text in code is the spec's, verbatim; one name, one contract | ⚠ Found declaring Stages B–D: `src/fundamental/prompts/blocks/j_blocks.py` (the 2026-08 WF-1 path used by `thesis/run.py::author_once` and `test_fundamental_probe.py`) declares **`J-11 v1` with a DIFFERENT text** (*"State the strongest case that this investment is a mistake…"*, 3 lines) from the design doc's `J-11 v1` (now in `e_blocks.py`), and runs **J-11 and J-15 on the BLIND view** while the doc puts Stage C and D on `view:full`. Its `J-15`/`J-16` texts match the doc | `src/fundamental/prompts/blocks/j_blocks.py` · `src/fundamental/thesis/run.py` | ⚠ medium (two contracts wearing one name; nothing runs the old path live today) | ✅ **CLOSED 2026-09-15 — ⓐ (Victor: "do step 4").** `prompts/blocks/j_blocks.py` now takes `J-11`/`J-15`/`J-16` from `e_blocks.py` (one text per name+version; `J-16` keeps its RA-17 options); `thesis/run.py::author_once` sends J-11 and J-15 the FULL bundle (Stage C/D per `STAGE_VIEW`); the Stage-A freeze is still over `bundle.redact()`. ⚠ **This changes the orchestrated `thesis` job** (`graph.py` → `author_for` → `author_once`): J-11 now reads the price. Probe tests re-pointed with the reason; 2 mutations caught. ~~OPEN — Victor.~~ ⓐ retire the old path onto `e_blocks.py` + `tools/run_thesis_once.py` (its tests re-pointed) · ⓑ rename the old block (`J-11-legacy`) so the name stops colliding · ⓒ leave it (✗ a recording under `J-11 v1` would be ambiguous). ★ Recommend ⓐ | ★ Left untouched in this change on purpose: its tests pin inherited behaviour (`P4`) |
+| **DX-111** | 2026-09-14 | `S-8` never composed in Stage A | §4.0: *"Composed into every J-block: S-1…S-6, plus S-7 in Stage A and S-8 in fresh authoring"* | Stage A IS fresh authoring (WF-1), yet `run_judgement_once.py` composes `stage_a=True` only — every recorded Stage-A call (and every golden thesis case) went out WITHOUT `S-8` (*"You have not analysed this company before…"*). Stages B–D compose it (`call_prompt(..., fresh=True)`, tested) | `tools/run_judgement_once.py::main` (`compose_prompt(blk, stage_a=...)`) | ⚠ low (S-8 guards against a prior verdict no Stage-A bundle carries) | ✅ **CLOSED 2026-09-15 — ⓐ.** `run_judgement_once` composes `S-8` in Stage A (`fresh=True`, envelope hash too; test on the payload a dry run builds). The golden set's Stage-A recordings are a DECLARED split in `test_golden_regression.py::DECLARED_ENVELOPES` until the next paid Stage-A re-record (a mutant removing the declaration is caught). ~~OPEN — Victor.~~ Adding it changes the envelope hash of every future Stage-A call (`DX-76`), so recordings before and after stop being hash-comparable. ⓐ add it at the next paid Stage-A re-record · ⓑ declare §4.0 as meaning Stages B–D only (doc amendment). ★ Recommend ⓐ | ★ `DX-67`'s shape one section over: the composition rule was read for S-7 and not for S-8 |
+| **DX-112** | 2026-09-14 | mutation testing a SPEND guard | "Ask approval before every live call"; mutation-test every guard | ⛔ Mutating `if args.live and args.budget_usd is None:` to `if False:` made `test_live_without_an_approved_cap…` run the REAL composition: it built the bundle, froze Stage A and wrote `.state/runs/run-2026-09-15T021127-mu-thesis/commits.jsonl`, then crashed comparing `spent > None` BEFORE any vendor call. **Verified: no `trace.jsonl`, no `ExternalCall` — $0.** A slightly different mutant could have reached the vendor | `tests/structural/test_thesis_runner.py` | ⚠ high (a test of a spend guard could spend when the guard is broken) | ✅ **CLOSED 2026-09-14.** The test now wires `build_base` and `anthropic_transport` to fakes that RAISE, and `REPO` to `tmp_path`; the mutant is caught with nothing built. The stray directory (derived data only, mine) was deleted. ★ Rule: a test of a spend guard patches the vendor to raise | ★ Found by listing `.state/runs` after the mutation run, not by the test output |
+| **DX-113** | 2026-09-15 | first live Stage B–D run · tool schema not enforced | `MP-5`: a closed shape is DECLARED; `P5`; `AC-2.12` a trace's close status says what happened | ⛔ `run-2026-09-15T022801-mu-thesis` (approved, $15 cap): **J-09 ✅ $0.87 · J-10 ✅ $0.83 · J-11 ⛔ $0.83** — `stop_reason: tool_use`, output 4,456 tokens but tool input only **981 characters**: `strongest_reason` plus a stray top-level `evidence`, and `load_bearing_assumptions`, `accounts_in_two_years`, `own_falsification_condition`, `missing_evidence` ABSENT. The runner's own `validate` refused it; no thesis (`P5`). **Spent $2.5352.** Two more defects in the same run: (a) the trace closed **`SUCCESS`** although the run failed — `TraceStore.close()` defaults to it and the runner did not pass the status; ⚠ that trace cannot be reopened, so its close record stays wrong and `thesis.json` (`failed`) is authoritative; (b) the cost estimate used 3 chars/token and J-09 billed **139,031** against ≈127,554 estimated (**−9 %**) | `tools/run_thesis_once.py` · `tools/anthropic_transport.py` (passes the tool dict as-is) | ⚠ high ($0.83 lost; any block could have failed the same way) | ✅ **FIXED 2026-09-15 (free), then resumed with approval.** ① `strict_tool`: the SENT schema is `strict: true`, every object `additionalProperties: false`; strict mode rejects complex array bounds, so `minItems`/`maxItems` are removed from the sent copy and carried as the field's DESCRIPTION (*"exactly 3 items"*), while `validate` still enforces them. All 9 schemas accepted by `count_tokens` (free — ⚠ may not compile strict grammars as a real call does). ② `close("FAILED")` on a failed run (test). ③ `CHARS_PER_TOKEN = 2.7`, measured. ④ `--resume-from`: a failed run's commits are carried only if each RE-DERIVES to its recorded commit hash AND its recorded bundle hash reproduces from this run's evidence (tests incl. a genuine commit over different evidence); J-09/J-10 were not re-bought. 6/6 mutations caught after two test gaps were closed (a bundle-tamper case that also broke the commit hash; no assertion that the STRICT schema is what is sent) | ✗ Retrying without strict (same odds of the same failure) · raising the output cap (it did not truncate) · re-running J-09/J-10 ($1.70 for answers already committed). ★ Same lesson as `DX-68`: *"it parsed" is not "it is complete"* — the validation caught it before a thesis was built on it |
+| **DX-114** | 2026-09-15 | `J-13` thinking runaway · resume pinning | `GW-23`; `GW-9c` (thinking stays on); `RA-108` | ⛔ Resumed run `run-2026-09-15T025134-mu-thesis` (approved, $12.46 cap): **J-11 ✅ $0.85 · J-12 ✅ $0.82 · J-13 `return_on_equity` ⛔ $1.12** — `max_tokens` at 16,000 with `stream_chars` **tool_input 0**: the whole budget went to hidden thinking, the `DX-96` shape on a judgement block. The strict schema (`DX-113`) worked for J-11 and J-12. Trace closed **FAILED** (the `DX-113` fix, confirmed live). **Spent $2.7888; $5.33 across both runs.** ⚠ Preparing the next resume found a second defect: carrying commits from a run that had itself CARRIED them re-pinned J-09/J-10 to the carrying run, so their bundle hashes did not reproduce — **refused by the bundle check before any spend** | `tools/run_thesis_once.py::BLOCK_OUTPUT`, `::carry_forward` | ⚠ medium | ✅ **FIXED (free), resumed with approval ($9.67 cap, keeping the $15 total).** `J-13` alone: `effort: medium` (bounds thinking; thinking stays on) and a 32,000 cap, used by the cost ceiling too; live-loop test asserts J-13's settings and every other block's defaults (a mutant emptying `BLOCK_OUTPUT` is caught). Carried commits pin to the PRODUCING run (`carried_from`), tested with a resume of a resume | ✗ Raising the cap alone (`DX-96`: buys thinking, not headroom) · `effort: low` first (J-13 is the adversarial forensic block — the quality cost is highest there) · dropping J-13's standing metric set (a departure from the doc's binding note) |
+| **DX-115** | 2026-09-15 | `J-14` thinking runaway | `GW-23`; `GW-9c` | ⛔ Second resume `run-2026-09-15T034909-mu-thesis` (approved, $9.67 cap): **J-13 ×5 ✅ with DX-114's settings** ($1.10 · $1.03 · $1.20 · $0.98 · $1.06; outputs 15,105 · 12,340 · 19,121 · 10,148 · 13,508 — far above the 7,500 projected), then **J-14 ⛔ $1.37**: `max_tokens` 16,000, `stream_chars` tool_input 0, input **193,358** (174k estimated — J-13's long outputs are visible to J-14). No thesis. **Spent $6.7289; $12.06 across three runs** (within the $15 total) | `tools/run_thesis_once.py::BLOCK_OUTPUT` | ⚠ medium ($1.37; the remaining four blocks share the cause) | ✅ **CLOSED 2026-09-15 — ⓐ, then resumed (approved, $7.50 cap): J-14 ✅ $1.45 (19,515 out) · J-15 ✅ $1.17 · J-16 ✅ $1.09 · J-17 ✅ $1.16 — $4.87, the first thesis.** `BLOCK_OUTPUT` covers J-13…J-17; `PROJECTED_OUT_TOKENS` 12k (J-14's estimate then matched its measured input, 193,415 vs 193,358). ~~OPEN — free fix, then a paid resume.~~ ⓐ `effort: medium` + 32k for J-14…J-17 (the setting that made J-13 5/5) · ⓑ J-14 only (✗ J-15…J-17 read MORE context than J-14 did) · and raise the output projection to the measured ~14k. ★ Recommend ⓐ | ★ The lesson is in §2.1h: a fix for a GENERAL cause should have been applied to every block sharing it after J-13 |
+| **DX-116** | 2026-09-15 | `F10` `D6` capex — raised BY the analysis | `F10` `D6`: `OCF + interest × (1 − t) − capex − SBC`, capex = `PaymentsToAcquirePropertyPlantAndEquipment` | ★ Two findings from the model's own committed outputs, pointing in OPPOSITE directions: (1) **J-09**: D6 charges GROSS capex and does not credit government-incentive proceeds — the 10-Q guides capex *"net of proceeds from government incentives"* and shows *"Proceeds from government incentives \| 1,294 \| 267"* (9M FY25 vs FY24) ⇒ base FCFF understated; (2) **J-11**: equipment financed by **finance leases enters the asset base without passing through the capex line** ⇒ base FCFF overstated vs true capital intensity (MU tags `RightOfUseAssetObtainedInExchangeForFinanceLeaseLiability`, and finance-lease principal is in financing cash flow). Neither was checked against the numbers yet | `src/feature_engineer/valuation/basis.py::_d6` · `F10` `D6` | ⚠ medium (moves `fv_model`; the 28.3 % implied growth rests on it) | ✅ **CLOSED 2026-09-16 — attempted and half-solved (`F10` `D9`, AC-F10.21).** ⓐ **`J-11`'s half needs NO change**: `D8` already counts finance leases as debt ($3,107M at 2025-05-29), so charging the $1,394M of lease-funded additions to capex too would count the same equipment TWICE — `J-14` reached this independently. ⓑ **`J-09`'s half is UNSOLVABLE from D-07**: a namespace-wide scan of MU's `companyfacts` finds NO tagged incentive-PROCEEDS fact (the only hit is share-based plans; `GovernmentAssistance*` carries balances). ⇒ every result now DECLARES it in `known_limits` (`PG-10`), material because 9M incentives alone (~$1,294M) would roughly double the $1,349M base. ~~MEASURED 2026-09-15 (free), decision OPEN — Victor.~~ On MU's facts, trailing year to 2025-05-29: capex **$13,319M** (FY24 8,386 − 9M FY24 5,266 + 9M FY25 10,199); finance-lease ROU additions **$1,394M** (`RightOfUseAssetObtainedInExchangeForFinanceLeaseLiability`: 905 − 758 + 1,247) — tagged; government-incentive proceeds **$1,294M for 9M FY25** (10-Q line 480) — ⚠ **NOT an EDGAR fact** (companyfacts carries only `GovernmentAssistance*` balances), so no trailing-year figure is computable from D-07. ⇒ Against today's base **$1,349M**: charging ROU additions → ≈ **−$45M**; crediting incentives (≥ $1,294M on 9M alone) → ≈ **$2.6B+**; both → ≈ **$1.2–1.4B**, near today's. ★ The two roughly cancel for MU; applying only the taggable one would bias the base DOWN by the whole amount. ★ Recommend: ⓒ declare both on every result now (`known_limits`), and adopt ⓐ only once an extraction item supplies incentive proceeds (an E-07 `ca.` item). ~~OPEN — Victor.~~ ⓐ capex net of incentive proceeds AND plus finance-lease ROU additions (`D6` v3, two new ingest tags) · ⓑ one of the two · ⓒ leave `D6` and record both as known limits on every result (`PG-10`). ★ Recommend: measure both amounts on MU's recorded facts first (free), then decide | ★ The first time this system's ANALYSIS found a defect in its own ARITHMETIC — exactly the loop `C3` exists for |
+| **DX-117** | 2026-09-15 | the industry evidence part (`J-03`, `J-08` supply, `E-13`) — assessed | `RA-98`…`RA-102`: a sector file ingests EVERY item of a versioned source list; omissions logged | ★ Assessed, not built: the MACHINERY exists — bundle kind `sector_file` (pinned by industry, schema, file version), `src/fundamental/sector/` (`SourceList` → `ingest(poll)` → `SectorFile` with capacity-announcement `records` {date, kind, subject, status, source_id, url, quote} and first-class `omissions`, schema fingerprinted, a no-conclusion-fields guard). ⚠ What does NOT exist: (1) a **memory-industry source list** (which competitor filings / releases / trade sources, versioned) and (2) a **poller** that fetches them point-in-time to the bundle's as-of. ★ The source list is a domain decision — `no_domain_content_until_decided` — so it was NOT drafted from model knowledge | `src/fundamental/sector/**` · `bundle/assemble.py::sector_file` | ⚠ medium (J-03 and the moat dimension stay unscoreable; J-08 supply stays `insufficient_evidence`) | ◐ **BUILT 2026-09-15 (free); E-13/J-03/J-08 re-runs approved.** Source list `config/sector/memory_v1.yaml` (`memory.v1`): **sndk-edgar** (EDGAR CIK 0002023554 — also the declared reporter for the Flash Ventures JV fabs) · **skhynix-ir** · **samsung-ir**, each exclusion carrying its reason. `tools/ingest_sector_file.py` visits every source, omits with a reason, and enforces `INV-1` per document; `run_extraction_once --sector` renders the file as ONE pinned `sector_file` part. Documents fetched 2026-09-15 (Victor authorised): Sandisk 10-Q filed 2025-05-12 (175,335 chars), SK hynix 1Q25 release 2025-04-24 (6,253), Samsung 1Q25 IR deck 2025-04-30 (23,703) — provenance in `.meta.json` sidecars with a content hash. 15 tests, 4/4 mutations. **PEER SET DECIDED 2026-09-15 (Victor): Samsung · SK hynix · Sandisk** — *"due to relative size and similar product lines"*. ⚠ YMTC/CXMT excluded by that criterion; if they are ever added it is a source-list VERSION bump, not an edit (`RA-98`). ⬜ Still open: the per-peer source entries and how non-EDGAR documents are fetched. Then: a poller per source type (free for EDGAR filers — Sandisk; paid or manual for foreign filers), E-13 re-run over the sector file (paid), J-03 / J-08 re-run (paid) | ★ Building a poller before the list would be architecture sourced from nowhere |
+| **DX-118** | 2026-09-15 | verdicts on incomplete evidence — the `INSUFFICIENT_DATA` question | `INV-012` (<0.3 ⇒ decline) · `INV-013` (<0.5 ⇒ capped at HOLD) · `RA-67` confidence := evidence coverage · `RA-38` never self-reported · `PG-10` | ★ MU's SELL was governed by considerations resting on DECLARED-absent inputs, and nothing on the artifact said how thin the evidence was: `thesis.confidence` was the `UNMEASURED` placeholder (`AB-1`) and conviction was the model's own word | `src/fundamental/thesis/derate.py` (new) · `tools/run_thesis_once.py::build_thesis` · `scorecard/coverage.py` (reused, not copied) | ⚠ medium | ✅ **CLOSED 2026-09-15 — Victor: NO hard cap.** *"There is no concrete evidence for any investment decision; the analyst proceeds with known limitation and risk."* The coverage ladder is wired instead: floors may only make a verdict MORE conservative (`P3`), a cap is a MEET so it cannot block an exit, and a governing absence caps CONVICTION at Low with each absence named. Measured on MU: coverage 0.583, verdict SELL unchanged, conviction Medium → Low. 12 tests, 5/5 mutations | ✗ Hard cap (an off switch given today's coverage; starves `RM-1`/`RM-13`/`F5`; contradicts `PG-10`) · ✗ asking `J-16` for the list in its schema (a new way for a paid call to fail — `DX-113`) · ⬜ a `J-16` v2 that states the rule in prose stays available at ≈$1.10/run |
+| **DX-119** | 2026-09-15 | the subject guard over an INDUSTRY bundle | `DX-97`: an item about another company may not name the registrant, read off the filing's cover page | ★ The guard reads the SUBJECT from the bundle's own filing cover page. That is right over Micron's 10-Q and **wrong over an industry bundle**: the documents are the competitors' own, there is no cover page for Micron, and the issuer of a document is a legitimate competitor. As written the guard would have refused the industry run outright | `src/fundamental/filings/subject.py::assert_subject_is_not_registrant` · `filings/extract.py::run_extraction` · `tools/run_extraction_once.py` | ⚠ medium | ✅ **CLOSED 2026-09-15.** The company that may not appear as its own competitor is the one being ANALYSED; a caller may DECLARE it (`subject=`), and a bundle with neither a cover page nor a declared subject still REFUSES (`P5`). `SUBJECT_NAMES` declares one per ticker and the run PRINTS it. 6 tests; a mutant dropping the declaration is caught (it survived the first pass — nothing asserted the runner passed it) | ✗ Inferring the subject from the bundle's ticker inside the guard (the guess that produced `DX-97`) |
+| **DX-120** | 2026-09-15 | a fetched page's own AI SUMMARY inside evidence | `RA-1`/`RA-19`: the bundle is evidence, assembled mechanically; `X-01` verifies a quote against the bundle | ⛔ `news.skhynix.com` ships an **"AI Summary"** block above the release — the SITE's generated text, not the company's words. Ingested whole it would sit inside the sector file, and `X-01` would verify a quote taken from it: a model could cite a machine summary as SK hynix's own statement. ★ `DX-102`'s failure with a different author, caught on the FIRST fetch this time | `tests_src/fixtures/industry/skhynix-ir/*` · `tools/ingest_sector_file.py` | ⚠ medium | ✅ **CLOSED 2026-09-15.** The block is stripped at fetch, the strip is RECORDED in the document's `.meta.json` (`removed: [...]`), and a test asserts both. ⚠ Generalisation NOT built: the strip is per-source and hand-written, so the next IR site's chrome needs the same treatment — a fetch that finds unknown furniture should be reviewed, not trusted | ★ The lesson generalises: **any fetched page may carry a machine's words beside the company's**, and a converter cannot tell them apart |
+| **DX-121** | 2026-09-15 | an industry quote had nothing to cite | `X-01` ①: the quote must resolve in the bundle; `RA-6`/`RA-131` | ⛔ The first live industry `E-13` (`run-2026-09-15T220611-mu-e13`, **$0.5196**, 75,952 in / 5,594 out) returned items and then FAILED verification: `parse_items` stamps every item with the module's `ACCESSION` — **Micron's** — and `Span.resolve` searched `filing` parts only, so a perfectly good quote from Sandisk's 10-Q inside the sector file resolved against nothing. ★ The call was fine; the citation contract had no id for this part kind | `tools/run_extraction_once.py::parse_items` · `src/fundamental/claims/models.py::Span.resolve` | ⚠ medium ($0.52 lost) | ✅ **CLOSED 2026-09-15.** A `sector_file` part is citable: the id is DERIVED from its pins (`sector:<industry>:v<file_version>`, no pin-contract change), `Span.resolve` searches those parts too, and the sector run stamps that id. A test verifies a real SK hynix quote end to end and asserts Micron's accession still does NOT resolve there; 2/2 mutations | ★★ **The lesson, and it is mine:** the dry run does not verify, so the whole `--sector` path had been exercised without ever running `x01_verify_extraction` once. ⚠ An end-to-end test with a synthetic item costs nothing and would have caught it before the call. ⚠ Also caught by X-01 while writing that test: my first synthetic item's VALUE was not inside its own quote (`X-01` ②, working) |
+| **DX-122** | 2026-09-16 | `X-01` ② vs a value the document cannot contain | `X-01` ②: the extracted value must appear in its cited span (`RA-6`, `RA-132`) | ⛔ The second industry `E-13` (`run-2026-09-16T070237-mu-e13`, **$0.50**, 15 items) aborted on `cx.status = "under construction"` cited against *"Gross profit decreased $81 million…"*. ★ `E-13` ASKS for a status from a closed set — it is a LABEL the reader assigns, and a filing essentially never contains the phrase, so the item is unsatisfiable under ② by construction. ⚠ MU's earlier `E-13` never exposed this: it died on the subject guard first (`DX-97`) | `src/fundamental/claims/classification.py` (new) · `claims/verify.py::x01_verify_extraction` | ⚠ medium ($0.50 lost; two of the block's six items affected) | ✅ **CLOSED 2026-09-16.** Only ② is relaxed, only for an item DECLARED with its closed set (`cx.status`), and the value must be in that set; ① (the quote resolves, verbatim) is never relaxed. A drift test asserts every declared value appears in `E-13`'s own prompt text. **Validated OFFLINE by replaying the failed run's recorded response** — 10 items verify, 3 `not_found` — so the third call was the only one paid for after the fix. 4 tests, 3/3 mutations | ⚠⚠ **The gap this leaves, stated:** nothing checks that the cited span is the RIGHT span for the label — the failing item cited an unrelated sentence and would now PASS. ⬜ That belongs to an `E-13 v2` (*"quote the sentence the status is read from"*), Victor's, at a re-record. ✗ Dropping `cx.status` (the moat rubric's level 4 needs a capacity status) · ✗ exempting every item (a hole, not a rule) |
+| **DX-123** | 2026-09-16 | re-verifying a COMPLETE call after the verifier was fixed | `P5`: a failed run is not evidence; `GW-23`: a truncated response is a failure | ⛔ Three paid industry `E-13` attempts, **$1.88 total**: #1 `DX-121` (no citable id), #2 `DX-122` (`X-01` ② on a classification), #3 TRUNCATED at 20,000 (`DX-96`'s thinking runaway — ⚠⚠ **my repeat of `DX-115`'s own lesson**: the runner has `--effort` and I did not pass it on a 205k-char bundle). ★ Attempts #1 and #2 COMPLETED (`stop_reason: tool_use`); only our verifier refused them | `tools/reverify_recording.py` (new) | ⚠ high (a rule about what counts as evidence) | ✅ **CLOSED 2026-09-16 — Victor: replay, $0.** The model's answer is unchanged; the verifier was wrong, so paying again buys a status line. The replay is guarded four ways: ① the recorded call must have completed (a truncated run REFUSES — checked on attempt #3), ② exactly one extraction call, ③ `X-01` ① ② and the subject guard must pass NOW, ④ the new run records `replayed_from`, `replayed_because` and the original status, with `cost_usd: 0`. Result: **10 items verified** — Kioxia's Kitakami K1/Y7/K2 via Sandisk, Samsung's HBM3E 12H ramp, SK hynix's conditional supply | ⚠ **Not a general licence.** A replay is legitimate only when OUR code was the defect; a model that answered badly must be re-asked. ✗ Paying $0.50 for the same answer · ✗ relaxing the SUCCESS rule in `load_extraction_parts` (the guard belongs at the replay, where the reason can be recorded) |
+| **DX-124** | 2026-09-16 | a judgement bundle loading INDUSTRY extraction evidence | `RA-2`: two runs with the same `bundle_hash` are comparable; `DX-95` records it | ⛔ `load_extraction_parts` re-verifies every recorded run against MICRON's filing. An industry `E-13`'s quotes are in the peer documents, so `J-03` refused to load it — *"quoted text is not in the bundle"* — and the moat dimension stayed unscoreable for a wiring reason | `tools/run_judgement_once.py::load_extraction_parts` | ⚠ medium | ✅ **CLOSED 2026-09-16 (free).** Each recorded run is re-verified against **the bundle it actually read**, chosen by the `bundle_hash` `DX-95` put in the trace (a run predating `DX-95` falls back to the filing, which is the only bundle it could have read; a hash matching NEITHER source refuses). The re-parse stamps the right citation per source, and the subject is declared when the source is the sector file. ⚠ The peer DOCUMENTS stay out of the judgement bundle — the verified items enter at a fraction of the tokens (242k chars vs 380k) | ★ `DX-95` was recorded as *"no trace record said which bundle a call read"*; this is the first time that field did real work |
+| **DX-125** | 2026-09-16 | `RM-13` — the falsifier checker | `RM-13`: the ratio of theses that died by their own stated condition to those quietly abandoned; `RA-35` | ★ The MU thesis's falsifiers were resolved BY HAND on 2026-09-15 (two had fired). Nothing in code gathered the evidence, so `RM-13` had no instrument and the check could not run on the next filing | `src/fundamental/monitor/falsifier_check.py` · `tools/check_falsifiers.py` (new) | ⚠ medium | ✅ **BUILT 2026-09-16 (free).** Deterministic gathering: every reported period of each falsifier's `observable_field` published after the thesis and knowable at the check date, with the deadline state. ⚠⚠ **The READING is not claimed**: a condition is prose (*"positive in each of four quarters, summing to more than $5bn"*), and parsing a threshold out of it is the plausible default `P5` forbids — so the status is `DECIDABLE_BY_READER`, never a manufactured `FIRED`. On MU: #1 #2 #3 decidable (4 periods each), #4 `NO_DATA`. 8 tests, 5/5 mutations (one survivor closed: a `pd.NA` case) | ⬜ **Automatic firing needs a STRUCTURED condition** — a `J-15` version carrying `{field, comparator, threshold, window}` beside the sentence. Victor's, at the next prompt bump. ✗ Parsing the prose (a threshold guessed from a sentence is a number nobody stated) |
+| **DX-126** | 2026-09-16 | a falsifier on a tag the filer abandoned | `RA-35`: *"a falsifier naming a field this system does not receive is not checkable, however precise it sounds"* | ⛔ Found by the new checker on the FIRST run: falsifier #4 names `LongTermDebtNoncurrent`, which **Micron last filed in 2013** — it reports the lease-inclusive tag instead. The observable list offered it because a COLUMN exists for every canonical item and old rows carry values, so `J-15` wrote a condition that can never resolve, and its silence looks exactly like a condition holding | `src/fundamental/bundle/for_ticker.py::observable_fields` | ⚠ medium (an unfalsifiable falsifier inside a thesis that passed every check) | ✅ **CLOSED 2026-09-16 (free).** The list offers a tag only if it is non-null in the **latest 4 reported periods** — a claim about future filings needs a tag still in use. MU: 31 → 25 observables; `LongTermDebtNoncurrent`, `LongTermDebtCurrent` and `InterestExpense` drop out, the lease-inclusive tags stay. ⚠ The empty-list refusal (`RA-145`) still holds. 2 tests, mutation caught | ★ `RA-35`'s rule one layer down: the system RECEIVES the field, and the COMPANY stopped sending it |
+| **DX-127** | 2026-09-16 | prompt caching for Stages B–D | `shared/prompt-caching`: caching is a PREFIX match, and any byte before the breakpoint invalidates it | ★ All 13 Stage B–D calls re-send the same ~140k-token base bundle; only the commits a call may read and its own instructions vary. Measured: **$17.57 → $11.38** expected for one thesis | `tools/anthropic_transport.py` · `tools/run_thesis_once.py::call_payload` | — (a saving, not a defect) | ✅ **BUILT 2026-09-16 (free), NOT yet run live.** The base evidence is its own content block with `cache_control: ephemeral`; the variable half follows. ⚠⚠ **The model now reads evidence → frozen commits → instructions**, where it read instructions → evidence before: a deliberate ORDER change, and `--no-cache` reproduces the old single-block shape exactly so a regression can be bisected. `cache_read`/`cache_write` are recorded on every result — a silent invalidator shows up as a read of 0 and nowhere else. 3 tests (all 13 prefixes byte-identical; the breakpoint is on the stable block), 4/4 mutations | ⬜ Unvalidated against the vendor: the saving is arithmetic until a live run reports a non-zero `cache_read` |
+| **DX-128** | 2026-09-16 | `RM-13` decided without a paid `J-15` re-run | `RM-13`; `DX-125` left firing undecidable because a condition is prose | ★ Victor: *"no paid run, too expensive, find a way to bypass this."* The blocker was that deciding a falsifier needs a threshold, a comparator and a window, and `J-15` emits a sentence | `src/fundamental/monitor/falsifier_check.py::evaluate_test` · `config/falsifiers/mu-2025-06-26.json` · `tools/check_falsifiers.py --tests` | — (a bypass, not a defect) | ✅ **BYPASSED 2026-09-16, free.** The structured test is written BESIDE the prose by hand, in a small declared grammar (`each` · `any` · `consecutive` · `sum` · `rises_each`, conditions ANDed within one period). On MU it reproduces the hand analysis exactly: **#1 #2 FIRED · #3 #4 HELD**. ⚠ Each translation is a READING and the file states its own gaps — #4 substitutes the tag Micron actually files (`DX-126`), #3 de-rates rather than falsifies (`J-16` item 3) and the grammar cannot say so. 12 tests, 9/9 mutations (two survivors closed: a failing `rises_each` and a failing `sum` were never exercised) | ⬜ A `J-15` v2 emitting the test itself is now an OPTIMISATION, not a blocker. ✗ Parsing the prose · ✗ paying ~$11.38 to re-author for a number that is arithmetic |
+| **DX-129** | 2026-09-17 | ✅ `E-09` — the block that never completed | `GW-23`; `DX-96` skipped it after five truncations; `DX-115` named the lever | ★★★ **`E-09` COMPLETED at `--effort low`, first time ever**: `run-2026-09-17T071619-mu-e09`, **9 items verified, 1,639 output tokens, $0.4171, 27 s**. Against its history: five truncations at 20,000 output tokens, `tool_input 0`, ~$4.40 sunk (`DX-96`). ⚠ The lever had been identified for J-13/J-14 (`DX-114`/`DX-115`) and applied to the JUDGEMENT path only — the extraction runner has carried `--effort` since `DX-96` and nobody pointed it at `E-09` again | `tools/run_extraction_once.py --block E-09 --effort low` | ★ high value | ✅ **CLOSED 2026-09-17.** It supplies `searched:ap.change` — the last missing marker — with `ap.change` FOUND twice (*"Certain reclassifications have been made…"*, the segment reorganisation) and six items honestly `not_found` with their notes. **Scorecard coverage 0.917 → 1.000** (all four dimensions fully evidenced); the run is now in `DEFAULT_EXTRACTIONS`. ⬜ `J-04` (earnings quality) has never produced a VALID score — its only answer is the pre-`DX-100` void one — and can now be scored for ≈$0.90 | ★★ **The lesson, twice learned and now recorded twice:** a fix for a GENERAL cause (thinking runaway) must be applied to EVERY block sharing the cause, not only the one being worked on. `DX-115` said it; `E-09` sat skipped for four days anyway |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
