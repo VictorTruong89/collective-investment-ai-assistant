@@ -105,10 +105,24 @@ def golden_replay(root: str | pathlib.Path | None = None,
 
     def _text_for(run_id: str) -> str:
         if run_id not in cache:
-            manifest = root / run_id / "filing.json"
-            fixture = (json.loads(manifest.read_text())["fixture"]
-                       if manifest.exists() else str(FILING))
-            cache[run_id] = (REPO / fixture).read_text(encoding="utf-8")
+            # ★★ `DX-132` — a recording states its own bundle shape. `sector.json`
+            #   means the industry evidence: the competitors' documents, rendered in
+            #   the sector file's one permitted order (`RA-99`), which is the text
+            #   `X-01` verified those quotes against when the call was made.
+            #   ⚠ Checked BEFORE `filing.json` because a sector recording has no
+            #   filing, and falling through to the default would resolve industry
+            #   quotes against Micron's 10-Q — `DX-70`'s defect in a new shape.
+            sector = root / run_id / "sector.json"
+            if sector.exists():
+                from tools.promote_recording import sector_text
+                manifest = json.loads(sector.read_text())
+                # ★ The COPY that travels with the recording, never `.state/`.
+                cache[run_id] = sector_text(sector.parent / manifest["sector_file"])
+            else:
+                manifest = root / run_id / "filing.json"
+                fixture = (json.loads(manifest.read_text())["fixture"]
+                           if manifest.exists() else str(FILING))
+                cache[run_id] = (REPO / fixture).read_text(encoding="utf-8")
         return cache[run_id]
 
     reader = f2_payload_reader(root)

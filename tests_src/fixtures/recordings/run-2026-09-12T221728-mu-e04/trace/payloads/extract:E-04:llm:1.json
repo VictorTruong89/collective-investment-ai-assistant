@@ -1,0 +1,19 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 20000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 219578,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "effort": "medium",
+    "thinking": "adaptive"
+  },
+  "response": {
+    "text": "{\"items\": [{\"evidence_id\": \"ng.measure\", \"status\": \"not_found\", \"quote\": \"EBITDA\\nEarnings before interest, taxes, depreciation,\\nand amortization\", \"note\": \"Searched the full 10-Q: no non-GAAP measure is presented. EBITDA appears only in the definitions table of commonly used terms, and 'adjusted EBITDA' only as a covenant term in the Term Loan Agreement discussion; neither is presented as a reported non-GAAP measure.','unit'-less item.','period'-less item.,\"}, {\"evidence_id\": \"ng.gaap_start\", \"status\": \"not_found\", \"quote\": \"The Term Loan Agreement requires us to maintain, on a consolidated basis, a net leverage ratio of total net indebtedness to adjusted EBITDA, as defined in the Term Loan Agreement and calculated as of the last day of each fiscal quarter, not to exceed 3.25 to 1.00\", \"note\": \"No non-GAAP measure is presented, so no GAAP starting figure is reconciled from. Checked Item 2 MD&A 'Results of Operations', the segment note, and the debt note; adjusted EBITDA is referenced only as a covenant definition with no reconciliation.\"}, {\"evidence_id\": \"ng.adjustment\", \"status\": \"not_found\", \"quote\": \"Unallocated\\nStock-based compensation | (263) | (217) | (713) | (608)\\nPatent license charges | (57) | \\u2014 | (57) | \\u2014\\nLower costs from sale of inventory written down in prior periods | \\u2014 | \\u2014 | \\u2014 | 987\\nPatent cross-license agreement gain | \\u2014 | \\u2014 | \\u2014 | 200\\nOther | (1) | (5) | (5) | \\u2014\\n(321) | (222) | (775) | 579\", \"note\": \"The only reconciling lines in the filing are the ASC 280 'Unallocated' items reconciling total segment operating income to GAAP total operating income \\u2014 a GAAP segment reconciliation, not adjustments to a non-GAAP measure. No non-GAAP adjustment schedule exists in the document.\"}, {\"evidence_id\": \"ng.recurrence_note\", \"status\": \"not_found\", \"quote\": \"Total operating income (loss)\\n$2,169 | $719 | $6,116 | $(218)\", \"note\": \"Not applicable: with no non-GAAP adjustments disclosed there are no adjustment labels to look up across periods. The bundle contains only this single 10-Q (Q3 FY2025 and nine months FY2025/FY2024 columns).\"}, {\"evidence_id\": \"ng.nongaap_end\", \"status\": \"not_found\", \"quote\": \"Net income (loss) | $1,885 | $332 | $5,338 | $(109)\", \"note\": \"No resulting non-GAAP figure is presented anywhere in the 10-Q; the statements of operations, MD&A results tables and notes report GAAP measures only.\"}]}",
+    "tokens_in": 76190,
+    "tokens_out": 1363,
+    "stop_reason": "tool_use"
+  }
+}

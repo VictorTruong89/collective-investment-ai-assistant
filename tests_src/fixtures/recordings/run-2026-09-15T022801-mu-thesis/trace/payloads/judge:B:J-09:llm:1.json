@@ -1,0 +1,31 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 16000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 382702,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "reads_commits": [
+      "A:J-01",
+      "A:J-02",
+      "A:J-05",
+      "A:J-06",
+      "A:J-07",
+      "A:J-08",
+      "A:J-20"
+    ]
+  },
+  "response": {
+    "text": "{\"price_requirements\": [{\"requirement\": \"FACT [D-02 `implied`]: \\\"solves_for\\\": \\\"stage1_growth\\\", \\\"status\\\": \\\"SOLVED\\\", \\\"value\\\": \\\"0.282629394532\\\", residual 0 \\u2014 against FACT [D-02 `price`] $126.00 and [D-02 `value_per_share`] $15.96.\", \"if_it_holds\": \"INFERENCE [on the two facts]: free cash flow to the firm compounds at ~28.3% a year for the whole explicit period, i.e. a memory producer posts ten consecutive years of FCFF growth with no down-year. FACT [annual history `fcff`]: FY2016 \\u22122,403,000,000; FY2020 \\u221269,209,856; FY2023 \\u22126,325,000,000; FY2024 \\u2212354,404,839 USD. INFERENCE: three negative FCFF years in nine, and FACT [10-Q]: \\\"annual percentage changes in DRAM average selling prices have ranged from plus low-teen percentage range to a minus high-40% range\\\".\", \"versus_stage_a\": \"required_more_than_evidenced\"}, {\"requirement\": \"FACT [D-02 `basis`]: label \\\"reported_ttm_fcff\\\", base_fcff 134,944,285,145 minor USD.\", \"if_it_holds\": \"FACT [J-20 `derived.basis`]: normalised cycle_average_fcff 128,727,406,636 minor USD. INFERENCE: D-02's starting point sits close to Stage A's own normalised base, so the gap to price is not an artefact of base selection \\u2014 it is entirely in the growth requirement.\", \"versus_stage_a\": \"roughly_consistent\"}, {\"requirement\": \"The 10-year explicit period, 2.5% terminal growth and 9% discount rate underpinning the solve. FACT [D-02 `flows`]: ten years, discount_factor year 1 0.9174\\u2026 (9%); FACT [D-02 `band`] centre cell discount_rate 0.09, terminal_growth 0.025.\", \"if_it_holds\": \"INFERENCE: the 28.3% must persist a full decade and then step straight to 2.5% perpetual growth; a shorter period requires a higher rate. FACT [declared absent]: \\\"implied_duration: D-02 solves only stage-1 growth; the 10-year explicit period is a DECLARED assumption\\\". FACT [dm.rating, status not_found]: the filing \\\"names no agency, rating level, or outlook\\\".\", \"versus_stage_a\": \"insufficient_evidence\"}], \"widest_gap\": {\"requirement\": \"The 28.3% stage-1 FCFF growth (D-02 `implied.value` 0.282629394532).\", \"explained\": \"unexplained\", \"detail\": \"FACT [J-07 frozen]: cycle_position \\\"mid\\\"; FACT [10-Q]: \\\"Data center and networking 55% | 30%\\\" and HBM \\\"increased nearly 50%\\\". INFERENCE: Stage A evidences direction and mix, not a decade of compounding. FACT [J-08 frozen]: supply_read \\\"insufficient_evidence\\\" \\u2014 the variable that would settle it is absent. Data gap, not opportunity.\"}, \"consensus_position\": \"INSUFFICIENT_EVIDENCE \\u2014 needed: the consensus estimate set or rating/price-target record as published on 2025-06-26. why: FACT [declared absent inputs]: \\\\\\\"consensus_forward_estimates \\u2026 cannot be reconstructed\\\\\\\" and \\\\\\\"consensus_rating_and_price_target_actions \\u2026 NOT fetched for this bundle\\\\\\\". would_change: if consensus implied FCFF growth near 28%, I would be differing from consensus on the growth requirement; if it implied cycle-average growth, consensus and I would share the view and the price would be the outlier to both.\", \"differential_view\": \"I cannot state a differential view. The bundle contains no consensus position, so I can neither claim to differ nor claim to hold it \\u2014 asserting either would be manufactured. What I can state: FACT [D-02 `band.high`] $22.50 versus FACT [D-02 `price`] $126.00.\", \"most_load_bearing_method\": \"FACT: D-02 runs one method, dcf_two_stage@v1. FACT [D-02 `terminal`]: value 2,723,978,401,308 and present_value 1,150,637,914,463 minor USD, against FACT [D-02 `enterprise_value`] 2,127,967,573,438 \\u2014 the terminal block is the largest single component, and no explicit-year present value (largest: year 1, 126,897,148,875) approaches it. INFERENCE: the fair value rests mainly on the terminal assumption, but the decision does not, because the band brackets it.\", \"band_meaning\": \"FACT [D-02 `band`]: low 1076, high 2250 minor USD across discount rates 8\\u201311% and terminal growth 1.5\\u20133.5%; INFERENCE: every one of the twelve cells sits below the $126.00 price, so this conclusion is insensitive to discount rate and terminal growth and turns wholly on the base FCFF and the 28.3% stage-1 growth, neither of which the grid varies.\", \"stage_a_revision_findings\": \"I do not revise Stage A. One finding: FACT [D-02 `basis.formula_id`]: \\\\\\\"fcff.ocf_plus_after_tax_interest_minus_capex_minus_sbc.v2\\\\\\\" with capex inputs tagged PaymentsToAcquirePropertyPlantAndEquipment. FACT [10-Q]: \\\\\\\"We estimate capital expenditures in 2025 \\u2026 net of proceeds from government incentives, to be approximately $14 billion\\\\\\\" and \\\\\\\"Proceeds from government incentives | 1,294 | 267\\\\\\\". INFERENCE: the formula charges gross capex and does not credit incentive receipts, so the base FCFF is lower than the company's own net-capex framing and the implied growth correspondingly higher; I record this, and do not restate the figure.\", \"answer\": \"The story and the numbers do not describe the same company. Stage A describes a mid-cycle commodity producer whose FCFF changed sign five times in nine years; the price requires 28.3% annual FCFF compounding for a decade, then 2.5% forever. D-02's base is close to Stage A's own normalised base, so the gap is in growth alone, and no cell of the sensitivity grid reaches the price. Two caveats belong beside that: gross-capex treatment depresses the base, and the bundle carries no consensus to differ from.\"}",
+    "tokens_in": 139031,
+    "tokens_out": 6995,
+    "stop_reason": "tool_use",
+    "stream_chars": {
+      "thinking": 0,
+      "text": 0,
+      "tool_input": 5317
+    }
+  }
+}

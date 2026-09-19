@@ -1,0 +1,33 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 16000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 395391,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "reads_commits": [
+      "A:J-01",
+      "A:J-02",
+      "A:J-05",
+      "A:J-06",
+      "A:J-07",
+      "A:J-08",
+      "A:J-20",
+      "B:J-09",
+      "B:J-10"
+    ]
+  },
+  "response": {
+    "text": "{\"strongest_reason\": \"\\n<parameter name=\\\"reason\\\">The income statement is an ASP artefact that the capital charge erases: reported profit is at a record while free cash flow on the bundle's own formula was negative in the most recent completed year and in four of nine years. INFERENCE (F1\\u2013F5): a price-driven P&L sits on top of a capex base that consumes it.\", \"evidence\": \"F1 FACT [10-Q]: \\\"Net income (loss) | $1,885 | $332 | $5,338 | $(109)\\\". F2 FACT [10-Q]: DRAM 9M sales \\\"increased 60% primarily due to a high-40% range increase in average selling prices and a high-single-digit percent range increase in bit shipments\\\". F3 FACT [annual history, fcff]: FY2024 \\u2212354,404,839; FY2023 \\u22126,325,000,000; FY2020 \\u221269,209,856; FY2016 \\u22122,403,000,000 USD. F4 FACT [10-Q]: \\\"Expenditures for property, plant, and equipment | (10,199)\\\" against \\\"Net cash provided by operating activities | 11,795\\\" (9M). F5 FACT [10-Q]: \\\"approximately $14 billion\\\" FY2025 capex net of incentives.\"}",
+    "tokens_in": 144178,
+    "tokens_out": 4456,
+    "stop_reason": "tool_use",
+    "stream_chars": {
+      "thinking": 0,
+      "text": 0,
+      "tool_input": 981
+    }
+  }
+}

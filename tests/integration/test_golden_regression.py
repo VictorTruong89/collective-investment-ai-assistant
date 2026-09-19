@@ -266,11 +266,25 @@ def test_every_recorded_quote_still_resolves_in_its_filing():
     from tools.run_extraction_once import _locate
 
     REPO_ = pathlib.Path(__file__).resolve().parents[2]
+
+    # ★★ `DX-132` — TWO bundle shapes now live here. A subject recording states
+    #   its filing in `filing.json`; a SECTOR recording (the industry block)
+    #   states its ingested sector file in `sector.json`, and its quotes come
+    #   from the competitors' documents. ⚠ Globbing only `filing.json` silently
+    #   EXEMPTED the sector recordings from this guard — a drift detector that
+    #   skips the newest bundle shape is `DX-12`'s shape yet again.
+    def _sources():
+        for manifest in sorted(RECORDINGS.glob("*/filing.json")):
+            yield manifest.parent, (
+                REPO_ / json.loads(manifest.read_text())["fixture"]
+            ).read_text(encoding="utf-8")
+        for manifest in sorted(RECORDINGS.glob("*/sector.json")):
+            from tools.promote_recording import sector_text
+            run = manifest.parent
+            yield run, sector_text(run / json.loads(manifest.read_text())["sector_file"])
+
     broken = []
-    for manifest in sorted(RECORDINGS.glob("*/filing.json")):
-        run = manifest.parent
-        text = (REPO_ / json.loads(manifest.read_text())["fixture"]).read_text(
-            encoding="utf-8")
+    for run, text in _sources():
         for pf in sorted((run / "trace/payloads").glob("*.json")):
             resp = json.loads(pf.read_text()).get("response")
             body = resp.get("text") if isinstance(resp, dict) else resp

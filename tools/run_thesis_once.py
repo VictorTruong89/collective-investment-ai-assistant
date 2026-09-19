@@ -84,6 +84,9 @@ DEFAULT_STAGE_A = {
     #   the bundle rather than absent from it (its read is still `insufficient_evidence`).
     "J-03": "run-2026-09-16T130712-mu-j03",
     "J-08": "run-2026-09-16T130840-mu-j08",
+    # ✏ 2026-09-17 — `J-04` scored for the FIRST time (`DX-130`): `E-09` at `--effort low`
+    #   finally supplied `searched:ap.change`, which was the gate on `earnings_quality@v3`.
+    "J-04": "run-2026-09-17T113226-mu-j04",
     "J-20": "run-2026-09-14T122547-mu-j20",
 }
 
@@ -91,8 +94,9 @@ DEFAULT_STAGE_A = {
 #: into the bundle as named absences, never silently dropped (`P5`).
 STAGE_A_ABSENT = {
     # ✅ `J-03` left this list 2026-09-16: the industry sector file supplied `cx.capacity`.
-    "J-04": ("earnings_quality@v3 needs searched:ap.change, and E-09 was SKIPPED after five "
-             "truncated runs (DX-96) — the dimension cannot be scored"),
+    # ✅ `J-04` left it 2026-09-17: `E-09` completed and supplied `searched:ap.change`.
+    #    ★ The list is now EMPTY — every declared Stage-A block has an answer on disk. Keep
+    #      the dict (the machinery reads it); do not delete it because it happens to be bare.
 }
 
 #: The E-block runs `J-05`/`J-06` were scored over — the same evidence, re-verified by

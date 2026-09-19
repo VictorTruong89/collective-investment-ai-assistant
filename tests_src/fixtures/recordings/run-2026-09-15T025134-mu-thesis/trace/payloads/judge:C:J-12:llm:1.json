@@ -1,0 +1,33 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 16000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 394777,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "reads_commits": [
+      "A:J-01",
+      "A:J-02",
+      "A:J-05",
+      "A:J-06",
+      "A:J-07",
+      "A:J-08",
+      "A:J-20",
+      "B:J-09",
+      "B:J-10"
+    ]
+  },
+  "response": {
+    "text": "{\"paths\": [{\"narrative\": \"FACT [10-Q Q3FY25]: sequential DRAM ASPs fell 'a low-single-digit percent range decrease in average selling prices', NAND 'a high-single-digit percent range decrease', and 'SBU | (9) | (1)%' ran an operating loss. Through FY2026 DRAM followed NAND down; FACT [10-Q]: annual DRAM ASP changes reach 'a minus high-40% range'. Gross margin retraced from 38% toward the 17% of 9M FY2024 (FACT [MD&A table]). By FY2027 FCFF turned negative as in FY2023 (\\u22126,325,000,000) and FY2024 (\\u2212354,404,839) (FACT [annual history]). INFERENCE: the price, which required 28.3% compounding, halved.\", \"earliest_symptom\": \"Sequential DRAM and NAND ASP declines plus the SBU operating loss, both printed in the Q3 FY2025 10-Q (quarter ended 2025-05-29).\", \"lead_quarters\": 5, \"visible_in_bundle_now\": \"Yes \\u2014 MD&A 'Results of Operations' sequential ASP lines and the segment table 'SBU | (9) | (1)%'; J-07 frozen saw both and still selected cycle_position 'mid', attributing the DRAM decline to 'a higher consumer-oriented revenue mix'.\"}, {\"narrative\": \"FACT [cash flows]: 'Expenditures for property, plant, and equipment | (10,199) | (5,266)' \\u2014 nine-month capex doubled; FACT [MD&A]: FY2025 capex 'approximately $14 billion'; 'Construction in progress | 4,937 | 3,444'. FACT [risk factors]: 'We, and some of our competitors, have plans to ramp, or are constructing or ramping, production at new fabrication facilities' and 'significant investment... by the Chinese government and various state-owned or affiliated entities, such as YMTC and CXMT'. FACT [MD&A]: Idaho 'first DRAM wafer output projected in the second half of calendar 2027'. Industry bits landed into softening demand; price followed supply.\", \"earliest_symptom\": \"Nine-month capex doubling to $10,199M with construction in progress up 43%, disclosed 2025-06-26.\", \"lead_quarters\": 9, \"visible_in_bundle_now\": \"Yes \\u2014 cash-flow statement and PP&E note; J-08 frozen recorded supply_read 'insufficient_evidence' because no competitor capacity dates existed, so the path was set aside rather than weighed.\"}, {\"narrative\": \"FACT [D-02 'implied']: stage-1 growth solves to 0.282629394532 against FACT [D-02 'price'] $126.00 and 'value_per_share' $15.96; FACT [D-02 'band']: all twelve cells lie between 1076 and 2250 minor USD. INFERENCE: no discount-rate or terminal-growth assumption reaches the price. The first quarter in which sequential FCFF growth fell short of the required path removed the compounding premise; multiple compression, not earnings collapse, did most of the damage.\", \"earliest_symptom\": \"The implied 28.3% stage-1 growth requirement itself, computable on the bundle's as_of date.\", \"lead_quarters\": 3, \"visible_in_bundle_now\": \"Yes \\u2014 D-02 valuation trail; J-09 frozen names it 'required_more_than_evidenced' and J-10 frozen calls it 'exceptional' against Micron's own record of four negative-FCFF years in nine.\"}, {\"narrative\": \"FACT [revenue note]: customer prepayments 'were $146 million and $907 million, respectively' (May 2025 vs August 2024); 'future performance obligations beyond one year were $143 million'; 'Substantially all contracts... are short-term in duration'. FACT [risk factors]: 'over half of our total revenue came from our top ten customers... approximately one-half of our total revenue was concentrated in the data center end market'; FACT: 'Revenue from one customer was 16%'. When data-centre buyers paused, nothing contractual held volume or price.\", \"earliest_symptom\": \"Collapse in customer prepayments from $907M to $146M, disclosed in the Q3 FY2025 revenue note.\", \"lead_quarters\": 6, \"visible_in_bundle_now\": \"Yes \\u2014 'Revenue and Customer Contract Liabilities' note and 'Certain Concentrations'; J-07 frozen flagged the prepayment drawdown but recorded that it could not distinguish softening demand from contracts running their course.\"}], \"ranked_by_symptom_earliness\": [2, 4, 1, 3], \"answer\": \"\\u2605 Path 1 was already visible and dismissed. FACT [10-Q MD&A]: Q3 FY2025 shows sequential ASP declines in both products and 'SBU | (9) | (1)%'. FACT [J-07 frozen]: cycle_position 'mid', with the DRAM decline attributed to mix ('primarily due to a higher consumer-oriented revenue mix') and the NAND decline \\u2014 for which the filing offers no mix explanation \\u2014 treated as one product's problem. FACT [J-07 frozen] also concedes the counter-case: 'If DRAM follows NAND, the correct label becomes late and then peak, and the margin series will be the last thing to turn.' INFERENCE: the symptom and its interpretation both existed on 2025-06-26; only the mix attribution kept it from being the base case. Path 2 was dismissed differently \\u2014 by data gap: FACT [J-08 frozen] supply_read 'insufficient_evidence', because no dated competitor capacity exists in the bundle. The ranking above is by lead time, not likelihood: capex announces itself earliest (9 quarters) but is unmeasurable here; the ASP turn announces itself later (5 quarters) but is already on the page. Note the reader can act on none of Path 3 \\u2014 a valuation requirement is visible at all times and therefore signals nothing about timing. DATA GAP: FACT [declared absent inputs]: no 'falsifier_deadline_calendar' exists, so I cannot name a dated check; the observable to watch is the next disclosed sequential DRAM ASP direction and whether management again attributes it to mix. The single observation that would move me to rank Path 1 first: a sequential DRAM ASP decline that management does not attribute to mix, printed alongside a sequential gross-margin fall.\"}",
+    "tokens_in": 143875,
+    "tokens_out": 4026,
+    "stop_reason": "tool_use",
+    "stream_chars": {
+      "thinking": 0,
+      "text": 0,
+      "tool_input": 5510
+    }
+  }
+}

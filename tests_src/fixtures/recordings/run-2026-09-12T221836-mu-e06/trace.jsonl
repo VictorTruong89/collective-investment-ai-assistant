@@ -1,0 +1,2 @@
+{"type": "ExternalCall", "run_id": "run-2026-09-12T221836-mu-e06", "step_id": "extract:E-06", "call_id": "extract:E-06:llm:1", "kind": "llm", "model_id": "claude-opus-5", "prompt_version": "v1", "envelope_hash": "sha256:ec614f69f6da1425cd3013486216d03c7fca97db4628d1297f1d3883d9996f0f", "tokens": {"input": 76144, "output": 6485}, "cost_usd": 0.542845, "latency_ms": 157054, "error": null, "payload_ref": "extract:E-06:llm:1", "_key": "call:extract:E-06:llm:1"}
+{"type": "__run_closed__", "status": "SUCCESS"}

@@ -1,0 +1,26 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 20000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 219990,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "effort": "low",
+    "thinking": "adaptive"
+  },
+  "response": {
+    "text": "{\"items\": [{\"evidence_id\": \"ap.change\", \"status\": \"found\", \"qualifier\": \"Prior-period reclassifications\", \"value\": \"Certain reclassifications have been made to prior-period amounts to conform to current-period presentation.\", \"unit\": \"n/a\", \"period_start\": \"2024-08-30\", \"period_end\": \"2025-05-29\", \"quote\": \"In the opinion of our management, the accompanying unaudited consolidated financial statements contain all necessary adjustments, consisting of a normal recurring nature, to fairly state the financial information set forth herein. Certain reclassifications have been made to prior-period amounts to conform to current-period presentation.\", \"note\": \"No reason or quantified effect given.\"}, {\"evidence_id\": \"ap.change\", \"status\": \"found\", \"qualifier\": \"Segment structure reorganization\", \"value\": \"We completed reorganization of our operations and organizational structure and began to manage operations under our new segment structure effective in the fourth quarter of 2025.\", \"unit\": \"n/a\", \"period_end\": \"2025-05-29\", \"quote\": \"We initiated a strategic reorganization of our business units to a market segment-focused business unit structure, with AI growth opportunities in every business unit. We completed reorganization of our operations and organizational structure and began to manage operations under our new segment structure effective in the fourth quarter of 2025.\", \"note\": \"Segment reporting recast to occur in the 2025 Form 10-K; no quantified effect disclosed.\"}, {\"evidence_id\": \"ap.change\", \"status\": \"not_found\", \"qualifier\": \"Accounting policy / critical estimate changes\", \"value\": \"\", \"quote\": \"There have been no changes to our significant accounting policies since our Annual Report on Form 10-K for the year ended August 29, 2024.\", \"note\": \"Checked Significant Accounting Policies note and Critical Accounting Estimates in MD&A; both state no changes.\"}, {\"evidence_id\": \"ap.useful_life\", \"status\": \"not_found\", \"quote\": \"In the first nine months of 2025 and 2024, we capitalized $63 million and $60 million, respectively, for product and process technology with weighted-average useful lives of 10 years.\", \"note\": \"Checked Intangible Assets and Property, Plant, and Equipment notes; lives stated but no change disclosed.\"}, {\"evidence_id\": \"ap.reserve\", \"status\": \"not_found\", \"quote\": \"As of May 29, 2025 and August 29, 2024, other current liabilities included $807 million and $718 million, respectively, for estimates of consideration payable to customers including estimates for pricing adjustments and returns.\", \"note\": \"Checked revenue/customer contract liabilities and receivables notes; balances given, no disclosed change in reserve methodology or direction of P&L effect.\"}, {\"evidence_id\": \"ap.capitalisation\", \"status\": \"not_found\", \"quote\": \"Stock-based compensation expense of $109 million and $99 million was capitalized and remained in inventory as of May 29, 2025 and August 29, 2024, respectively.\", \"note\": \"Checked stock-based compensation, intangible assets and PP&E notes; no change in capitalisation policy disclosed.\"}, {\"evidence_id\": \"ap.auditor\", \"status\": \"not_found\", \"quote\": \"In the opinion of our management, the accompanying unaudited consolidated financial statements contain all necessary adjustments, consisting of a normal recurring nature, to fairly state the financial information set forth herein.\", \"note\": \"10-Q is unaudited; no auditor change, disagreement, or modified opinion disclosed anywhere in the filing (Item 4, Exhibits index checked).\"}, {\"evidence_id\": \"ap.icfr\", \"status\": \"not_found\", \"quote\": \"During the third quarter of 2025, there were no changes in our internal control over financial reporting that have materially affected, or are reasonably likely to materially affect, our internal control over financial reporting.\", \"note\": \"Item 4 Controls and Procedures: controls concluded effective; no material weakness or significant deficiency disclosed.\"}, {\"evidence_id\": \"ap.late\", \"status\": \"not_found\", \"quote\": \"Indicate by check mark whether the registrant (1) has filed all reports required to be filed by Section 13 or 15(d) of the Securities Exchange Act of 1934 during the preceding 12 months (or for such shorter period that the registrant was required to file such reports), and (2) has been subject to such filing requirements for the past 90 days.\\nYes | \\u2612 | No | \\u2610\", \"note\": \"Cover page affirms timely filing; no NT 10-K/NT 10-Q in bundle.\"}]}",
+    "tokens_in": 75221,
+    "tokens_out": 1639,
+    "stop_reason": "tool_use",
+    "cache_read": 0,
+    "cache_write": 0,
+    "stream_chars": {
+      "thinking": 0,
+      "text": 0,
+      "tool_input": 4363
+    }
+  }
+}

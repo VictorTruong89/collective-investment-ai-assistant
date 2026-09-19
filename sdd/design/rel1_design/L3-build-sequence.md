@@ -69,12 +69,13 @@ the machinery that records what it changed.
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ ★★★ THE ANALYSIS LAYER — 35 prompt blocks (+J-20) ────────────┐
-   │  declared 27 (77 %) · working 23 (66 %) · graded 7 (20 %)      │
+   │  declared 27 (77 %) · working 24 (69 %) · graded 7 (20 %)      │
    │  E 9/15 declared · ★ 9 working — E-09 solved at effort low     │
-   │  J 18/20 declared · 17 working · ⬜ J-04 scoreable now (~$0.90) │
+   │  J 18/20 declared · ★ 18 working — J-04 scored, none absent    │
    │  ★★ FIRST CT-1.1 THESIS: MU SELL · Medium · 4 falsifiers · 9 gaps│
    │  ⛔ falsifiers #1 #2 FIRED on later filings — thesis WRONG      │
-   │  ★ moat=2 bs=3 cap=4 · coverage 1.000 · earnings quality open  │
+   │  ★★ COMPLETE: moat=2 eq=4 bs=3 cap=4 · coverage 1.000          │
+   │  ⚠ conviction still Low — 3 governing inputs absent (DX-118)   │
    │  ★ first DERIVED rubric scores: bs@v3=3·3·3  cap@v3=4·4·4     │
    │  ✅ bundle: extraction parts · subject guard · no repo header  │
    └────────────────────────────────────────────────────────────────┘
@@ -89,12 +90,13 @@ the machinery that records what it changed.
    │   ✅ price $126 raw · fv_model $15.96 · implied g₁ 28.3 %/10y  │
    │   ✅ DX-110 DX-111 DX-115 closed · DX-116 measured             │
    │   ✅ DX-118: coverage floors wired · conviction de-rated       │
-   │   ★ NEXT (§2.1m · _TEMP_for_victor_2026-09-16.md):             │
-   │   1. ✅ E-09 SOLVED ($0.42) ⇒ coverage 1.000                    │
-   │   2. 💲 J-04 now scoreable (~$0.90) · ⚠ check falsifier tests   │
-   │   3. ⚠ Victor: sign J-20 / J-09 golden cases · J-03 case       │
-   │   4. 💲 when wanted: E-13 v2 (cx.status span) · J-15 v2         │
-   │   5. free: J-13's 6th metric · E-03/E-05/E-08/E-11 declarations │
+   │   ★ NEXT (§2.1n · _TEMP_for_victor_2026-09-16.md):             │
+   │   1. ✅ E-09 SOLVED ($0.42) · ✅ J-04 = 4 ($0.75) ⇒ 1.000        │
+   │   2. ⚠ Victor: sign J-20 / J-09 golden cases · J-03 · J-04     │
+   │   3. ⚠ Victor: check the 4 falsifier tests (DX-128 readings)   │
+   │   4. free: J-13's 6th metric · E-03/E-05/E-08/E-11 declarations │
+   │   5. 💲 when wanted: E-13 v2 (cx.status span) · J-15 v2         │
+   │   6. ⬜ the conviction cap needs J-09/J-10 INPUTS, not evidence  │
    │  open: DX-57 60 61 78 79 87 89-92 · ⏸ 96 · partial 44 71 80    │
    └────────────────────────────────────────────────────────────────┘
 ```
@@ -102,11 +104,11 @@ the machinery that records what it changed.
 | | Result |
 |---|---|
 | tests | **2,299 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
-| guarantees | **12**, `tools/check_all.py` → `ALL CHECKS PASSED` |
-| findings | **129 `DX` logged — 120 closed** · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ⏸ `DX-96` (E-09 skipped) · ◐ partial: `DX-44` `DX-71` `DX-80` |
+| guarantees | **12**, `tools/check_all.py` → ⛔ **2 FAILED** — and both are the SAME fact, not two: *the test suite* and *the suite from a fresh clone* (`DX-5`) each carry `test_ac_5_7_the_golden_set_replays_green`, red since 2026-09-13 because Victor RE-ESTABLISHED the `J-07` value against the recording. ⚠ The other 10 pass. ★ This row read `ALL CHECKS PASSED` until 2026-09-17 and was **stale from the day J-07 went red** — a summary line that outlives its measurement is exactly the defect this table exists to prevent |
+| findings | **130 `DX` logged — 122 closed** · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ✅ `DX-96` closed by `DX-129` (E-09 ran) · ◐ partial: `DX-44` `DX-71` `DX-80` |
 | golden set | **33 live** (28 extraction · 5 thesis: J-01 ✅ · J-05 ✅ `balance_sheet_resilience@v3` L3 · J-06 ✅ `capital_allocation@v3` L4 · J-08 ✅ · ⛔ J-07 `late` vs recorded `mid` — parked and RE-ESTABLISHED 2026-09-13 by Victor's decision, red on purpose) · every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
 | recordings | graded: `run-2026-09-11T082002-mu-e01` (E-01 v4) · `…T082118-amd-e01` (E-01 v4) · `…T115548-mu-e02` · `run-2026-09-12T024848-mu-stage-a` (J-01…J-08, complete, envelope-hashed). ⚠ `run-2026-09-12T021719-mu-stage-a` is the TRUNCATED Stage A (`DX-84`) — not promoted, and `spend_report.py` still labels its calls `SUCCESS` because it reports the RUN's close status, not the call's `stop_reason` |
-| spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$71.66 over 104 calls** all-time · **$0.42 on 2026-09-17** (`E-09` at effort low — the block that had never completed) · **$3.31 on 2026-09-15/16** (industry evidence: $1.88 on three failed `E-13` attempts, then `J-03` $0.61 + `J-08` $0.81 — the `E-13` itself was REPLAYED free, `DX-123`) · **$16.93 on 2026-09-15** (the first thesis, 4 runs: $2.54 · $2.79 · $6.73 · $4.87 — $5.33 of it lost to three failed calls) · **$0.50 on 2026-09-14** (J-20) · ⚠ one FMP call 2026-09-14 (subscription quota, not in this figure) · **$6.44 on 2026-09-11 · $13.28 on 2026-09-12 · $12.57 on 2026-09-13** (`DX-96` $4.39 incl. E-09 v2 + summarized-thinking diagnostic · J-05+J-06 blind-criteria run $1.72, VOID · criterion-selected re-run $1.69 · k=3 under v3 $4.77) (incl. the seven E-block runs, **$4.74**, of which `DX-96`'s three truncations **$2.64**). ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
+| spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$72.41 over 105 calls** all-time · **$1.17 on 2026-09-17** (`E-09` at effort low $0.4171 — the block that had never completed — then `J-04` $0.7485, the last unscored rubric ⇒ coverage 1.000) · **$3.31 on 2026-09-15/16** (industry evidence: $1.88 on three failed `E-13` attempts, then `J-03` $0.61 + `J-08` $0.81 — the `E-13` itself was REPLAYED free, `DX-123`) · **$16.93 on 2026-09-15** (the first thesis, 4 runs: $2.54 · $2.79 · $6.73 · $4.87 — $5.33 of it lost to three failed calls) · **$0.50 on 2026-09-14** (J-20) · ⚠ one FMP call 2026-09-14 (subscription quota, not in this figure) · **$6.44 on 2026-09-11 · $13.28 on 2026-09-12 · $12.57 on 2026-09-13** (`DX-96` $4.39 incl. E-09 v2 + summarized-thinking diagnostic · J-05+J-06 blind-criteria run $1.72, VOID · criterion-selected re-run $1.69 · k=3 under v3 $4.77) (incl. the seven E-block runs, **$4.74**, of which `DX-96`'s three truncations **$2.64**). ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
 | lint | ruff clean on all code this repo authored |
 
 ⚠⚠ **What "148/148" does and does not mean.** Every acceptance criterion has a passing test in the
@@ -386,6 +388,59 @@ post-envelope one. The established value is unchanged; only the artefact moved.
   structural and may not be quoted (`PG-10`).
 - **Not k=3.** `K_RUNS`=3 is what `CT-9.2` requires; this is k=1.
 - **Not a thesis.** Stage A is 8 of 17 blocks. Stages B-D (`J-09`…`J-17`) are undeclared.
+
+## 2.1n ★★★ 2026-09-17 — the scorecard is COMPLETE: `E-09` solved, `J-04` scored, coverage 1.000
+
+> **$1.17 in two calls** ($0.4171 `E-09` + $0.7485 `J-04`), both approved individually. `DX-129`
+> and `DX-130`. ★ `STAGE_A_ABSENT` is now **empty for the first time** — every declared Stage-A
+> block has an answer on disk.
+
+### The two calls
+
+| Call | Run | Result | Cost |
+|---|---|---|---|
+| `E-09` at **`--effort low`** | `run-2026-09-17T071619-mu-e09` | 9 items verified, `ap.change` FOUND twice, 1,639 out **against five prior truncations at 20,000** | **$0.4171** |
+| `J-04` (rubric, blind) | `run-2026-09-17T113226-mu-j04` | **`earnings_quality@v3` = 4**, 12,635 out, rubric hash `sha256:ba08f3636…` | **$0.7485** |
+
+★ The order matters and was forced: `RA-32`/`DX-98` gate `earnings_quality@v3` on `searched:ap.change`,
+which only `E-09` emits. Four days of `J-04` being "unscoreable" were really `E-09` being unattempted.
+
+### What `J-04` actually reasoned — and why it is a 4, not a 5
+
+The cash test, done the way the criterion asks: operating cash flow exceeded net income in **every**
+period the bundle reports — **$11,795M vs $5,338M** (FY25 9M), and **$5,102M of cash inflow against a
+$(109)M reported LOSS** (FY24 9M). ★ It then did the part that separates a real answer from a
+plausible one: it attributed the gap to **D&A of $6,203M**, not to a working-capital release, and
+showed the working-capital lines were in aggregate a **drag** (receivables −123, other current assets
+−206, other current liabilities −681). ⇒ conversion explained by capital intensity, not accrual timing.
+
+⚠ **Not a 5, by its own declaration:** the model emitted a `DATA GAP` — the accounting-policy-change
+question can be answered only over the bundle's window, not over the full history the criterion
+implies. `MP-7`/`S-4` again: the floor and the ceiling both get used honestly.
+
+### The complete scorecard, re-derated free
+
+```
+coverage   1.000   moat 1.00 · earnings quality 1.00 · balance sheet 1.00 · capital allocation 1.00
+scorecard  J-03 = 2  ·  J-04 = 4  ·  J-05 = 3  ·  J-06 = 4
+verdict    SELL       (unchanged — J-16 is NOT re-asked)
+conviction Low        (three governing inputs still absent)
+```
+
+### ★★ The finding: coverage 1.000 did NOT raise the conviction
+
+This is `DX-118` working as designed, and it is the thing to remember from this session. Coverage
+measures **evidence gathered**; the conviction cap measures **governing inputs absent**. The three
+that cap Micron — `J-09`'s consensus position, `J-09`'s price requirement, `J-10`'s reference-class
+base rate — are Stage-B/C inputs the bundle never contained. ⇒ **No quantity of Stage-A extraction can
+lift them**, and a full-coverage scorecard sitting beside a Low conviction is not a contradiction.
+
+⚠ A reader who reads 1.000 as *"fully informed"* will over-trust this thesis. The cap is the
+counterweight, and it is the reason `RA-67` defines confidence as coverage rather than as belief.
+
+★ And the verdict this all decorates is still **wrong by its own conditions** — falsifiers #1 and #2
+FIRED (`DX-128`). A complete scorecard on a falsified thesis is exactly the state the measuring
+apparatus exists to make visible.
 
 ## 2.1m ★★ 2026-09-16 — bypassing the paid work: a free re-deration and a decided `RM-13`
 
@@ -2471,6 +2526,12 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-127** | 2026-09-16 | prompt caching for Stages B–D | `shared/prompt-caching`: caching is a PREFIX match, and any byte before the breakpoint invalidates it | ★ All 13 Stage B–D calls re-send the same ~140k-token base bundle; only the commits a call may read and its own instructions vary. Measured: **$17.57 → $11.38** expected for one thesis | `tools/anthropic_transport.py` · `tools/run_thesis_once.py::call_payload` | — (a saving, not a defect) | ✅ **BUILT 2026-09-16 (free), NOT yet run live.** The base evidence is its own content block with `cache_control: ephemeral`; the variable half follows. ⚠⚠ **The model now reads evidence → frozen commits → instructions**, where it read instructions → evidence before: a deliberate ORDER change, and `--no-cache` reproduces the old single-block shape exactly so a regression can be bisected. `cache_read`/`cache_write` are recorded on every result — a silent invalidator shows up as a read of 0 and nowhere else. 3 tests (all 13 prefixes byte-identical; the breakpoint is on the stable block), 4/4 mutations | ⬜ Unvalidated against the vendor: the saving is arithmetic until a live run reports a non-zero `cache_read` |
 | **DX-128** | 2026-09-16 | `RM-13` decided without a paid `J-15` re-run | `RM-13`; `DX-125` left firing undecidable because a condition is prose | ★ Victor: *"no paid run, too expensive, find a way to bypass this."* The blocker was that deciding a falsifier needs a threshold, a comparator and a window, and `J-15` emits a sentence | `src/fundamental/monitor/falsifier_check.py::evaluate_test` · `config/falsifiers/mu-2025-06-26.json` · `tools/check_falsifiers.py --tests` | — (a bypass, not a defect) | ✅ **BYPASSED 2026-09-16, free.** The structured test is written BESIDE the prose by hand, in a small declared grammar (`each` · `any` · `consecutive` · `sum` · `rises_each`, conditions ANDed within one period). On MU it reproduces the hand analysis exactly: **#1 #2 FIRED · #3 #4 HELD**. ⚠ Each translation is a READING and the file states its own gaps — #4 substitutes the tag Micron actually files (`DX-126`), #3 de-rates rather than falsifies (`J-16` item 3) and the grammar cannot say so. 12 tests, 9/9 mutations (two survivors closed: a failing `rises_each` and a failing `sum` were never exercised) | ⬜ A `J-15` v2 emitting the test itself is now an OPTIMISATION, not a blocker. ✗ Parsing the prose · ✗ paying ~$11.38 to re-author for a number that is arithmetic |
 | **DX-129** | 2026-09-17 | ✅ `E-09` — the block that never completed | `GW-23`; `DX-96` skipped it after five truncations; `DX-115` named the lever | ★★★ **`E-09` COMPLETED at `--effort low`, first time ever**: `run-2026-09-17T071619-mu-e09`, **9 items verified, 1,639 output tokens, $0.4171, 27 s**. Against its history: five truncations at 20,000 output tokens, `tool_input 0`, ~$4.40 sunk (`DX-96`). ⚠ The lever had been identified for J-13/J-14 (`DX-114`/`DX-115`) and applied to the JUDGEMENT path only — the extraction runner has carried `--effort` since `DX-96` and nobody pointed it at `E-09` again | `tools/run_extraction_once.py --block E-09 --effort low` | ★ high value | ✅ **CLOSED 2026-09-17.** It supplies `searched:ap.change` — the last missing marker — with `ap.change` FOUND twice (*"Certain reclassifications have been made…"*, the segment reorganisation) and six items honestly `not_found` with their notes. **Scorecard coverage 0.917 → 1.000** (all four dimensions fully evidenced); the run is now in `DEFAULT_EXTRACTIONS`. ⬜ `J-04` (earnings quality) has never produced a VALID score — its only answer is the pre-`DX-100` void one — and can now be scored for ≈$0.90 | ★★ **The lesson, twice learned and now recorded twice:** a fix for a GENERAL cause (thinking runaway) must be applied to EVERY block sharing the cause, not only the one being worked on. `DX-115` said it; `E-09` sat skipped for four days anyway |
+| **DX-135** | 2026-09-17 | ⚠⚠ An ABSENT item loses the competitor it is about — 5 recorded absences parse down to 3 | `MP-18` identity; `DX-74` (a qualifier the model invents); surfaced closing `DX-132` | ★ The extraction parse blanks `qualifier` on a `not_found` item. On `E-13` the recording holds **five** absences — Kioxia timing, Kioxia conditional, Samsung timing, Samsung conditional, SK hynix capacity — and the parsed view holds **three** anonymous rows (`cx.timing`, `cx.conditional`, `cx.capacity`, each with an empty qualifier). ⇒ *"SK hynix did not disclose capacity"* and *"Samsung did not disclose timing"* become indistinguishable, and **two absences vanish entirely** (15 items → 13). ⚠ The recording is intact; the loss is in the graded view, so it is invisible to anyone reading the trace | `tools/run_extraction_once.py::parse_items` (qualifier blanked when `status == not_found`) · visible in `run-2026-09-16T070237-mu-e13-replay` | ★ high for the industry block | ⬜ **OPEN — needs a ruling, and it is the `DX-74` question in reverse.** `DX-74` removed an INVENTED qualifier from a case's identity because the model authored it; here the qualifier is the only thing that says WHICH competitor was silent, and silence-per-competitor is the substance of an industry read. ⇒ No `not_found` cases are drafted for `E-13`. ⚠ Fixing it changes the identity of every existing absence case (`dm.headroom`, `ap.icfr`, `ng.measure`, `ca.capex`) — so it must be decided before those are signed, not after | ★★ **An absence needs a subject.** *"Nothing found"* is a fact about a question asked of a source; strip the source and it degrades to a fact about the question, which is not evidence of anything. ⚠ And the dedup made the loss SILENT — a shorter list looks like a tidier one. ★★★ **MEASURED 2026-09-17, and it is worse than first written: the fix would break TWO of the three SIGNED absence cases.** ⓐ `mu-fy2025q3-seg-assets-not-disclosed` addresses `#seg.assets||:` while the recording carries qualifier `'all segments'` — restore the qualifier and the selector resolves nothing. ⓑ ⚠⚠ `mu-fy2025q3-gd-prior-value-absent` addresses `#gd.prior_value||:` and the recording holds **TWO** absences there, `'capex FY2025'` and `'effective tax rate FY2026'` — so that case is green **only because the collapse merged them**, and restoring the qualifier makes it ambiguous (`_select` raises on several matches). ⇒ A signed, passing golden case is resting on the defect. ⛔ **Not fixed unilaterally: `D2` reserves re-establishing those two to the fund manager.** |
+| **DX-133** | 2026-09-17 | ⚠ A promoted run carries its TRUNCATED calls too — `J-12` and `J-13` are ungradeable | `DX-84` (a truncated Stage A is not promoted); `DX-36` (`test_every_recorded_quote_still_resolves_in_its_filing`) | ★ Promotion's unit is the RUN, not the call, so promoting `run-2026-09-15T034909` for its five complete `J-13` metric calls also brought a `judge:C:J-14:llm:1` payload of **0 characters, `stop_reason: max_tokens`** — and the quote-resolution guard, which JSON-parses every payload in every promoted recording, failed immediately on it. ⚠ `run-2026-09-15T025134` is worse: its truncated `J-13:return_on_equity` is **2 characters** (`{}`), which PARSES — so it passed the guard and would have been promoted silently | `tools/promote_recording.py::promote` (whole-directory copy) · `tests/integration/test_golden_regression.py::test_every_recorded_quote_still_resolves_in_its_filing` | ◐ medium | ✅ **HANDLED 2026-09-17 by following `DX-84`'s rule rather than working around it:** both runs were **un-promoted**. ⇒ `J-12` and `J-13` have no clean recording and get no draft cases; they need a re-record (≈$0.80 + ≈$1.06) before they can ever be graded. ⚠ The suite is back to its single deliberate `J-07` red | ★★ The 2-character mutant is the lesson: **"it parsed" is not "it is an answer."** A guard that validates SHAPE passes a truncation that happens to close its braces. ⬜ `promote_recording` should refuse a run containing any `stop_reason: max_tokens` call, by that field rather than by parseability |
+| **DX-134** | 2026-09-17 | ⚠ A leaked tool-call fragment is sitting INSIDE a recorded answer (`J-11`) | `GW-9`/tool-use contract; surfaced drafting `L8` L1a cases | ⚠ `run-2026-09-15T022801`'s `judge:C:J-11:llm:1` returns `strongest_reason` beginning `"\n<parameter name=\"reason\">The income statement is an ASP artefact…"` — raw tool-call XML captured as the field's VALUE. The answer is otherwise coherent, which is what makes it dangerous: it reads as a normal record and the malformation is 24 characters at the front | recorded payload `run-2026-09-15T022801-mu-thesis/judge:C:J-11:llm:1` | ◐ medium | ⬜ **OPEN.** `J-11` is excluded from this pass's drafts — grading it would pin a malformation as the established answer. ⚠ Its clean recording (5,917 chars, `run-2026-09-15T025134`) is in one of the runs un-promoted under `DX-133`, so `J-11` is blocked twice over. ⬜ No parser strips or rejects a leaked `<parameter …>` prefix today; nothing in the pipeline would flag it | ★ A field that contains its own transport syntax is a defect the schema cannot see, because the value is still a valid string. ⚠ It reached a thesis and nobody noticed for two days |
+| **DX-131** | 2026-09-17 | ⚠⚠ `E-07` `E-09` `E-10` assert a nine-month `period.start` the filing never states — `DX-73` fixed in ONE block only | `S-2`/`MP-6` (a prompt may not compute); `DX-73` closed this for `E-01 v4` | ★★ Found while drafting golden cases for the recorded-but-ungraded blocks (`L8` L1a). `E-01 v4` leaves a nine-month `period.start` **null** because the filing does not state it — measured again today: **"August 30, 2024" appears 0 times** in `MU_FY2025Q3_10Q.txt`, **"August 29, 2024" appears 28** (the prior fiscal year end). ⚠ But `E-07`, `E-09` and `E-10` all emit `start: 2024-08-30` — prior year end **plus one day**, which is arithmetic the prompt is forbidden to perform. ⇒ Every YTD item from those three blocks carries a computed date presented as extracted | `src/fundamental/prompts/e_blocks.py` (`E-07` `E-09` `E-10`); visible in `run-2026-09-12T222114-mu-e07`, `run-2026-09-17T071619-mu-e09`, `run-2026-09-13T071638-mu-e10` | ★ high | ⬜ **OPEN — needs Victor's ruling.** 4 of the 16 cases drafted in `extraction.pending.yaml` are marked ⛔ and must NOT be signed until it is settled: signing would enshrine a computed date as ground truth, which is the one thing a golden case must never do. ★ The discrete-quarter twin of each affected item is unaffected and safe to sign — `sc.basic` discrete vs `sc.basic` YTD, same block, same run, differing only in whether a start was computed, is the cleanest demonstration | ★★★ **The `DX-115` lesson, THIRD occurrence.** A fix for a general cause (`DX-73`: do not compute a period start) was applied to the block being worked on and to no other block sharing the cause. `DX-115` said it, `DX-129` repeated it, and this is it again in a third family. ⇒ The lesson is not being learned by being written down; it needs a CHECK |
+| **DX-132** | 2026-09-17 | `E-13` cannot be promoted, so the industry block can never be graded | `DX-70` (`promote_recording` reads the filing from the bundle, never from convention) | ⚠ `tools/promote_recording.py::_ticker_of` matches the recorded bundle against `FILINGS` (MU, AMD) and refuses on a tie or a miss. The `E-13` recording's bundle is the **sector bundle** — competitors' documents, not the subject's filing — so it scores `{'MU': 0, 'AMD': 0}` and raises `AmbiguousFiling`. ★ The refusal is CORRECT (`P5`: promote nothing rather than guess); the gap is that a sector bundle has no branch at all | `tools/promote_recording.py::_ticker_of` · `run-2026-09-16T070237-mu-e13-replay` | ◐ medium | ✅ **CLOSED 2026-09-17, free.** `promote_recording` now tries the filing match first and falls back to `_sector_of`, which probes each ingested sector file with the same many-short-probes method (`DX-35`) and keeps `P5`'s refuse-on-a-close-call discipline. ⚠⚠ **Two things the fix had to get right that the first cut got wrong:** ⓐ the sector file that travels in the bundle is **not** `config/sector/*.yaml` (that is the reviewed SOURCE LIST) but the ingested JSON that `ingest_sector_file.py` writes; ⓑ that file lives under **`.state/`, which is gitignored** — so it is now **COPIED** into the recording as `sector_file.json` rather than referenced, or the promoted recording would resolve on one laptop only (`DX-12`'s shape, third sighting). ★ One renderer (`promote_recording.sector_text`) is shared by the promoter, `golden_replay` and the drift guard, so a quote can never be checked against a different arrangement of the same records than the one that was sent. ✅ `E-13` promoted (3 records, 15 probe hits); **3 cases drafted**; `test_every_recorded_quote_still_resolves_in_its_filing` extended to sector recordings and **all E-13 quotes resolve**; green on the fresh-clone run (`DX-5`) | ★ A promotion guard built for one bundle shape silently excludes every other shape. ⚠ It presents as *"this block has no golden cases yet"*, which reads like backlog rather than blockage. ★★ And the drift guard globbed `*/filing.json` only — so the moment a second bundle shape existed, the newest shape was the one thing NOT being checked |
+| **DX-130** | 2026-09-17 | ★★ `J-04` scored — the scorecard is COMPLETE, and `STAGE_A_ABSENT` is empty | `DX-100` (criterion selection, derived score); `RA-32`/`DX-98` gating; `DX-129` opened the gate | ★★ **`earnings_quality@v3 = 4`**, `run-2026-09-17T113226-mu-j04`, 86,526 in / 12,635 out, **$0.7485**, blind bundle 243,017 chars, rubric hash `sha256:ba08f3636…`, levels `(4,3,2,1,0)` shown shuffled as `(3,1,4,2,0)`. The gate opened only because `E-09` supplies `searched:ap.change`. ★ The reasoning is the cash test done properly: OCF **$11,795M** vs net income **$5,338M** (FY25 9M) and OCF **$5,102M** against a **$(109)M** LOSS (FY24 9M) — no period where earnings exceed operating cash — and the gap is attributed to **D&A $6,203M**, NOT to working-capital release (receivables −123, other current assets −206, other current liabilities −681 were USES of cash). ⚠ Not 5: the model declared its own DATA GAP — the policy-change question is answerable only over the bundle's window | `tools/run_thesis_once.py` `DEFAULT_STAGE_A["J-04"]`; `STAGE_A_ABSENT` now **empty** (kept as a bare dict — the machinery reads it) | ★ high value | ✅ **CLOSED 2026-09-17.** Every declared Stage-A block now has an answer on disk. Re-derated free: **coverage 1.000** across all four dimensions (moat 1.00 · earnings quality 1.00 · balance sheet 1.00 · capital allocation 1.00), scorecard **`J-03`=2 · `J-04`=4 · `J-05`=3 · `J-06`=4**, verdict **SELL unchanged** (`J-16` not re-asked), conviction still **Low** | ★ **Coverage 1.000 did not raise the conviction, and that is the design working.** `DX-118` separates *evidence coverage* from *governing inputs absent*: the three absences that cap conviction — `J-09`'s consensus position and price requirement, `J-10`'s base rate — are Stage-B/C inputs the bundle never contained, so no amount of Stage-A extraction can lift them. ⚠ A reader who treats 1.000 as "fully informed" will over-trust the thesis; the cap is the honest counterweight |
 
 > **Measured 2026-09-03**, not inferred. Three configurations, from a neutral cwd:
 >
@@ -2894,6 +2955,13 @@ The retired-`v1` recording is deleted; the retired-prompt guard is green.
 > [`docs/lectures/L7-edgar-extraction-as-built.md`](../../../docs/lectures/L7-edgar-extraction-as-built.md).
 > ⚠ Note the name collision: that is the **lecture**; `L7-golden-set-filing-1.md` in this directory
 > is the **guard rail**. One explains, the other forbids.
+
+★★ **[`L8-golden-case-retrospective.md`](L8-golden-case-retrospective.md)** — ✏ opened 2026-09-17 at
+Victor's instruction — is the **programme-level** record: the full chronological history of every
+golden case, the measured spend attribution (**~17% of $72.41 is golden-attributable, 28% is outright
+waste**), what the set has and has not caught, and the remaining-work estimate (**≈$111 and ≈24–47 h**
+for all three levels on two tickers; ★ **$0 and 10–20 h** for the 20 blocks already recorded but never
+graded). ⏳ **Living — update it whenever a case is established, withdrawn or invalidated.**
 
 ★★ **[`L7-golden-set-filing-1.md`](L7-golden-set-filing-1.md)** is the provenance and guard-rail
 record for MU FY2025 Q3 and its ten cases. It exists for one reason:

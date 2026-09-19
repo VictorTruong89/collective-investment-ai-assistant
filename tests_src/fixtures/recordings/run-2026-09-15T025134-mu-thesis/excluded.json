@@ -1,0 +1,10 @@
+{
+  "note": "calls present in .state/runs/ and deliberately NOT promoted \u2014 the full run is unchanged there (DX-133)",
+  "excluded": [
+    {
+      "call": "judge:C:J-13:return_on_equity:llm:1",
+      "reason": "stop_reason=max_tokens",
+      "chars": 2
+    }
+  ]
+}

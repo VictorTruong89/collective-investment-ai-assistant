@@ -247,3 +247,222 @@ cases:
     ____ (Victor's reason, as of 2025-06-26, from the Stage-B bundle only)
   established_at: "____"
   established_by: "____"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# ⏳⏳ PREPARED 2026-09-17 — L1a OF THE `L8` PLAN: 8 JUDGEMENT BLOCKS
+#
+# ★★★ HOW THESE DIFFER FROM THE EXTRACTION DRAFTS, AND WHY IT MATTERS.
+#    An extraction case can be drafted almost completely, because the filing
+#    fixes the answer and you are checking a transcription. **A judgement case
+#    cannot.** `D2`: *"a thesis's 'correct' answer is a judgement, so the
+#    golden case records the judgement and who made it rather than pretending
+#    to objectivity."*
+#
+#    ⇒ So every `expected` below is **deliberately left blank**. What is
+#    prepared for you is the MACHINERY — which recording, which call, which
+#    FIELD is worth pinning, and what was recorded there. Choosing the VALUE
+#    is the part only you may do, and pre-filling it with the recorded answer
+#    would make signing a rubber stamp and the case circular.
+#
+#    ★ `J-07` is the precedent that proves this is not ceremony: the recorded
+#      answer was `mid`, you established `late`, and that case has been RED on
+#      purpose ever since. A judgement case is allowed to disagree with the
+#      recording — that disagreement IS the measurement.
+#
+# ⚠⚠ THREE BLOCKS THAT LOOKED AVAILABLE AND ARE NOT — do not go looking for
+#    them:
+#      `J-12` and `J-13`  their only complete recordings sit in runs that ALSO
+#                         contain a truncated call, so the whole run was
+#                         un-promoted under `DX-84`'s standing rule (`DX-133`).
+#      `J-11`             the one promotable recording carries a leaked
+#                         tool-call fragment inside `strongest_reason`
+#                         (`DX-134`) — grading it would pin a malformation.
+#
+# ─── TO SIGN, per case:
+#     1. read the recorded answer quoted in the comment, and the full text at
+#          tests_src/fixtures/recordings/<run>/trace/payloads/<call>.json
+#     2. decide the value YOU establish — agreeing with the recording is a
+#        legitimate outcome, and so is contradicting it
+#     3. fill `expected`, `established_by`, `established_at`
+#     4. CUT into thesis.yaml (move, never copy) and run
+#          python3 -m pytest -q tests/integration/test_golden_regression.py
+# ═══════════════════════════════════════════════════════════════════════════
+
+cases:
+
+  # ── J-03 · MOAT DURABILITY ────────────────────────────────────────────────
+  # ★ Scored for the first time on 2026-09-16, and only because the industry
+  #   sector file supplied competitor capacity (`DX-117`). Pin the CRITERION
+  #   text, as `J-05`/`J-06` do — `DX-100` derives the score from it, so the
+  #   criterion is the judgement and the integer is arithmetic.
+  #
+  #   RECORDED (run-2026-09-16T130712-mu-j03, derived score 2):
+  #     "A mechanism is described in the filings and the outcome tests are
+  #      inconclusive on the bundle's periods."
+  #
+  #   ⚠ Worth your scrutiny: a 2 of 4 on moat for a commodity memory maker is
+  #     the kind of middling answer that is hard to be wrong about and equally
+  #     hard to be right about.
+  - case_id: mu-fy2025q3-j03-moat-durability
+    input_ref: "run-2026-09-16T130712-mu-j03/judge:J-03:llm:1"
+    expected:
+      criterion: "____"
+    source: >-
+      Established by the fund manager against MU's FY2025 Q3 10-Q (accession
+      0000723125-25-000021) and the industry sector file
+      config/sector/memory_v1.yaml v1 (Sandisk, SK hynix, Samsung).
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-04 · EARNINGS QUALITY ───────────────────────────────────────────────
+  # ★★ The block that completed the four-dimension scorecard (`DX-130`).
+  #   RECORDED (run-2026-09-17T113226-mu-j04, derived score 4):
+  #     "Reported earnings convert to cash across every period in the bundle,
+  #      with no recurring non-GAAP add-back and no accounting-policy change
+  #      in the window."
+  #   Its own reasoning: OCF $11,795M vs net income $5,338M (FY25 9M), and
+  #   $5,102M of operating cash inflow against a $(109)M LOSS (FY24 9M), with
+  #   the gap attributed to D&A $6,203M rather than a working-capital release.
+  #
+  #   ⚠ The judgement to make is whether "no accounting-policy change in the
+  #     window" is a fair reading when `E-09` DID find two reclassifications
+  #     (prior-period conforming, and the segment reorganisation). A 4 says
+  #     they are presentational; a 3 would say they are not.
+  - case_id: mu-fy2025q3-j04-earnings-quality
+    input_ref: "run-2026-09-17T113226-mu-j04/judge:J-04:llm:1"
+    expected:
+      criterion: "____"
+    source: >-
+      Established by the fund manager against MU's FY2025 Q3 10-Q, accession
+      0000723125-25-000021 — Consolidated Statements of Operations and of Cash
+      Flows, and the basis-of-presentation note.
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-16 · THE VERDICT ────────────────────────────────────────────────────
+  # ★★★ THE HIGHEST-VALUE JUDGEMENT CASE IN THE SET, and the most delicate.
+  #   RECORDED (run-2026-09-15T042754-mu-thesis): verdict SELL, conviction
+  #   Medium, on the reasoning that "the price embeds a decade of ~28% FCFF
+  #   compounding from a business whose..." (full text in the payload).
+  #
+  # ⚠⚠⚠ READ THIS BEFORE SIGNING. Two of that thesis's own falsifiers have
+  #   since FIRED on later filings (`DX-128`): OCF−capex was positive in all
+  #   four subsequent quarters summing to $26.2bn against a $5bn condition,
+  #   and gross profit rose every quarter (5,054 → 7,646 → 17,755 → 35,056
+  #   $M). ⇒ **The recorded verdict was wrong by the conditions it set for
+  #   itself.**
+  #
+  #   ★ That makes this case a genuine fork, and only you can take it:
+  #     (a) establish SELL — the case records what a defensible analyst
+  #         concluded on 2025-06-26 evidence, and grades whether the block
+  #         still reaches it. ⚠ Enshrines a verdict later shown wrong.
+  #     (b) establish the verdict you hold NOW with hindsight. ⚠ Then the case
+  #         measures foresight rather than reproducibility, and will be red
+  #         from the day it is signed — which is what `J-07` already is, on
+  #         purpose.
+  #     (c) pin `conviction` or `evidence_coverage` instead of `verdict`, and
+  #         leave the verdict itself ungraded.
+  #   I have not chosen. The three answer different questions.
+  - case_id: mu-fy2025q3-j16-verdict
+    input_ref: "run-2026-09-15T042754-mu-thesis/judge:D:J-16:llm:1"
+    expected:
+      verdict: "____"
+    source: >-
+      Established by the fund manager against MU's FY2025 Q3 10-Q (accession
+      0000723125-25-000021), the annual history in the fact ledger, and the
+      recorded raw close of $126.00 at 2025-06-26.
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-09 · THE DIFFERENTIAL VIEW ──────────────────────────────────────────
+  # ★★ An honest refusal, and the reason conviction is capped at Low.
+  #   RECORDED: consensus_position = "INSUFFICIENT_EVIDENCE — needed: the
+  #   consensus estimate set or rating/price-target distribution", and
+  #   differential_view = "I cannot state a differential view. The bundle
+  #   contains no consensus position."
+  #
+  #   ★ This is the `MP-7`/`S-4` floor used as designed, and it is exactly the
+  #     kind of answer worth freezing: the cheapest future regression is a
+  #     block that stops saying "I don't know" and starts inventing a
+  #     consensus from its own priors.
+  - case_id: mu-fy2025q3-j09-consensus-position
+    input_ref: "run-2026-09-15T022801-mu-thesis/judge:B:J-09:llm:1"
+    expected:
+      consensus_position: "____"
+    source: >-
+      Established by the fund manager: the FY2025 Q3 10-Q bundle carries no
+      analyst consensus, rating distribution or price target, so no consensus
+      position is available to state from it.
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-10 · THE BASE RATE ──────────────────────────────────────────────────
+  # ★ The second governing absence. RECORDED answer opens: "FACT [declared
+  #   absent inputs]: 'reference_class_base_rates: the bundle...'" — i.e. the
+  #   block reports the base rate as declared-absent rather than estimating
+  #   one. ⚠ Same regression risk as J-09: the failure mode is a plausible
+  #   invented base rate, which would read as rigour.
+  - case_id: mu-fy2025q3-j10-base-rate-absent
+    input_ref: "run-2026-09-15T022801-mu-thesis/judge:B:J-10:llm:1"
+    expected:
+      answer: "____"     # ⚠ consider pinning a SUBSTRING or the `claims` count
+    source: >-
+      Established by the fund manager: the bundle declares reference-class base
+      rates absent, so no base rate can be stated from it.
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-14 · THE SELF-AUDIT ─────────────────────────────────────────────────
+  # ★★ The block that audits the rest of the thesis for uncited and
+  #   contradicted claims. RECORDED: none_found = False, with 6 inconsistent
+  #   items, 9 uncited bearing items, 5 partial citations, 5 single-source
+  #   claims. ★ It is also the block that first contradicted `J-11` on the
+  #   lease/capex question and turned out to be right (`DX-116`).
+  #
+  #   ⚠ `none_found: False` is the discriminating field: a self-audit that
+  #     starts returning True has stopped auditing, and nothing else in the
+  #     pipeline would notice.
+  - case_id: mu-fy2025q3-j14-self-audit-found-issues
+    input_ref: "run-2026-09-15T042754-mu-thesis/judge:C:J-14:llm:1"
+    expected:
+      none_found: "____"     # recorded: false
+    source: >-
+      Established by the fund manager against the thesis bundle of 2025-06-26
+      (MU 10-Q accession 0000723125-25-000021 plus the verified extractions).
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-17 · THE DATA GAPS ──────────────────────────────────────────────────
+  # ★ Nine gaps declared, each with an obtainability class. The count is the
+  #   cheap thing to pin; the judgement is whether nine is honest or whether
+  #   the block is padding a list to look thorough.
+  - case_id: mu-fy2025q3-j17-declared-gaps
+    input_ref: "run-2026-09-15T042754-mu-thesis/judge:D:J-17:llm:1"
+    expected:
+      gaps: "____"      # ⚠ a list — consider pinning its LENGTH, not its text
+    source: >-
+      Established by the fund manager against the thesis bundle of 2025-06-26.
+    established_at: "____-__-__"
+    established_by: "____"
+
+  # ── J-20 · THE VALUATION WINDOW ───────────────────────────────────────────
+  # ★★ The one judgement block whose answer feeds ARITHMETIC directly: the
+  #   chosen cycle window sets `fv_model`. RECORDED: method
+  #   cycle_average_fcff, FY2016-FY2024, trough 2023, peak 2018, 3 exclusions.
+  #   ⇒ fv_model $15.96/share against a $126.00 price.
+  #
+  #   ★ Pin `first_fiscal_year` and `last_fiscal_year`: the window IS the
+  #     judgement, and a one-year shift moves fair value materially. The
+  #     `exclusions` list is checked separately by `X-01` (`DX-108`).
+  - case_id: mu-fy2025q3-j20-cycle-window
+    input_ref: "run-2026-09-14T122547-mu-j20/judge:J-20:llm:1"
+    expected:
+      first_fiscal_year: "____"    # recorded: 2016
+      last_fiscal_year: "____"     # recorded: 2024
+    source: >-
+      Established by the fund manager from the annual history in the fact
+      ledger for MU (EDGAR facts, FY2016-FY2024), as the peak-to-trough cycle
+      the two-stage valuation should average over.
+    established_at: "____-__-__"
+    established_by: "____"

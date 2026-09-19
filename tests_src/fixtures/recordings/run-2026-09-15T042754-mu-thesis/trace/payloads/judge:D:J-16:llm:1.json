@@ -1,0 +1,43 @@
+{
+  "request": {
+    "model": "claude-opus-5",
+    "max_tokens": 32000,
+    "payload": {
+      "__elided__": "the bundle is the filing fixture, not duplicated here",
+      "chars": 548195,
+      "see": "tests_src/fixtures/filings/"
+    },
+    "effort": "medium",
+    "reads_commits": [
+      "A:J-01",
+      "A:J-02",
+      "A:J-05",
+      "A:J-06",
+      "A:J-07",
+      "A:J-08",
+      "A:J-20",
+      "B:J-09",
+      "B:J-10",
+      "C:J-11",
+      "C:J-12",
+      "C:J-13:return_on_equity",
+      "C:J-13:operating_margin",
+      "C:J-13:free_cash_flow",
+      "C:J-13:revenue_growth",
+      "C:J-13:non_gaap_eps",
+      "C:J-14",
+      "D:falsifiers"
+    ]
+  },
+  "response": {
+    "text": "{\"verdict\": \"SELL\", \"conviction\": \"Medium\", \"considerations\": [{\"consideration\": \"FACT [D-02 `implied`]: stage-1 growth solves to 0.282629394532 against price $126.00 and value_per_share $15.96; FACT [D-02 `band`]: all twelve cells fall between $10.76 and $22.50. INFERENCE: the gap is not a discount-rate or terminal-growth artefact \\u2014 it is a demand for ~28% FCFF compounding for ten years.\", \"from_call\": \"J-09 reconciliation\"}, {\"consideration\": \"FACT [annual history, fcff]: negative in FY2016 (\\u22122,403,000,000), FY2020 (\\u221269,209,856), FY2023 (\\u22126,325,000,000), FY2024 (\\u2212354,404,839) USD. INFERENCE: four negative years in nine and no run of four positive years; FACT [declared absent]: no reference-class base rates exist, so the only measurable class is the company's own record, and the requirement is exceptional within it.\", \"from_call\": \"J-10 base-rate check\"}, {\"consideration\": \"FACT [10-Q]: gross margin \\\"38%\\\" \\u2014 highest of the four disclosed periods, versus \\\"17%\\\" nine months earlier \\u2014 on DRAM ASPs up a \\\"high-40% range\\\", against a company-published five-year top of \\\"plus low-teen\\\"; sequential ASPs already fell in both products and \\\"SBU | (9) | (1)%\\\". INFERENCE: the numerator is struck at a cycle position, not a level.\", \"from_call\": \"J-07 cycle position, corroborated by J-13:operating_margin\"}], \"strongest_other_way\": {\"consideration\": \"FACT [J-13 sweeps]: receivables flat ($5,492m vs $5,419m) on 50% revenue growth, inventory down while COGS rose, operating cash flow $11,795m against net income $5,338m, and E-04 finds no non-GAAP measure. FACT [J-14]: J-11's lease argument is contradicted \\u2014 D-02's net_debt already carries the finance-lease liability. FACT [D-02 basis]: capex is the gross tag while management frames capex \\\"net of proceeds from government incentives\\\" ($1,294m received). INFERENCE: the accounts are clean and the base is depressed by a build year whose fabs produce from \\\"the second half of calendar 2027\\\".\", \"why_it_did_not_govern\": \"It raises the correct base and narrows the gap, but the bundle supplies no computed normalised-capex FCFF and no multiples, so I cannot verify it closes an eight-fold gap; the band's insensitivity to discount rate and terminal growth is unaffected.\"}, \"more_conservative_if\": {\"what\": \"J-15 falsifier 3: PaymentsToAcquirePropertyPlantAndEquipment below $2.5bn in two consecutive reported quarters while GrossProfit holds at or above $3,508m \\u2014 establishing the capital programme as discretionary growth spend rather than a charge against the base. That moves this to HOLD.\", \"by_when\": \"2026-06-30\"}, \"evidence_coverage\": {\"supplied\": \"one 10-Q with full debt, lease, segment and cash-flow detail; a nine-year FCFF history; a solved two-stage DCF with a twelve-cell sensitivity band and a dated price; five forensic sweeps; a disconfirming audit\", \"not_supplied\": \"consensus estimates or rating actions, peer figures, valuation multiples, market capitalisation, reference-class base rates, dated competitor capacity (J-08 supply_read \\\"insufficient_evidence\\\"), the E-09 accrual work (skipped, DX-96), and any completed FY2025 annual cash-flow line\"}, \"answer\": \"The price embeds a decade of ~28% FCFF compounding from a business whose own record shows four negative FCFF years in nine, at the highest gross margin and the largest DRAM price move the filing discloses, with sequential prices already falling in both products. Every cell of the sensitivity grid sits below the price, so the conclusion does not turn on the discount rate or terminal growth. The accounts are clean \\u2014 that is not the objection; the objection is that the level is cyclical and the required growth is unevidenced. The honest weakness is that this rests on one model charging gross capex in a build year, with no multiples, no peers and no consensus to cross-check.\"}",
+    "tokens_in": 203041,
+    "tokens_out": 2820,
+    "stop_reason": "tool_use",
+    "stream_chars": {
+      "thinking": 0,
+      "text": 0,
+      "tool_input": 3812
+    }
+  }
+}

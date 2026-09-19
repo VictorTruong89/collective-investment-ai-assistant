@@ -1,0 +1,11 @@
+{
+  "kind": "sector",
+  "sector_file": "sector_file.json",
+  "industry": "memory_semiconductors",
+  "file_version": 1,
+  "source_list_version": "memory.v1",
+  "as_of": "2025-06-26",
+  "records": 3,
+  "ingested_from": ".state/sector/memory_v1_2025-06-26.json",
+  "probe_hits": 15
+}
