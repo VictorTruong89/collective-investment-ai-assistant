@@ -234,7 +234,10 @@ def test_dx_128_two_conditions_in_one_clause_must_hold_in_the_SAME_period():
         (date(2025, 11, 27), date(2026, 1, 8),
          {"Debt": 10_000 * _M, "Cash": 5_000 * _M}),                               # only cash
     ])
-    test = {"window_periods": 4, "clauses": [{"mode": "any", "per_period": [
+    # ✏ 2026-10-01 `DX-139` — the window was 4 with only these 2 periods reported, so an `any`
+    #   clause could still be satisfied later: HELD there was the partial-window defect. The
+    #   window is now 2 (complete), which keeps this test about the SAME-period AND.
+    test = {"window_periods": 2, "clauses": [{"mode": "any", "per_period": [
         {"expr": [{"field": "Debt", "sign": 1}], "op": ">", "value": 22_000_000_000},
         {"expr": [{"field": "Cash", "sign": 1}], "op": "<", "value": 6_000_000_000}]}]}
     assert evaluate_test(test, _periods(rows, test))[0] == HELD

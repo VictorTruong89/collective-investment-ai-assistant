@@ -13,6 +13,7 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.4.0 | 2026-10-01 | Victor | ★ **`J-15 v2` — each falsifier carries its own structured TEST.** One paragraph added to v1, nothing changed: write the test in the grammar `falsifier_check` decides, over the supplied observables, or rewrite the condition until it can be. ★ Makes `RM-13` automatic per thesis instead of hand-translated (`DX-125`, `DX-128`), which `L8` §9 made the primary judgement instrument. |
 | 0.3.0 | 2026-08-23 | Victor | ✅ **QP-8 closed — the relay prompt is GENERATED from these blocks** (§10A). ★★ **The finding that made it cheap: only THREE shared blocks (S-2, S-6, S-7) carry the entire API-vs-chat difference.** The task blocks are transport-agnostic as written, so generation is composition plus a **closed substitution map**, not a rewrite. **RG-1…RG-6**, with **RG-4** the load-bearing one — CI regenerates and diffs, ⚠ *without which the generated file becomes a source again within a month and nobody notices until the two disagree.* ★ **§10A.4 records which blocks the current hand-written file is made of, and which three are deliberately omitted** (J-10 always reports an absence; J-14 cannot read the pass that produced it; J-19 needs a peer set a chat cannot align). ⚠ **§10A.5 states the cost honestly: composed prose reads worse than hand-written**, and the artifact is pasted by a human who has to want to use it. |
 | 0.2.0 | 2026-08-22 | Victor | ⚠ **Caught up with two days of decisions this file predated.** It was written 2026-08-20; §10A (calendar), §10B (events), §10B.5 (attribution), §10C (sector file) and §4B (the relay) all landed after it, and a grep found **zero** coverage of *calendar, 8-K, sector, relay, residual, attribution* or *vintage*. **Six new blocks: E-15 · J-18 · J-19 · V-05 · V-06 · V-07.** ★ **V-05 is the one that needed prompt text most** — RA-79 forbids rationalising an unexplained move, and *"an LLM asked why a stock fell will always produce a reason"* is a property of the model that only the prompt can push back on. ★ **S-2 gains the vintage rule (RA-93) and period-aligned peers (RA-96a)**; §9 gains variant-aware block IDs (XP-44). ★ **§0.2 now says it depicts WF-1 only** — there are nine workflows and the diagram showed one. |
 | 0.1.0 | 2026-08-20 | Victor / AI | Initial draft. Consolidates the legacy mega-prompt, the ROE sample, and the external canon (§10) into **one registry of narrow prompts**, staged so that **RA-14 anchor-stripping is structural rather than instructed**. |
@@ -1601,6 +1602,51 @@ holds" or any variant. That is a tautology and it fails the run.
 ```
 
 **Guards:** RA-16, RA-35, RA-36. **Error:** `RES.THESIS.NO_FALSIFIER` when zero conditions pass.
+
+### J-15 · Falsifier authoring — `v2` — ★ runs BEFORE the verdict
+
+> ✏ **Added 2026-10-01** (`L3` §2.1p item 3; `L8` §9 rule 4ⓐ). **One paragraph is added; nothing in v1 is
+> changed.** v1 asked for a condition a script *could* decide and then left the deciding to a person
+> (`DX-125`, `DX-128`: MU's four tests were hand-translated). v2 asks for the test itself, in the grammar
+> `falsifier_check.evaluate_test` decides, and the answer schema restricts every field it reads to the
+> supplied observables.
+
+```text
+Before any verdict exists, state what would prove the emerging thesis wrong.
+
+Write two to four conditions. Each must be ALL of:
+
+  observable   from data this system already receives — a filing line item, a
+               computed metric, a disclosed figure. Not "sentiment worsens".
+  dated        with a deadline or an evaluation window. Not "eventually".
+  checkable    without a further judgement call. ★ The test: could a script
+               decide it? "Competition intensifies" fails. "Gross margin below
+               55% in two consecutive quarters" passes.
+  material     if it fired, the thesis would be wrong — not merely dented. State
+               in one line what it would mean.
+
+For each, name the specific metric or field the check reads, choosing from the
+supplied list of available observables. A falsifier naming a field this system
+does not receive is not checkable, however precise it sounds.
+
+★ At least one condition must be about the BUSINESS rather than the price. A
+falsifier set that consists only of price levels is a stop-loss wearing a
+thesis's clothing, and it will fire on volatility rather than on being wrong.
+
+You may not write "the thesis is invalidated if the investment case no longer
+holds" or any variant. That is a tautology and it fails the run.
+
+For each condition, also write its TEST: the same condition in the grammar the
+answer schema declares. A test is a window of reported periods and one or more
+clauses, each a comparison of the listed observables against a threshold in
+the field's own units. The test must decide exactly the condition you wrote,
+no more and no less. If the condition cannot be expressed in that grammar,
+rewrite the condition until it can: a condition only a reader can decide is
+not checkable, and it fails the run.
+```
+
+**Guards:** RA-16, RA-35, RA-36, and the grammar (`falsifier_check.validate_test`). **Error:**
+`RES.THESIS.NO_FALSIFIER` when zero conditions pass, or when any condition's test fails validation.
 
 > ★ **RM-13 is what makes this call honest over time** — the ratio of theses that died by their own
 > stated condition to those quietly abandoned. **A high abandonment rate means the falsifiers were

@@ -249,9 +249,13 @@ def test_the_j_blocks_are_the_master_prompts_text_and_are_hashed():
     registry.check_all()
     assert {b.name for b in ALL_BLOCKS} == {"J-11", "J-15", "J-16"}
     assert (J11.view, J15.view, J16.view) == ("full", "full", "full")      # ✏ DX-110
-    from src.fundamental.prompts.e_blocks import BLOCKS
+    import src.fundamental.prompts.e_blocks as eb
     for blk in (J11, J15, J16):                  # ★ one text per name and version
-        assert blk.text == BLOCKS[blk.name][0]().text
+        # ✏ 2026-10-01 — compare against the factory for THIS block's version: `J-15` is
+        #   `v1` here (prose path) and `v2` in the Stage B–D runner, so the current
+        #   registry entry is not the right reference for every block any more.
+        factory = getattr(eb, f"{blk.name.lower().replace('-', '')}_{blk.version}")
+        assert blk.text == factory().text
     object.__setattr__(J15, "text", J15.text + " edited")
     from src.fundamental import PromptDriftError
     with pytest.raises(PromptDriftError):

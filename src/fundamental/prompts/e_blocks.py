@@ -1238,6 +1238,42 @@ thesis's clothing, and it will fire on volatility rather than on being wrong.
 You may not write "the thesis is invalidated if the investment case no longer
 holds" or any variant. That is a tautology and it fails the run.
 """
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-15 `v2`. ★ v1 plus ONE
+#: paragraph: write each condition's TEST in `falsifier_check`'s grammar (2026-10-01,
+#: `L3` §2.1p item 3), so `RM-13` decides every thesis without a hand translation.
+J15_V2_TEXT = """\
+Before any verdict exists, state what would prove the emerging thesis wrong.
+
+Write two to four conditions. Each must be ALL of:
+
+  observable   from data this system already receives — a filing line item, a
+               computed metric, a disclosed figure. Not "sentiment worsens".
+  dated        with a deadline or an evaluation window. Not "eventually".
+  checkable    without a further judgement call. ★ The test: could a script
+               decide it? "Competition intensifies" fails. "Gross margin below
+               55% in two consecutive quarters" passes.
+  material     if it fired, the thesis would be wrong — not merely dented. State
+               in one line what it would mean.
+
+For each, name the specific metric or field the check reads, choosing from the
+supplied list of available observables. A falsifier naming a field this system
+does not receive is not checkable, however precise it sounds.
+
+★ At least one condition must be about the BUSINESS rather than the price. A
+falsifier set that consists only of price levels is a stop-loss wearing a
+thesis's clothing, and it will fire on volatility rather than on being wrong.
+
+You may not write "the thesis is invalidated if the investment case no longer
+holds" or any variant. That is a tautology and it fails the run.
+
+For each condition, also write its TEST: the same condition in the grammar the
+answer schema declares. A test is a window of reported periods and one or more
+clauses, each a comparison of the listed observables against a threshold in
+the field's own units. The test must decide exactly the condition you wrote,
+no more and no less. If the condition cannot be expressed in that grammar,
+rewrite the condition until it can: a condition only a reader can decide is
+not checkable, and it fails the run.
+"""
 #: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-16 `v1`.
 J16_V1_TEXT = """\
 You have: the Stage-A scorecard and its evidence, the reconciliation (J-09), the
@@ -1312,9 +1348,9 @@ J16_CONVICTIONS = ("Low", "Medium", "Medium-High", "High")
 J17_OBTAINABLE = ("exists_not_fetched", "not_disclosed", "unknowable")
 
 
-def _full_view(name: str, text: str) -> PromptBlock:
+def _full_view(name: str, text: str, *, version: str = "v1") -> PromptBlock:
     """Stages B–D — `view="full"` without exception (`STAGE_VIEW`, `MP-3`)."""
-    return block(name, "v1", "judgement", text, view="full")
+    return block(name, version, "judgement", text, view="full")
 
 def j09_v1() -> PromptBlock:
     """`J-09` — full view."""
@@ -1343,6 +1379,10 @@ def j14_v1() -> PromptBlock:
 def j15_v1() -> PromptBlock:
     """`J-15` — full view."""
     return _full_view("J-15", J15_V1_TEXT)
+
+def j15_v2() -> PromptBlock:
+    """`J-15 v2` — full view; each falsifier carries its structured test."""
+    return _full_view("J-15", J15_V2_TEXT, version="v2")
 
 def j16_v1() -> PromptBlock:
     """`J-16` — full view."""
@@ -1391,7 +1431,7 @@ BLOCKS = {
     "J-12": (j12_v1, (), "v1"),
     "J-13": (j13_v1, (), "v1"),
     "J-14": (j14_v1, (), "v1"),
-    "J-15": (j15_v1, (), "v1"),
+    "J-15": (j15_v2, (), "v2"),     # ✏ 2026-10-01 — structured falsifier tests
     "J-16": (j16_v1, (), "v1"),
     "J-17": (j17_v1, (), "v1"),
 }

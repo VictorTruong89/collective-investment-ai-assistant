@@ -25,6 +25,7 @@ from datetime import date
 
 from src.fundamental.contracts.gate import FLAG, NO_THESIS, PASS, VETO, GateVerdict, Grade
 from src.fundamental.errors import GateMappingError
+from src.fundamental.monitor.variance import K_STAB
 from src.fundamental.thesis.models import BUY, HOLD, INSUFFICIENT_DATA, SELL, Thesis
 
 #: The S chain (D-12 §5.3). ★ Meeting on it is P3 applied INSIDE D-01: a gate may
@@ -112,7 +113,14 @@ def _matching_rows(inputs: GateInputs) -> list[Match]:
     agreement = _agreement(thesis)
 
     if thesis.verdict == BUY:
-        if agreement is None or agreement >= FLAG_FLOOR:
+        if agreement is None:
+            # ★★ RA-154 (2026-10-01) — UNMEASURED is neither stable nor unstable. This
+            #   branch used to PASS, so every k=1 thesis passed the stability check by
+            #   absence of evidence: the default RA-49 forbids.
+            out.append(Match(
+                FLAG, f"verdict stability is unmeasured: no RM-1 result with k >= "
+                      f"{K_STAB} (RA-154) — not shown unstable, never shown stable"))
+        elif agreement >= FLAG_FLOOR:
             out.append(Match(PASS, "the thesis independently supports the buy"))
         elif agreement >= VETO_FLOOR:
             # RA-48's middle — *annotate*, which is QR-2's answer.
@@ -154,9 +162,13 @@ def _agreement(thesis: Thesis) -> float | None:
     output stays non-actionable until B4.5 supplies the probe.
     """
     stability = thesis.verdict_stability
-    if not stability:
+    if not stability or stability.get("agreement") is None:
         return None
-    return float(stability.get("agreement"))
+    # ★ RA-154 — a single run "agrees" with itself; below K_STAB the fraction
+    #   measures nothing (`variance.py`), so it is unmeasured, not 1.0.
+    if int(stability.get("k") or 0) < K_STAB:
+        return None
+    return float(stability["agreement"])
 
 
 def _grade_of(thesis: Thesis) -> Grade:

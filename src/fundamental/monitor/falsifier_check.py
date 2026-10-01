@@ -29,6 +29,9 @@ from datetime import date
 #: What a check can conclude. ★ `DECIDABLE_BY_READER` is a real outcome, not a failure: the
 #: evidence is complete and the reading is a person's (or a later `J-15` `test`).
 FIRED, HELD, DECIDABLE_BY_READER, NO_DATA = "FIRED", "HELD", "DECIDABLE_BY_READER", "NO_DATA"
+#: ★ `DX-139` — the window has not finished reporting and the answer is not yet final.
+#: ⚠ Neither FIRED nor HELD: a falsifier still waiting has not held, and has not fired.
+PENDING = "PENDING"
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,6 +128,64 @@ def _day(value) -> date:
 OPERATORS = {">": lambda a, b: a > b, "<": lambda a, b: a < b,
              ">=": lambda a, b: a >= b, "<=": lambda a, b: a <= b}
 
+#: The clause modes `evaluate_test` decides. ★ `J-15 v2`'s schema enumerates exactly these.
+MODES = ("each", "any", "consecutive", "sum", "rises_each")
+#: Modes that read ONE series, so they take exactly one per-period condition.
+_SINGLE_SERIES = ("sum", "rises_each")
+#: A window longer than this asks for years of filings no deadline can wait for.
+MAX_WINDOW = 12
+
+
+def validate_test(test: dict, *, observables=None) -> list[str]:
+    """★ `J-15 v2` — every way a structured test can be undecidable, named. Empty means valid.
+
+    ⚠ `evaluate_test` assumes a well-formed test and would raise mid-check (or silently
+    unpack the wrong condition) on a bad one. A model-authored test is therefore checked
+    HERE, at authoring time, so a test that cannot decide its condition stops the run
+    before the verdict (`RA-16`) rather than on the day the falsifier is checked.
+    `observables`, when given, is the field list the test may read (`RA-35`).
+    """
+    problems: list[str] = []
+    window = test.get("window_periods")
+    if not isinstance(window, int) or isinstance(window, bool) or not 1 <= window <= MAX_WINDOW:
+        problems.append(f"window_periods {window!r} is not an integer in 1..{MAX_WINDOW}")
+    clauses = test.get("clauses")
+    if not isinstance(clauses, list) or not clauses:
+        return [*problems, "a test needs at least one clause"]
+    for n, clause in enumerate(clauses, start=1):
+        mode = clause.get("mode")
+        conditions = clause.get("per_period") or []
+        if mode not in MODES:
+            problems.append(f"clause {n}: mode {mode!r} is not one of {MODES}")
+        if not conditions:
+            problems.append(f"clause {n}: no per-period condition")
+        if mode in _SINGLE_SERIES and len(conditions) != 1:
+            problems.append(f"clause {n}: mode {mode!r} reads one series, so it takes "
+                            f"exactly one condition, not {len(conditions)}")
+        if mode == "consecutive":
+            run = clause.get("consecutive")
+            if not isinstance(run, int) or isinstance(run, bool) or run < 2:
+                problems.append(f"clause {n}: mode 'consecutive' needs `consecutive` >= 2, "
+                                f"got {run!r}")
+        for m, condition in enumerate(conditions, start=1):
+            where = f"clause {n} condition {m}"
+            if condition.get("op") not in OPERATORS:
+                problems.append(f"{where}: op {condition.get('op')!r} is not one of "
+                                f"{tuple(OPERATORS)}")
+            value = condition.get("value")
+            if not isinstance(value, (int, float)) or isinstance(value, bool):
+                problems.append(f"{where}: value {value!r} is not a number")
+            terms = condition.get("expr") or []
+            if not terms:
+                problems.append(f"{where}: an empty expression reads nothing")
+            for term in terms:
+                if term.get("sign", 1) not in (1, -1):
+                    problems.append(f"{where}: sign {term.get('sign')!r} is not 1 or -1")
+                if observables is not None and term.get("field") not in observables:
+                    problems.append(f"{where}: field {term.get('field')!r} is not a published "
+                                    f"observable")
+    return problems
+
 
 def fields_in(test: dict) -> tuple[str, ...]:
     """Every field a test reads — what the checker must gather before it can decide."""
@@ -157,45 +218,72 @@ def evaluate_test(test: dict, periods: list[dict]) -> tuple[str, str]:
 
     ⚠ `NO_DATA` when a field the test names never reported: a condition that could not be
     evaluated has NOT held, and saying `HELD` there would count silence as evidence.
+
+    ★★ `DX-139` — a window that has not finished reporting is decided only where the answer
+    is ALREADY final. One failing period settles an `each`/`rises_each` clause; one
+    satisfying period (or run) settles an `any`/`consecutive` clause; a `sum` waits. Every
+    other case is `PENDING`. ⚠ Found by the first live `J-15 v2` call: "above $1bn in each
+    of the next EIGHT quarters" was FIRED on four.
     """
-    window = periods[: test.get("window_periods", len(periods))] if periods else []
+    want = test.get("window_periods", len(periods))
+    window = periods[:want] if periods else []
     if not window:
         return NO_DATA, "no reported period in the window"
+    complete = len(window) >= want
+    waiting = []
     for index, clause in enumerate(test.get("clauses", ()), start=1):
-        mode = clause["mode"]
+        verdict, why = _clause(clause, window, complete, index)
+        if verdict in (NO_DATA, HELD):
+            return verdict, why
+        if verdict == PENDING:
+            waiting.append(index)
+    if waiting:
+        return PENDING, (f"{len(window)} of {want} period(s) reported; clause(s) "
+                         f"{waiting} cannot be decided until the window completes")
+    return FIRED, f"every clause holds over {len(window)} reported period(s)"
+
+
+def _clause(clause: dict, window: list[dict], complete: bool, index: int) -> tuple[str, str]:
+    """One clause → `FIRED` (holds), `HELD` (fails), `PENDING` or `NO_DATA`."""
+    mode = clause["mode"]
+    if mode in ("rises_each", "sum"):
+        (condition,) = clause["per_period"]
+        values = [_expr_value(p, condition["expr"]) for p in window]
+        if any(v is None for v in values):
+            return NO_DATA, f"clause {index}: the series is incomplete"
         if mode == "rises_each":
-            (condition,) = clause["per_period"]
-            values = [_expr_value(p, condition["expr"]) for p in window]
-            if any(v is None for v in values) or len(values) < 2:
+            if len(values) < 2 and complete:
                 return NO_DATA, f"clause {index}: the series is incomplete"
             if not all(b > a for a, b in zip(values, values[1:], strict=False)):
                 return HELD, f"clause {index}: the series does not rise in every period"
-            continue
-        if mode == "sum":
-            (condition,) = clause["per_period"]
-            values = [_expr_value(p, condition["expr"]) for p in window]
-            if any(v is None for v in values):
-                return NO_DATA, f"clause {index}: the series is incomplete"
-            if not OPERATORS[condition["op"]](sum(values), float(condition["value"])):
-                return HELD, f"clause {index}: the sum {sum(values):,.0f} fails the threshold"
-            continue
-        per_period = [all(_holds(p, c) for c in clause["per_period"])
-                      if all(_holds(p, c) is not None for c in clause["per_period"]) else None
-                      for p in window]
-        if all(v is None for v in per_period):
-            return NO_DATA, f"clause {index}: no period reported every field it names"
-        truth = [bool(v) for v in per_period]
-        if mode == "each" and not all(truth):
+            return (FIRED, "") if complete else (PENDING, "")
+        if not complete:
+            return PENDING, ""
+        if not OPERATORS[condition["op"]](sum(values), float(condition["value"])):
+            return HELD, f"clause {index}: the sum {sum(values):,.0f} fails the threshold"
+        return FIRED, ""
+    per_period = [all(_holds(p, c) for c in clause["per_period"])
+                  if all(_holds(p, c) is not None for c in clause["per_period"]) else None
+                  for p in window]
+    if all(v is None for v in per_period):
+        return NO_DATA, f"clause {index}: no period reported every field it names"
+    truth = [bool(v) for v in per_period]
+    if mode == "each":
+        if not all(truth):
             return HELD, f"clause {index}: it does not hold in every period"
-        if mode == "any" and not any(truth):
-            return HELD, f"clause {index}: it holds in no period"
-        if mode == "consecutive":
-            need = int(clause.get("consecutive", 2))
-            runs = max((sum(1 for _ in group) for value, group in _runs(truth) if value),
-                       default=0)
-            if runs < need:
-                return HELD, f"clause {index}: the longest run is {runs}, not {need}"
-    return FIRED, f"every clause holds over {len(window)} reported period(s)"
+        return (FIRED, "") if complete else (PENDING, "")
+    if mode == "any":
+        if any(truth):
+            return FIRED, ""
+        return (HELD, f"clause {index}: it holds in no period") if complete else (PENDING, "")
+    if mode == "consecutive":
+        need = int(clause.get("consecutive", 2))
+        runs = max((sum(1 for _ in group) for value, group in _runs(truth) if value), default=0)
+        if runs >= need:
+            return FIRED, ""
+        return ((HELD, f"clause {index}: the longest run is {runs}, not {need}") if complete
+                else (PENDING, ""))
+    raise ValueError(f"clause {index}: mode {mode!r} is not one of {MODES}")
 
 
 def _runs(values):

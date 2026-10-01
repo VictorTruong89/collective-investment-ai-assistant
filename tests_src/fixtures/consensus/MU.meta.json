@@ -1,0 +1,19 @@
+{
+ "ticker": "MU",
+ "fetched_at": "2026-10-01T19:07:23+00:00",
+ "source": "FMP /stable/ \u2014 grades, earnings, price-target-news (paged)",
+ "rows": {
+  "grades": 946,
+  "earnings": 166,
+  "price_target_news": 200
+ },
+ "price_target_pages": 2,
+ "paged_back_to": "2024-01-01",
+ "pit_class": "A (event-stamped); the as-of boundary is applied when the bundle is built",
+ "hazards": [
+  "price-target-news returns at most 100 rows per call; paged with page=0,1,\u2026",
+  "earnings rows carry lastUpdated AFTER the report: a past estimate may be revised",
+  "earnings rows dated in the future hold TODAY's forward estimate \u2014 look-ahead; excluded by the as-of boundary",
+  "grades carry a date but no time: a same-day row is excluded (decision 1b)"
+ ]
+}

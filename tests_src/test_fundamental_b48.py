@@ -406,9 +406,15 @@ def test_ac_1_84_a_stale_relay_sourced_thesis_flags_at_the_gate():
     from src.fundamental import FLAG, GateInputs, PASS, evaluate
 
     verdict = evaluate(GateInputs(thesis=thesis(), stale=True), as_of=AS_OF)
-    assert verdict.status == FLAG
-    assert evaluate(GateInputs(thesis=thesis(), stale=False),
-                    as_of=AS_OF).status == PASS
+    assert verdict.status == FLAG and "stale" in verdict.reason
+    # ✏ 2026-10-01 — RA-154: a relay thesis carries no stability (RA-115), so it is
+    #   UNMEASURED and FLAGs even when fresh. The control was `status == PASS`, which
+    #   encoded the old unmeasured→PASS default. ★ What AC-1.84 asserts is that
+    #   STALENESS is what flags it, so the control now checks that the stale reason
+    #   is absent when the thesis is fresh.
+    fresh = evaluate(GateInputs(thesis=thesis(), stale=False), as_of=AS_OF)
+    assert fresh.status != PASS, "RA-154: unmeasured never passes"
+    assert "stale" not in fresh.reason
 
 
 def test_ac_1_85_nothing_is_re_prioritised_for_having_been_skipped():

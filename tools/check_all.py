@@ -73,6 +73,7 @@ CHECKS = [
     "AC-7b.5 nothing gates on a Tier-B result",
     "DX-53 every traceability row resolves",
     "MS-8.7 ID-family registry",
+    "L8 §9 rule checks over every recording",
 ]
 
 
@@ -125,6 +126,9 @@ def main() -> int:
     #   tests its AC — that half stays human.
     results.append(run(CHECKS[10], [py, "tools/check_traceability_rows.py"], REPO))
     results.append(run(CHECKS[11], [py, "tools/check_id_families.py"], REPO))
+    # ★ L8 §9 (2026-10-01) — judgement is measured by rule checks, not golden cases.
+    #   Fails on any violation not in `rule_checks.KNOWN`.
+    results.append(run(CHECKS[12], [py, "tools/rule_checks.py"], REPO))
 
     failed = results.count(False)
     print("──" * 20)

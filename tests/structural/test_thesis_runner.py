@@ -251,7 +251,8 @@ def _fill(schema: dict):
         import re
         n = schema.get("minItems") or int((re.findall(r"\d+", schema.get("description", "")) or [1])[0])
         return [_fill(schema["items"]) for _ in range(max(n, 1))]
-    return {"string": "x", "boolean": True, "integer": 1}[next(k for k in kinds if k != "null")]
+    return {"string": "x", "boolean": True, "integer": 1,
+            "number": 1.0}[next(k for k in kinds if k != "null")]
 
 
 def _wire_fake_run(monkeypatch, tmp_path, *, j15_deadline="2026-03-31"):
@@ -518,3 +519,23 @@ def test_dx_127_no_cache_reproduces_the_single_block_payload(monkeypatch, tmp_pa
     assert all("cache_prefix" not in req for req in seen)
     first = seen[0]["payload"]
     assert first.index("TASK TYPE: JUDGEMENT") < first.index("the filing"), "instructions first"
+
+
+def test_j15_v2_live_writes_its_structured_tests_beside_the_thesis(monkeypatch, tmp_path):
+    """★ `J-15 v2` (`L3` §2.1p item 3) — the live loop writes `falsifier_tests.json`
+    next to `thesis.json`, stamped with THIS run's id, and every test is valid in the
+    grammar `falsifier_check` decides, so `check_falsifiers.py` needs no `--tests`."""
+    import json as _json
+
+    from src.fundamental.monitor.falsifier_check import validate_test
+    from tools.check_falsifiers import tests_for
+
+    r, _issued = _wire_fake_run(monkeypatch, tmp_path)
+    assert r.main(["--live", "--budget-usd", "100"]) == 0
+    (thesis_file,) = (tmp_path / ".state/runs").glob("*/thesis.json")
+    summary = _json.loads(thesis_file.read_text())
+    tests = tests_for(thesis_file, explicit=None)
+    assert tests["_thesis_run_id"] == summary["run_id"]
+    ordinals = [k for k in tests if not k.startswith("_")]
+    assert len(ordinals) == len(summary["thesis"]["falsifiers"]) >= 2
+    assert all(validate_test(tests[k], observables=("Revenues",)) == [] for k in ordinals)

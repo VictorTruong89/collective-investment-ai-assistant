@@ -353,7 +353,23 @@ def _enum(values) -> dict:
     return {"type": "string", "enum": list(values)}
 
 
-def thesis_tool(block_id: str, *, observables=()) -> dict:
+def falsifier_test_schema(observables) -> dict:
+    """★ `J-15 v2` — the structured test, in `falsifier_check`'s grammar (`DX-128`).
+
+    Every field a test reads is an `enum` of the published observables, so a test over a
+    field this system does not receive cannot even be written (`RA-35`). ⚠ Strict mode
+    requires every property, so `consecutive` is nullable rather than optional.
+    """
+    from src.fundamental.monitor.falsifier_check import MODES, OPERATORS
+
+    term = _obj(field=_enum(observables), sign={"type": "integer", "enum": [1, -1]})
+    condition = _obj(expr=_arr(term, 1), op=_enum(OPERATORS), value={"type": "number"})
+    clause = _obj(mode=_enum(MODES), consecutive={"type": ["integer", "null"]},
+                  per_period=_arr(condition, 1))
+    return _obj(window_periods={"type": "integer"}, clauses=_arr(clause, 1))
+
+
+def thesis_tool(block_id: str, *, observables=(), j15_version: str = "v2") -> dict:
     """The tool schema each Stage B–D block answers through.
 
     ★ Structured where the prompt enumerates, so what a later stage and the thesis read is
@@ -403,7 +419,11 @@ def thesis_tool(block_id: str, *, observables=()) -> dict:
             raise ValueError("J-15 needs the observable field list — it chooses from it (RA-35)")
         schema = _obj(falsifiers=_arr(_obj(condition=STR, observable_field=_enum(observables),
                                            deadline=STR, materiality=STR,
-                                           about_business={"type": "boolean"}), 2, 4),
+                                           about_business={"type": "boolean"},
+                                           # ★ `v1` has no test; `agreement_probe` needs both.
+                                           **({} if j15_version == "v1" else
+                                              {"test": falsifier_test_schema(observables)})),
+                                      2, 4),
                       answer=STR)
     elif block_id == "J-16":
         schema = _obj(verdict=_enum(J16_VERDICTS), conviction=_enum(J16_CONVICTIONS),
@@ -503,7 +523,8 @@ def validate(schema: dict, value, path: str = "$") -> list[str]:
         return errors
     checks = {"string": lambda v: isinstance(v, str),
               "boolean": lambda v: isinstance(v, bool),
-              "integer": lambda v: isinstance(v, int) and not isinstance(v, bool)}
+              "integer": lambda v: isinstance(v, int) and not isinstance(v, bool),
+              "number": lambda v: isinstance(v, (int, float)) and not isinstance(v, bool)}
     ok = any(checks[k](value) for k in kinds if k in checks)
     return [] if ok else [f"{path}: expected {kinds}"]
 
@@ -534,6 +555,31 @@ def falsifiers_from(answer: dict, *, as_of: date, observables) -> tuple:
                              deadline=deadline, materiality=f["materiality"],
                              about_business=bool(f["about_business"])))
     return tuple(out)
+
+
+def falsifier_tests_from(answer: dict, *, observables, run_id: str) -> dict:
+    """★ `J-15 v2` — the structured tests, in the file format `check_falsifiers --tests` reads.
+
+    Keyed by the same ordinals `falsifiers_from` assigns, and stamped with the thesis's
+    `run_id` so the checker refuses to apply them to another thesis. ⚠ A test that fails
+    `validate_test` raises `UncheckableFalsifierError`: J-16 is then never issued (RA-16),
+    because a falsifier no script can decide is the v1 problem this version exists to end.
+    """
+    from src.fundamental.errors import UncheckableFalsifierError
+    from src.fundamental.monitor.falsifier_check import validate_test
+
+    out: dict = {"_thesis_run_id": run_id,
+                 "_readme": ["Written by J-15 v2 alongside each falsifier's prose. The prose is "
+                             "the human statement; this is how a script decides it (RM-13)."]}
+    for n, f in enumerate(answer["falsifiers"], start=1):
+        test = f.get("test")
+        if not test:
+            raise UncheckableFalsifierError(n, "J-15 v2 requires a structured test")
+        problems = validate_test(test, observables=observables)
+        if problems:
+            raise UncheckableFalsifierError(n, "; ".join(problems[:3]))
+        out[str(n)] = {**test, "source": "J-15 v2 (model-authored)"}
+    return out
 
 
 def emitted_rubrics():
@@ -584,6 +630,39 @@ def build_thesis(*, ticker: str, as_of: date, run_id: str, bundle_hash: str, out
 # main
 # ═══════════════════════════════════════════════════════════════════════════
 
+#: ★ `L3` §2.1p item 5 — published analyst actions, version-controlled (`fetch_consensus.py`).
+CONSENSUS_FIXTURES = REPO / "tests_src/fixtures/consensus"
+#: The absence a consensus part fills. ⚠ `consensus_forward_estimates` stays declared absent:
+#: FMP holds only today's forward estimates, so for a past as-of they would be look-ahead.
+CONSENSUS_FILLS = "consensus_rating_and_price_target_actions"
+
+
+def consensus_for(ticker: str, as_of: date, fixtures=None):
+    """The `consensus.as_of` bundle part for `ticker`, or None when no fixture exists.
+
+    ⚠ None is honest, not a default: the absence then stays DECLARED in the bundle.
+    """
+    from src.fundamental.bundle.consensus import consensus_as_of, consensus_part
+
+    root = pathlib.Path(fixtures or CONSENSUS_FIXTURES)
+    files = {n: root / f"{ticker.upper()}_{n}.json"
+             for n in ("grades", "price_target_news", "earnings")}
+    if not all(f.exists() for f in files.values()):
+        return None
+    data = {n: json.loads(f.read_text(encoding="utf-8")) for n, f in files.items()}
+    return consensus_part(consensus_as_of(grades=data["grades"],
+                                          targets=data["price_target_news"],
+                                          earnings=data["earnings"], as_of=as_of))
+
+
+def stage_b_absences(*, has_consensus: bool) -> dict:
+    """`STAGE_B_ABSENCES`, less what this bundle actually supplies."""
+    absences = dict(STAGE_B_ABSENCES)
+    if has_consensus:
+        absences.pop(CONSENSUS_FILLS)
+    return absences
+
+
 def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
     """The Stage B–D evidence, once: filing + verified extractions + annual history +
     `fv_model` with the recorded raw price + observables + declared absences."""
@@ -612,13 +691,15 @@ def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
     engine = RecordedEngine(ticker, ledger_dir=REPO / ".state/facts", price_fixture=PRICE_FIXTURE)
     assumptions = load_published(*ASSUMPTIONS)
     fields = observable_fields(engine, ticker, filing.as_of, None)
-    absences = dict(STAGE_B_ABSENCES)
+    consensus = consensus_for(ticker, filing.as_of)
+    absences = stage_b_absences(has_consensus=consensus is not None)
     absences.update({f"stage_a_{b.lower().replace('-', '')}": why
                      for b, why in STAGE_A_ABSENT.items()})
     base = assemble(ticker=ticker, as_of=filing.as_of, parts=(
         *with_history.parts,
         valuation_part(ticker, filing.as_of, engine=engine, assumptions=assumptions),
         observables(fields),
+        *((consensus,) if consensus is not None else ()),
         declared_absences("stage_b_to_d_inputs", absences)))
     return base, rows, engine, assumptions, fields
 
@@ -856,6 +937,7 @@ def main(argv=None) -> int:
     for record in carried:
         persist_raw(record)                  # `carried_from` names the PRODUCING run
     spent, failed = 0.0, None
+    falsifier_tests: dict | None = None     # ★ J-15 v2 — set when J-15 runs in THIS run
     committed = list(parts_by_key)
     for stage, block_id, metric in plan:
         key = f"{stage}:{block_id}" + (f":{metric}" if metric else "")
@@ -917,6 +999,10 @@ def main(argv=None) -> int:
                 falsifier_commit = commit_falsifiers(
                     log, bundle_hash=bundle.bundle_hash,
                     falsifiers=falsifiers_from(answer, as_of=as_of, observables=fields))
+                # ★ `J-15 v2` — validated BEFORE J-16 exists, like the falsifiers themselves.
+                if blk.version != "v1":
+                    falsifier_tests = falsifier_tests_from(answer, observables=fields,
+                                                           run_id=run_id)
             except (UncheckableFalsifierError, NoFalsifierError) as exc:
                 failed = (key, f"RES.THESIS.NO_FALSIFIER — {exc}; J-16 NOT issued (RA-16)")
                 break
@@ -959,6 +1045,18 @@ def main(argv=None) -> int:
     root.mkdir(parents=True, exist_ok=True)
     (root / "thesis.json").write_text(json.dumps(summary, indent=1, default=str),
                                       encoding="utf-8")
+    origin_tests = (REPO / ".state/runs" / str(args.resume_from) / "falsifier_tests.json")
+    if falsifier_tests is None and args.resume_from and origin_tests.exists():
+        # ★ The falsifiers were CARRIED, so the tests written with them still decide them;
+        #   re-stamped so the checker accepts them for this run's thesis.
+        falsifier_tests = {**json.loads(origin_tests.read_text(encoding="utf-8")),
+                           "_thesis_run_id": run_id, "_carried_from": args.resume_from}
+    if falsifier_tests:
+        # ★ Beside the thesis, so `check_falsifiers.py` finds it with no `--tests` flag.
+        (root / "falsifier_tests.json").write_text(
+            json.dumps(falsifier_tests, indent=1), encoding="utf-8")
+        print(f"  ★ {len(falsifier_tests) - 2} structured falsifier test(s) → "
+              f"{root / 'falsifier_tests.json'}")
     print(f"  run_id={run_id}   spent ${spent:.4f}   → {root / 'thesis.json'}")
     return 0 if failed is None else 1
 

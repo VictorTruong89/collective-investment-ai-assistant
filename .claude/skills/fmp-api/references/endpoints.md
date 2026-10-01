@@ -54,7 +54,7 @@ engine · D-08 orchestration · D-09 reporting · D-11 recording.
 | Forward estimates — rev/EBITDA/EBIT/NI/EPS, low·avg·high, analyst counts | `analyst-estimates` | ticker × forecast year | **B** ⚠ | D-01, D-02 — ⚠ `date` is the **target** period, not publication |
 | Price-target consensus (high/low/median) | `price-target-consensus` | ticker, now | **B** | D-01, D-05 |
 | Price-target counts & averages by window | `price-target-summary` | ticker, now | B | D-02 |
-| ★ **Individual price-target changes** — analyst, firm, old→new | `price-target-news` | event | **A** | D-02, D-01 |
+| ★ **Individual price-target changes** — analyst, firm, old→new | `price-target-news` | event | **A** | D-02, D-01 — ⚠ **max 100 rows per call**; `limit=1000` still returns 100 (newest first). Page with `page=0,1,…` to go back (MU: page 1 reached 2022-12-21). Measured 2026-10-01 |
 | ★ **Individual rating actions** — firm, previous→new grade | `grades` | event | **A** | D-02, D-01 |
 | Rating distribution history | `grades-historical` | ticker × month | A | D-02 |
 | Current rating distribution + consensus | `grades-consensus` | ticker, now | B | D-09 |
@@ -70,7 +70,7 @@ from 2012-03-16 across 82 firms** — fourteen years, at Starter price.
 
 | Data | Endpoint | Grain | PIT | For |
 |---|---|---|---|---|
-| Earnings actual vs estimate (+ revenue) | `earnings` | ticker × report | **A** | D-02 (surprise), D-01 |
+| Earnings actual vs estimate (+ revenue) | `earnings` | ticker × report | **A** | D-02 (surprise), D-01 — ⚠ rows carry `lastUpdated` AFTER the report (MU 2025-06-25 row: 2025-09-25), so a past `epsEstimated` may have been revised; and rows dated in the future hold TODAY's forward estimate (look-ahead). Measured 2026-10-01 |
 | Upcoming earnings, whole market | `earnings-calendar` | date range | A | D-05 (event risk), D-09 |
 | Dividends — declaration/record/payment/ex | `dividends` | event | **A** | D-02, D-11 |
 | Dividend calendar | `dividends-calendar` | date range | A | D-09 |

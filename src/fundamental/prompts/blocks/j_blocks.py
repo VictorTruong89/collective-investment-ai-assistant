@@ -30,6 +30,11 @@ from src.fundamental.prompts.e_blocks import (  # noqa: E402
 )
 
 J15_TEXT, J16_TEXT, J11_TEXT = J15_V1_TEXT, J16_V1_TEXT, J11_V1_TEXT
+#: ⚠ 2026-10-01 — this ORCHESTRATED path stays on `J-15 v1`, deliberately. `thesis/run.py`
+#:   parses J-15's falsifiers out of PROSE with no answer schema, and `v2` asks for a test
+#:   "in the grammar the answer schema declares". The Stage B–D runner
+#:   (`tools/run_thesis_once.py`, via `e_blocks.BLOCKS`) ships `v2`. ⬜ Moving this path to the
+#:   structured Stage B–D calls is go-live work (`L3` §2.1p item 10), not a version bump.
 J15 = j15_v1()
 J11 = j11_v1()
 #: J-16 sees the full bundle — the reconciliation stage. ★ Declared with its options here

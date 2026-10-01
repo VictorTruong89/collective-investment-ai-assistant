@@ -1,6 +1,6 @@
 {
   "_readme": [
-    "DRAFT — Victor to review. DX-128: the machine-checkable half of each falsifier in",
+    "REVIEWED by Victor Truong 2026-10-01. DX-128: the machine-checkable half of each falsifier in",
     "run-2026-09-15T042754-mu-thesis. The PROSE in the thesis is unchanged and remains the",
     "human statement; this file says how a script decides it, so RM-13 needs no paid J-15 re-run.",
     "⚠ Each translation is a READING of a sentence. Where the sentence says more than the grammar",
@@ -8,7 +8,7 @@
   ],
   "_thesis_run_id": "run-2026-09-15T042754-mu-thesis",
   "1": {
-    "source": "drafted 2026-09-16 for review",
+    "source": "approved by Victor Truong 2026-10-01",
     "window_periods": 4,
     "clauses": [
       {"mode": "each", "per_period": [{"expr": [
@@ -22,7 +22,7 @@
     ]
   },
   "2": {
-    "source": "drafted 2026-09-16 for review",
+    "source": "approved by Victor Truong 2026-10-01, gap accepted",
     "window_periods": 4,
     "clauses": [
       {"mode": "rises_each", "per_period": [{"expr": [{"field": "GrossProfit", "sign": 1}],
@@ -31,7 +31,7 @@
     "_gap": "The prose says 'rises versus the immediately preceding reported quarter'. The first period in the window is compared with the second, not with the quarter before the thesis, so a fall in the very first step is invisible."
   },
   "3": {
-    "source": "drafted 2026-09-16 for review",
+    "source": "approved by Victor Truong 2026-10-01 as a FALSIFIER, not a de-rate trigger",
     "window_periods": 4,
     "clauses": [
       {"mode": "consecutive", "consecutive": 2, "per_period": [
@@ -39,10 +39,10 @@
          "op": "<", "value": 2500000000},
         {"expr": [{"field": "GrossProfit", "sign": 1}], "op": ">=", "value": 3508000000}]}
     ],
-    "_gap": "Both conditions are required IN THE SAME period, which matches 'in those same two quarters'. ⚠ This falsifier moves the verdict to HOLD rather than killing the thesis (J-16 item 3), and the grammar has no way to say that."
+    "_gap": "Both conditions are required IN THE SAME period, which matches 'in those same two quarters'. ⚠ J-16 item 3 says this would move the verdict to HOLD rather than kill the thesis. ✅ Ruled 2026-10-01 (Victor): it counts as a FALSIFIER — if it fires, the thesis is wrong — not as a de-rate trigger."
   },
   "4": {
-    "source": "drafted 2026-09-16 for review",
+    "source": "approved by Victor Truong 2026-10-01, tag substitution accepted",
     "window_periods": 4,
     "clauses": [
       {"mode": "any", "per_period": [
@@ -51,6 +51,6 @@
         {"expr": [{"field": "CashAndCashEquivalentsAtCarryingValue", "sign": 1}],
          "op": "<", "value": 6000000000}]}
     ],
-    "_gap": "⚠⚠ THE FALSIFIER NAMES A TAG MICRON NO LONGER FILES (DX-126): the prose says LongTermDebtNoncurrent + DebtCurrent, and Micron has reported LongTermDebtAndCapitalLeaseObligations since 2013. This draft SUBSTITUTES the tag it actually files — a reading, not a transcription. Leaving the original tag would make the condition permanently unresolvable."
+    "_gap": "⚠⚠ THE FALSIFIER NAMES A TAG MICRON NO LONGER FILES (DX-126): the prose says LongTermDebtNoncurrent + DebtCurrent, and Micron has reported LongTermDebtAndCapitalLeaseObligations since 2013. This draft SUBSTITUTES the tag it actually files — a reading, not a transcription. Leaving the original tag would make the condition permanently unresolvable. ✅ Substitution accepted 2026-10-01 (Victor); the substitute includes finance leases, so it reads higher and fires slightly sooner."
   }
 }

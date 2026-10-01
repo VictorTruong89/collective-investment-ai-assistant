@@ -342,6 +342,7 @@ with it is **recording (activity A)**, which costs nothing and is what keeps the
 | 2026-10-01 | ✅ **`DX-131` + `DX-135` ruled (Victor) and built, $0.** Unstated period dates cleared in the parse; absences keep their qualifier. 5 + 1 drafts re-pointed; 2 signed cases **withdrawn** to pending, one split in two. All 48 extraction cases resolve and match | **31 live + 32 pending, all signable** | 7/35 signed (unchanged: `E-01` `E-02` keep other signed cases) | **$0** |
 | 2026-10-01 | ★★ **22 extraction cases SIGNED by Victor Truong and moved live** (16 L1a + 3 `E-13` + 3 `DX-135` re-signs). Every one verified against its recording before the move; no `expected` changed. Live set replays 52/53 (`J-07` red on purpose) | **53 live + 10 pending (thesis)** | **14/35 (40%)**: + `E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13` | **$0** |
 | 2026-10-01 | ✅ **PROGRAMME CLOSED by decision (§9).** No new golden cases. Extraction finished at 48; thesis frozen at 5 signed + 10 unsigned drafts kept; judgement moves to falsifiers and rule checks. Nothing deleted | **53 live (final)** | **14/35 (final)** | **$0** |
+| 2026-10-01 | ⊘ **Frozen per company (§9 rule 6):** MU 39 extraction + 5 thesis live, 10 drafts frozen; AMD 9 extraction live. ★ The replacement's first instrument is built: `tools/rule_checks.py` over all 45 recorded calls, 4 known violations (`DX-84` `DX-134` `DX-138` ×2), wired into `check_all.py` (`L3` §2.1p) | 53 live (final) | 14/35 (final) | $0 |
 
 ---
 
@@ -370,6 +371,7 @@ with it is **recording (activity A)**, which costs nothing and is what keeps the
 8. ⚠ **`k=1` is not just an unmet spec line** — it silently disables the thesis gate's stability check
    in production. A spec gap that degrades a *runtime* guard should be tracked as a defect, not as
    scope.
+   ✅ *Fixed 2026-10-01 (`RA-154`, `L3` §2.1p item 2): an unmeasured verdict now FLAGS at the gate.*
 
 ---
 
@@ -387,6 +389,7 @@ with it is **recording (activity A)**, which costs nothing and is what keeps the
 | **3** | ★ **Thesis cases are frozen**: the 5 signed cases (`J-01` `J-05` `J-06` `J-07` `J-08`) stay live, and the 10 drafts in `thesis.pending.yaml` stay **unsigned and unused**, kept as a record |
 | **4** | ★★ **Judgement quality moves to two instruments:** ⓐ **falsifiers**, meaning a thesis's own stated conditions checked against later filings (`RM-13`, `tools/check_falsifiers.py`), the only check that has ever shown a thesis to be wrong; ⓑ **rule checks**, meaning properties every recorded call must satisfy whatever its answer: refuse on a declared-absent input, cite only what resolves, carry no computed date, no leaked tool syntax, agree with itself across k runs |
 | **5** | ★ **Nothing is deleted.** The 53 live cases keep running in `test_golden_regression.py` and are **maintained**: when code changes their identity (as `DX-131`/`DX-135` did), they are re-pointed, and a value change goes to the fund manager. The harness (`F5`), the recordings and every pending file stay |
+| **6** | ★ **Frozen for BOTH companies** (Victor, 2026-10-01). **Micron:** 39 extraction + 5 thesis live, 10 thesis drafts frozen. **AMD:** 9 extraction live (`E-01` only), no thesis cases. ⚠ AMD stays at `E-01`: the second-ticker work in `L3` §2.1p item 8 is judged by rule checks and falsifiers, and adds no golden cases |
 
 ## Why — measured, not felt
 

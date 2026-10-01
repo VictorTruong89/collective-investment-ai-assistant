@@ -24,17 +24,44 @@ from src.data_engine.pit.snapshot import assemble_rows  # noqa: E402
 from src.fundamental.monitor.falsifier_check import check, summary  # noqa: E402
 from src.fundamental.thesis.models import Thesis  # noqa: E402
 
+#: ★ `J-15 v2` writes its structured tests here, beside the thesis it belongs to.
+TESTS_FILE = "falsifier_tests.json"
+
+
+def tests_for(thesis_path: pathlib.Path, *, explicit: str | None) -> dict:
+    """The structured tests for one thesis: `--tests` if given, else the J-15 v2 file
+    beside it, else none (every falsifier is then `DECIDABLE_BY_READER`)."""
+    if explicit:
+        return json.loads(pathlib.Path(explicit).read_text(encoding="utf-8"))
+    beside = pathlib.Path(thesis_path).parent / TESTS_FILE
+    return json.loads(beside.read_text(encoding="utf-8")) if beside.exists() else {}
+
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("thesis_json")
+    ap.add_argument("thesis_json", nargs="?",
+                    help="one thesis; omit with --all to check every recorded thesis")
+    ap.add_argument("--all", action="store_true",
+                    help="check every .state/runs/*/thesis.json that holds a thesis")
     ap.add_argument("--as-of", default=date.today().isoformat())
     ap.add_argument("--ledger", default=str(REPO / ".state/facts"))
     # ★ `DX-128` — structured tests, hand-written, so `RM-13` can DECIDE without a paid J-15
     #   re-run. ⚠ Each one is a reading of a sentence; the file states its own gaps.
     ap.add_argument("--tests", default=None, metavar="TESTS_JSON")
     args = ap.parse_args(argv)
+    if args.all:
+        found = sorted((REPO / ".state/runs").glob("*/thesis.json"))
+        theses = [p for p in found
+                  if json.loads(p.read_text(encoding="utf-8")).get("thesis")]
+        print(f"── {len(theses)} recorded thesis(es) ──")
+        rc = 0
+        for path in theses:
+            rest = [str(path), "--as-of", args.as_of, "--ledger", args.ledger]
+            rc |= main(rest + (["--tests", args.tests] if args.tests else []))
+        return rc
+    if not args.thesis_json:
+        ap.error("give a thesis.json, or --all")
 
     payload = json.loads(pathlib.Path(args.thesis_json).read_text(encoding="utf-8"))
     thesis = Thesis.from_json_obj(payload.get("thesis") or payload)
@@ -42,7 +69,7 @@ def main(argv=None) -> int:
     rows = assemble_rows(FactLedger(pathlib.Path(args.ledger)).read(thesis.ticker), as_of,
                          source="edgar")
     rows = rows[rows["period_type"] == "quarterly"]
-    tests = json.loads(pathlib.Path(args.tests).read_text(encoding="utf-8")) if args.tests else {}
+    tests = tests_for(pathlib.Path(args.thesis_json), explicit=args.tests)
     if tests.get("_thesis_run_id") and tests["_thesis_run_id"] != thesis.run_id:
         raise ValueError(
             f"{args.tests} was written for {tests['_thesis_run_id']}, not {thesis.run_id} — a "
