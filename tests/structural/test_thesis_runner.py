@@ -229,6 +229,7 @@ def test_live_without_an_approved_cap_is_BLOCKED_before_anything_is_built(capsys
 
     monkeypatch.setattr(r, "REPO", tmp_path)
     monkeypatch.setattr(r, "build_base", boom)
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.setattr(transport_mod, "anthropic_transport", boom)
     assert r.main(["--live"]) == 2
     assert "requires --budget-usd" in capsys.readouterr().out
@@ -298,6 +299,7 @@ def _wire_fake_run(monkeypatch, tmp_path, *, j15_deadline="2026-03-31"):
                     "tokens_in": 10, "tokens_out": 10}
         return send
 
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.setattr(transport_mod, "anthropic_transport", fake_transport)
     return r, issued
 
@@ -486,6 +488,7 @@ def test_dx_127_every_call_sends_the_SAME_cache_prefix_and_only_the_rest_varies(
             return send(request)
         return wrapped
 
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.setattr(transport_mod, "anthropic_transport", capture)
     assert r.main(["--live", "--budget-usd", "100"]) == 0
     prefixes = {p for p, _ in seen}
@@ -509,6 +512,7 @@ def test_dx_127_no_cache_reproduces_the_single_block_payload(monkeypatch, tmp_pa
         send = inner(tool=tool, max_output=max_output, **kw)
         return lambda request: (seen.append(request) or send(request))
 
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.setattr(transport_mod, "anthropic_transport", capture)
     assert r.main(["--live", "--budget-usd", "100", "--no-cache"]) == 0
     assert all("cache_prefix" not in req for req in seen)

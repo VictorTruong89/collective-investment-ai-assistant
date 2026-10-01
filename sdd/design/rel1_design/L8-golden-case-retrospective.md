@@ -1,6 +1,8 @@
 # L8 — The golden case programme: full history, retrospective, and what remains
 
-> **Status:** ⏳ **LIVING RECORD — keep updating until the golden set is complete.**
+> **Status:** ✅ **CLOSED 2026-10-01 by a recorded decision of the fund manager — see §9.** No new golden
+> cases are developed. The 53 live cases stay live and are maintained, never deleted.
+> ⓘ Was: ⏳ LIVING RECORD — keep updating until the golden set is complete.
 > Opened 2026-09-17 at Victor's instruction, after a session that asked whether the programme
 > should be stopped entirely.
 > **Purpose:** so that a future planning decision about golden cases is made against the *measured*
@@ -180,17 +182,25 @@ through it. That is not evidence it fails at that job; it is evidence the job ha
 
 ---
 
-# 5. ⏳ Current inventory — measured 2026-09-17
+# 5. ⏳ Current inventory — measured 2026-10-01
 
 ## Cases on disk
 
 | File | Live cases | Note |
 |---|---|---|
-| `tests_src/fixtures/golden/extraction.yaml` | **28** | `E-01` (segments, MU + AMD) and `E-02` (guidance) |
+| `tests_src/fixtures/golden/extraction.yaml` | **48** | `E-01` `E-02` + ✏ 2026-10-01: `E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13` (22 signed) |
 | `tests_src/fixtures/golden/thesis.yaml` | **5** | `J-01` archetype · `J-05` · `J-06` · `J-07` ⛔red · `J-08` |
-| `tests_src/fixtures/golden/thesis.pending.yaml` | 2 unsigned | awaiting Victor |
-| `tests_src/fixtures/golden/extraction.pending.yaml` | 0 | documentation only; all promoted |
-| **Total live** | **33** | 32 pass · 1 red (`J-07`, deliberate) |
+| `tests_src/fixtures/golden/extraction.pending.yaml` | **0** | ✅ all 22 signed and moved 2026-10-01 |
+| `tests_src/fixtures/golden/thesis.pending.yaml` | **10 unsigned** | 2 older (`J-20` method, `J-09` widest gap) + 8 L1a (`J-03` `J-04` `J-09` `J-10` `J-14` `J-16` `J-17` `J-20`) |
+| **Total live** | **53** | 52 pass · 1 red (`J-07`, deliberate) |
+| **Total drafted, unsigned** | **10** | thesis only; each needs the fund manager's `expected` |
+
+✅ **What the two rulings moved, 2026-10-01:**
+
+| Ruling | Pending cases re-pointed | Signed cases moved |
+|---|---|---|
+| **`DX-131`**: an unstated period date is cleared in the parse | **5**: `ca-capex-incentives-ytd` `ca-buyback-none-ytd` `ap-reclassifications` `sc-basic-weighted-shares-ytd` (start → null) · `cp-capex-commitment` (period → null) | none |
+| **`DX-135`**: an absence keeps its qualifier | **1**: `dm-headroom-absent` | **2, withdrawn to pending**: `seg-assets-not-disclosed` (re-pointed) · `gd-prior-value-absent` → split into `…-capex-absent` + `…-etr-absent` |
 
 ## Block coverage — the real measure
 
@@ -198,7 +208,7 @@ through it. That is not evidence it fails at that job; it is evidence the job ha
 
 | State | Count | Blocks |
 |---|---|---|
-| ✅ **Graded** (≥1 golden case) | **7 (20%)** | `E-01` `E-02` `J-01` `J-05` `J-06` `J-07` `J-08` |
+| ✅ **Graded** (≥1 signed golden case) | **7 (20%)** | `E-01` `E-02` `J-01` `J-05` `J-06` `J-07` `J-08` |
 | ★ **Recorded but ungraded** — *a case costs $0 in API* | **20** | `E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13` · `J-02` `J-03` `J-04` `J-09` `J-10` `J-11` `J-12` `J-13` `J-14` `J-15` `J-16` `J-17` `J-20` |
 | ⬜ **Undeclared and never run** | **8** | `E-03` `E-05` `E-08` `E-11` `E-14` `E-15` · `J-18` `J-19` |
 
@@ -230,7 +240,10 @@ with 1 of 35 blocks graded on AMD, that class of defect is wide open on the othe
 
 ---
 
-# 6. ⏳ What remains, and what it costs
+# 6. ⊘ What remained, and what it would have cost — SUPERSEDED by §9
+
+> ⊘ **Kept for the record, no longer a plan.** §9 closes the programme. The estimates below are what
+> was turned down, and they are why the decision was cheap to make.
 
 ## The three levels of "complete"
 
@@ -241,6 +254,12 @@ with 1 of 35 blocks graded on AMD, that class of defect is wide open on the othe
 | **L3 — reproducibility** | a k=3 thesis, so `CT-9.2` is met and `_agreement` is computable | un-blinds the thesis gate in the daily run |
 
 ## Money — measured rates, not guesses
+
+> ✏ **2026-10-01 — development calls now run on the subscription** (`L3` §2.1o, `GW-24`…`GW-29`). Every
+> "API cost" below is now **subscription usage at $0 API**, and the binding constraint becomes the
+> **Pro plan's usage limits**, not dollars. ⚠ One cost is new: before the daily runs go live, a sample
+> of signed cases must be re-run through the API, because a `claude_code` recording grades the prompt,
+> not the production transport.
 
 Observed unit costs: extraction block **~$0.42–0.88** (mean ≈ $0.60) · judgement block **~$0.61–0.88**
 (mean ≈ $0.75) · full Stage B–D thesis **$11.38 with caching** (measured $16.93 uncached).
@@ -319,6 +338,10 @@ with it is **recording (activity A)**, which costs nothing and is what keeps the
 | 2026-09-17 | ✅ **`DX-133` FIXED, $0 spent** — promotion is now PER-CALL: it refuses a run containing a `stop_reason: max_tokens` call, and `--skip-truncated` promotes the complete calls beside it while naming the omissions in `excluded.json`. ⇒ **`J-11` `J-12` `J-13` unblocked without a re-record** (their clean recordings were already paid for). ⛔ `DX-135` investigated and NOT fixed: it would break 2 of the 3 signed absence cases | 33 live + 27 pending | 7/35 signed · **25/35 addressable (71%)** | **$0** |
 | 2026-09-17 | ✅ **`DX-132` FIXED, $0 spent** — `promote_recording` gained a sector branch, `E-13` promoted at last, **3 more cases drafted**. ⚠ Found `DX-135` on the way: absent items lose their competitor, so no `not_found` case is draftable for the industry block | 33 live + **27 pending** | 7/35 signed · **22/35 drafted or signed (63%)** | **$0** |
 | 2026-09-17 | ★★ **L1a started, $0 spent.** 10 recordings promoted to version-controlled fixtures; **24 cases drafted unsigned** (16 extraction across `E-04` `E-06` `E-07` `E-09` `E-10` `E-12`; 8 judgement across `J-03` `J-04` `J-09` `J-10` `J-14` `J-16` `J-17` `J-20`). All 24 resolve through `golden_replay`, each selector matches exactly one item, and all 16 extraction cases go red under mutation. ⚠ 4 surfaced findings — `DX-131`…`DX-134` | 33 live + **24 pending** | 7/35 signed · **21/35 drafted or signed (60%)** | **$0** |
+| 2026-10-01 | ✏ **Inventory re-measured, $0.** `DX-137`: both pending files repeated their top-level `cases:` key, so a loader saw 11 of 29 drafts. Merged, verified identical to `HEAD`, guarded by a test. True unsigned count **29**. `DX-131` measured wider (5 cases, a 4th block `E-12`, root cause in the shared envelope); `DX-135` measured narrower (1 drafted + 2 signed cases move). ★ Dev calls move to the subscription (`L3` §2.1o) | 33 live + **29 pending** (23 signable now) | 7/35 signed · 22/35 drafted or signed | **$0** |
+| 2026-10-01 | ✅ **`DX-131` + `DX-135` ruled (Victor) and built, $0.** Unstated period dates cleared in the parse; absences keep their qualifier. 5 + 1 drafts re-pointed; 2 signed cases **withdrawn** to pending, one split in two. All 48 extraction cases resolve and match | **31 live + 32 pending, all signable** | 7/35 signed (unchanged: `E-01` `E-02` keep other signed cases) | **$0** |
+| 2026-10-01 | ★★ **22 extraction cases SIGNED by Victor Truong and moved live** (16 L1a + 3 `E-13` + 3 `DX-135` re-signs). Every one verified against its recording before the move; no `expected` changed. Live set replays 52/53 (`J-07` red on purpose) | **53 live + 10 pending (thesis)** | **14/35 (40%)**: + `E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13` | **$0** |
+| 2026-10-01 | ✅ **PROGRAMME CLOSED by decision (§9).** No new golden cases. Extraction finished at 48; thesis frozen at 5 signed + 10 unsigned drafts kept; judgement moves to falsifiers and rule checks. Nothing deleted | **53 live (final)** | **14/35 (final)** | **$0** |
 
 ---
 
@@ -347,3 +370,54 @@ with it is **recording (activity A)**, which costs nothing and is what keeps the
 8. ⚠ **`k=1` is not just an unmet spec line** — it silently disables the thesis gate's stability check
    in production. A spec gap that degrades a *runtime* guard should be tracked as a defect, not as
    scope.
+
+---
+
+# 9. ✅ DECISION 2026-10-01 — the programme is CLOSED
+
+> **Decided by:** Victor Truong (fund manager), 2026-10-01. **Recorded by:** Claude, at his instruction.
+> This is the *"formally abandoned by a recorded decision"* exit that §0 names.
+
+## The decision
+
+| # | Rule |
+|---|---|
+| **1** | ★ **No golden case is developed from today.** No new drafts, no new recordings made in order to draft one, no signing sessions. This covers extraction and thesis alike |
+| **2** | ★ **Extraction is finished at what is signed: 48 live cases over 9 of 15 E-blocks** (`E-01` `E-02` `E-04` `E-06` `E-07` `E-09` `E-10` `E-12` `E-13`). Blocks without cases (`E-03` `E-05` `E-08` `E-11` `E-14` `E-15`) are covered by the rule checks in rule 4, not by golden cases |
+| **3** | ★ **Thesis cases are frozen**: the 5 signed cases (`J-01` `J-05` `J-06` `J-07` `J-08`) stay live, and the 10 drafts in `thesis.pending.yaml` stay **unsigned and unused**, kept as a record |
+| **4** | ★★ **Judgement quality moves to two instruments:** ⓐ **falsifiers**, meaning a thesis's own stated conditions checked against later filings (`RM-13`, `tools/check_falsifiers.py`), the only check that has ever shown a thesis to be wrong; ⓑ **rule checks**, meaning properties every recorded call must satisfy whatever its answer: refuse on a declared-absent input, cite only what resolves, carry no computed date, no leaked tool syntax, agree with itself across k runs |
+| **5** | ★ **Nothing is deleted.** The 53 live cases keep running in `test_golden_regression.py` and are **maintained**: when code changes their identity (as `DX-131`/`DX-135` did), they are re-pointed, and a value change goes to the fund manager. The harness (`F5`), the recordings and every pending file stay |
+
+## Why — measured, not felt
+
+1. **The replay grades STORED answers.** `golden_replay` re-reads `tests_src/fixtures/recordings/` and
+   never asks the model, so a golden case catches changes in our CODE (parse, dates, qualifiers) and
+   **cannot judge a prompt change** without a re-record and a fresh human reading. ⇒ It is a parser
+   regression net, which the 48 extraction cases already are.
+2. **k=1 noise.** Two runs of one prompt 82 minutes apart differed in whether a field existed
+   (`DX-74`), and every thesis is k=1. A red judgement case cannot separate a worse prompt from a
+   different draw.
+3. **A judgement case measures agreement with one reader, not correctness.** `J-07` has been red since
+   2026-09-13 because the fund manager holds `late` and the model `mid`; neither has been shown right.
+4. **It does not see the failure that mattered.** The first MU thesis was wrong by its own falsifiers
+   (#1 and #2 FIRED, `DX-128`). Every golden case would have stayed green.
+5. **Its catches were plumbing.** §4: 4 of the first 6 catches were harness defects, and the
+   2026-09-17 finds (`DX-131`…`DX-135`) were the same kind. Those are worth having, and the 48 cases keep
+   catching them. Rule checks catch the same class across *every* block without a signature.
+
+## What the decision does NOT change
+
+- ⚠ **`J-07` stays red, on purpose.** Freezing keeps it live, so `test_ac_5_7_the_golden_set_replays_green`
+  and `check_all.py` keep reporting one failure. ⬜ The fund manager may later re-establish it or move
+  it to `thesis.pending.yaml`. Either is a `D2` act, not a cleanup.
+- `F5`'s acceptance criteria stay met. They specify the harness, not a coverage target.
+- The pre-launch **API spot-check** (`CLAUDE.md`) now applies to the 53 live cases only.
+
+## Remaining work under this decision
+
+| Item | Golden-case work left | Was (§6) |
+|---|---|---|
+| Golden programme | **none** | ≈24–47 h of the fund manager's time, ≈$111 (now subscription) |
+| Maintenance | re-point live cases when a parser change moves their identity; ~0–1 h per event | — |
+| Replacement instruments | built under `L3` §2.1p, not here | — |
+

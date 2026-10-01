@@ -834,12 +834,14 @@ def main(argv=None) -> int:
     from src.fundamental.prompts.envelope import envelope_hash
     from src.orchestration.trace.store import TraceStore
     from src.orchestration.trace.wire import traced_transport
-    from tools.anthropic_transport import anthropic_transport
+    from tools.llm_transport import dev_transport, price_factor, transport_label
 
     run_id = f"run-{datetime.now(timezone.utc):%Y-%m-%dT%H%M%S}-{args.ticker.lower()}-thesis"
     root = REPO / ".state/runs" / run_id
     store = TraceStore(REPO / ".state/runs", run_id)
     commits_file = root / "commits.jsonl"
+    print(f"  transport  : {transport_label()}")
+    paid = price_factor()                  # ★ GW-27 — 0.0 on the subscription
 
     def persist_raw(obj: dict) -> None:
         # ★ RA-108 — on disk BEFORE any later call is issued.
@@ -869,7 +871,7 @@ def main(argv=None) -> int:
                                        cached=not args.no_cache)
         max_out, effort = output_settings(block_id)
         ceiling_cost = (int((len(payload) + len(prefix)) / CHARS_PER_TOKEN) * PRICE_IN
-                        + max_out * PRICE_OUT)
+                        + max_out * PRICE_OUT) * paid
         if spent + ceiling_cost > args.budget_usd:
             failed = (key, f"NOT SENT — its ceiling (${ceiling_cost:.2f}) would pass the "
                            f"${args.budget_usd:.2f} cap after ${spent:.2f} spent")
@@ -877,9 +879,10 @@ def main(argv=None) -> int:
         blk = BLOCKS[block_id][0]()
         tool = thesis_tool(block_id, observables=fields)
         transport = traced_transport(
-            anthropic_transport(tool=strict_tool(tool), max_output=max_out), store,
+            dev_transport(tool=strict_tool(tool), max_output=max_out), store,
             step_id=f"judge:{key}", kind="llm",
-            cost_of=lambda _m, t: t.get("input", 0) * PRICE_IN + t.get("output", 0) * PRICE_OUT,
+            cost_of=lambda _m, t: (t.get("input", 0) * PRICE_IN
+                                   + t.get("output", 0) * PRICE_OUT) * paid,
             prompt_version=blk.version,
             envelope_hash=envelope_hash("judgement", stage_a=False, fresh=True),
             bundle_hash=bundle.bundle_hash)
@@ -893,7 +896,7 @@ def main(argv=None) -> int:
             failed = (key, f"{type(exc).__name__}: {exc}")
             break
         tin, tout = result.get("tokens_in", 0), result.get("tokens_out", 0)
-        spent += tin * PRICE_IN + tout * PRICE_OUT
+        spent += (tin * PRICE_IN + tout * PRICE_OUT) * paid
         if (result.get("stop_reason") or "").lower() == "max_tokens":
             failed = (key, f"TRUNCATED at max_tokens={max_out} (GW-23) — stream "
                            f"{result.get('stream_chars')} — a truncated response is a failure")

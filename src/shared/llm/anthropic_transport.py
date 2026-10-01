@@ -85,6 +85,7 @@ def make_transport(api_key, *, timeout: float = 300.0):
         text = "".join(block.text for block in message.content
                        if getattr(block, "type", "") == "text")
         return {
+            "transport": "anthropic_api",           # GW-26
             "text": text,
             # ★ Verbatim — GW-23 needs to see `max_tokens` to call it a failure.
             "stop_reason": message.stop_reason,

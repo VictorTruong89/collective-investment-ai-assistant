@@ -527,7 +527,7 @@ def main() -> int:
     from src.fundamental.prompts.envelope import envelope_hash
     from src.orchestration.trace.store import TraceStore
     from src.orchestration.trace.wire import traced_transport
-    from tools.anthropic_transport import anthropic_transport
+    from tools.llm_transport import dev_transport, price_factor, transport_label
 
     # ⚠ `DX-83` — the suffix names what actually ran. It was hardcoded `-j01`,
     #   so a `J-05` run would have been filed under `j01` and `DX-70` already
@@ -536,6 +536,8 @@ def main() -> int:
     run_id = (f"run-{datetime.now(timezone.utc):%Y-%m-%dT%H%M%S}"
               f"-{args.ticker.lower()}-{suffix}")
     store = TraceStore(REPO / ".state/runs", run_id)
+    print(f"  transport  : {transport_label()}")
+    paid = price_factor()                  # ★ GW-27 — 0.0 on the subscription
 
     spent, answers, failed = 0.0, {}, []
     for blk, the_offer, payload, _est, gate_error in plans:
@@ -548,14 +550,14 @@ def main() -> int:
             print(f"   ⛔ {blk.name}: NOT SENT — {gate_error.splitlines()[0]}")
             continue
         transport = traced_transport(
-            anthropic_transport(tool=judgement_tool(blk, criteria=criteria),
+            dev_transport(tool=judgement_tool(blk, criteria=criteria),
                                 max_output=MAX_OUT),
             store, step_id=f"judge:{blk.name}", kind="llm",
             # ⚠⚠ `cost_of(model_id, TOKENS)` receives the NORMALISED `{input,
             # output}` dict, not the raw response (`DX-65`) — an absent cost
             # reads as "unknown" and a zero reads as "free".
             cost_of=lambda _m, tokens: (tokens.get("input", 0) * PRICE_IN
-                                        + tokens.get("output", 0) * PRICE_OUT),
+                                        + tokens.get("output", 0) * PRICE_OUT) * paid,
             prompt_version=blk.version,
             # ⚠⚠ `DX-76` — the judgement envelope differs from the extraction
             # one (`S-7` is Stage-A only), so the hash uses the SAME flags
@@ -610,7 +612,7 @@ def main() -> int:
             print(f"   ⛔ {blk.name}: parsed but INCOMPLETE — missing {missing}")
             continue
         tin, tout = result.get("tokens_in", 0), result.get("tokens_out", 0)
-        cost = tin * PRICE_IN + tout * PRICE_OUT
+        cost = (tin * PRICE_IN + tout * PRICE_OUT) * paid
         spent += cost
         derived = ""
         if the_offer:

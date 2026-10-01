@@ -1,3 +1,7 @@
+# ⊘⊘ FROZEN 2026-10-01 — the golden-case programme is CLOSED (`L8` §9, Victor Truong).
+#    These 10 drafts are KEPT as a record and are NOT to be signed. Judgement
+#    quality is measured by falsifiers and rule checks instead.
+#
 # ⏳ PENDING — NOT LOADED, NOT GRADED, NOT ESTABLISHED.
 #
 # ⚠⚠ `load_kind` reads `<kind>.yaml` ONLY, so nothing here reaches `load_all()`
@@ -209,14 +213,14 @@ cases:
 #     3. Margin vs level: `cycle_average_fcff_margin` assumes MARGINS revert and the
 #        revenue base has grown (FY2016 $12.4B → FY2024 $25.1B); `cycle_average_fcff`
 #        assumes LEVELS revert. Which do you hold for a memory maker?
-- case_id: mu-fy2025q3-j20-normalised-earnings-method
-  input_ref: "run-2026-09-14T122547-mu-j20/judge:J-20:llm:1"
-  expected:
-    method: "____"
-  source: >-
-    ____ (Victor's reason, as of 2025-06-26, from the bundle only)
-  established_at: "____"
-  established_by: "____"
+  - case_id: mu-fy2025q3-j20-normalised-earnings-method
+    input_ref: "run-2026-09-14T122547-mu-j20/judge:J-20:llm:1"
+    expected:
+      method: "____"
+    source: >-
+      ____ (Victor's reason, as of 2025-06-26, from the bundle only)
+    established_at: "____"
+    established_by: "____"
 
 # ── DRAFT D · J-09 · is the price's requirement EXPLAINED by Stage A? ───────
 #
@@ -238,15 +242,15 @@ cases:
 #        Your answer should not hinge on it; if it does, say so in `source`.
 #     3. `explained_by_stage_a` means Stage A contains a reason the market could hold;
 #        `unexplained` means it does not — J-09 routes that to the data gaps.
-- case_id: mu-fy2025q3-j09-widest-gap-explained
-  input_ref: "run-2026-09-15T022801-mu-thesis/judge:B:J-09:llm:1"
-  expected:
-    widest_gap:
-      explained: "____"
-  source: >-
-    ____ (Victor's reason, as of 2025-06-26, from the Stage-B bundle only)
-  established_at: "____"
-  established_by: "____"
+  - case_id: mu-fy2025q3-j09-widest-gap-explained
+    input_ref: "run-2026-09-15T022801-mu-thesis/judge:B:J-09:llm:1"
+    expected:
+      widest_gap:
+        explained: "____"
+    source: >-
+      ____ (Victor's reason, as of 2025-06-26, from the Stage-B bundle only)
+    established_at: "____"
+    established_by: "____"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -289,7 +293,7 @@ cases:
 #          python3 -m pytest -q tests/integration/test_golden_regression.py
 # ═══════════════════════════════════════════════════════════════════════════
 
-cases:
+# (✏ 2026-10-01: a repeated top-level `cases:` key stood here. YAML keeps only the LAST one, so every case above it was silently dropped on load. Merged into the one list. DX-137)
 
   # ── J-03 · MOAT DURABILITY ────────────────────────────────────────────────
   # ★ Scored for the first time on 2026-09-16, and only because the industry

@@ -49,6 +49,7 @@ def test_a_missing_api_key_is_reported_as_configuration_not_as_no_thesis(monkeyp
     from src.fundamental.errors import ResearchError
     from src.fundamental.prompts.call import build_gateway
 
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     with pytest.raises(ResearchError, match="ANTHROPIC_API_KEY"):
         build_gateway()

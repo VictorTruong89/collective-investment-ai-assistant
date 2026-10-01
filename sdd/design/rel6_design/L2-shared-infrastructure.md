@@ -19,6 +19,7 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.4.0 | 2026-10-01 | Victor | ★ **§5.7 added — two transports, one provider.** Development LLM calls go through **headless Claude Code on the subscription** (`claude -p`), and the Anthropic API key is reserved for the real daily runs (`CLAUDE.md` house rule, 2026-10-01). **GW-24…GW-29 and AC-0.21…AC-0.26 added.** ★ It is the same provider and the same model, so QI-5's *no port* still holds — this is a transport swap selected at the composition root, not an abstraction. ⚠ The two transports do NOT send byte-identical requests (CLI framing, no `temperature`, no `max_tokens` beyond an env cap), so **GW-26 marks every recording with its transport** and GW-27 keeps its cost out of spend. |
 | 0.3.0 | 2026-08-23 | Victor | ⚠ **GW-8/GW-9 AMENDED — §5.2a.** Raised as D-01 **QP-1** on 2026-08-20, never propagated to the owning spec, and surfaced again as a **B0 blocker**: the gateway is built at B0 and **`AC-0.4` as written could not pass.** ★★ **`claude-opus-5` REJECTS `temperature` with a 400**; the deep-tier control is `output_config.effort`, and the two tiers take **mutually exclusive** controls (Haiku takes temperature and errors on effort; Opus 5 the reverse). **GW-8a, GW-9a/b/c added.** ★★ **GW-9b is the clause that adds rather than corrects: an `effort` change re-baselines like a model change, and RM-5 does not fire on it today** — a live, un-baselined decoding control, which is *worse* than the unset temperature GW-9 was written to fix. ★ **GW-9c**: thinking is never disabled on deep, because Opus 5 can then write a tool call into visible text — the turn succeeds, the call never runs, **and D-01's extraction would present as a document that said nothing.** `CT-0.1.decoding` becomes an object so `null` means *not settable* rather than *forgotten*. **AC-0.4a–d added; QI-1 narrowed; QI-4 opened.** |
 | 0.2.0 | 2026-08-18 | Victor | ✅ **QI-4 and QI-5 closed.** `max_tokens` is **per call site** with `settings.yaml`'s existing values reused (16000/32000/8000/256) — ★ **the current config already gets this right**, so GW-7a preserves a pattern rather than introducing one. **GW-7b** notes the consequence of adaptive thinking: the response budget is the ceiling *minus unknowable thinking*, so truncation is **caught, not predicted**. **One provider (Anthropic) ⇒ CA-5's port is not required** — and INV-8's tiering is a *model* swap, not a *provider* swap. |
 | 0.1.0 | 2026-08-18 | Victor | Initial draft, closing the last domain gap. §5.3 resolves the **temperature contradiction** — D-01's RA-60 requires temperature be set and RM-1 measures variance that only exists if it is *not* zero; §5.5 declares the **retry exception to D-08 OR-14** that LLM calls have been silently relying on; §5.6 gives **token accounting an owner**, which every dollar figure in `L2-signal-combination.md` §7B was already priced against. |
@@ -245,6 +246,21 @@ those figures assume.**
 | **GW-22** | ★★ **The gateway never returns a partial, truncated or default response as a successful one.** ⚠ **Both real incidents in this repo are this defect**: a discipline card built from a **failed** LLM narrative, and from an **absent** one, each emailed as a genuine recommendation with no stop and no targets. **The gateway is the last place either could have been caught** |
 | **GW-23** | A truncated response (hit `max_tokens`) is a **failure, not a short answer** — and GW-7 is what makes it rare |
 
+## 5.7 ★ Two transports, one provider — development runs on the subscription
+
+> **Added 2026-10-01 (Victor).** During development every LLM call goes through headless Claude Code
+> on the fund manager's subscription. The Anthropic API is used only once the pipeline starts its real
+> daily runs. ★ Same provider and same model, so this is a **transport** choice and QI-5 is unchanged.
+
+| ID | Rule |
+|---|---|
+| **GW-24** | ★ **The transport is chosen once, at the composition root, from `CIA_LLM_TRANSPORT`**: `claude_code` (the **default**) or `anthropic_api`. Any other value **raises**, so a typo cannot quietly select the paid path (P5). The gateway itself never chooses (GW-4's argument: choosing is a judgement) |
+| **GW-25** | ★★ **The `claude_code` transport can never bill the API key.** `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` are removed from the subprocess environment, and the CLI must report `authMethod: claude.ai` before the first call, or the transport raises. ⚠ Without this, a key exported in the shell would turn a "free" development call into a paid one with nothing showing it |
+| **GW-26** | ★ **Every response carries `transport`** (`claude_code` or `anthropic_api`), so it reaches the `F2` recording. ⚠ The two transports send different envelopes (CLI system prompt, structured output via `--json-schema` instead of a strict tool), so **a golden case signed on a `claude_code` recording grades the prompt, not the production transport**, and the record has to say which it was |
+| **GW-27** | ★ **A `claude_code` call is priced at $0 and its CLI-reported list cost is kept as `notional_usd`**, never added to spend. Spend means API dollars; a notional figure in a spend total would make the bill and the report disagree |
+| **GW-28** | ★ **`temperature` cannot be honoured through the CLI, so a request carrying one is REJECTED** before the subprocess starts (GW-8a's argument: a control silently dropped is worse than one refused). `effort` maps to `--effort`, `max_tokens` to `CLAUDE_CODE_MAX_OUTPUT_TOKENS` |
+| **GW-29** | ★ **The CLI's output-cap error is a TRUNCATION**, mapped to `stop_reason: max_tokens` with empty text (GW-22/23). Any other CLI error raises `TransportError`. ⚠ The CLI reports a cap overrun as `is_error: true` with prose in `result`; passing that prose through as `text` would be GW-22's defect exactly |
+
 ---
 
 # 6. CONFIGURATION
@@ -383,6 +399,20 @@ GATEWAY
            reported (INV-034, GW-21)
 □ AC-0.12  tokens_in/out and model_id are recorded on every call (GW-18)
 □ AC-0.13  ★ exceeding a declared budget fails the run (GW-20)
+
+TRANSPORT (§5.7, added 2026-10-01)
+□ AC-0.21  ★ CIA_LLM_TRANSPORT unset selects claude_code; an unknown value raises
+           (GW-24)
+□ AC-0.22  ★ the claude_code subprocess never receives ANTHROPIC_API_KEY or
+           ANTHROPIC_AUTH_TOKEN, and a CLI not logged in via claude.ai raises
+           before any call (GW-25)
+□ AC-0.23  every response names its transport (GW-26)
+□ AC-0.24  a claude_code call reports tokens and notional_usd, and is priced
+           at $0 (GW-27)
+□ AC-0.25  a request carrying temperature is rejected before the CLI runs; effort
+           and max_tokens reach --effort and CLAUDE_CODE_MAX_OUTPUT_TOKENS (GW-28)
+□ AC-0.26  ★ a CLI output-cap error becomes stop_reason max_tokens with empty
+           text; any other CLI error raises TransportError (GW-29)
 
 CONFIG
 □ AC-0.14  a missing required key raises at load (CF-1)

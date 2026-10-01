@@ -372,25 +372,37 @@ def build_gateway(*, model: str = THESIS_MODEL, budget_usd: float = BUDGET_USD):
     from src.fundamental.errors import ResearchError
     from src.fundamental.prompts.blocks.j_blocks import production_registry
     from src.shared.llm.anthropic_transport import MappingConfig, make_transport
+    from src.shared.llm.claude_code_transport import (
+        CLAUDE_CODE,
+        make_claude_code_transport,
+        selected_transport,
+    )
     from src.shared.llm.gateway import Gateway
     from src.shared.secrets import Secret
 
-    key = os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
+    # ★ GW-24 — `claude_code` (subscription) unless CIA_LLM_TRANSPORT=anthropic_api.
+    #   The API key is reserved for the real daily runs (`CLAUDE.md`, 2026-10-01).
+    on_subscription = selected_transport() == CLAUDE_CODE
+    key = None if on_subscription else os.environ.get("ANTHROPIC_API_KEY")
+    if not on_subscription and not key:
         raise ResearchError(
             "ANTHROPIC_API_KEY is not set, so D-01 cannot author. ★ This is a "
             "configuration fault and it is reported as one — an absent thesis "
             "would read as a model that declined to reach a verdict (P5)")
 
+    # ★ GW-27 — a subscription call costs $0 of API money, so it is priced at
+    #   0 and the budget counts API dollars only; the CLI's list price is kept
+    #   on each response as `notional_usd`.
+    price = 0.0 if on_subscription else 1.0
     config = MappingConfig({
         "llm.deep.model_id": model,
         "llm.deep.effort": "medium",
         "llm.deep.thinking_mode": "adaptive",
         "llm.budget.usd_per_run": budget_usd,
-        f"llm.pricing.{model}.input_per_mtok": _PRICING["input_per_mtok"],
-        f"llm.pricing.{model}.output_per_mtok": _PRICING["output_per_mtok"],
+        f"llm.pricing.{model}.input_per_mtok": _PRICING["input_per_mtok"] * price,
+        f"llm.pricing.{model}.output_per_mtok": _PRICING["output_per_mtok"] * price,
     })
-    return AnalysisGateway(
-        Gateway(config, transport=make_transport(
-            Secret("ANTHROPIC_API_KEY", key))),
-        production_registry())
+    transport = (make_claude_code_transport() if on_subscription
+                 else make_transport(Secret("ANTHROPIC_API_KEY", key)))
+    return AnalysisGateway(Gateway(config, transport=transport),
+                           production_registry())

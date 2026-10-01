@@ -238,6 +238,7 @@ def _live_j06(roots, tmp_path, monkeypatch, capsys, pick):
                     "tokens_in": 10, "tokens_out": 5}
         return transport
 
+    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
     monkeypatch.setattr(at, "anthropic_transport", fake_factory)
     monkeypatch.setattr(rj, "REPO", tmp_path)
     monkeypatch.setattr("sys.argv", ["x", "--live", "--block", "J-06", "--seed", "t",

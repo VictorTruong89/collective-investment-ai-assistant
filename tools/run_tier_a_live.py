@@ -146,7 +146,7 @@ def main() -> int:
         capability_delta,
         deliberate,
     )
-    from tools.anthropic_transport import anthropic_transport
+    from tools.llm_transport import dev_transport, price_factor, transport_label
     # ⚠⚠ MEASURED 2026-09-10: at `max_output=400` **all five calibration calls
     # returned exactly 400 output tokens** — `max_tokens` reached, not a short
     # answer (`GW-23`). The reply is ~500 tokens of JSON, so every one was
@@ -154,7 +154,8 @@ def main() -> int:
     # "BUY / held". ★★★ A run of all 46 would have reported a revision rate of
     # 0/23 on BOTH arms — `T1` ratio undefined — from data that says nothing.
     # ★ This is exactly what the 5-call calibration slice existed to catch.
-    transport = anthropic_transport(max_output=1500)
+    transport = dev_transport(max_output=1500)
+    print(f"  transport  : {transport_label()}")
 
     out_path = REPO / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -194,7 +195,7 @@ def main() -> int:
         d = deliberate(decision_id=f"t1:{item['id']}:{item['arm']}", pre="BUY",
                        challenge=challenge, respond=respond, mode=ACTIVE,
                        order_seed=n)
-        cost = stats.get("tin", 0)*PRICE_IN + stats.get("tout", 0)*PRICE_OUT
+        cost = (stats.get("tin", 0)*PRICE_IN + stats.get("tout", 0)*PRICE_OUT) * price_factor()
         spent += cost
         # ⚠ `DX-56` — the token count REACHES the delta, so `T7` measures the
         # run instead of reporting a confident zero from a blank field.

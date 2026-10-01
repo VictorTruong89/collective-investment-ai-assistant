@@ -33,7 +33,8 @@ def main() -> int:
         print("  no runs recorded")
         return 0
 
-    total = billed_unknown = 0
+    total = billed_unknown = subscription = 0
+    notional = 0.0
     rows = []
     for run in sorted(RUNS.iterdir()):
         log = run / "trace.jsonl"
@@ -50,8 +51,16 @@ def main() -> int:
                 continue
             tok = rec.get("tokens") or {}
             tin, tout = tok.get("input", 0), tok.get("output", 0)
-            cost = tin * PRICE_IN + tout * PRICE_OUT
             err = rec.get("error")
+            resp = rec.get("response") or {}
+            # ★ GW-27 — a subscription call is $0 of API money. Its list price is
+            #   `notional_usd`, reported apart and never added to the floor.
+            if (resp.get("transport") == "claude_code"
+                    or "Claude Code" in (err or "")):
+                subscription += 1
+                notional += float(resp.get("notional_usd") or 0)
+                continue
+            cost = tin * PRICE_IN + tout * PRICE_OUT
             if not tin and err:
                 # ⚠ Reached the vendor, failed locally — billed, unmeasurable.
                 billed_unknown += 1
@@ -65,6 +74,9 @@ def main() -> int:
         print(f"  {name:<26} {tin:>8,} {tout:>7,} {lat:>5.0f} ${cost:>7.4f}  {note}")
 
     print(f"\n  ── measured floor: ${total:.2f} over {len(rows)} call(s)")
+    if subscription:
+        print(f"  ── subscription (claude_code): {subscription} call(s), $0 API — "
+              f"notional list price ${notional:.2f}, NOT spend")
     if billed_unknown:
         print(f"  ⚠ {billed_unknown} call(s) recorded NO tokens but reached the "
               "vendor — billed, and invisible here. The console is authoritative.")

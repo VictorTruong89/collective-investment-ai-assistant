@@ -150,12 +150,17 @@ def item(evidence_id: str, *, value: str, unit: str, quote: str,
     )
 
 
-def not_found(evidence_id: str, *, note: str) -> ExtractedItem:
+def not_found(evidence_id: str, *, note: str, qualifier: str = "") -> ExtractedItem:
     """★ *`not_found` is a correct answer* (§3.0, MP-7).
 
     ⚠ *A value that is "roughly" in the document, or that you assembled from two
     places, is not.* The note is required: a bare `not_found` is
     indistinguishable from a step that never ran.
+
+    ★ `DX-135` (Victor, 2026-10-01) — the `qualifier` is KEPT. An absence is a
+    fact about a question asked of a subject (*"SK hynix did not disclose
+    capacity"*); without the subject it is not evidence of anything.
     """
     return ExtractedItem(evidence_id=evidence_id, value="", unit="", period=None,
-                         quote="", span=None, status=NOT_FOUND, note=note)
+                         quote="", span=None, status=NOT_FOUND, note=note,
+                         qualifier=qualifier)

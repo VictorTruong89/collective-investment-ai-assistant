@@ -141,8 +141,9 @@ def main() -> int:
         print("\n  ★ dry run — nothing sent. Re-run with --live to measure (B).")
         return 0
 
-    from tools.anthropic_transport import anthropic_transport
-    transport = anthropic_transport(max_output=8)
+    from tools.llm_transport import dev_transport, price_factor, transport_label
+    transport = dev_transport(max_output=8)
+    print(f"  transport  : {transport_label()}")
     correct = tin = tout = 0
     cost = 0.0
     wrong = []
@@ -159,7 +160,7 @@ def main() -> int:
         tout += r.get("tokens_out", 0)
         print(f"    [{i:2}/{len(items)}] {item['id']:24} {item['arm']:6} "
               f"→ {guess:6} {'✅' if ok else '✗'}")
-    cost = tin * PRICE_IN + tout * PRICE_OUT
+    cost = (tin * PRICE_IN + tout * PRICE_OUT) * price_factor()
     acc = correct / len(items)
     # ★ Balanced arms, so accuracy IS the AUC-equivalent separability measure.
     print(f"\n  (B) accuracy = {acc:.3f}  ({correct}/{len(items)})   "

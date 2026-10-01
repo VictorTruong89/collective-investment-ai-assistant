@@ -307,6 +307,7 @@ def to_transport_result(message) -> dict:
             text = blk.text
 
     return {
+        "transport": "anthropic_api",               # GW-26
         "text": text,
         # ⚠⚠ tokens_in / tokens_out — the gateway reads THESE names, NOT the
         # SDK's usage.input_tokens/output_tokens. Frozen by

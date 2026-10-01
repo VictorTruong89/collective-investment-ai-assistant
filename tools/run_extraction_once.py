@@ -221,6 +221,7 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
     # do with the model. ★ The default keeps the whole-filing behaviour.
     if bundle_text is None:
         bundle_text = FILING.read_text(encoding="utf-8")
+    flat_bundle = " ".join(bundle_text.split())     # DX-131 — dates across line breaks
     out = []
     for row in rows:
         # ★ MP-7 — `not_found` is a CORRECT answer, and needs a note saying
@@ -231,8 +232,10 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
             #   looked*, and the document's own sentence is the best answer.
             where = (row.get("quote") or "").strip()
             note = row.get("note") or "not disclosed"
+            # ★ `DX-135` — the qualifier names WHAT is absent; keep it.
             out.append(not_found(row["evidence_id"],
-                                 note=f"{note} — {where}" if where else note))
+                                 note=f"{note} — {where}" if where else note,
+                                 qualifier=row.get("qualifier", "")))
             continue
         # ⚠ `unit` and `quote` are OPTIONAL in the schema, because `seg.name`
         # and `seg.basis_note` are text items with no unit — 16 of 66 items in
@@ -257,6 +260,13 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
             )
         value, unit = _split_currency(row.get("value", ""), row.get("unit", ""),
                                      row["evidence_id"])
+        period_start, period_end, cleared = _stated_period(
+            flat_bundle, row.get("period_start"), row.get("period_end"))
+        note = row.get("note", "")
+        if cleared:
+            note = " ".join(filter(None, [note, (
+                f"[DX-131] period date(s) {', '.join(cleared)} not stated in the "
+                "document — cleared, never computed")]))
         out.append(item(
             row["evidence_id"], value=value, unit=unit,
             # ⚠⚠ `DX-37` — use `_locate`'s END, never `start + len(quote)`.
@@ -270,11 +280,44 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
             # `'State of\nNew York'`, so the span ended 2 chars early on
             # `'…provides fo'`.
             quote=quote, accession_id=accession_id or ACCESSION, offset=(start, end),
-            period_start=row.get("period_start"), period_end=row.get("period_end"),
+            period_start=period_start, period_end=period_end,
             cumulative_ytd=bool(row.get("cumulative_ytd")),
-            qualifier=row.get("qualifier", ""), note=row.get("note", ""),
+            qualifier=row.get("qualifier", ""), note=note,
         ))
     return _dedupe_not_found(out)
+
+
+def _date_forms(iso: str) -> tuple[str, ...]:
+    """The ways a filing writes one date: `May 29, 2025`, `May 29 2025`,
+    `2025-05-29`, `5/29/2025`, `05/29/2025`."""
+    d = date.fromisoformat(iso)
+    month, short = d.strftime("%B"), d.strftime("%b")
+    return (f"{month} {d.day}, {d.year}", f"{month} {d.day} {d.year}",
+            f"{short} {d.day}, {d.year}", f"{short}. {d.day}, {d.year}", iso,
+            f"{d.month}/{d.day}/{d.year}", f"{d.month:02d}/{d.day:02d}/{d.year}")
+
+
+def _stated_period(flat_bundle: str, start, end) -> tuple:
+    """★★ `DX-131` (Victor, 2026-10-01) — keep a period date only if the document STATES it.
+
+    ⚠ The shared envelope asks for "both period endpoints" on a year-to-date
+    figure, and a filing gives only the end ("nine months ended May 29, 2025").
+    So `E-07` `E-09` `E-10` `E-12` returned the prior year end PLUS ONE DAY —
+    arithmetic `S-2` forbids. ★ Enforced here, for every block at once, because
+    the prompt-level fix (`DX-73`) reached one block only. The same ruling as
+    `DX-73`: the date is cleared, never computed; D-02 may derive one, labelled.
+
+    Returns `(start, end, cleared)`. An unstated END clears the whole period.
+    """
+    def stated(iso):
+        try:
+            return any(form in flat_bundle for form in _date_forms(str(iso)))
+        except ValueError:
+            return False                      # not an ISO date: not a stated date
+    cleared = [str(v) for v in (start, end) if v and not stated(v)]
+    if end and str(end) in cleared:
+        return None, None, cleared
+    return (start if start and str(start) not in cleared else None), end, cleared
 
 
 def _dedupe_not_found(items: list) -> list:
@@ -519,7 +562,8 @@ def main() -> int:
     from src.orchestration.trace.wire import traced_transport
     from src.shared.config import Config
     from src.shared.llm.gateway import Gateway
-    from tools.anthropic_transport import anthropic_transport, extraction_tool
+    from tools.anthropic_transport import extraction_tool
+    from tools.llm_transport import dev_transport, price_factor, transport_label
 
     # ⚠ DX-26 — a date alone repeats all day, so two runs appended to ONE
     # trace. The seconds make each run its own record.
@@ -527,6 +571,7 @@ def main() -> int:
               f"{TICKER.lower()}-{args.block.lower().replace('-', '')}")
     store = TraceStore(REPO / ".state/runs", run_id)
     print(f"\n  ⚠ LIVE. run_id = {run_id}")
+    print(f"  transport  : {transport_label()}")
 
     # ★ traced_transport wraps the vendor call, so CT-2.2 records the request
     #   and response with ZERO edits to inherited D-00 code (AC-2.1).
@@ -540,11 +585,12 @@ def main() -> int:
         rate_out = GATEWAY_VALUES.get(f"llm.pricing.{model_id}.output_per_mtok")
         if rate_in is None or rate_out is None:
             return None          # ⚠ absent, never 0
+        # ★ GW-27 — $0 on the subscription; the CLI's list price is `notional_usd`.
         return (tokens.get("input", 0) * rate_in / 1e6
-                + tokens.get("output", 0) * rate_out / 1e6)
+                + tokens.get("output", 0) * rate_out / 1e6) * price_factor()
 
     transport = traced_transport(
-        anthropic_transport(tool=extraction_tool(item_ids),
+        dev_transport(tool=extraction_tool(item_ids),
                             thinking_display=args.thinking_display), store,
         step_id=f"extract:{args.block}", cost_of=_cost_of,
         # ⚠⚠ Without this the trace records `prompt_version: None` — so a

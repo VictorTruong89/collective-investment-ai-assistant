@@ -37,11 +37,16 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state:** vision, constitution and **11 specs (🟡 draft, 137 ACs)** are written, with
-9 governed globs live in `ownership.yaml`. **`src/` does not exist — no code yet.**
+**Current state (2026-10-01):** **12 specs, all 🟢 approved, 168/168 ACs green**, with 16 governed
+path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
+modules), and the suite stands at 2,332 pass with 1 deliberate red (`J-07`). The analysis layer has 27/35
+prompt blocks declared and one thesis produced (MU, k=1). ⊘ **The golden-case programme is CLOSED**
+(`L8` §9, 2026-10-01): 53 live cases kept and maintained, **no new golden cases**. Judgement quality is
+measured by falsifiers and rule checks. **Live progress is `sdd/design/rel1_design/L3-build-sequence.md`
+§2.1**; the golden-case programme is `L8-golden-case-retrospective.md`.
 
 ⚠ `PG-1`, which blocked all implementation, was **retired 2026-09-02**: verification moved to the
-fund manager, done manually against real run outcomes. **Implementation is now gated only by spec
+fund manager, done manually against real run outcomes. **Implementation is gated by spec
 approval 🟡→🟢** — and by the `PreToolUse` gate, which is unaffected and still refuses an edit to a
 governed path until this session has read the governing spec.
 
@@ -83,6 +88,20 @@ A task is done only when its AC has a passing test in the right tier (constituti
 - Never hardcode a credential; read from the environment.
 - Fail loud, never silent — a degraded input should raise, not emit a
   plausible-looking default.
+- **LLM calls during development go through headless Claude Code on the subscription, not the
+  Anthropic API** (Victor, 2026-10-01). That covers golden-case building, test runs, live debugging,
+  re-records — everything. The **API key is reserved for the real daily runs** of the finished
+  pipeline. Consequences that must be kept:
+  - Every recording made this way says so — `transport: claude_code` in its trace — and its cost is
+    **notional**, never added to the spend figures. Spend means API dollars only.
+  - It is the same model behind a different envelope (Claude Code's framing, no `temperature` /
+    `max_tokens` control, `--effort` in place of the thinking budget, `--json-schema` in place of
+    strict tool schemas). A golden case signed on a `claude_code` recording therefore grades the
+    prompt, **not the production transport**. Before daily runs go live, an API spot-check of a
+    sample of signed cases is required (paid, approved per call).
+  - Built 2026-10-01: `src/shared/llm/claude_code_transport.py` (spec: `L2-shared-infrastructure`
+    §5.7, GW-24…29). It is the **default**; `CIA_LLM_TRANSPORT=anthropic_api` selects the paid path,
+    and that still needs per-call approval. Every runner prints which transport is live.
 
 These are starting defaults, not settled decisions — revise this file freely as the
 project's actual working agreement takes shape.
