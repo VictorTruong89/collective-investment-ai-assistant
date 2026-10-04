@@ -35,12 +35,18 @@ def _test(**over):
 
 # ── the version and the schema ──────────────────────────────────────────────
 
-def test_j15_v2_is_what_the_stage_b_to_d_runner_ships():
-    from src.fundamental.prompts.e_blocks import BLOCKS
+def test_j15_v3_is_what_the_stage_b_to_d_runner_ships():
+    """✏ 2026-10-04 (Victor) — v3 = v2 + the `DX-144` window rule stated to the model, after
+    the v2 re-ask was refused on it (`run-2026-10-04T024042-mu-thesis`)."""
+    from src.fundamental.prompts.e_blocks import BLOCKS, J15_V2_TEXT
 
     factory, _ids, version = BLOCKS["J-15"]
-    assert version == "v2" and factory().version == "v2"
-    assert "TEST" in factory().text, "v2's one addition: write each condition's test"
+    assert version == "v3" and factory().version == "v3"
+    text = factory().text
+    assert "TEST" in text, "v2's addition: write each condition's test"
+    assert "The window must reach your deadline" in text and 'mode "consecutive"' in text
+    # ★ v3 only ADDS: every v2 line is still there, in order.
+    assert text.startswith(J15_V2_TEXT.rstrip("\n"))
 
 
 def test_the_orchestrated_prose_path_stays_on_v1_on_purpose():
@@ -84,6 +90,9 @@ def test_the_hand_written_mu_tests_are_valid_in_the_same_grammar(ordinal):
     (_test(clauses=[]), "clause"),
     (_test(clauses=[{"mode": "each", "consecutive": None, "per_period": [
         {"expr": [{"field": "GrossProfit", "sign": 2}], "op": "~", "value": 0}]}]), "op"),
+    # ✏ `DX-147` ⓐ — the 2026-10-04 J-15 shape: a run length under a mode that never reads it.
+    (_test(clauses=[{"mode": "each", "consecutive": 4, "per_period": [
+        {"expr": [{"field": "GrossProfit", "sign": 1}], "op": ">", "value": 0}]}]), "never read"),
 ])
 def test_an_invalid_test_is_named_not_guessed(bad, why):
     problems = validate_test(bad, observables=OBS)
@@ -111,7 +120,7 @@ def test_the_runner_turns_v2_answers_into_a_tests_file_for_its_own_thesis():
     out = falsifier_tests_from(_answer(_test()), observables=OBS, run_id="run-z-mu-thesis")
     assert out["_thesis_run_id"] == "run-z-mu-thesis"
     assert {k for k in out if not k.startswith("_")} == {"1", "2"}
-    assert out["1"]["source"] == "J-15 v2 (model-authored)"
+    assert out["1"]["source"] == "J-15 v3 (model-authored)"
 
 
 def test_an_invalid_model_test_stops_the_run_before_the_verdict():

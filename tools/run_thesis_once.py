@@ -120,7 +120,9 @@ DEFAULT_SECTOR = REPO / ".state/sector/memory_v1_2025-06-26.json"
 #: ★ The RAW daily close, recorded from FMP once (`historical-price-eod/non-split-adjusted`,
 #: 2026-09-14, approved) — `fmp-api` trap 2: the `adj*` field names are the RAW series.
 PRICE_FIXTURE = REPO / "tests_src/fixtures/prices/MU_raw_eod_2025-06.json"
-ASSUMPTIONS = ("dcf_two_stage", 1)
+#: ✏ 2026-10-01 — `v2` (`F10 D10`): `v1` plus the duration table, so the trail carries the
+#: growth the price requires at 5 / 7 / 10 / 15 years and the market capitalisation.
+ASSUMPTIONS = ("dcf_two_stage", 2)
 
 #: ✏ `DX-109` ⓐ — what Stages B–D ask for and this bundle does not carry, with why.
 STAGE_B_ABSENCES = {
@@ -557,7 +559,7 @@ def falsifiers_from(answer: dict, *, as_of: date, observables) -> tuple:
     return tuple(out)
 
 
-def falsifier_tests_from(answer: dict, *, observables, run_id: str) -> dict:
+def falsifier_tests_from(answer: dict, *, observables, run_id: str, as_of=None) -> dict:
     """★ `J-15 v2` — the structured tests, in the file format `check_falsifiers --tests` reads.
 
     Keyed by the same ordinals `falsifiers_from` assigns, and stamped with the thesis's
@@ -568,17 +570,20 @@ def falsifier_tests_from(answer: dict, *, observables, run_id: str) -> dict:
     from src.fundamental.errors import UncheckableFalsifierError
     from src.fundamental.monitor.falsifier_check import validate_test
 
+    j15 = f"J-15 {BLOCKS['J-15'][2]}"         # ★ the version that WROTE these tests
     out: dict = {"_thesis_run_id": run_id,
-                 "_readme": ["Written by J-15 v2 alongside each falsifier's prose. The prose is "
+                 "_readme": [f"Written by {j15} alongside each falsifier's prose. The prose is "
                              "the human statement; this is how a script decides it (RM-13)."]}
     for n, f in enumerate(answer["falsifiers"], start=1):
         test = f.get("test")
         if not test:
-            raise UncheckableFalsifierError(n, "J-15 v2 requires a structured test")
-        problems = validate_test(test, observables=observables)
+            raise UncheckableFalsifierError(n, f"{j15} requires a structured test")
+        deadline = f.get("deadline")
+        problems = validate_test(test, observables=observables, as_of=as_of,
+                                 deadline=date.fromisoformat(deadline) if deadline else None)
         if problems:
             raise UncheckableFalsifierError(n, "; ".join(problems[:3]))
-        out[str(n)] = {**test, "source": "J-15 v2 (model-authored)"}
+        out[str(n)] = {**test, "source": f"{j15} (model-authored)"}
     return out
 
 
@@ -593,9 +598,20 @@ def emitted_rubrics():
                  for b in sorted(EMITS_RUBRIC))
 
 
+def price_requirement_of(fv_model: dict) -> dict | None:
+    """`DX-146` — the subject's required growth rates and periods, from its `F10` v2 trail;
+    None for a v1 trail (the stricter J-10 rule then applies)."""
+    from decimal import Decimal
+    rows = fv_model.get("implied_by_duration")
+    if not rows:
+        return None
+    return {"growth": tuple(Decimal(r["value"]) for r in rows if r.get("value") is not None),
+            "periods": tuple(int(r["explicit_years"]) for r in rows)}
+
+
 def build_thesis(*, ticker: str, as_of: date, run_id: str, bundle_hash: str, outputs: dict,
                  call_ids: dict, falsifier_commit, stage_a_commit, stage_a: list,
-                 extracted=frozenset()):
+                 extracted=frozenset(), price_requirement: dict | None = None):
     """★ `CT-1.1` from the committed outputs. `Thesis.__post_init__` is the validator.
 
     ✏ 2026-09-15 (`DX-118`): the verdict and conviction pass through the coverage floors
@@ -615,7 +631,7 @@ def build_thesis(*, ticker: str, as_of: date, run_id: str, bundle_hash: str, out
                       for b, why in STAGE_A_ABSENT.items()})
     derated = Derating.of(verdict=j16["verdict"], conviction=j16["conviction"],
                           rubrics=emitted_rubrics(), extracted=extracted, outputs=outputs,
-                          stage_a=stage_a)
+                          stage_a=stage_a, price_requirement=price_requirement)
     return Thesis(
         ticker=ticker, thesis_version=1, as_of=as_of, bundle_hash=bundle_hash, run_id=run_id,
         verdict=derated.verdict, conviction=derated.conviction,
@@ -655,11 +671,58 @@ def consensus_for(ticker: str, as_of: date, fixtures=None):
                                           earnings=data["earnings"], as_of=as_of))
 
 
-def stage_b_absences(*, has_consensus: bool) -> dict:
+#: The absences a `D10` valuation trail fills (`F10` AC-F10.22). ⚠ `STAGE_B_ABSENCES` itself
+#: keeps them: it is also `rule_checks`' record of what older bundles declared.
+DURATION_FILLS = ("implied_duration", "market_capitalisation",
+                  # ✏ `F10 D11` (2026-10-02): each row states the required final-year FCFF as a
+                  #   share of trailing revenue. ⚠ An FCFF share at FLAT revenue, not an operating
+                  #   margin — the trail labels it so the reader cannot confuse the two.
+                  "implied_margin")
+
+
+#: ★ `F11` (2026-10-02) — the reference class for `J-10`'s base rates, and its fixtures.
+REFERENCE_CLASS = ("memory", 1)
+REFERENCE_CLASS_FIXTURES = REPO / "tests_src/fixtures/edgar/reference_class"
+BASE_RATES_FILLS = "reference_class_base_rates"
+
+
+def base_rates_for(ticker: str, as_of: date, trail: dict):
+    """The `reference_class.<name>` part, or None when `ticker` is not a member of the
+    class — ⚠ None is honest: the absence then stays DECLARED (an AMD thesis has no memory
+    class to be measured against)."""
+    import pandas as pd
+
+    from src.data_engine.pit.snapshot import assemble_rows
+    from src.feature_engineer.base_rates.config import load_published_class, load_published_table
+    from src.feature_engineer.base_rates.render import as_bundle_part
+    from src.feature_engineer.base_rates.service import compute, history_from_rows
+    from src.fundamental.bundle.models import BundlePart
+
+    cls = load_published_class(*REFERENCE_CLASS)
+    if ticker.upper() not in {m.label for m in cls.members}:
+        return None
+    root = REFERENCE_CLASS_FIXTURES / f"{cls.name}_v{cls.version}"
+    rows = {}
+    for m in cls.members:
+        r = assemble_rows(pd.read_parquet(root / f"{m.label}.parquet"), as_of, source="edgar")
+        rows[m.label] = r[r["period_type"] == "annual"]
+    result = compute(reference_class=cls, history=history_from_rows(rows, as_of=as_of),
+                     subject=ticker.upper(), as_of=as_of, trail=trail,
+                     published=load_published_table("base_rate_book_2016"))
+    return BundlePart(**as_bundle_part(result))
+
+
+def stage_b_absences(*, has_consensus: bool, has_duration_table: bool = False,
+                     has_base_rates: bool = False) -> dict:
     """`STAGE_B_ABSENCES`, less what this bundle actually supplies."""
     absences = dict(STAGE_B_ABSENCES)
+    if has_base_rates:
+        absences.pop(BASE_RATES_FILLS)
     if has_consensus:
         absences.pop(CONSENSUS_FILLS)
+    if has_duration_table:
+        for key in DURATION_FILLS:
+            absences.pop(key)
     return absences
 
 
@@ -692,12 +755,24 @@ def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
     assumptions = load_published(*ASSUMPTIONS)
     fields = observable_fields(engine, ticker, filing.as_of, None)
     consensus = consensus_for(ticker, filing.as_of)
-    absences = stage_b_absences(has_consensus=consensus is not None)
+    valued = valuation_part(ticker, filing.as_of, engine=engine, assumptions=assumptions)
+    rates = None
+    if '"implied_by_duration"' in valued.content:
+        from src.feature_engineer.valuation.service import valuation
+        trail = json.loads(valuation(ticker, filing.as_of, engine=engine,
+                                     assumptions=assumptions).to_json())
+        rates = base_rates_for(ticker, filing.as_of, trail)
+    # ⚠ Read from the RENDERED part, not the assumption set: an unavailable valuation
+    #   carries no table, and its absences must then stay declared (P5).
+    absences = stage_b_absences(has_consensus=consensus is not None,
+                                has_duration_table='"implied_by_duration"' in valued.content,
+                                has_base_rates=rates is not None)
     absences.update({f"stage_a_{b.lower().replace('-', '')}": why
                      for b, why in STAGE_A_ABSENT.items()})
     base = assemble(ticker=ticker, as_of=filing.as_of, parts=(
         *with_history.parts,
-        valuation_part(ticker, filing.as_of, engine=engine, assumptions=assumptions),
+        valued,
+        *((rates,) if rates is not None else ()),
         observables(fields),
         *((consensus,) if consensus is not None else ()),
         declared_absences("stage_b_to_d_inputs", absences)))
@@ -708,7 +783,8 @@ def _commit_key(block_id: str, key: str) -> str:
     return "D:falsifiers" if block_id == "J-15" else key
 
 
-def carry_forward(prior_run: str, *, log, a_commit, base, parts_by_key: dict):
+def carry_forward(prior_run: str, *, log, a_commit, base, parts_by_key: dict,
+                  resend_from: str | None = None):
     """★ Resume a failed run WITHOUT re-buying what it already committed — and without
     trusting it: every carried commit is RE-DERIVED here and must reproduce its recorded
     hash, including the bundle hash of the call that produced it.
@@ -716,6 +792,9 @@ def carry_forward(prior_run: str, *, log, a_commit, base, parts_by_key: dict):
     ⚠ Refuses when the prior run froze a different Stage A, when any hash does not
     reproduce (the evidence, a prompt-visible part or the payload moved), or when the
     commits are out of plan order. Returns `(outputs, call_ids, records, falsifier_commit)`.
+
+    ✏ 2026-10-03 — `resend_from` carries only the commits BEFORE that block in plan order;
+    the block and everything after it are re-sent (e.g. `J-15` after a falsifier rule changed).
     """
     from src.fundamental.bundle.assemble import stage_output
     from src.fundamental.thesis.author import commit_falsifiers
@@ -741,6 +820,8 @@ def carry_forward(prior_run: str, *, log, a_commit, base, parts_by_key: dict):
         metric = metric or None
         if (stage, block_id, metric) not in order:
             raise ValueError(f"{prior_run}: commit {key!r} is not a step of the plan")
+        if block_id == resend_from:
+            break                     # ★ plan order: everything from here on is re-sent
         expected_bundle = call_bundle(base, parts_by_key,
                                       visible_commits(stage, block_id, committed)).bundle_hash
         if record["bundle_hash"] != expected_bundle:
@@ -821,8 +902,14 @@ def main(argv=None) -> int:
                     help="send one block per call (the pre-DX-127 shape) instead of caching")
     ap.add_argument("--financial", action="store_true",
                     help="the company is a financial (adds J-13's book_value call)")
+    ap.add_argument("--stop-after", default=None, metavar="BLOCK",
+                    help="send up to and including BLOCK (e.g. J-09), then stop with NO thesis; "
+                         "a later --resume-from carries its verified commits forward")
     ap.add_argument("--resume-from", default=None, metavar="RUN_ID",
                     help="carry a failed run's VERIFIED commits forward; send only what is missing")
+    ap.add_argument("--resend-from", default=None, metavar="BLOCK",
+                    help="with --resume-from: carry only the commits BEFORE BLOCK (e.g. J-15); "
+                         "re-send BLOCK and everything after it")
     args = ap.parse_args(argv)
     if not (args.live or args.dry_run):
         ap.print_help()
@@ -857,11 +944,20 @@ def main(argv=None) -> int:
 
     outputs, call_ids, carried = {}, {}, []
     falsifier_commit = None
+    if args.resend_from and not args.resume_from:
+        print("BLOCKED: --resend-from needs --resume-from (there is nothing to carry)")
+        return 2
     if args.resume_from:
         outputs, call_ids, carried, falsifier_commit = carry_forward(
             args.resume_from, log=log, a_commit=a_commit, base=base,
-            parts_by_key=parts_by_key)
+            parts_by_key=parts_by_key, resend_from=args.resend_from)
     plan = stage_plan(metrics_for(args.financial))
+    if args.stop_after and args.stop_after not in {b for _, b, _ in plan}:
+        print(f"BLOCKED: --stop-after {args.stop_after} is not in the plan")
+        return 2
+    if args.resend_from and args.resend_from not in {b for _, b, _ in plan}:
+        print(f"BLOCKED: --resend-from {args.resend_from} is not in the plan")
+        return 2
     print(f"── THESIS · Stages B–D over a frozen Stage A · {args.ticker} as of {as_of} ──")
     print(f"  Stage A    : {len(stage_a)} frozen · absent {sorted(STAGE_A_ABSENT)} · "
           f"commit {a_commit.commit_hash[:23]}…")
@@ -1002,7 +1098,7 @@ def main(argv=None) -> int:
                 # ★ `J-15 v2` — validated BEFORE J-16 exists, like the falsifiers themselves.
                 if blk.version != "v1":
                     falsifier_tests = falsifier_tests_from(answer, observables=fields,
-                                                           run_id=run_id)
+                                                           run_id=run_id, as_of=as_of)
             except (UncheckableFalsifierError, NoFalsifierError) as exc:
                 failed = (key, f"RES.THESIS.NO_FALSIFIER — {exc}; J-16 NOT issued (RA-16)")
                 break
@@ -1019,6 +1115,12 @@ def main(argv=None) -> int:
             if result.get("cache_read") is not None else ""
         print(f"   ✅ {key:<28} {tin:,} in / {tout:,} out  "
               f"${tin * PRICE_IN + tout * PRICE_OUT:.4f}{cached}")
+        if block_id == args.stop_after:
+            # ⚠ Recorded as an incomplete run on purpose: there is no thesis without J-16
+            #   (P5), and `--resume-from` is the road that finishes it from these commits.
+            failed = (key, f"STOPPED after {block_id} by --stop-after (no fault) — finish "
+                           f"with --resume-from {run_id}")
+            break
     # ⚠ The trace's own close status must say what happened: the first live run closed
     #   `SUCCESS` after failing at J-11, because `close()` defaults to it (L3 DX-113).
     store.close("SUCCESS" if failed is None else "FAILED")
@@ -1032,7 +1134,8 @@ def main(argv=None) -> int:
         thesis = build_thesis(ticker=args.ticker, as_of=as_of, run_id=run_id,
                               bundle_hash=base.bundle_hash, outputs=outputs, call_ids=call_ids,
                               falsifier_commit=falsifier_commit, stage_a_commit=a_commit,
-                              stage_a=stage_a, extracted=evidence_ids_in(blind))
+                              stage_a=stage_a, extracted=evidence_ids_in(blind),
+                              price_requirement=price_requirement_of(fv_model))
         summary["thesis"] = thesis.to_json_obj()
         c = thesis.confidence
         print(f"\n  ★ THESIS  verdict={thesis.verdict}  conviction={thesis.conviction}  "
@@ -1046,7 +1149,8 @@ def main(argv=None) -> int:
     (root / "thesis.json").write_text(json.dumps(summary, indent=1, default=str),
                                       encoding="utf-8")
     origin_tests = (REPO / ".state/runs" / str(args.resume_from) / "falsifier_tests.json")
-    if falsifier_tests is None and args.resume_from and origin_tests.exists():
+    if falsifier_tests is None and origin_tests.exists() \
+            and any(c["stage"] == "D:falsifiers" for c in carried):
         # ★ The falsifiers were CARRIED, so the tests written with them still decide them;
         #   re-stamped so the checker accepts them for this run's thesis.
         falsifier_tests = {**json.loads(origin_tests.read_text(encoding="utf-8")),

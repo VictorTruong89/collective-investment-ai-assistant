@@ -25,11 +25,16 @@ CONFIG_DIR = REPO / "config/valuation"
 #: The fields the hash covers — everything but the hash itself.
 _HASHED = ("name", "version", "discount_rate", "explicit_years", "stage1_growth",
            "terminal_growth", "band", "implied_bracket")
+#: ✏ `D10` — hashed when present. `v1` predates it and is immutable, so its absence means
+#: "no duration table declared", never a default table (`CT-F10.1`).
+_OPTIONAL_HASHED = ("duration_table",)
 
 
 def content_hash(doc: dict) -> str:
     """sha256 over the hashed fields, canonically serialised."""
-    payload = json.dumps({k: doc[k] for k in _HASHED}, sort_keys=True,
+    fields = {k: doc[k] for k in _HASHED}
+    fields.update({k: doc[k] for k in _OPTIONAL_HASHED if k in doc})
+    payload = json.dumps(fields, sort_keys=True,
                          separators=(",", ":"), default=str)
     return "sha256:" + hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
@@ -50,6 +55,9 @@ class Assumptions:
     implied_low: Decimal
     implied_high: Decimal
     implied_iterations: int
+    #: `D10` — the explicit periods implied growth is re-solved at; `()` when not declared.
+    duration_years: tuple[int, ...] = ()
+    declares_duration_table: bool = False
 
     def cite(self) -> dict:
         """What a trail records: the identity, never a copy that could drift."""
@@ -64,7 +72,9 @@ class Assumptions:
                 "band": {"discount_rate_steps": [str(x) for x in self.band_discount],
                          "terminal_growth_steps": [str(x) for x in self.band_terminal]},
                 "implied_bracket": {"low": str(self.implied_low), "high": str(self.implied_high),
-                                    "iterations": self.implied_iterations}}
+                                    "iterations": self.implied_iterations},
+                **({"duration_table": {"explicit_years": list(self.duration_years)}}
+                   if self.declares_duration_table else {})}
 
 
 def _decimal(value, field: str) -> Decimal:
@@ -100,9 +110,20 @@ def load(path: pathlib.Path) -> Assumptions:
         implied_low=_decimal(doc["implied_bracket"]["low"], "implied_bracket.low"),
         implied_high=_decimal(doc["implied_bracket"]["high"], "implied_bracket.high"),
         implied_iterations=int(doc["implied_bracket"]["iterations"]),
+        duration_years=tuple(_years(doc["duration_table"]["explicit_years"]))
+        if "duration_table" in doc else (),
+        declares_duration_table="duration_table" in doc,
     )
     _check_finite(a, path)
     return a
+
+
+def _years(values) -> list[int]:
+    if not isinstance(values, list) or not all(isinstance(v, int) and not isinstance(v, bool)
+                                               for v in values):
+        raise AssumptionsMutatedError(
+            f"duration_table.explicit_years must be a list of integers, got {values!r} (D10)")
+    return values
 
 
 def _check_finite(a: Assumptions, path) -> None:
@@ -116,6 +137,12 @@ def _check_finite(a: Assumptions, path) -> None:
             f"finite answer there (F10 AC-F10.3, CT-F10.1)")
     if a.explicit_years < 1 or a.implied_iterations < 1 or a.implied_low >= a.implied_high:
         raise NoFiniteValueError(f"{path}: explicit_years, iterations or bracket is empty")
+    years = a.duration_years
+    if a.declares_duration_table and (not years or min(years) < 1
+                                      or len(set(years)) != len(years)):
+        raise NoFiniteValueError(
+            f"{path}: duration_table.explicit_years {list(years)} must be non-empty, distinct "
+            f"and each ≥ 1 (F10 D10, CT-F10.1)")
 
 
 def load_published(name: str, version: int) -> Assumptions:

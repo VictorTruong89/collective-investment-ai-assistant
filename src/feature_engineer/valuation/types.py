@@ -126,6 +126,31 @@ class Implied:
                 "residual": None if self.residual is None else self.residual.to_json_obj()}
 
 
+@dataclass(frozen=True, slots=True)
+class DurationRow:
+    """`D10` — the stage-1 growth the price requires over `explicit_years`."""
+
+    explicit_years: int
+    implied: Implied
+    #: ✏ `D11` — the year-N flow at the solved growth, and it ÷ trailing revenue (FLAT revenue).
+    #: Both None exactly when `implied` has no root.
+    required_final_year_fcff: Money | None = None
+    share_of_trailing_revenue: Decimal | None = None
+
+    def __post_init__(self) -> None:
+        solved = self.implied.value is not None
+        if solved != (self.required_final_year_fcff is not None) or \
+                solved != (self.share_of_trailing_revenue is not None):
+            raise ValueError("D11 fields are null exactly when the row has no root (CT-F10.2)")
+
+    def to_json_obj(self) -> dict:
+        return {"explicit_years": self.explicit_years, **self.implied.to_json_obj(),
+                "required_final_year_fcff": None if self.required_final_year_fcff is None
+                else self.required_final_year_fcff.to_json_obj(),
+                "share_of_trailing_revenue": None if self.share_of_trailing_revenue is None
+                else str(self.share_of_trailing_revenue)}
+
+
 def _known_limits() -> tuple[str, ...]:
     """`AC-F10.21` — what this valuation cannot compute, on the artifact (`PG-10`)."""
     from src.feature_engineer.valuation.basis import KNOWN_LIMITS
@@ -164,6 +189,11 @@ def _common_json(v) -> dict:
                   "series": "raw"},
         "band": v.band.to_json_obj(),
         "implied": v.implied.to_json_obj(),
+        "market_capitalisation": v.market_capitalisation.to_json_obj(),
+        **({"implied_by_duration": [r.to_json_obj() for r in v.implied_by_duration],
+            "trailing_revenue": {"value": v.trailing_revenue.to_json_obj(), "item": "revenue",
+                                 "periods": "the four D6 quarters"}}
+           if v.assumptions_obj.declares_duration_table else {}),
     }
 
 
@@ -185,6 +215,9 @@ class ValuationResult:
     price_date: date
     band: Band
     implied: Implied
+    market_capitalisation: Money
+    implied_by_duration: tuple = ()
+    trailing_revenue: Money | None = None                 # `D11`; set exactly with the table
     kind: str = "fv_model"
 
     def __post_init__(self) -> None:
@@ -220,6 +253,9 @@ class AnalystValuation:
     price_date: date
     band: Band
     implied: Implied
+    market_capitalisation: Money
+    implied_by_duration: tuple = ()
+    trailing_revenue: Money | None = None                 # `D11`; set exactly with the table
     kind: str = "fv_analyst"
 
     def __post_init__(self) -> None:

@@ -1,0 +1,40 @@
+# F11 CT-F11.1 — the MEMORY reference class for J-10's base rates. ⚠ IMMUTABLE: change any
+# value ⇒ memory_v2.yaml with a new content_hash (AC-F11.1). Decided by Victor Truong,
+# 2026-10-02 (F11 D1, D3). ★ Small by construction: Samsung, SK hynix and Kioxia do not file
+# on EDGAR, so every rate carries its n and is also shown without the subject (AC-F11.6).
+name: memory
+version: 1
+decided_by: Victor Truong, 2026-10-02 (F11 D1, D3)
+members:
+- label: MU
+  name: Micron Technology, Inc.
+  cik: '723125'
+  role: memory
+  years: {from: null, to: null}
+  why: DRAM and NAND maker with its own fabs; the subject, kept in its class and also shown excluded
+- label: SNDK_2016
+  name: SanDisk Corporation (acquired by Western Digital, 2016)
+  cik: '1000180'
+  role: memory
+  years: {from: null, to: null}
+  why: NAND maker with fab capacity through its Toshiba joint venture; XBRL years only
+- label: SNDK
+  name: Sandisk Corporation (spun off from Western Digital, 2025)
+  cik: '2023554'
+  role: memory
+  years: {from: null, to: null}
+  why: the same NAND business after the 2025 separation; few years yet
+- label: WDC
+  name: Western Digital Corporation
+  cik: '106040'
+  role: memory_and_storage
+  years: {from: 2017, to: 2025}
+  why: owned SanDisk's flash fabs FY2017-FY2025 only (F11 D3); hard-drive economics outside that window
+excluded:
+- {name: Samsung Electronics, why: does not file on EDGAR; no point-in-time source this repo holds}
+- {name: SK hynix, why: does not file on EDGAR}
+- {name: Kioxia, why: does not file on EDGAR}
+- {name: Netlist and SMART Global (Penguin Solutions), why: memory modules without fabs, so no capex cycle (F11 D1)}
+- {name: Everspin and Cypress, why: niche memory inside small or mixed businesses (F11 D1)}
+- {name: Spansion ISSI and SST, why: 0 or 1 usable XBRL fiscal years}
+content_hash: sha256:0ce068af823b6f916fd5682a4577f2d2f778108036c956d6ce0edfc3eb2f64e8

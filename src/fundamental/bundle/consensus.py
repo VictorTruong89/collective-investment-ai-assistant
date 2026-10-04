@@ -3,6 +3,8 @@
 `L3` §2.1p item 5 (Victor, 2026-10-01). ★ Fills `J-09`'s *"consensus position"*, the
 input whose absence capped every thesis at Low conviction (`DX-118`). Deterministic:
 it filters and counts what was published; it never estimates what was not.
+The two computed numbers (target median/low/high, EPS surprise) are D-02's:
+`src/feature_engineer/consensus.py` (AC-1.40).
 
 Sources: FMP `grades` (rating actions), `price-target-news` (target changes) and
 `earnings` (estimate vs actual per report), each event-stamped (Class A,
@@ -22,11 +24,11 @@ opinions are exactly the anchors that view strips.
 
 from __future__ import annotations
 
-import statistics
 from collections import Counter
 from datetime import date, datetime, time, timedelta, timezone
 from zoneinfo import ZoneInfo
 
+from src.feature_engineer.consensus import eps_surprise_pct, target_spread
 from src.fundamental.bundle.models import BundlePart
 
 RATINGS_WINDOW_DAYS = 365
@@ -107,11 +109,8 @@ def consensus_as_of(*, grades, targets, earnings, as_of: date) -> dict:
                     and _known_by_close(t["publishedDate"], as_of)
                     and _day(t["publishedDate"]) > since),
                    key=lambda t: t["published"])
-    values = [t["target"] for t in items]
-    price_targets = {"window_days": TARGETS_WINDOW_DAYS, "items": items, "n": len(values),
-                     "median": statistics.median(values) if values else None,
-                     "low": min(values) if values else None,
-                     "high": max(values) if values else None}
+    price_targets = {"window_days": TARGETS_WINDOW_DAYS, "items": items,
+                     **target_spread(t["target"] for t in items)}
 
     # ── earnings: the last reports, estimate vs actual (decision 2a) ─────────
     reported = sorted((e for e in earnings
@@ -122,8 +121,7 @@ def consensus_as_of(*, grades, targets, earnings, as_of: date) -> dict:
         est, act = e.get("epsEstimated"), e.get("epsActual")
         reports.append({
             "date": e["date"][:10], "eps_estimated": est, "eps_actual": act,
-            "eps_surprise_pct": (round((act - est) / abs(est) * 100, 3)
-                                 if est not in (None, 0) else None),
+            "eps_surprise_pct": eps_surprise_pct(est, act),
             "revenue_estimated": e.get("revenueEstimated"),
             "revenue_actual": e.get("revenueActual"),
             "last_updated": e.get("lastUpdated")})

@@ -37,10 +37,10 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state (2026-10-01):** **12 specs, all 🟢 approved, 168/168 ACs green**, with 16 governed
+**Current state (2026-10-03):** **13 specs, all 🟢 approved, 180/180 ACs green**, with 17 governed
 path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
-modules), and the suite stands at 2,332 pass with 1 deliberate red (`J-07`). The analysis layer has 27/35
-prompt blocks declared and one thesis produced (MU, k=1). ⊘ **The golden-case programme is CLOSED**
+modules), and the suite stands at 2,494 pass with 1 deliberate red (`J-07`). The analysis layer has 27/35
+prompt blocks declared and three MU theses produced (k=1 each; SELL → HOLD → SELL, all on course to be falsified). ⊘ **The golden-case programme is CLOSED**
 (`L8` §9, 2026-10-01): 53 live cases kept and maintained, **no new golden cases**. Judgement quality is
 measured by falsifiers and rule checks. **Live progress is `sdd/design/rel1_design/L3-build-sequence.md`
 §2.1**; the golden-case programme is `L8-golden-case-retrospective.md`.

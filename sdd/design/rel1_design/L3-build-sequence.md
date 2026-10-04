@@ -50,17 +50,17 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — ★★★ platform COMPLETE · FIRST THESIS (MU SELL — 2 of 4 falsifiers FIRED, computed) · ★★ scorecard coverage **1.000** (E-09 solved) · analysis 77 % declared · 69 % working · ★ dev calls on the subscription (§2.1o) · ⊘ golden programme CLOSED (§2.1p) · updated 2026-10-01
+## 2.1 Current position — ★★★ platform COMPLETE · FIRST THESIS (MU SELL — 2 of 4 falsifiers FIRED, computed) · ★★ scorecard coverage **1.000** (E-09 solved) · analysis 77 % declared · 69 % working · ★ dev calls on the subscription (§2.1o) · ⊘ golden programme CLOSED (§2.1p) · ★ consensus + duration in the bundle (§2.1q) · updated 2026-10-03
 
 ```text
    ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
-   │  ★★ 12 of 12 specs 🟢 APPROVED · 168 ACs (F10 20/20 built)     │
+   │  ★★ 13 of 13 specs 🟢 APPROVED · 180 ACs (F10 23 · F11 9)      │
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-1 … MS-7 · THE PLATFORM ─────────── ★★★ 148/148 ACs ───────┐
    │  F1 15 · F2 16 · F3 12 · F4 13 · F5 18 · F6a 11 · F9 10        │
    │  F7a 12 · F6b 12 · F8 20 · F7b 9                               │
-   │  ⛔ 1 red: J-07 golden (re-established) · 2,338 pass           │
+   │  ⛔ 1 red: J-07 golden (re-established) · 2,494 pass           │
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-8/9 · ABSORPTION + WRITE-UP ─────────────── ONE TREE ──────┐
@@ -96,7 +96,13 @@ the machinery that records what it changed.
    │        decided automatically · DX-139 (partial window) fixed    │
    │        · ✅ 4 MU readings reviewed by Victor (DX-128)          │
    │   4. ✅ AGREEMENT PROBE · live: MU J-16 SELL 3/3, conv. SPLIT  │
-   │   5. ⚠ Victor: data source for J-09/J-10 inputs (conviction cap)│
+   │   5. ◐ ✅ CONSENSUS (FMP, PIT) · ✅ DURATION TABLE (F10 D10)   │
+   │        ✅ J-09 re-run: consensus STATED · ✅ DX-140 ruled       │
+   │        ⏳ thesis resume J-10…J-17 (§2.1q)                       │
+   │        ✅ F10 D11 margin share · ✅ F11 base rates (memory@v1)  │
+   │        ✅ 3rd thesis: SELL; caps lifted (DX-146) · DX-144 refuses│
+   │        ✅ J-15 v3 + DX-147 · 4th thesis SELL/Medium-High,  │
+   │           uncapped — falsifiers #3 #4 FIRED, #1 #2 pending    │
    │   then: 8 undeclared blocks · DX-76 · AMD thesis · quant ~70 %  │
    │  open: DX-57 60 61 78 79 87 89-92 134 · partial 44 71 80        │
    └─────────────────────────────────────────────────────────────────┘
@@ -104,10 +110,10 @@ the machinery that records what it changed.
 
 | | Result |
 |---|---|
-| tests | **2,338 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
+| tests | **2,494 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
 | guarantees | **12**, `tools/check_all.py` → ⛔ **2 FAILED** — and both are the SAME fact, not two: *the test suite* and *the suite from a fresh clone* (`DX-5`) each carry `test_ac_5_7_the_golden_set_replays_green`, red since 2026-09-13 because Victor RE-ESTABLISHED the `J-07` value against the recording. ⚠ The other 10 pass. ★ This row read `ALL CHECKS PASSED` until 2026-09-17 and was **stale from the day J-07 went red** — a summary line that outlives its measurement is exactly the defect this table exists to prevent |
-| findings | **139 `DX` logged — 129 closed** (+`DX-138` detected, `DX-139` closed) (✏ 2026-10-01: `DX-131`…`DX-137` added; `DX-131` `DX-132` `DX-133` `DX-135` `DX-136` `DX-137` closed) · ⬜ open since: `DX-134` · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ✅ `DX-96` closed by `DX-129` (E-09 ran) · ◐ partial: `DX-44` `DX-71` `DX-80` |
-| golden set | **33 live** (28 extraction · 5 thesis: J-01 ✅ · J-05 ✅ `balance_sheet_resilience@v3` L3 · J-06 ✅ `capital_allocation@v3` L4 · J-08 ✅ · ⛔ J-07 `late` vs recorded `mid` — parked and RE-ESTABLISHED 2026-09-13 by Victor's decision, red on purpose) · every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
+| findings | **140 `DX` logged — 130 closed** (✏ 2026-10-02: `DX-140` logged and closed) (+`DX-138` detected, `DX-139` closed) (✏ 2026-10-01: `DX-131`…`DX-137` added; `DX-131` `DX-132` `DX-133` `DX-135` `DX-136` `DX-137` closed) · ⬜ open since: `DX-134` · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ✅ `DX-96` closed by `DX-129` (E-09 ran) · ◐ partial: `DX-44` `DX-71` `DX-80` |
+| golden set | ⊘ **CLOSED 2026-10-01 (`L8` §9): 53 live, kept and maintained, no new cases; 10 thesis drafts frozen.** ✏ *History below is as of 2026-09-17:* **33 live** (28 extraction · 5 thesis: J-01 ✅ · J-05 ✅ `balance_sheet_resilience@v3` L3 · J-06 ✅ `capital_allocation@v3` L4 · J-08 ✅ · ⛔ J-07 `late` vs recorded `mid` — parked and RE-ESTABLISHED 2026-09-13 by Victor's decision, red on purpose) · every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
 | recordings | graded: `run-2026-09-11T082002-mu-e01` (E-01 v4) · `…T082118-amd-e01` (E-01 v4) · `…T115548-mu-e02` · `run-2026-09-12T024848-mu-stage-a` (J-01…J-08, complete, envelope-hashed). ⚠ `run-2026-09-12T021719-mu-stage-a` is the TRUNCATED Stage A (`DX-84`) — not promoted, and `spend_report.py` still labels its calls `SUCCESS` because it reports the RUN's close status, not the call's `stop_reason` |
 | spend | ★ **measured from traces** (`tools/spend_report.py`): floor **$72.41 over 105 calls** all-time · **$1.17 on 2026-09-17** (`E-09` at effort low $0.4171 — the block that had never completed — then `J-04` $0.7485, the last unscored rubric ⇒ coverage 1.000) · **$3.31 on 2026-09-15/16** (industry evidence: $1.88 on three failed `E-13` attempts, then `J-03` $0.61 + `J-08` $0.81 — the `E-13` itself was REPLAYED free, `DX-123`) · **$16.93 on 2026-09-15** (the first thesis, 4 runs: $2.54 · $2.79 · $6.73 · $4.87 — $5.33 of it lost to three failed calls) · **$0.50 on 2026-09-14** (J-20) · ⚠ one FMP call 2026-09-14 (subscription quota, not in this figure) · **$6.44 on 2026-09-11 · $13.28 on 2026-09-12 · $12.57 on 2026-09-13** (`DX-96` $4.39 incl. E-09 v2 + summarized-thinking diagnostic · J-05+J-06 blind-criteria run $1.72, VOID · criterion-selected re-run $1.69 · k=3 under v3 $4.77) (incl. the seven E-block runs, **$4.74**, of which `DX-96`'s three truncations **$2.64**). ⚠ 3 calls reached the vendor with no tokens recorded, so the console is authoritative. ⚠ A running figure of "$17.16 this session" quoted on 09-12 was **wrong by ~$2.20** — it carried a mis-added base forward; the trace-derived number replaces it. ★ Largest avoidable costs: `DX-84` truncated Stage A **$3.68** · `DX-69` truncated `E-02` **$0.68** · `DX-78` refused `E-02` **$0.67** |
 | lint | ruff clean on all code this repo authored |
@@ -390,6 +396,202 @@ post-envelope one. The established value is unchanged; only the artefact moved.
 - **Not k=3.** `K_RUNS`=3 is what `CT-9.2` requires; this is k=1.
 - **Not a thesis.** Stage A is 8 of 17 blocks. Stages B-D (`J-09`…`J-17`) are undeclared.
 
+## 2.1q ★★ 2026-10-01/02 — `J-09`'s governing inputs: consensus and duration supplied, one cap ruled out
+
+> **$0 API** (subscription). FMP calls standing-approved (fixed-rate). Detail in §2.1p item 5.
+
+### What exists now
+
+| | |
+|---|---|
+| consensus | FMP `grades` + `price-target-news` + `earnings`, version-controlled fixtures with provenance; a `consensus.as_of` bundle part cut at the as-of **market close** (1b), past estimates with a revision caveat (2a); its arithmetic in D-02 (`src/feature_engineer/consensus.py`, `AC-1.40`). Daily `analyst-estimates` snapshot tool built — ⚠ writes to gitignored `.state/` and is not scheduled |
+| price requirement | **F10 amended** (`D10`, `AC-F10.22`): `dcf_two_stage@v2` = `v1` + a 5 / 7 / 10 / 15-year duration table + market capitalisation. MU: no root at 5 y · 39.0 % at 7 · 28.3 % at 10 · 20.5 % at 15; market cap $141.75bn |
+| runner | `--stop-after BLOCK`; absences dropped per bundle only when the part really supplies them |
+| `J-09` | re-asked (`run-2026-10-01T225847`): consensus position **stated**, duration requirement **decided** (`required_more_than_evidenced`), still `insufficient` on gross capex (a declared limit) and implied margin (curable) |
+| `DX-140` | ✅ ruled ⓑ: a requirement unset only by a DECLARED known limit is stated on the thesis (`limitations_stated`), not counted toward the cap |
+| thesis | ⏳ `--resume-from run-2026-10-01T225847-mu-thesis` → `run-2026-10-02T113055-mu-thesis`: J-10…J-14 committed (9 calls, ~1.6M input tokens), then ⚠ **the subscription session limit stopped J-15** (`TransportError`, no partial commit — `P5`). Resumed after the reset from `…113055` (10 commits carried, hashes verified) → J-15…J-17 only |
+| ★★ result | **`run-2026-10-02T173511-mu-thesis`: HOLD · Low** (authored HOLD / Medium; capped by 2 governing absences — `J-08` competitor capacity, `J-09` implied margin). `limitations_stated`: the gross-capex base (`DX-140`). 4 falsifiers (J-15 v2, tests model-authored), 12 data gaps. $0 API (notional ≈$13.5 over 13 calls) |
+
+### ★★ The second MU thesis: SELL → HOLD, and what its own falsifiers say
+
+| | 2026-09-15 (no consensus, no duration) | 2026-10-02 |
+|---|---|---|
+| verdict | **SELL** · Medium → Low | **HOLD** · Medium → Low |
+| why | price needs 28.3 %/10 y, unmatched by the record | same requirement, but the base is understated by a DECLARED limit (gross capex), so the $15.96-vs-$126 gap is *"a data gap rather than a measured mispricing"*; supply unmeasured, so it *"cannot assert the upcycle ends sooner than consensus assumes"*; earnings quality and balance sheet defeat the exit case |
+| falsifiers, checked on later EDGAR quarters | #1 #2 **FIRED** · #3 #4 HELD → wrong | #1 HELD (final, past deadline — revenue grew, so the "margin without growth" test cannot fire) · **#2 FIRED** (OCF − gross capex summed far above $8bn at the full capex pace: *"the base figure the whole price argument turns on is wrong by roughly six times"*) · #3 #4 **PENDING** (4 of 8 and 4 of 6 quarters reported, every one so far on the firing side) |
+
+★ **Less wrong, not right.** HOLD did not sell into the rally the SELL missed, but its own #2 says its
+bear-leaning reasoning rested on the wrong base, and #3/#4 are on course to fire. ⚠ **k=1, and the
+change is not yet attributed:** the old bundle's SELL repeated 3/3 (item 4), so a move to HOLD on the
+new bundle is *probably* the new inputs and not noise — but `agreement_probe` on the new `J-16` (2 calls)
+is what would show it (`MOVED` needs both arms unanimous).
+✅ **Probed 2026-10-02** (`run-2026-10-02T193942-agreement-j16`, noise floor, k=3, 2 new calls on the
+subscription, requests byte-identical to the recorded one): **verdict SPLIT — HOLD 2 · SELL 1**;
+conviction Medium 3/3 (before the cap); considerations 3/3. ⇒ Against the old bundle's SELL 3/3, the new
+inputs moved the verdict **onto the SELL/HOLD boundary**, not cleanly to HOLD. By the pre-registered rule
+this is not a `MOVED` (that needs both sides unanimous), and the thesis's HOLD is the modal answer of an
+unstable call. ⚠ The probe printed "~106,044 input tokens each" — its pre-send ESTIMATE; measured was
+242,520 and 487,622 (two CLI turns), so nothing was dropped.
+⚠ Rule checks over the three runs: **`DX-141`** — `J-11` quoted *"Construction in progress | 4,937 |
+3,444"*, dropping the footnote marker `(2)` it quoted verbatim elsewhere (content-faithful, not
+verbatim; not registered in `rule_checks.KNOWN`, which covers promoted recordings only) · the J-15 call
+the session limit killed is flagged `incomplete-call` (correct; nothing was committed from it).
+
+### ★★ The third MU thesis (2026-10-03): consensus + duration + D11 + F11 base rates — SELL again
+
+`run-2026-10-03T002642-mu-thesis` (stopped by the session limit at `J-13:operating_margin`, 5 commits) →
+resumed as `run-2026-10-03T125303-mu-thesis` (5 carried, hashes verified; 8 sent). $0 API, subscription.
+
+| | 2026-09-15 | 2026-10-02 | **2026-10-03** |
+|---|---|---|---|
+| inputs added | — | consensus · duration table | + D11 margin share · **F11 base rates** · longer MU history |
+| verdict (authored) | SELL / Medium | HOLD / Medium | **SELL / Medium-High** |
+| conviction (capped) | Low (3 absent) | Low (J-08, J-09) | **Low — 1 absent: `J-10`** |
+| J-09 price requirements | 1 decided of 3 | 3 of 4 | ★ **4 of 4 `required_more_than_evidenced`** |
+| J-10 | INSUFFICIENT | INSUFFICIENT | ★ **cites the base rates**: 0/21 member-years at the required margin, 0/6 runs ≥ 7 y, 0/2,886 in the book |
+
+★ **What the base rates changed.** J-16's first consideration is now *"every duration the price can be solved
+at requires an FCFF margin … that no member-year in the reference class reaches — 0/21"*, and J-10 adds its
+own honest qualifier: *"the zeros are weaker than they look … they establish absence of precedent, not
+impossibility."* ⚠ The 2026-10-02 HOLD rested on the gross-capex limit making the gap "a data gap"; this run
+answers it directly — *"even a doubled base leaves the 7-year requirement above every observed member-year."*
+
+⚠⚠ **Its falsifiers, checked on later EDGAR quarters — and a checker reading that is wrong (`DX-144`).** As
+written, `check_falsifiers` reports #1 #2 #3 **HELD** and #4 PENDING. But each condition says *"in each of
+four (eight) CONSECUTIVE reported quarters"* with deadlines in 2027, and the model's structured tests use
+mode `each` over the FIRST window instead of `consecutive` — so one weak first quarter "settles" a test the
+deadline has not reached. Read as the sentences say:
+
+| # | Condition | Later quarters | As the sentence reads |
+|---|---|---|---|
+| 1 | OCF − capex > $1.5bn, 4 consecutive quarters | 0.07 · 3.0 · 5.5 · 17.6 ($bn) | **PENDING — 3 consecutive; one more quarter fires it** |
+| 2 | gross profit > COGS, 4 consecutive | GP < COGS in Q1, then 7.6/6.0 · 17.8/6.1 · 35.1/6.4 | **PENDING — 3 consecutive; one more fires it** |
+| 3 | capex < $2bn with OCF > $4bn, 4 consecutive | capex 5.7 · 5.4 · 6.4 · 7.8 | not firing |
+| 4 | net income > $2.5bn, 8 consecutive | 3.2 · 5.2 · 13.8 · 28.2 | **PENDING — 4 of 8, all firing** |
+
+⇒ ★ **This SELL is on course to be falsified by its own conditions, like the first one.** Three runs, three
+verdicts (SELL → HOLD → SELL) over materially the same evidence plus added inputs, and every verdict's
+falsifiers point the same way: the cash generation the price required arrived.
+
+⚠ Rule checks over both runs (after a checker fix below): the session-killed call (correct) · **`DX-145`**
+J-13 (`return_on_equity`, `operating_margin`) quoted NAND as *"plus low-50%"* — the filing says *"plus
+low-30%"* — **the `DX-138` misquote again, in two more answers** · J-13 `non_gaap_eps` quoted 2 of a 4-column
+table row (`DX-141`'s class). ✅ Checker fixed: the computed sections F11 and the consensus part add
+(`MARGIN REACH`, `REFERENCE-CLASS`, `PUBLISHED`, `CONSENSUS`…) were being checked against the FILING; now
+exempt like D-02's (7 new tests).
+
+✅ **2026-10-03 — `DX-144` ⓐ, `DX-145` ⓐ, `DX-146` ⓑ ruled and built** (details in §6). ⚠ Was: **The remaining cap is `J-10`'s, and it is `DX-140`'s shape again (`DX-146`).** `derate` flags J-10 when ANY
+claim lacks a base rate. The price-requirement claims now have them; three secondary claims do not —
+terminal growth in perpetuity, J-07's "mid" cycle read, and FY2025 capex guidance — and no reference class
+this system can build answers "perpetuity survival". ⬜ **Victor's ruling.**
+
+### ⛔ 2026-10-04 — the J-15 re-ask: refused by `DX-144`, as predicted
+
+`--resume-from run-2026-10-03T125303-mu-thesis --resend-from J-15` → `run-2026-10-04T024042-mu-thesis`.
+J-09…J-14 carried (10 commits, every hash re-verified against today's bundle); J-15 sent once on the
+subscription ($0 API). ⚠⚠ **`RES.THESIS.NO_FALSIFIER`** — falsifier 1: `window_periods 4 ends before the
+deadline 2027-07-01: ~7 quarters will have reported by then`. J-16 and J-17 NOT issued (`RA-16`); no thesis (`P5`).
+
+| # | Condition (new authoring) | Deadline | Test as written |
+|---|---|---|---|
+| 1 | OCF − capex > $2.0bn, 4 consecutive quarters | 2027-07-01 | `each`, window 4, stray `consecutive: 4` |
+| 2 | gross profit ≥ $3.5bn and revenue ≥ $9.3bn, 4 consecutive | 2027-07-01 | same shape |
+| 3 | capex < $2.5bn with OCF > $4.0bn, 4 consecutive | 2027-07-01 | same shape |
+| 4 | net income ≥ $1.5bn, 8 consecutive | 2028-01-31 | `each`, window 8 (≈9–10 due) |
+
+★ The conditions are sharper than the 2026-10-03 set (thresholds moved up), and the model clearly MEANT
+*consecutive*: it wrote the count into each clause. ⚠ But it used mode `each` (where that count is never read,
+`DX-147`) over a window that stops a year before the deadline. ⇒ Exactly the case §6 `DX-144` predicted: the
+prompt does not state the window rule, so the authoring cannot satisfy it except by luck.
+Rule checks on the J-15 call: **0 violations**. Runner: `--resend-from BLOCK` added (carries only the commits
+BEFORE the block; 1 test, mutation caught). ✅ `DX-147` ⓐ built the same day. Suite 2,496 pass / 1 deliberate red (`J-07`).
+✅ **Victor approved J-15 v3 the same night** (two sentences: the window must reach the deadline; a run of quarters
+is mode `consecutive`). Built in the L1 master prompt (0.5.0) and `e_blocks.py` (drift guard green); the
+tests file now records the version that wrote it.
+
+### ★★ The fourth MU thesis (2026-10-04): J-15 v3 — SELL / Medium-High, the first uncapped, and already falsified
+
+`--resume-from run-2026-10-03T125303-mu-thesis --resend-from J-15` → **`run-2026-10-04T031717-mu-thesis`**.
+J-09…J-14 carried (verified); J-15 v3 → J-16 → J-17 sent ($0 API; notional ≈$5.38).
+
+| | |
+|---|---|
+| verdict | **SELL** · authored SELL / Medium-High · **conviction Medium-High** — coverage 1.00, governing absences **0** (first MU thesis with no cap) |
+| why (J-16) | *"SELL at $126.00, on price rather than on business quality"* — earnings quality clean; the price needs FCFF at 40.1–65.3 % of revenue vs a best year of 28.5 %, 0/21 member-years in the class; the whole 12-cell grid ($10.76–$22.50) is ~⅕ of price. Medium-High, not High: HBM economics, net-of-incentive capex and peer figures absent |
+| `limitations_stated` | 3, all `DX-146` ⓑ: J-10 has no base rate for terminal growth in perpetuity · J-07's "mid" cycle read · FY2025 capex ≈ $14bn net of incentives |
+| falsifier tests | all four mode `consecutive`, windows 8 / 10 / 6 / 8 reaching their deadlines — ★ `DX-144` and `DX-147` both satisfied on the first v3 authoring |
+| rule checks | the 3 new calls: **0 violations** (the 4 on the carried runs are the known 2026-10-03 ones) |
+
+⚠⚠ **Falsifiers, checked 2026-10-03 on later EDGAR quarters: 2 FIRED, 2 PENDING on course to fire.**
+
+| # | Condition | Deadline | Status |
+|---|---|---|---|
+| 1 | OCF − capex ≥ $3.0bn, 6 consecutive quarters | 2027-07-01 | PENDING — 0.07 · 3.02 · 5.5 · 17.6 ($bn): 3 consecutive so far |
+| 2 | OCF > capex, 8 consecutive quarters | 2028-02-01 | PENDING — 4 of 4 so far |
+| 3 | gross profit ≥ COGS, 3 consecutive quarters | 2027-01-15 | **FIRED** |
+| 4 | revenue ≥ $14.0bn and operating income ≥ $5.0bn, 2 consecutive | 2027-07-01 | **FIRED** — revenue $23.9bn, $41.5bn |
+
+⇒ ★★ **Four theses, four verdicts falsified or on course (SELL → HOLD → SELL → SELL).** The v3 falsifiers are
+sharper and correctly windowed, and the checker now decides them as their sentences read — and they say the
+thesis is wrong: the scale the price required arrived within a year. ⚠ The most confident MU thesis so far
+(Medium-High, uncapped) is the most clearly falsified one. k=1. ★ This is the measurement `L8` §9 exists for:
+conviction rose with evidence coverage, and correctness did not.
+⚠ J-16 reports a frozen-record inconsistency it found itself: Stage B/C answers say *"nine usable years"* where
+the annual-history block gives 13, and *"five sign changes"* matches neither window. **Unverified** — worth a
+look before it is registered.
+
+### ★★ Retrospective, 2026-10-03 — the falsifier loop after three theses
+
+1. ★★ **Falsifiers are the instrument that keeps being right.** Three MU theses (SELL → HOLD → SELL)
+   over a growing bundle; each one's own conditions point the same way on Micron's later filings — the
+   cash generation the price required arrived. Stability (3/3 SELL, then a split) and a full scorecard
+   never said so; falsifiers did.
+2. ⚠⚠ **Sentence ↔ test fidelity cannot be checked by eye.** It held on 2026-10-01 and failed on the next
+   authoring (`DX-144`): *"consecutive"* written, `each` over the first window tested. It is now a
+   validation rule, not a reading.
+3. ★ **Every cap rule written so far became a constant within one iteration** (`DX-140` J-09, `DX-146`
+   J-10). The pattern: an "any row/claim lacks X" rule meets a row no input can cure. ⇒ A new cap rule
+   should state, when written, which absences it can be cured by.
+4. ⚠ **Paraphrase-from-memory errors recur on the same sentence** (`DX-138` → `DX-145`): two adjacent ranges
+   sharing "low-50%". Caught every time by the rule check; accepted as caught.
+5. ★ **The subscription session limit is a real pace constraint** — two of three theses were stopped
+   mid-run; `--resume-from` made both stops free. Plan theses as two sittings.
+6. ★ **Reference classes are as wide as their tags** (`DX-143`): 4 members gave 21 usable member-years
+   only after a revenue fallback; old SanDisk stays out. Every rendered rate carries its `n`.
+
+### ★ Retrospective — what this stretch taught
+
+1. ⚠⚠ **The usage limit hit with the suite red, and the interim commit captured it.** The `AC-1.40`
+   failure (`.median()` in D-01) was found by the last suite run before the cutoff and committed
+   unfixed. ⇒ Run the whole suite **before** reporting a sub-step done, not after the next one starts.
+2. ⚠ **My first answer to item 5 misnamed the gap.** I said `J-09` lacked market cap and multiples; the
+   recorded answer showed the binding row was **duration**. Reading the answer cost one command and
+   redirected the F10 amendment. ⇒ Read the recorded output before proposing what would fix it.
+3. ★ **The spec-first rule held under time pressure.** F10 had no AC for a duration figure, so the
+   amendment came first and Victor chose the periods; the traceability guard (169 → 170) failed exactly
+   as designed when the AC was added. 5 of 5 mutations caught.
+4. ★★ **`DX-140`: an absence rule must know whether the absence is curable.** A cap keyed to
+   *"any row insufficient"* became a constant for MU, because one row rests on a limit F10 already
+   declares uncomputable. The fix states it on the thesis instead of counting it.
+5. ⚠ **The subscription's usage limit is now the pace constraint, measured:** one Stage B–D thesis is
+   ~13 calls of 170–300k input each; on the Pro plan it did not fit in one session window. `--resume-from`
+   made the stop free (nothing re-sent). ⇒ Plan theses as two sittings, or `--stop-after` at a natural break.
+6. ⚠ **`DX-12`'s shape, fifth sighting:** the analyst-estimates snapshot writes under gitignored
+   `.state/`. Forward-consensus history not kept somewhere durable is unrecoverable.
+7. ★ **Stability is not correctness** (item 4): MU's SELL repeats 3/3 and is falsified by its own
+   #1/#2. Falsifiers stay the primary instrument (`L8` §9).
+
+### ⬜ What next — in order
+
+| # | Work | Who | Cost |
+|---|---|---|---|
+| **a** | ✅ Read the resumed thesis (above). ✅ J-16 probe: verdict SPLIT HOLD 2 / SELL 1 — the move is to the boundary | agent | done |
+| **b** | ✅ **`J-10` base rate — `F11` approved and BUILT** (2026-10-02): `memory@v1` (MU · SanDisk pre-2016 + 2025 · WDC FY2017–2025), capex fallback `PaymentsToAcquireProductiveAssets` (`fundamental` → v4), *The Base Rate Book* (2016) Exhibit 4 + appendix transcribed by script with pages, overlapping windows labelled. 9/9 ACs, 9/9 mutations caught; members ingested from EDGAR and promoted to `tests_src/fixtures/edgar/reference_class/memory_v1/`. ★ **MU as of 2025-06-26:** FCFF margin ≥ the required 40–65 % in **0/17** member-years (0/8 without MU); a positive-FCFF run of ≥ 7 years **0/3**; the book: ≥ 25 % real sales CAGR over 10 years in **0/2,886** for starting sales > $25bn. ⚠ **`DX-143`** — the class is thinner than its members | done | — |
+| **c** | ✅ **Implied margin — `F10` `D11` built** (2026-10-02): required final-year FCFF and its share of trailing revenue per duration row; MU needs **40.1 % / 48.1 % / 65.3 %** at 7 / 10 / 15 y against a best year of 28.5 %. `implied_margin` no longer declared absent. 4 tests, 4/4 mutations caught | done | — |
+| **d** | ✅ **Snapshot** (2026-10-02): tracked `snapshots/analyst-estimates/`, tickers in `config/snapshots/`, systemd user timer weekdays 18:30 New York (`Persistent=true`), examples in `deploy/`; first timer run wrote MU + AMD. ⚠ `Linger=no`: runs only while Victor is logged in; a missed day catches up at next login | done | — |
+| **d′** | ✅ Re-asked (3rd thesis 2026-10-03; J-15…J-17 again under v3 → 4th thesis `run-2026-10-04T031717`, SELL / Medium-High, #3 #4 FIRED) | agent | done |
+| **e** | Then §2.1p's table rows **6–10**: 8 undeclared blocks · `DX-76` envelope versioning · AMD thesis end to end · quant ~30 % → done · go-live (`MS-0`) | agent, with Victor's reviews | ~15–25 sessions |
+
 ## 2.1p ★★ 2026-10-01 — the golden-case programme is CLOSED; what replaces it, and what is left
 
 > **Decision by Victor** (`L8` §9): no golden case is developed from today. Extraction is finished at the
@@ -422,7 +624,7 @@ API dollars are no longer the unit (development is on the subscription, `GW-24`)
 | **2** | k=1 gate flags instead of passing | <1 session | — | none |
 | **3** | Falsifier loop: `J-15 v2` structured tests, auto-check | ~1–2 sessions | ~1 h (check the 4 MU readings, then each new set) | 1 thesis re-run (~13 calls) |
 | **4** | k=3 agreement probe | <1 session | — | ~26 calls per probe |
-| **5** | ★ `J-09`/`J-10` governing inputs (consensus, price requirement, base rate): the only thing that can lift Low conviction | 2–4 sessions | ⚠ the data-source decision; FMP analyst data is the candidate (load `fmp-api` first) | small |
+| **5** | ★ `J-09`/`J-10` governing inputs (consensus, price requirement, base rate): the only thing that can lift Low conviction | 2–4 sessions | ✅ source decided 2026-10-01 (FMP `grades` + `price-target-news` + `earnings`; published base-rate study first). ⬜ name the reference class | small |
 | **6** | 8 undeclared blocks (`E-03` `E-05` `E-08` `E-11` `E-14` `E-15` `J-18` `J-19`) + `J-13`'s 6th metric | 2–3 sessions | review | ~10 calls |
 | **7** | `DX-76` envelope versioning + the "both period endpoints" wording | <1 session | — | re-record of affected blocks |
 | **8** | Second ticker end to end (AMD thesis), judged by rule checks and falsifiers | 1–2 sessions | ~2 h | ~25 calls |
@@ -505,6 +707,77 @@ the verdict this measures as stable is the one its own falsifiers #1 and #2 have
 Stability is not correctness; this is `L8` §9's argument made concrete, and why falsifiers stay the
 primary instrument. ⚠ Sampling, not RM-1's perturbation probe: this does not supply `verdict_stability`
 and does not lift `RA-154`'s FLAG.
+
+### ✏ Same day — item 5, CONSENSUS half BUILT: FMP published actions as of a date ($0)
+
+Victor approved (2026-10-01): FMP `grades` + `price-target-news` + `earnings` for past as-of dates, a daily
+`analyst-estimates` snapshot for future ones, no paid vendor; FMP calls standing-approved (fixed-rate).
+Two rulings: **1b** — an item counts when published on or before the as-of **market close** (16:00 New
+York, the moment of the raw close the thesis is priced at; a date-only row on the as-of day is excluded,
+since it cannot be placed before the close) · **2a** — past earnings estimates are included **with a
+caveat**, because FMP edits those rows after the report (`lastUpdated`).
+
+| Piece | What |
+|---|---|
+| fixtures | `tests_src/fixtures/consensus/MU_{grades,price_target_news,earnings}.json` + `MU.meta.json` (946 · 200 paged · 166 rows; fetched 2026-10-01T19:07Z; hazards listed) — via `tools/fetch_consensus.py` |
+| section | `src/fundamental/bundle/consensus.py`: latest rating per firm over 365 days, targets over 90 days, last 4 reports estimate vs actual; a `computed` part (`consensus.as_of` v1), so the blind Stage-A view never sees it (`RA-14`). Unmapped grade labels are reported, never bucketed by guess |
+| arithmetic | ✏ **moved to D-02 after the first suite run failed `AC-1.40`** (`.median()` in D-01): `src/feature_engineer/consensus.py` (`target_spread`, `eps_surprise_pct`; a zero or missing estimate gives `None`, not a number) |
+| runner | `run_thesis_once.consensus_for` adds the part when a fixture exists and drops `consensus_rating_and_price_target_actions` from the declared absences. ⚠ `consensus_forward_estimates` **stays declared absent** for a past as-of (`DX-109`: look-ahead) |
+| snapshot | `tools/snapshot_analyst_estimates.py MU AMD` — first snapshots taken 2026-10-01. ⚠ written under `.state/snapshots/`, which is **gitignored** (`DX-12`'s shape): history not captured, or lost with the laptop, is gone. ⬜ Victor: schedule it, and decide where snapshots are kept |
+| tests | `test_consensus_as_of.py` (8) · `test_consensus_in_the_bundle.py` · `test_snapshot_analyst_estimates.py` · `test_feature_consensus.py` (5). Suite **2,425 pass · 1 deliberate red (`J-07`)** |
+
+**What MU's analysts had published by the 2025-06-26 close:** ratings **buy 19 · hold 3 · sell 1**
+(23 firms); 6 price targets in 90 days, **median $147.5** (low $135, high $170) against a $126 raw
+close; 4 straight EPS beats, the last **$1.91 vs $1.60** (+19.4 %). ⇒ the SELL was a strongly
+contrarian call, which is exactly what `J-09`'s differential view exists to state — and it never saw this.
+
+### ✏ Same day — item 5, PRICE-REQUIREMENT half BUILT: `F10 D10` ($0)
+
+What actually capped `J-09` was its THIRD price requirement (*"10 years at 28.3 %, then 2.5 %"*) marked
+`insufficient_evidence`, citing `implied_duration` as declared absent; market cap and multiples were
+absent too but did not bind. F10 had no AC for it, so **the spec was amended first** (constitution
+§5.1): Victor chose a duration table at **5 / 7 / 10 / 15 years** (`D10`, `AC-F10.22`), published as
+`dcf_two_stage@v2` (`v1` + `duration_table`, every other value identical; `v1` untouched). Market
+capitalisation joins the trail. The runner moved to `v2`, and drops `implied_duration` +
+`market_capitalisation` from the declared absences **only when the rendered part carries the table**
+(an unavailable valuation keeps them declared). `STAGE_B_ABSENCES` itself is unchanged — it is also
+`rule_checks`' record of what older bundles declared. `--stop-after BLOCK` added to the runner.
+Tests: 8 new F10 tests (5/5 mutations caught) + 1 runner; traceability guard 169 → 170. Suite
+**2,436 pass · 1 deliberate red (`J-07`)**.
+
+| MU, 2025-06-26, $126 raw | 5 y | 7 y | 10 y | 15 y |
+|---|---|---|---|---|
+| stage-1 FCFF growth the price requires | **no root** (> 40 %/yr, the bracket top) | 39.0 % | 28.3 % | 20.5 % |
+
+Market cap **$141.75bn** (1,125M diluted shares). ⚠ Still declared absent: `implied_margin`,
+`valuation_multiples` (F10 non-goals).
+
+### ✏ Same day — `J-09` re-asked with both halves in its bundle ($0 API)
+
+`run-2026-10-01T225847-mu-thesis`, `--stop-after J-09`, subscription: 169,943 in / 7,544 out, notional
+$1.04. Schema-valid; rule checks 0 violations. ⇒ finish with `--resume-from` (J-10…J-17, ~12 calls).
+
+| `J-09` field | 2026-09-15 (no consensus, no table) | 2026-10-01 |
+|---|---|---|
+| `consensus_position` | `INSUFFICIENT_EVIDENCE` | ★ **stated**: 19 buy · 3 hold · 1 sell, 90-day targets $135–$170 (median $147.5), four beats ending +19.4 % |
+| `differential_view` | "I cannot state a differential view" | ★ no differential on DIRECTION (Stage A's supply read is insufficient); differs on BASIS — consensus anchors on quarterly EPS, the price needs a FCFF level no FY2016–FY2024 year delivered |
+| duration requirement | `insufficient_evidence` (`implied_duration` absent) | ★ **`required_more_than_evidenced`** — no root at 5 y, ≥ 7 years of 28–39 % needed |
+| still `insufficient_evidence` | — | ⓐ the gross-capex base (`D9` known limit: incentive proceeds uncomputable from D-07) · ⓑ implied margin (still declared absent, F10 non-goal) |
+
+⚠⚠ **So the `DX-118` cap's `J-09` half still fires, and the reason is structural.** `derate._absences`
+flags the price requirement when ANY row is `insufficient_evidence`. Row ⓐ rests on a limit F10 `D9`
+DECLARES uncomputable, so it will fire on every MU thesis whatever data is added; row ⓑ needs another
+F10 amendment. ✅ **`DX-140` ruled 2026-10-02 (Victor): a requirement left unset only by a DECLARED
+known limit is STATED on the thesis, not counted toward the cap.** Implied margin (curable) still counts, and
+`J-10`'s base rate still caps on its own.
+⚠ Minor: `consensus_position` set the targets against **$127.25** (the analysts' "price when posted")
+rather than the thesis's $126.00 raw close — the section shows both; not a rule violation.
+
+⬜ **Not yet done.** ⓐ `J-09` ✅ re-asked (above) — was: has not been re-asked with the section in its bundle, so the
+`DX-118` cap (`derate.py` reads `J-09`'s `consensus_position`) is **still on** — a re-run of J-09
+(and, for the verdict to use it, J-16) on the subscription. ⓑ The `J-09` price-requirement half is free
+D-02 code (market cap and multiples from the raw close × filed shares). ⓒ The `J-10` base rate: the
+published study's table entered with source and page, ⚠ **after Victor names the reference class**.
 
 ### ✏ Same day — item 3 BUILT in code: `J-15 v2` writes each falsifier's structured TEST ($0)
 
@@ -2741,6 +3014,14 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-128** | 2026-09-16 | `RM-13` decided without a paid `J-15` re-run | `RM-13`; `DX-125` left firing undecidable because a condition is prose | ★ Victor: *"no paid run, too expensive, find a way to bypass this."* The blocker was that deciding a falsifier needs a threshold, a comparator and a window, and `J-15` emits a sentence | `src/fundamental/monitor/falsifier_check.py::evaluate_test` · `config/falsifiers/mu-2025-06-26.json` · `tools/check_falsifiers.py --tests` | — (a bypass, not a defect) | ✅ **BYPASSED 2026-09-16, free.** The structured test is written BESIDE the prose by hand, in a small declared grammar (`each` · `any` · `consecutive` · `sum` · `rises_each`, conditions ANDed within one period). On MU it reproduces the hand analysis exactly: **#1 #2 FIRED · #3 #4 HELD**. ⚠ Each translation is a READING and the file states its own gaps — #4 substitutes the tag Micron actually files (`DX-126`), #3 de-rates rather than falsifies (`J-16` item 3) and the grammar cannot say so. 12 tests, 9/9 mutations (two survivors closed: a failing `rises_each` and a failing `sum` were never exercised) | ⬜ A `J-15` v2 emitting the test itself is now an OPTIMISATION, not a blocker. ✗ Parsing the prose · ✗ paying ~$11.38 to re-author for a number that is arithmetic ✏ **REVIEWED 2026-10-01 by Victor:** #1 approved · #2 approved, gap accepted (the first new quarter is not compared with the thesis quarter; result unaffected) · #3 approved **as a falsifier, not a de-rate trigger** · #4 tag substitution accepted (`LongTermDebtAndCapitalLeaseObligations` for the unfiled `LongTermDebtNoncurrent`). Result unchanged: **#1 #2 FIRED · #3 #4 HELD**. ★ These four are now the reference J-15 v2's model-written tests are compared against |
 | **DX-129** | 2026-09-17 | ✅ `E-09` — the block that never completed | `GW-23`; `DX-96` skipped it after five truncations; `DX-115` named the lever | ★★★ **`E-09` COMPLETED at `--effort low`, first time ever**: `run-2026-09-17T071619-mu-e09`, **9 items verified, 1,639 output tokens, $0.4171, 27 s**. Against its history: five truncations at 20,000 output tokens, `tool_input 0`, ~$4.40 sunk (`DX-96`). ⚠ The lever had been identified for J-13/J-14 (`DX-114`/`DX-115`) and applied to the JUDGEMENT path only — the extraction runner has carried `--effort` since `DX-96` and nobody pointed it at `E-09` again | `tools/run_extraction_once.py --block E-09 --effort low` | ★ high value | ✅ **CLOSED 2026-09-17.** It supplies `searched:ap.change` — the last missing marker — with `ap.change` FOUND twice (*"Certain reclassifications have been made…"*, the segment reorganisation) and six items honestly `not_found` with their notes. **Scorecard coverage 0.917 → 1.000** (all four dimensions fully evidenced); the run is now in `DEFAULT_EXTRACTIONS`. ⬜ `J-04` (earnings quality) has never produced a VALID score — its only answer is the pre-`DX-100` void one — and can now be scored for ≈$0.90 | ★★ **The lesson, twice learned and now recorded twice:** a fix for a GENERAL cause (thinking runaway) must be applied to EVERY block sharing the cause, not only the one being worked on. `DX-115` said it; `E-09` sat skipped for four days anyway |
 | **DX-139** | 2026-10-01 | ⚠⚠ The falsifier checker decided a window that had not finished reporting | `RM-13`; `DX-128` grammar | ★ Found by the first live `J-15 v2` call. Falsifier #3 asked for operating income above $1bn in EACH of the next EIGHT quarters; only four had been reported, and `evaluate_test` said **FIRED** "over 4 reported period(s)". It sliced the window to what existed and decided as if complete. ⚠ It could equally have said HELD too early on an `any` clause (an existing test asserted exactly that, with 2 of 4 periods) | `src/fundamental/monitor/falsifier_check.py::evaluate_test` | ★ high: this is the primary judgement instrument (`L8` §9) | ✅ **CLOSED 2026-10-01, $0.** New status **`PENDING`**. A partial window is decided only where the answer is already final: one failing period settles `each`/`rises_each` (HELD), one satisfying period or run settles `any`/`consecutive` (FIRED), and a `sum` always waits. A HELD clause settles the whole test, since every clause must hold to fire. 10 new tests (`tests/unit/test_falsifier_partial_window.py`); one inherited test re-windowed so it still tests the same-period AND. Victor's 4 MU tests decide unchanged | ★★ **A checker that reads "all observed so far" as "all" is the k=1 defect again** (`RA-154`): absence of contrary evidence counted as evidence. ⇒ Every instrument that decides over a window must know how much of the window it has |
+| **DX-140** | 2026-10-01 | ⚠ A DECLARED known limit makes the `J-09` cap permanent | `DX-118` cap; F10 `D9` (`known_limits`); `RA-67` | ★ Found by the `J-09` re-run with consensus and the duration table supplied (§2.1p item 5). `derate._absences` flags *"a price requirement could not be set against Stage A"* when ANY `price_requirements` row is `insufficient_evidence`. The new answer still has two: the gross-capex base (F10 `D9` declares incentive proceeds UNCOMPUTABLE from D-07) and implied margin (an F10 non-goal). ⇒ For MU the first fires on every thesis whatever data is added — a cap no input can lift | `src/fundamental/thesis/derate.py::_absences`; `run-2026-10-01T225847-mu-thesis` | ◐ medium | ✅ **CLOSED 2026-10-02 — Victor chose ⓑ.** `derate._rests_on_known_limit` (the row cites `known_limits` or quotes a declared limit's opening words) excludes such a row from the J-09 absence; `stated_limitations` puts it on the thesis as `confidence.limitations_stated` (`PG-10`). A curable `insufficient_evidence` row beside it (implied margin) STILL caps. 4 tests in `tests/unit/test_thesis_derate.py`. ⚠ Was: ⓐ keep: a declared limit IS missing evidence, so the cap is honest; ⓑ distinguish: a requirement insufficient only because of a DECLARED known limit is stated on the thesis (`PG-10`) but does not count as a governing absence; ⓒ supply it: an `E-07` incentive-proceeds item per filing (prompt + re-record) | ★ A cap meant to say *"get the missing input"* becomes a constant when the input is one the system has already declared it cannot get. ⇒ An absence rule must know whether the absence is curable |
+| **DX-141** | 2026-10-02 | A quote that drops a footnote marker | `rule_checks` quote-not-in-source; `DX-138` precedent | ★ `J-11` (`run-2026-10-02T113055`) quoted *"Construction in progress \| 4,937 \| 3,444"*; the 10-Q reads *"Construction in progress(2)"* (line 606), and the same answer quotes it verbatim elsewhere. Letters-and-digits comparison makes the `2` significant | recorded payload `judge:C:J-11:llm:1` | ◐ low | ⬜ **OPEN — kept as a violation, not loosened.** A footnote marker cannot be told from a real digit by rule, so the checker stays strict. ⚠ `rule_checks.KNOWN` covers promoted recordings only; unpromoted `.state` runs are reported in `L3`, not registered | ★ Content-faithful is not verbatim; a checker that forgives one class of digit forgives them all |
+| **DX-142** | 2026-10-03 | An inherited cadence test was a time bomb | `ST-8`-like silent decay; D-07 observation ledger | ★ `tests_src/test_data_engine_observations.py::test_a_capture_past_the_cadence_writes_again` captured with the ledger's WALL-CLOCK `observed_at` and then asked for a fixed `as_of` of 2026-11-01, expecting the 30-day cadence to have passed. It stopped being true at 2026-10-03 00:00 UTC (29 days) and the suite went red with no code change | `tests_src/test_data_engine_observations.py` | ◐ low | ✅ **CLOSED 2026-10-03** — the later `as_of` is now `date.today() + 31 days`; the code (wall-clock `observed_at`, by design) is unchanged | ★ A fixed date compared with the wall clock passes until the day it doesn't. ⇒ A test that touches `utcnow` must pin the clock or be relative to it |
+| **DX-143** | 2026-10-02 | The memory reference class is thinner than its members | `F11` `AC-F11.3` (excluded and named, never zero); `F10` `D6` | ★ On the promoted fixtures, as of 2025-06-26: **MU 9 usable years** (FY2016–2024) — FY2009–2015 are excluded for *missing revenue* because Micron tagged revenue `SalesRevenueNet` before ASC 606, and `CANONICAL["revenue"]` lists only the newer tags; **pre-2016 SanDisk 0 usable years** — it files no total pretax income (only `…BeforeIncomeTaxesDomestic` + `…Foreign`) and no interest-expense tag (only `InterestPaid`, a cash concept); **2025 Sandisk 0** (first 10-K after the as-of — correct); **WDC 8** (FY2017–2025, `D3`). ⇒ 17 member-years, 8 without the subject | `src/feature_engineer/fundamental/items.py::CANONICAL`; `tests_src/fixtures/edgar/reference_class/memory_v1/` | ★ medium — it decides whether the class is a class | ✅ **CLOSED 2026-10-02 (Victor): ⓐ ADDED, ⓑ exclusion ACCEPTED.** `SalesRevenueNet` third in `CANONICAL["revenue"]`, `fundamental` → v5; members re-ingested (MU +175 rows) and fixtures re-promoted ⇒ **MU 13 usable years (FY2009–2024 less FY2010 tax, FY2013–14 OCF), class 21 member-years**; pre-2016 SanDisk stays excluded and named. ⚠ **Side effect, stated:** MU's annual history in the blind bundle now starts FY2009, so the frozen Stage A commit moved (`sha256:9a11054d…` → `cde6c902…`) — the Stage A ANSWERS (J-20's FY2016–FY2024 window among them) were made over the shorter history and are not re-asked. Was: ⓐ `SalesRevenueNet` as a third revenue fallback (same concept, pre-ASC 606; +7 MU years; `fundamental` → v5); ⓑ SanDisk: pretax = domestic + foreign (a sum the filing itself presents), interest from `InterestPaid` (a cash figure standing in for an expense — changes `D6`'s meaning), or accept its exclusion | ★ A reference class is only as wide as the tags that resolve it; the exclusions are named on every rendered part, so the thinness is visible rather than silent |
+| **DX-144** | 2026-10-03 | ⚠⚠ A falsifier test decides a CONSECUTIVE condition on the FIRST window | `RM-13`; `DX-139` (partial windows); J-15 v2 grammar | ★ The third MU thesis's falsifiers say *"in each of four consecutive reported quarters"* with 2027 deadlines; the model wrote structured tests with mode `each` over a 4-quarter window instead of the grammar's `consecutive`. `evaluate_test` then decides on the first 4 quarters after the as-of, so a weak first quarter (OCF − capex $0.07bn; GP < COGS) settles #1 and #2 as HELD although three consecutive qualifying quarters already exist and the deadline is a year away. ⚠ The test is valid in the grammar — it just does not say what its sentence says | `run-2026-10-03T125303-mu-thesis/falsifier_tests.json` · `src/fundamental/monitor/falsifier_check.py` | ★ high: it reports a falsified thesis as surviving | ✅ **CLOSED 2026-10-03 — Victor chose ⓐ.** `validate_test(…, as_of, deadline)` refuses a window shorter than the quarters reported by the deadline (`periods_reported_by`: 91-day quarter, 60-day filing lag — the lenient 10-K lag). The runner passes each falsifier's deadline, so such a J-15 answer stops the run before J-16 (`RA-16`). Measured on the recordings: the 2026-10-02 tests all VALID; 2026-10-03 #1 #2 #3 REFUSED, #4 valid. ⚠ The J-15 prompt does not yet state the rule, so the next authoring may stop here (a v3 wording is the cure; not chosen). 2 tests + one runner fixture moved (`2026-03-31` → `2025-12-31`, inside its 1-quarter window). Was: ⓐ `validate_test` refuses an `each` test whose window ends before the falsifier's deadline (forces `consecutive` or a matching window; J-15 must rewrite) · ⓑ the checker evaluates `each` over every N-quarter window up to the deadline (changes the hand-written Sept tests' meaning) · ⓒ J-15 v3 prompt: *"consecutive" means mode consecutive* | ★ Sentence ↔ test fidelity was checked by eye on 2026-10-01 and held then; it failed on the next authoring. ⇒ It needs a check, not a reading |
+| **DX-145** | 2026-10-03 | The NAND price-range misquote recurs (`DX-138`, twice more) | `rule_checks` quote-not-in-source | `J-13:return_on_equity` and `J-13:operating_margin` quote the risk factor as *"NAND … ranged from plus low-50% …"*; the 10-Q (line 1501) says *"plus low-30% to a minus low-50% range"*. Same substitution `J-03` made on 2026-09-12 | recorded payloads in `run-2026-10-03T002642` / `T125303` | ◐ medium — a range is reported wider on the upside than the filing states | ✅ **CLOSED 2026-10-03 — Victor chose ⓐ: accepted as CAUGHT.** The rule check flags it on every recurrence; no repair loop. Was: the checker catches it every time; nothing yet makes the model stop. ⓐ accept as caught · ⓑ a re-ask on a quote failure (a repair loop) · ⓒ quote the range verbatim in the bundle's observables | ★ Two adjacent ranges sharing "low-50%" are a reliable trap for paraphrase-from-memory |
+| **DX-146** | 2026-10-03 | `J-10`'s cap fires on claims no reference class can answer | `DX-118`, `DX-140` (a cap that cannot be lifted is a constant) | ★ With F11 in the bundle, J-10's price-requirement claims cite base rates; three secondary claims do not — terminal growth in perpetuity, J-07's cycle read, FY2025 capex guidance — and `derate._absences` flags J-10 on ANY claim with `base_rate_in_bundle: false`. ⇒ The cap now rests on claims the verdict did not turn on | `src/fundamental/thesis/derate.py::_absences`; `run-2026-10-03T125303-mu-thesis` | ◐ medium | ✅ **CLOSED 2026-10-03 — Victor chose ⓑ.** `derate._is_price_requirement_claim` matches a claim against the subject's OWN `F10` numbers (a required growth rate at 0/1/2 dp, or a duration period as a span of years); only those cap. The rest go to `limitations_stated` as *"J-10: no base rate for — …"*. Without a v2 trail the stricter rule holds. 6 tests. ★ Re-derated free on the third thesis: **governing absences 0 → conviction Medium-High, the first uncapped MU thesis** — ⚠ but its J-15 tests fail `DX-144` ⓐ, so under today's rules it would not have been issued. Was: ⓐ keep · ⓑ count J-10 only when a PRICE-REQUIREMENT claim (one tied to `implied_by_duration`) lacks a base rate; state the rest on the thesis like `DX-140` · ⓒ require J-10 to mark which claims the verdict rests on (schema change, re-ask) | ★ The same lesson as `DX-140`, one block later: an absence rule must know which absences matter |
+| **DX-147** | 2026-10-04 | `validate_test` silently ignores a `consecutive` count on a clause that is not mode `consecutive` | `DX-144`; `DX-128` grammar; house rule *fail loud* | ★ The J-15 re-ask (`run-2026-10-04T024042-mu-thesis`) wrote all four tests as `{"mode": "each", "consecutive": 4, …}`: the model meant *"4 consecutive"* and put the count in the field, but under mode `each` the field is never read. `DX-144` ⓐ refused the run on the WINDOW (4 < ~7 quarters by 2027-07-01), so nothing was issued, but a test whose window happened to reach its deadline would pass with the count silently dropped | `src/fundamental/monitor/falsifier_check.py::validate_test` | ◐ medium — no wrong thesis issued yet; it is the shape of `DX-144` again | ✅ **CLOSED 2026-10-04 — Victor chose ⓐ.** `validate_test` refuses a non-null `consecutive` under any mode but `consecutive` (null stays legal — the strict schema sends every field). 1 test case, mutation caught; the runner test stand-in now fills a nullable field with null (it filled `consecutive` with 1). ★ Measured on the recordings: the 2026-10-03 thesis's 4 tests carry the same stray count — this rule alone would have refused that run too. Was: ⓐ refuse `consecutive` on any mode but `consecutive` (one line + one test; fail loud) · ⓑ leave it (the window rule catches today's case) | ★ The model's intent is legible in the stray field: the grammar, not the model, lost the word *consecutive* |
 | **DX-138** | 2026-10-01 | ⚠⚠ Judgement answers put words in the filing's mouth: a quote with a CHANGED NUMBER | `AP-2` cited claims only; `X-01` is literal for extraction and nothing checked judgement quotes | ★ Found by the first run of `tools/rule_checks.py` (`L8` §9 rule 4ⓑ). Of **914 `FACT [...] "…"` quotes** in 45 recorded calls, 254 cite a non-filing source (D-02, frozen answers, declared absences) and are exempt; of the rest, after allowing layout (table rows the filing splits across lines) and `...` abridgement, **2 calls misquote the filing**. ⓐ ⚠⚠ `J-03` (Stage A, 2026-09-12) quotes NAND ASPs as *"ranged from plus low-50%…"*; the filing says **"plus low-30% to a minus low-50%"**. A wrong number inside quotation marks, attributed to the SEC filing. It corrects itself later in the same answer, which is why nobody saw it. ⓑ `J-08` drops one word ("We have **also** signed"), meaning intact | `run-2026-09-12T024848-mu-stage-a` `judge:J-03:llm:1`, `judge:J-08:llm:1` | ★ high (ⓐ) · low (ⓑ) | ◐ **DETECTED, recorded in `rule_checks.KNOWN`, not fixed.** Both recordings are history; the check now fails on any NEW misquote in any recorded call. ⬜ Live prevention: run the rule checks at the end of every `run_*` so a misquote is reported the day it is made | ★★ **This is exactly what golden cases could not see.** `J-03` and `J-08` were both graded (`J-08` signed) and stayed green, because a golden case asserts one field and the misquote sat in the reasoning. ⇒ A rule that holds for every quote in every call finds what a field-level comparison never will |
 | **DX-137** | 2026-10-01 | ⚠⚠ The pending golden files repeated their top-level `cases:` key — a loader saw 11 of 29 drafts | `CT-5.2`; the `L8` §5 inventory | ★ Found while refreshing `L8` §5, whose two counts disagreed ("2 unsigned" vs "27 pending"). `extraction.pending.yaml` had **four** top-level `cases:` keys (two empty, then 16 drafts, then 3), and `thesis.pending.yaml` had **two** (2, then 8). ⚠ YAML keeps only the LAST value of a repeated key and says nothing, so `yaml.safe_load` returned **3 and 8**: **18 of 29 drafts invisible to any loader.** Nothing loads these files today, which is the only reason nothing broke | `tests_src/fixtures/golden/{extraction,thesis}.pending.yaml` | ◐ medium | ✅ **CLOSED 2026-10-01, free.** Merged into one list per file (the first thesis section re-indented). ★ Verified **case-for-case identical** against `HEAD`, section by section: 19 + 10. `tests/structural/test_golden_fixtures_have_no_duplicate_keys.py` loads every golden fixture with a duplicate-key-refusing loader, and fails on the `HEAD` versions | ★★ **The true unsigned count is 29**, not 27: `L8` counted the 2026-09-17 drafts and missed the two older `J-20`/`J-09` drafts. ⚠ A format that silently discards data is the `DX-135` shape again: a shorter list reads as a tidier one |
 | **DX-136** | 2026-10-01 | ★ Development LLM calls move to the subscription, and **8 tests would have started the real CLI** | `CLAUDE.md` house rule (Victor, 2026-10-01); `L2-shared-infrastructure` §5.7 | ★ Building the `claude_code` transport as the **default** meant every test that monkeypatched `tools.anthropic_transport.anthropic_transport` stopped intercepting anything: the runners now asked for the subscription transport, so **8 tests (4 thesis-runner, 3 judgement-runner, 1 `build_gateway`) would have spawned the real `claude` binary on every `pytest`**, spending subscription usage silently. ⚠ They were caught only because the guard went in first | `tests/conftest.py` · `tests_src/conftest.py` (new `CIA_CLAUDE_BIN` sentinel) · the 8 tests | ◐ medium | ✅ **CLOSED 2026-10-01.** An autouse fixture points `CIA_CLAUDE_BIN` at a path that does not exist, so a stray call raises `TransportError` instead of running. The 8 tests cover the API path and now say so: `CIA_LLM_TRANSPORT=anthropic_api`. Suite back to its single deliberate `J-07` red | ★★ **Changing a default changes what every existing mock intercepts.** A patch on the old factory reads as protection and protects nothing once the default moves. ⇒ Put the guard in BEFORE flipping the default, and let the failures name the tests that relied on the old one |

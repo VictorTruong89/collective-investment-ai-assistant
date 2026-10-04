@@ -76,7 +76,9 @@ _FACT_QUOTE = re.compile(r'FACT \[([^\]]+)\][^"“]{0,40}["“]([^"”]{12,}?)["
 #: earlier blocks, declared absences, extraction items. ⚠ Exempt, never assumed false.
 _NOT_THE_FILING = re.compile(
     r"D-02|frozen|declared absent|not_found|status found|computed|J-\d\d|E-\d\d|bundle|"
-    r"commit|basis|implied|band|price|rubric|^[a-z]{2}\.[a-z_]+", re.I)
+    r"commit|basis|implied|band|price|rubric|^[a-z]{2}\.[a-z_]+|"
+    # ✏ 2026-10-03 — the computed sections `F11` and the consensus part add to the bundle
+    r"margin reach|fcff runs|cagr reach|reference.class|published|consensus|ratings", re.I)
 #: A quote may be abridged; each piece must be verbatim.
 _ABRIDGED = re.compile(r"\.\.\.|…")
 _MIN_PIECE = 10

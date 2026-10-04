@@ -50,6 +50,8 @@ FEATURE_TAGS = THESIS_TAGS | frozenset({
     "CostOfGoodsAndServicesSold",
     "AssetsCurrent", "LiabilitiesCurrent",
     "PaymentsToAcquirePropertyPlantAndEquipment",
+    "PaymentsToAcquireProductiveAssets",      # ✏ F11 D4 — the capex fallback (old SanDisk)
+    "SalesRevenueNet",                        # ✏ DX-143 ⓐ — pre-ASC 606 revenue (MU ≤ FY2017)
     "InterestExpense",
     "LongTermDebtNoncurrent", "LongTermDebtCurrent",
     "WeightedAverageNumberOfDilutedSharesOutstanding",

@@ -1,5 +1,5 @@
 """D-07 — Class-B capture into the ObservationLedger. DE-6.8/6.9/6.10."""
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from src.data_engine.ingest.observations import (
     THESIS_FIELD_SETS, capture, is_due,
@@ -42,8 +42,10 @@ def test_a_capture_past_the_cadence_writes_again(tmp_path):
     """★ `profile` is on a 30-day cadence — near-static, not frozen."""
     ledger = ObservationLedger(tmp_path)
     capture(_Client(), ledger, ticker="NVDA", as_of=date(2026, 8, 26))
+    # ✏ 2026-10-03 (L3 `DX-142`): `observed_at` is the WALL CLOCK by design, so a fixed
+    #   later date became a time bomb — it stopped being 30 days past "now" on 2026-10-03.
     later = capture(_Client([{"symbol": "NVDA", "beta": 9.9}]), ledger,
-                    ticker="NVDA", as_of=date(2026, 11, 1))
+                    ticker="NVDA", as_of=date.today() + timedelta(days=31))
     assert later["profile"] is True
 
 

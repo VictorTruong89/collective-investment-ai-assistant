@@ -132,3 +132,13 @@ def test_a_supplied_input_lifts_the_refusal_rule(tmp_path):
                 payload=("EVIDENCE …\nDECLARED ABSENT INPUTS — stage_b_to_d_inputs\n"
                          "- reference_class_base_rates: no dataset\n\nINSTRUCTIONS"))
     assert rc.ABSENT_INPUT_NOT_REFUSED not in _rules(root)
+
+
+@pytest.mark.parametrize("tag", ["FCFF MARGIN REACH", "POSITIVE-FCFF RUNS", "REVENUE CAGR REACH",
+                                 "REFERENCE-CLASS", "PUBLISHED", "CONSENSUS", "PRICE TARGETS"])
+def test_quote_rule_exempts_the_computed_bundle_sections(tmp_path, tag):
+    """✏ 2026-10-03 — `F11` base rates and the consensus section are COMPUTED parts, not the
+    filing; `J-11` quoting "≥ 40.1 %: all 0/21" was flagged until these were listed."""
+    root = _run(tmp_path, "judge:J-11:llm:1", {"why": (
+        f'FACT [{tag}] — "≥ 40.1 %: all 0/21 (0.0 %) in the class"')})
+    assert rc.QUOTE_NOT_IN_SOURCE not in _rules(root)

@@ -1274,6 +1274,48 @@ no more and no less. If the condition cannot be expressed in that grammar,
 rewrite the condition until it can: a condition only a reader can decide is
 not checkable, and it fails the run.
 """
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-15 `v3`. ★ v2 plus TWO
+#: sentences: the test window must reach the deadline (`DX-144` ⓐ), and a run of quarters
+#: is mode `consecutive` (`DX-147` ⓐ). Victor, 2026-10-04.
+J15_V3_TEXT = """\
+Before any verdict exists, state what would prove the emerging thesis wrong.
+
+Write two to four conditions. Each must be ALL of:
+
+  observable   from data this system already receives — a filing line item, a
+               computed metric, a disclosed figure. Not "sentiment worsens".
+  dated        with a deadline or an evaluation window. Not "eventually".
+  checkable    without a further judgement call. ★ The test: could a script
+               decide it? "Competition intensifies" fails. "Gross margin below
+               55% in two consecutive quarters" passes.
+  material     if it fired, the thesis would be wrong — not merely dented. State
+               in one line what it would mean.
+
+For each, name the specific metric or field the check reads, choosing from the
+supplied list of available observables. A falsifier naming a field this system
+does not receive is not checkable, however precise it sounds.
+
+★ At least one condition must be about the BUSINESS rather than the price. A
+falsifier set that consists only of price levels is a stop-loss wearing a
+thesis's clothing, and it will fire on volatility rather than on being wrong.
+
+You may not write "the thesis is invalidated if the investment case no longer
+holds" or any variant. That is a tautology and it fails the run.
+
+For each condition, also write its TEST: the same condition in the grammar the
+answer schema declares. A test is a window of reported periods and one or more
+clauses, each a comparison of the listed observables against a threshold in
+the field's own units. The test must decide exactly the condition you wrote,
+no more and no less. If the condition cannot be expressed in that grammar,
+rewrite the condition until it can: a condition only a reader can decide is
+not checkable, and it fails the run.
+The window must reach your deadline: count the quarters that will have
+been reported by then (about one per 91 days after the as-of date, less
+60 days for the filing), and make the window at least that long. A run
+of N quarters in a row is a clause with mode "consecutive" and
+"consecutive": N — not mode "each" over the first N quarters, which
+stops looking before the deadline.
+"""
 #: Verbatim from `L1-fundamental-analysis-master-prompt.md` §J-16 `v1`.
 J16_V1_TEXT = """\
 You have: the Stage-A scorecard and its evidence, the reconciliation (J-09), the
@@ -1384,6 +1426,10 @@ def j15_v2() -> PromptBlock:
     """`J-15 v2` — full view; each falsifier carries its structured test."""
     return _full_view("J-15", J15_V2_TEXT, version="v2")
 
+def j15_v3() -> PromptBlock:
+    """`J-15 v3` — v2 plus the window rule stated to the model (`DX-144`, `DX-147`)."""
+    return _full_view("J-15", J15_V3_TEXT, version="v3")
+
 def j16_v1() -> PromptBlock:
     """`J-16` — full view."""
     return _full_view("J-16", J16_V1_TEXT)
@@ -1431,7 +1477,7 @@ BLOCKS = {
     "J-12": (j12_v1, (), "v1"),
     "J-13": (j13_v1, (), "v1"),
     "J-14": (j14_v1, (), "v1"),
-    "J-15": (j15_v2, (), "v2"),     # ✏ 2026-10-01 — structured falsifier tests
+    "J-15": (j15_v3, (), "v3"),     # ✏ 2026-10-04 — v2 + the window rule (DX-144, DX-147)
     "J-16": (j16_v1, (), "v1"),
     "J-17": (j17_v1, (), "v1"),
 }

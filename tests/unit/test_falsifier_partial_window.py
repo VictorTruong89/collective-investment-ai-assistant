@@ -57,3 +57,28 @@ def test_dx_139_one_held_clause_settles_the_test_even_while_another_waits():
     test = {"window_periods": 8, "clauses": [
         _test("sum", 0, 8)["clauses"][0], _test("each", 0, 8)["clauses"][0]]}
     assert evaluate_test(test, _periods(1, -1, 3, 4))[0] == HELD
+
+
+# ── DX-144 ⓐ (Victor, 2026-10-03): the window must reach the deadline ─────────
+
+from datetime import date as _date  # noqa: E402
+
+_EACH4 = {"window_periods": 4, "clauses": [{"mode": "each", "per_period": [
+    {"expr": [{"field": "GrossProfit", "sign": 1}], "op": ">", "value": 0}]}]}
+
+
+def test_dx_144_a_window_that_ends_before_the_deadline_is_refused():
+    """The third MU thesis: 'four CONSECUTIVE quarters' by 2027-06-30, tested as `each` over the
+    FIRST 4 — one weak quarter settled it HELD a year early. ~7 quarters report by then."""
+    from src.fundamental.monitor.falsifier_check import validate_test
+    problems = validate_test(_EACH4, as_of=_date(2025, 6, 26), deadline=_date(2027, 6, 30))
+    assert any("deadline" in p for p in problems), problems
+
+
+def test_dx_144_a_window_reaching_the_deadline_is_valid_and_no_deadline_means_no_rule():
+    from src.fundamental.monitor.falsifier_check import validate_test
+    assert validate_test(_EACH4, as_of=_date(2025, 6, 26), deadline=_date(2026, 7, 31)) == []
+    consec8 = {"window_periods": 8, "clauses": [{"mode": "consecutive", "consecutive": 4,
+               "per_period": _EACH4["clauses"][0]["per_period"]}]}
+    assert validate_test(consec8, as_of=_date(2025, 6, 26), deadline=_date(2027, 6, 30)) == []
+    assert validate_test(_EACH4) == []          # hand-written tests carry no deadline

@@ -15,9 +15,9 @@ import pandas as pd
 from src.feature_engineer.errors import AsOfRequiredError, ValuationUnavailable
 from src.feature_engineer.valuation.assumptions import Assumptions
 from src.feature_engineer.valuation.band import band
-from src.feature_engineer.valuation.basis import balance, reported_basis
+from src.feature_engineer.valuation.basis import balance, reported_basis, trailing_total
 from src.feature_engineer.valuation.dcf import discount, per_share
-from src.feature_engineer.valuation.implied import solve_implied
+from src.feature_engineer.valuation.implied import implied_by_duration, solve_implied
 from src.feature_engineer.valuation.types import (
     AnalystValuation,
     CashFlowBasis,
@@ -59,13 +59,22 @@ def _assemble(cls, ticker: str, as_of: date, basis: CashFlowBasis, *, engine,
                      terminal_growth=assumptions.terminal_growth,
                      explicit_years=assumptions.explicit_years)
     equity, vps = per_share(trail.enterprise_value, net_debt, shares)
+    solve_inputs = dict(price=price, base_fcff=basis.base_fcff, net_debt=net_debt,
+                        diluted_shares=shares, assumptions=assumptions)
+    # ✏ `D11` — only a set that declares a duration table needs revenue; ⚠ absent revenue
+    #   raises `ValuationUnavailable` naming it, never a share over a substitute (P5).
+    revenue = (trailing_total(rows, "revenue", as_of=as_of, ticker=ticker)
+               if assumptions.declares_duration_table else None)
     return cls(
         ticker=ticker.upper(), as_of=as_of, assumptions_obj=assumptions, basis=basis,
         trail=trail, net_debt=net_debt, net_debt_components=components, equity_value=equity,
         diluted_shares=shares, value_per_share=vps, price=price, price_date=price_date,
         band=band(basis.base_fcff, net_debt, shares, assumptions=assumptions),
-        implied=solve_implied(price=price, base_fcff=basis.base_fcff, net_debt=net_debt,
-                              diluted_shares=shares, assumptions=assumptions),
+        implied=solve_implied(**solve_inputs),
+        # ✏ `D10` — raw price × diluted shares, so no prompt multiplies it (`RA-45`).
+        market_capitalisation=Money(price.amount_minor * shares, price.currency),
+        implied_by_duration=implied_by_duration(**solve_inputs, trailing_revenue=revenue),
+        trailing_revenue=revenue,
     )
 
 

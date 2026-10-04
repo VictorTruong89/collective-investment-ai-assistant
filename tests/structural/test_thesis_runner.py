@@ -251,11 +251,15 @@ def _fill(schema: dict):
         import re
         n = schema.get("minItems") or int((re.findall(r"\d+", schema.get("description", "")) or [1])[0])
         return [_fill(schema["items"]) for _ in range(max(n, 1))]
+    if "null" in kinds:
+        return None              # ✏ `DX-147`: a nullable `consecutive` filled as 1 is refused
     return {"string": "x", "boolean": True, "integer": 1,
             "number": 1.0}[next(k for k in kinds if k != "null")]
 
 
-def _wire_fake_run(monkeypatch, tmp_path, *, j15_deadline="2026-03-31"):
+# ✏ 2026-10-03 (`DX-144` ⓐ): the fake J-15's test has a 1-quarter window, so its deadline must
+#   fall before a SECOND quarter reports — 2026-03-31 would leave ~2 quarters unexamined.
+def _wire_fake_run(monkeypatch, tmp_path, *, j15_deadline="2025-12-31"):
     import json as _json
 
     import src.feature_engineer.valuation.service as service
@@ -264,7 +268,9 @@ def _wire_fake_run(monkeypatch, tmp_path, *, j15_deadline="2026-03-31"):
     from src.fundamental.bundle.assemble import filing
     from src.fundamental.bundle.models import EvidenceBundle
 
-    base = EvidenceBundle(ticker="MU", as_of=AS_OF, parts=(filing("acc", "the filing"),))
+    # ✏ 2026-10-04: a marker no prompt contains — J-15 v3 says "…for the filing", which made
+    #   "evidence sent twice" fire on the PROMPT, not the evidence.
+    base = EvidenceBundle(ticker="MU", as_of=AS_OF, parts=(filing("acc", "FIXTURE-FILING-BODY"),))
     monkeypatch.setattr(r, "REPO", tmp_path)
     monkeypatch.setattr(r, "build_base", lambda *_a, **_k: (base, None, None, None, ("Revenues",)))
     monkeypatch.setattr(r, "load_stage_a", lambda *_a, **_k: [
@@ -440,6 +446,25 @@ def test_resume_REFUSES_a_tampered_or_foreign_commit(tmp_path, monkeypatch, tamp
         r.carry_forward("run-prior-mu-thesis", log=log, a_commit=a, base=base, parts_by_key=parts)
 
 
+def test_resend_from_carries_only_the_commits_BEFORE_the_block(tmp_path, monkeypatch):
+    """✏ 2026-10-03 — re-asking J-15 under a new falsifier rule (`DX-144`) must not carry the
+    old J-15: `resend_from` stops the carry at that block, in plan order."""
+    import json as _json
+
+    r, base, fresh, run, lines = _carry_setup(tmp_path, monkeypatch)
+    log, a, parts = fresh()
+    # ★ A J-10 that would NOT verify: carried, it would raise — so passing proves it was skipped.
+    j10 = {"stage": "B:J-10", "bundle_hash": "sha256:unchecked", "commit_hash": "sha256:x",
+           "payload": {"answer": "stale"}}
+    (run / "commits.jsonl").write_text(
+        "\n".join(_json.dumps(x) for x in [*lines, j10]) + "\n")
+    outputs, _ids, carried, _fc = r.carry_forward("run-prior-mu-thesis", log=log, a_commit=a,
+                                                  base=base, parts_by_key=parts,
+                                                  resend_from="J-10")
+    assert [c["stage"] for c in carried] == ["B:J-09"]
+    assert "B:J-10" not in outputs and "B:J-10" not in parts
+
+
 def test_dx_113_a_failed_live_run_closes_its_trace_FAILED(monkeypatch, tmp_path):
     r, _issued = _wire_fake_run(monkeypatch, tmp_path, j15_deadline="2025-01-01")
     assert r.main(["--live", "--budget-usd", "100"]) == 1
@@ -495,8 +520,8 @@ def test_dx_127_every_call_sends_the_SAME_cache_prefix_and_only_the_rest_varies(
     prefixes = {p for p, _ in seen}
     assert len(seen) == 13 and len(prefixes) == 1, "the cached prefix must not vary"
     prefix = prefixes.pop()
-    assert "the filing" in prefix                      # the base evidence
-    assert all("the filing" not in rest for _p, rest in seen), "evidence sent twice"
+    assert "FIXTURE-FILING-BODY" in prefix                      # the base evidence
+    assert all("FIXTURE-FILING-BODY" not in rest for _p, rest in seen), "evidence sent twice"
     # ★ The instructions and the commits this call may read are the variable half.
     assert "TASK TYPE: JUDGEMENT" in seen[0][1]
 
@@ -518,7 +543,7 @@ def test_dx_127_no_cache_reproduces_the_single_block_payload(monkeypatch, tmp_pa
     assert r.main(["--live", "--budget-usd", "100", "--no-cache"]) == 0
     assert all("cache_prefix" not in req for req in seen)
     first = seen[0]["payload"]
-    assert first.index("TASK TYPE: JUDGEMENT") < first.index("the filing"), "instructions first"
+    assert first.index("TASK TYPE: JUDGEMENT") < first.index("FIXTURE-FILING-BODY"), "instructions first"
 
 
 def test_j15_v2_live_writes_its_structured_tests_beside_the_thesis(monkeypatch, tmp_path):

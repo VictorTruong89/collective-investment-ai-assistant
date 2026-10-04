@@ -302,7 +302,7 @@ def test_ac_2_46_changing_membership_bumped_the_version():
     """
     # ✏ v3 (2026-09-14, `DX-103`): `CANONICAL` gained fallback tags, so the SAME
     #   membership takes different inputs — the version moved with the values.
-    assert FUNDAMENTAL_V1.version == 3
+    assert FUNDAMENTAL_V1.version >= 3      # ✏ v4 since F11 D4 (capex fallback), 2026-10-02
     assert len(FUNDAMENTAL_V1.features) == 47
 
 
@@ -355,3 +355,30 @@ def test_ac_2_46_parity_fails_on_a_membership_change_under_one_version():
                           raise_on_halt=False)
     assert any("CONTENT differs" in r for r in report.reasons), report.reasons
     del dataclasses
+
+
+def test_f11_q2_capex_falls_back_to_productive_assets_and_the_contract_moved():
+    """`F11` `D4` (Victor, 2026-10-02): pre-2016 SanDisk files capex only as
+    `PaymentsToAcquireProductiveAssets`. Second in preference order, so a filer reporting
+    the PP&E tag is unchanged; inputs changed for others ⇒ `fundamental` v4 (`FE-2`)."""
+    from src.data_engine.ingest.edgar_facts import FEATURE_TAGS
+    from src.feature_engineer.contracts.sets.fundamental_v1 import FUNDAMENTAL_V1
+    from src.feature_engineer.fundamental.items import CANONICAL
+
+    assert CANONICAL["capex"] == ("PaymentsToAcquirePropertyPlantAndEquipment",
+                                  "PaymentsToAcquireProductiveAssets")
+    assert "PaymentsToAcquireProductiveAssets" in FEATURE_TAGS
+    assert FUNDAMENTAL_V1.version >= 4      # ✏ v5 since DX-143 ⓐ (revenue fallback)
+
+
+def test_dx_143_revenue_falls_back_to_the_pre_asc_606_tag_and_the_contract_moved():
+    """`DX-143` ⓐ (Victor, 2026-10-02): Micron tagged revenue `SalesRevenueNet` before ASC 606
+    (FY2009–2017). Third in preference, so no current filer changes ⇒ `fundamental` v5."""
+    from src.data_engine.ingest.edgar_facts import FEATURE_TAGS
+    from src.feature_engineer.contracts.sets.fundamental_v1 import FUNDAMENTAL_V1
+    from src.feature_engineer.fundamental.items import CANONICAL
+
+    assert CANONICAL["revenue"] == ("RevenueFromContractWithCustomerExcludingAssessedTax",
+                                    "Revenues", "SalesRevenueNet")
+    assert "SalesRevenueNet" in FEATURE_TAGS
+    assert FUNDAMENTAL_V1.version == 5

@@ -206,6 +206,14 @@ map:
       ⚠ Only the valuation/ subtree: the rest of src/feature_engineer/ is inherited
       D-02 code governed by its L1 design, not by F10.
 
+  - globs:
+      - "src/feature_engineer/base_rates/**"
+    spec: sdd/specs/F11_reference_class_base_rates/spec.md
+    why: >
+      F11 — reference-class base rates for J-10 (🟢 approved 2026-10-02). Members are
+      Victor's config, every threshold must come from the subject's F10 trail (AC-F11.5),
+      and every rate carries its n (AC-F11.6). Built 2026-10-02; the glob matches code.
+
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
   # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 

@@ -1,0 +1,13 @@
+# L3 §2.1q decision 3 — weekdays after the New York close. Persistent=true runs a missed day
+# at the next boot/wake; the snapshot is stamped with when it was OBSERVED, so a catch-up is honest.
+# Install:  cp deploy/snapshot-analyst-estimates.timer.example ~/.config/systemd/user/snapshot-analyst-estimates.timer
+#           systemctl --user daemon-reload && systemctl --user enable --now snapshot-analyst-estimates.timer
+[Unit]
+Description=Daily forward-consensus snapshot, weekdays 18:30 New York
+
+[Timer]
+OnCalendar=Mon..Fri 18:30 America/New_York
+Persistent=true
+
+[Install]
+WantedBy=timers.target

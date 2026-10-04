@@ -134,6 +134,7 @@ TAGS = {
     "marketable_securities_noncurrent": "AvailableForSaleSecuritiesDebtSecuritiesNoncurrent",
     "finance_lease_current": "FinanceLeaseLiabilityCurrent",
     "finance_lease_noncurrent": "FinanceLeaseLiabilityNoncurrent",
+    "revenue": "RevenueFromContractWithCustomerExcludingAssessedTax",       # D11
 }
 QUARTERS = [(date(2024, 8, 30), date(2024, 11, 28), date(2024, 12, 18)),
             (date(2024, 11, 29), date(2025, 2, 27), date(2025, 3, 21)),
@@ -155,7 +156,7 @@ def _row(start, end, filed, *, source="edgar", **items_major):
 
 def rows(over: dict | None = None):
     flow = dict(operating_cash_flow=3000, interest_expense=100, income_tax=250,
-                pretax_income=1000, capex=2000, sbc=200)
+                pretax_income=1000, capex=2000, sbc=200, revenue=10_000)
     stock = dict(cash=5000, long_term_debt=8000, current_debt=1000, diluted_shares=1_000)
     out = []
     for i, (s, e, f) in enumerate(QUARTERS):
@@ -644,7 +645,7 @@ def test_dx_103_CANONICAL_carries_the_fallbacks_AFTER_the_old_tags_and_the_contr
     assert CANONICAL["long_term_debt"] == ("LongTermDebtNoncurrent",
                                            "LongTermDebtAndCapitalLeaseObligations")
     assert CANONICAL["current_debt"] == ("LongTermDebtCurrent", "DebtCurrent")
-    assert FUNDAMENTAL_V1.version == 3
+    assert FUNDAMENTAL_V1.version >= 3      # ✏ v4 since F11 D4 (capex fallback), 2026-10-02
 
 
 def _stock(**extra):
@@ -803,3 +804,175 @@ def test_ac_f10_21_the_result_declares_what_it_cannot_compute(assumptions):
     assert "no EDGAR fact carries them" in incentives and "DX-116" in incentives
     assert not any("lease" in limit for limit in obj["known_limits"]), (
         "finance leases are counted in net debt (D8); listing them as a limit would be false")
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-F10.22 — the price requirement by duration, and market capitalisation (D10)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@pytest.fixture
+def assumptions_v2():
+    from src.feature_engineer.valuation.assumptions import load_published
+    return load_published("dcf_two_stage", 2)
+
+
+def test_ac_f10_22_v2_is_v1_plus_the_duration_table_only(assumptions, assumptions_v2):
+    """AC-F10.22 / D10 — the adopted periods, and nothing else moved."""
+    assert assumptions_v2.duration_years == (5, 7, 10, 15)
+    assert assumptions.duration_years == ()
+    same = ("discount_rate", "explicit_years", "stage1_growth", "terminal_growth",
+            "band_discount", "band_terminal", "implied_low", "implied_high", "implied_iterations")
+    assert all(getattr(assumptions, f) == getattr(assumptions_v2, f) for f in same)
+
+
+def test_ac_f10_22_one_row_per_period_and_the_own_period_equals_implied(assumptions_v2):
+    """AC-F10.22 — each row is D7's solve with only explicit_years replaced."""
+    from src.feature_engineer.valuation.dcf import value_per_share_at
+
+    res = _value(FakeEngine(rows()), assumptions_v2)
+    obj = json.loads(res.to_json())
+    table = obj["implied_by_duration"]
+    assert [r["explicit_years"] for r in table] == [5, 7, 10, 15]
+    own = next(r for r in table if r["explicit_years"] == assumptions_v2.explicit_years)
+    assert {k: own[k] for k in obj["implied"]} == obj["implied"]
+    m = Money.from_json_obj
+    a = assumptions_v2
+    solved = [r for r in table if r["status"] == "SOLVED"]
+    assert solved, "the fixture price must be reachable at some period"
+    for r in table:
+        if r["status"] == "NO_ROOT_IN_BRACKET":
+            assert r["value"] is None and r["residual"] is None
+            continue
+        vps = value_per_share_at(m(obj["basis"]["base_fcff"]), m(obj["net_debt"]["value"]),
+                                 obj["diluted_shares"], discount_rate=a.discount_rate,
+                                 stage1_growth=Decimal(r["value"]),
+                                 terminal_growth=a.terminal_growth,
+                                 explicit_years=r["explicit_years"])
+        assert abs((vps - m(obj["price"]["value"])).amount_minor) <= 1
+    # ★ a shorter period needs growth FURTHER from terminal growth, in whichever direction
+    #   the price points (here below the terminal-growth value, so the rates are negative)
+    gaps = [abs(Decimal(r["value"]) - a.terminal_growth) for r in solved]
+    assert gaps == sorted(gaps, reverse=True)
+
+
+def test_ac_f10_22_a_price_above_value_needs_more_growth_the_shorter_the_period(assumptions_v2):
+    """AC-F10.22 — the MU shape: price far above fv_model ⇒ positive, falling with N."""
+    res = _value(FakeEngine(rows(), price_minor=40_000), assumptions_v2)
+    table = json.loads(res.to_json())["implied_by_duration"]
+    growths = [Decimal(r["value"]) for r in table if r["status"] == "SOLVED"]
+    assert len(growths) >= 2 and all(g > assumptions_v2.terminal_growth for g in growths)
+    assert growths == sorted(growths, reverse=True)
+
+
+def test_ac_f10_22_market_cap_is_raw_price_times_diluted_shares(assumptions_v2, assumptions):
+    for a in (assumptions, assumptions_v2):
+        obj = json.loads(_value(FakeEngine(rows()), a).to_json())
+        price = Money.from_json_obj(obj["price"]["value"])
+        assert obj["market_capitalisation"] == Money(
+            price.amount_minor * obj["diluted_shares"], price.currency).to_json_obj()
+
+
+def test_ac_f10_22_a_set_with_no_table_carries_no_duration_key(assumptions):
+    assert "implied_by_duration" not in json.loads(_value(FakeEngine(rows()), assumptions).to_json())
+
+
+def test_ac_f10_22_a_v2_trail_recomputes_every_row_from_its_own_fields(assumptions_v2):
+    """AC-F10.22 + AC-F10.4 — the table is part of the complete trail."""
+    from dataclasses import replace as dc_replace
+
+    from src.feature_engineer.valuation.implied import solve_implied
+
+    obj = json.loads(_value(FakeEngine(rows()), assumptions_v2).to_json())
+    m = Money.from_json_obj
+    for r in obj["implied_by_duration"]:
+        again = solve_implied(price=m(obj["price"]["value"]),
+                              base_fcff=m(obj["basis"]["base_fcff"]),
+                              net_debt=m(obj["net_debt"]["value"]),
+                              diluted_shares=obj["diluted_shares"],
+                              assumptions=dc_replace(assumptions_v2,
+                                                     explicit_years=r["explicit_years"]))
+        solve = {"explicit_years": r["explicit_years"], **again.to_json_obj()}
+        assert {k: r[k] for k in solve} == solve        # the D11 fields: AC-F10.23's test
+
+
+@pytest.mark.parametrize("bad", [[5, 5, 10], [0, 10], []])
+def test_ac_f10_22_a_malformed_duration_table_refuses_at_load(tmp_path, bad):
+    import yaml
+
+    from src.feature_engineer.errors import NoFiniteValueError
+    from src.feature_engineer.valuation.assumptions import CONFIG_DIR, content_hash, load
+
+    doc = yaml.safe_load((CONFIG_DIR / "dcf_two_stage_v2.yaml").read_text())
+    doc["duration_table"]["explicit_years"] = bad
+    doc["content_hash"] = content_hash(doc)
+    path = tmp_path / "x.yaml"
+    path.write_text(yaml.safe_dump(doc))
+    with pytest.raises(NoFiniteValueError):
+        load(path)
+
+
+def test_ac_f10_22_the_duration_table_is_hashed(tmp_path):
+    import yaml
+
+    from src.feature_engineer.errors import AssumptionsMutatedError
+    from src.feature_engineer.valuation.assumptions import CONFIG_DIR, load
+
+    doc = yaml.safe_load((CONFIG_DIR / "dcf_two_stage_v2.yaml").read_text())
+    doc["duration_table"]["explicit_years"] = [5, 10]
+    path = tmp_path / "dcf_two_stage_v2.yaml"
+    path.write_text(yaml.safe_dump(doc))
+    with pytest.raises(AssumptionsMutatedError):
+        load(path)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-F10.23 — the required cash flow, in revenue terms (D11)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def test_ac_f10_23_each_solved_row_states_its_final_year_fcff_and_its_share_of_revenue(
+        assumptions_v2):
+    """AC-F10.23 — the year-N flow of the SAME `discount` trail, ÷ trailing revenue."""
+    from src.feature_engineer.valuation.dcf import discount
+
+    obj = json.loads(_value(FakeEngine(rows(), price_minor=40_000), assumptions_v2).to_json())
+    m = Money.from_json_obj
+    revenue = m(obj["trailing_revenue"]["value"])
+    assert revenue == usd(40_000)                              # four quarters × 10,000
+    solved = [r for r in obj["implied_by_duration"] if r["status"] == "SOLVED"]
+    assert solved
+    for r in solved:
+        trail = discount(m(obj["basis"]["base_fcff"]), discount_rate=assumptions_v2.discount_rate,
+                         stage1_growth=Decimal(r["value"]),
+                         terminal_growth=assumptions_v2.terminal_growth,
+                         explicit_years=r["explicit_years"])
+        final = trail.flows[-1].fcff
+        assert m(r["required_final_year_fcff"]) == final
+        with localcontext() as ctx:
+            ctx.prec = 40
+            expected = (Decimal(final.amount_minor) / Decimal(revenue.amount_minor)
+                        ).quantize(Decimal("1e-6"))
+        assert Decimal(r["share_of_trailing_revenue"]) == expected
+
+
+def test_ac_f10_23_a_no_root_row_has_both_fields_null(assumptions_v2):
+    obj = json.loads(_value(FakeEngine(rows(), price_minor=4_000_000), assumptions_v2).to_json())
+    no_root = [r for r in obj["implied_by_duration"] if r["status"] == "NO_ROOT_IN_BRACKET"]
+    assert no_root
+    assert all(r["required_final_year_fcff"] is None and r["share_of_trailing_revenue"] is None
+               for r in no_root)
+
+
+def test_ac_f10_23_absent_revenue_refuses_naming_it(assumptions_v2):
+    from src.feature_engineer.errors import ValuationUnavailable
+
+    gap = rows()
+    gap[f"{TAGS['revenue']}_minor"] = gap[f"{TAGS['revenue']}_minor"].astype("Int64")
+    gap.loc[1, f"{TAGS['revenue']}_minor"] = pd.NA              # one trailing quarter missing
+    with pytest.raises(ValuationUnavailable) as exc:
+        _value(FakeEngine(gap), assumptions_v2)
+    assert "revenue" in exc.value.missing
+
+
+def test_ac_f10_23_a_v1_result_carries_neither_field(assumptions):
+    obj = json.loads(_value(FakeEngine(rows()), assumptions).to_json())
+    assert "trailing_revenue" not in obj and "implied_by_duration" not in obj

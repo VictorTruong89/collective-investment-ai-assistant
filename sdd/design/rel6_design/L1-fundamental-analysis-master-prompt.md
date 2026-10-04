@@ -13,6 +13,7 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.5.0 | 2026-10-04 | Victor | ★ **`J-15 v3` — the window rule is stated to the model.** Two sentences appended to v2's last paragraph, nothing else changed: the test window must reach the deadline, and a run of quarters is mode `consecutive`. ⚠ v2 could not satisfy `DX-144` ⓐ except by luck — the re-ask `run-2026-10-04T024042-mu-thesis` was refused on it, with every test written `each` + a stray `consecutive` count (`DX-147`). |
 | 0.4.0 | 2026-10-01 | Victor | ★ **`J-15 v2` — each falsifier carries its own structured TEST.** One paragraph added to v1, nothing changed: write the test in the grammar `falsifier_check` decides, over the supplied observables, or rewrite the condition until it can be. ★ Makes `RM-13` automatic per thesis instead of hand-translated (`DX-125`, `DX-128`), which `L8` §9 made the primary judgement instrument. |
 | 0.3.0 | 2026-08-23 | Victor | ✅ **QP-8 closed — the relay prompt is GENERATED from these blocks** (§10A). ★★ **The finding that made it cheap: only THREE shared blocks (S-2, S-6, S-7) carry the entire API-vs-chat difference.** The task blocks are transport-agnostic as written, so generation is composition plus a **closed substitution map**, not a rewrite. **RG-1…RG-6**, with **RG-4** the load-bearing one — CI regenerates and diffs, ⚠ *without which the generated file becomes a source again within a month and nobody notices until the two disagree.* ★ **§10A.4 records which blocks the current hand-written file is made of, and which three are deliberately omitted** (J-10 always reports an absence; J-14 cannot read the pass that produced it; J-19 needs a peer set a chat cannot align). ⚠ **§10A.5 states the cost honestly: composed prose reads worse than hand-written**, and the artifact is pasted by a human who has to want to use it. |
 | 0.2.0 | 2026-08-22 | Victor | ⚠ **Caught up with two days of decisions this file predated.** It was written 2026-08-20; §10A (calendar), §10B (events), §10B.5 (attribution), §10C (sector file) and §4B (the relay) all landed after it, and a grep found **zero** coverage of *calendar, 8-K, sector, relay, residual, attribution* or *vintage*. **Six new blocks: E-15 · J-18 · J-19 · V-05 · V-06 · V-07.** ★ **V-05 is the one that needed prompt text most** — RA-79 forbids rationalising an unexplained move, and *"an LLM asked why a stock fell will always produce a reason"* is a property of the model that only the prompt can push back on. ★ **S-2 gains the vintage rule (RA-93) and period-aligned peers (RA-96a)**; §9 gains variant-aware block IDs (XP-44). ★ **§0.2 now says it depicts WF-1 only** — there are nine workflows and the diagram showed one. |
@@ -1651,6 +1652,57 @@ not checkable, and it fails the run.
 > ★ **RM-13 is what makes this call honest over time** — the ratio of theses that died by their own
 > stated condition to those quietly abandoned. **A high abandonment rate means the falsifiers were
 > decorative**, and the fix is in this prompt, not in the reader.
+
+### J-15 · Falsifier authoring — `v3` — ★ runs BEFORE the verdict
+
+> ✏ **Added 2026-10-04** (Victor; `L3` §2.1q, `DX-144`, `DX-147`). **Two sentences appended to v2's last
+> paragraph; nothing in v2 is changed.** `DX-144` ⓐ made `validate_test` refuse a window that stops before
+> the falsifier's deadline, but v2 never told the model so: the first re-ask under the rule wrote four
+> `each` tests over 4 quarters with 2027 deadlines (~7 quarters due) and was refused. v3 states the rule,
+> with the same arithmetic `periods_reported_by` uses (91-day quarter, 60-day filing lag).
+
+```text
+Before any verdict exists, state what would prove the emerging thesis wrong.
+
+Write two to four conditions. Each must be ALL of:
+
+  observable   from data this system already receives — a filing line item, a
+               computed metric, a disclosed figure. Not "sentiment worsens".
+  dated        with a deadline or an evaluation window. Not "eventually".
+  checkable    without a further judgement call. ★ The test: could a script
+               decide it? "Competition intensifies" fails. "Gross margin below
+               55% in two consecutive quarters" passes.
+  material     if it fired, the thesis would be wrong — not merely dented. State
+               in one line what it would mean.
+
+For each, name the specific metric or field the check reads, choosing from the
+supplied list of available observables. A falsifier naming a field this system
+does not receive is not checkable, however precise it sounds.
+
+★ At least one condition must be about the BUSINESS rather than the price. A
+falsifier set that consists only of price levels is a stop-loss wearing a
+thesis's clothing, and it will fire on volatility rather than on being wrong.
+
+You may not write "the thesis is invalidated if the investment case no longer
+holds" or any variant. That is a tautology and it fails the run.
+
+For each condition, also write its TEST: the same condition in the grammar the
+answer schema declares. A test is a window of reported periods and one or more
+clauses, each a comparison of the listed observables against a threshold in
+the field's own units. The test must decide exactly the condition you wrote,
+no more and no less. If the condition cannot be expressed in that grammar,
+rewrite the condition until it can: a condition only a reader can decide is
+not checkable, and it fails the run.
+The window must reach your deadline: count the quarters that will have
+been reported by then (about one per 91 days after the as-of date, less
+60 days for the filing), and make the window at least that long. A run
+of N quarters in a row is a clause with mode "consecutive" and
+"consecutive": N — not mode "each" over the first N quarters, which
+stops looking before the deadline.
+```
+
+**Guards:** as v2, plus the window rule (`DX-144` ⓐ) and the stray-count rule (`DX-147` ⓐ), both in
+`falsifier_check.validate_test`. **Error:** `RES.THESIS.NO_FALSIFIER`.
 
 ### J-16 · Verdict selection — `v1`
 

@@ -1,0 +1,38 @@
+# F10 CT-F10.1 — dcf_two_stage@v2. Published 2026-10-01 (F10 D10, Victor Truong).
+# ⚠ IMMUTABLE: change any value ⇒ new file with version 3 and a new content_hash.
+# ★ Identical to v1 in every value; adds ONLY duration_table — the explicit periods at which
+#   implied expectations re-solves stage-1 growth (D10, AC-F10.22). v1 stays published.
+name: dcf_two_stage
+version: 2
+discount_rate:
+  method: declared_constant
+  value: '0.09'
+  risk_free: null
+  equity_risk_premium: null
+  note: 'F10 D4 (Victor Truong, 2026-09-13): a transparent, stable equity hurdle;
+    a change is a deliberate version bump. CAPM rejected for now: a cyclical''s beta
+    swings with the window and the vendor beta has no history.'
+explicit_years: 10
+stage1_growth: '0.025'
+terminal_growth: '0.025'
+band:
+  discount_rate_steps:
+  - '0.08'
+  - '0.09'
+  - '0.10'
+  - '0.11'
+  terminal_growth_steps:
+  - '0.015'
+  - '0.025'
+  - '0.035'
+implied_bracket:
+  low: '-0.20'
+  high: '0.40'
+  iterations: 60
+duration_table:
+  explicit_years:
+  - 5
+  - 7
+  - 10
+  - 15
+content_hash: sha256:fa13866b7cf2d35d00449fdcfc492c86a966133b0d75b28ae03679104d7be996

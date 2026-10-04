@@ -58,3 +58,32 @@ def test_the_meta_sidecar_states_provenance_and_hazards():
     meta = json.loads((REPO / "tests_src/fixtures/consensus/MU.meta.json").read_text())
     assert meta["fetched_at"] and meta["rows"]["grades"] > 0
     assert any("lastUpdated" in h for h in meta["hazards"])
+
+
+def test_d10_a_duration_table_drops_exactly_its_two_absences():
+    """F10 AC-F10.22/23, D10/D11 — the trail fills `implied_duration`, `market_capitalisation`
+    and (D11, as an FCFF share of revenue) `implied_margin`; `valuation_multiples` stays
+    declared (still a non-goal)."""
+    from tools.run_thesis_once import DURATION_FILLS, STAGE_B_ABSENCES, stage_b_absences
+
+    without = stage_b_absences(has_consensus=False)
+    with_table = stage_b_absences(has_consensus=False, has_duration_table=True)
+    assert set(without) - set(with_table) == set(DURATION_FILLS)
+    assert "valuation_multiples" in with_table and "implied_margin" not in with_table
+    assert set(DURATION_FILLS) <= set(STAGE_B_ABSENCES)       # rule_checks' historical record
+
+
+def test_f11_base_rates_fill_their_absence_only_for_a_class_member():
+    """F11 T1 — MU is in `memory@v1`, so the part exists and the absence goes; a ticker
+    outside the class gets None and keeps the absence declared."""
+    from datetime import date
+
+    from tools.run_thesis_once import BASE_RATES_FILLS, base_rates_for, stage_b_absences
+
+    trail = {"implied_by_duration": [{"explicit_years": 10, "status": "SOLVED",
+                                      "value": "0.28", "share_of_trailing_revenue": "0.48"}]}
+    part = base_rates_for("MU", date(2025, 6, 26), trail)
+    assert part is not None and part.kind == "computed" and "hits/n" in part.content
+    assert base_rates_for("AMD", date(2025, 6, 26), trail) is None
+    assert BASE_RATES_FILLS not in stage_b_absences(has_consensus=False, has_base_rates=True)
+    assert BASE_RATES_FILLS in stage_b_absences(has_consensus=False)

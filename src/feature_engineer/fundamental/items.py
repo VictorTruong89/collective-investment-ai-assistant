@@ -38,7 +38,9 @@ import pandas as pd
 #: the larger — would let one company's series switch definition mid-history,
 #: which is the discontinuity DE-5.3 refuses one level up.
 CANONICAL: dict[str, tuple[str, ...]] = {
-    "revenue": ("RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues"),
+    # ✏ `DX-143` ⓐ (Victor, 2026-10-02): the pre-ASC 606 tag, third — Micron FY2009–2017.
+    "revenue": ("RevenueFromContractWithCustomerExcludingAssessedTax", "Revenues",
+                "SalesRevenueNet"),
     "cost_of_revenue": ("CostOfRevenue", "CostOfGoodsAndServicesSold"),
     "gross_profit": ("GrossProfit",),
     "operating_income": ("OperatingIncomeLoss",),
@@ -50,7 +52,9 @@ CANONICAL: dict[str, tuple[str, ...]] = {
     "current_liabilities": ("LiabilitiesCurrent",),
     "cash": ("CashAndCashEquivalentsAtCarryingValue",),
     "operating_cash_flow": ("NetCashProvidedByUsedInOperatingActivities",),
-    "capex": ("PaymentsToAcquirePropertyPlantAndEquipment",),
+    # ✏ `F11` `D4` (Victor, 2026-10-02): pre-2016 SanDisk files capex only as
+    #   `PaymentsToAcquireProductiveAssets`; second, so a PP&E filer is unchanged.
+    "capex": ("PaymentsToAcquirePropertyPlantAndEquipment", "PaymentsToAcquireProductiveAssets"),
     "rd_expense": ("ResearchAndDevelopmentExpense",),
     # ✏ `DX-103` (Victor, 2026-09-14): the concepts filers moved to, AFTER the old
     #   ones. ⚠ Measured on Micron: `InterestExpense` stops May 2024 and both

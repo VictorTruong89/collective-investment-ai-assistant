@@ -134,9 +134,19 @@ MODES = ("each", "any", "consecutive", "sum", "rises_each")
 _SINGLE_SERIES = ("sum", "rises_each")
 #: A window longer than this asks for years of filings no deadline can wait for.
 MAX_WINDOW = 12
+#: ✏ `DX-144` ⓐ (Victor, 2026-10-03). How many quarters will have REPORTED by a deadline:
+#: a quarter is ~91 days, and a filer reports it within ~60 days (10-K; a 10-Q is ~40) —
+#: the longer lag, so the rule never refuses a window that merely ends a little early.
+QUARTER_DAYS = 91
+FILING_LAG_DAYS = 60
 
 
-def validate_test(test: dict, *, observables=None) -> list[str]:
+def periods_reported_by(as_of, deadline) -> int:
+    """Quarters ending after `as_of` whose filing is due by `deadline` (`DX-144`)."""
+    return max(0, ((deadline - as_of).days - FILING_LAG_DAYS) // QUARTER_DAYS)
+
+
+def validate_test(test: dict, *, observables=None, as_of=None, deadline=None) -> list[str]:
     """★ `J-15 v2` — every way a structured test can be undecidable, named. Empty means valid.
 
     ⚠ `evaluate_test` assumes a well-formed test and would raise mid-check (or silently
@@ -149,6 +159,16 @@ def validate_test(test: dict, *, observables=None) -> list[str]:
     window = test.get("window_periods")
     if not isinstance(window, int) or isinstance(window, bool) or not 1 <= window <= MAX_WINDOW:
         problems.append(f"window_periods {window!r} is not an integer in 1..{MAX_WINDOW}")
+    elif as_of is not None and deadline is not None:
+        # ★ `DX-144` ⓐ — a test that stops looking before its deadline can settle HELD while
+        #   the condition is still live (*"four CONSECUTIVE quarters"* tested as `each` over
+        #   the first four). The window must cover every quarter reported by the deadline.
+        due = periods_reported_by(as_of, deadline)
+        if window < due:
+            problems.append(
+                f"window_periods {window} ends before the deadline {deadline.isoformat()}: "
+                f"~{due} quarters will have reported by then — widen the window to {due} (and "
+                f"use mode 'consecutive' for a run of quarters), or move the deadline in")
     clauses = test.get("clauses")
     if not isinstance(clauses, list) or not clauses:
         return [*problems, "a test needs at least one clause"]
@@ -167,6 +187,11 @@ def validate_test(test: dict, *, observables=None) -> list[str]:
             if not isinstance(run, int) or isinstance(run, bool) or run < 2:
                 problems.append(f"clause {n}: mode 'consecutive' needs `consecutive` >= 2, "
                                 f"got {run!r}")
+        elif clause.get("consecutive") is not None:
+            # ✏ `DX-147` ⓐ (Victor, 2026-10-04) — a run length under another mode is never
+            #   read, so the word *consecutive* would be dropped silently. Fail loud.
+            problems.append(f"clause {n}: `consecutive` {clause['consecutive']!r} is never read "
+                            f"under mode {mode!r} — use mode 'consecutive' for a run of quarters")
         for m, condition in enumerate(conditions, start=1):
             where = f"clause {n} condition {m}"
             if condition.get("op") not in OPERATORS:

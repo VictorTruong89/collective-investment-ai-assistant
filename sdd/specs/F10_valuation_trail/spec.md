@@ -5,6 +5,10 @@
 > contract → `D7`.** ✅ `Q2` answered 2026-09-14 (Victor): marketable securities
 > and finance leases count in net debt → `D8`; operating leases stay OUT (`DX-106`, Victor, same day). `DX-103`, `DX-104` decided
 > the same day (`D6` amended).
+> ✏ **Amended 2026-10-01 (Victor): `D10`** — implied growth by duration (5 / 7 / 10 / 15 years) and market
+> capitalisation, published as `dcf_two_stage@v2`; `AC-F10.22`. `v1` is unchanged.
+> ✏ **Amended 2026-10-02 (Victor): `D11`** — each duration row also states the FCFF the price requires in its
+> final explicit year and that figure as a share of trailing revenue (*at flat revenue*); `AC-F10.23`.
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` Decisions log 2026-09-13 · `sdd/questions.md`
 > `QR-25` · `L3` §2.1e *What remains* · design tier `sdd/design/rel6_design/L1-feature-engineering.md`
 > §1.3, §6.2, §8.1, §10 · `L0-system-vision.md` §4.2 D-01 valuation split, **VS-1…VS-5**
@@ -45,6 +49,8 @@ would have made that visible.
   built from D-07 data (reported trailing cash flow), per `VS-2` consumable by both analyst seats.
 - **The sensitivity band** — the value over a declared grid of discount rate × terminal growth.
 - **Implied expectations** — the reverse valuation: the growth rate the current price requires.
+  ✏ `D10`: also **by duration** — the same solve repeated at each declared explicit period.
+- **Market capitalisation** — the raw price × diluted shares, on the trail (`D10`).
 - **A declared, versioned assumption set** (`CT-F10.1`) — no assumption is a literal in code.
 - **The basis contract** (`CT-F10.3`) through which a **judgement block's normalised earnings feed the
   same mechanics** — producing a result that is **`fv_analyst`, never `fv_model`** (§7 `D1`).
@@ -127,10 +133,13 @@ would have made that visible.
   "stage1_growth": "decimal — the fv_model basis growth; implied expectations solves for it",
   "terminal_growth": "decimal — must be < discount rate",
   "band": {"discount_rate_steps": ["decimal"], "terminal_growth_steps": ["decimal"]},
-  "implied_bracket": {"low": "decimal", "high": "decimal", "iterations": "int"} }
+  "implied_bracket": {"low": "decimal", "high": "decimal", "iterations": "int"},
+  "duration_table": {"explicit_years": ["int ≥ 1"]} }
 ```
 Rules: every field required; no field has a code default; `terminal_growth < discount_rate` for every
-grid point, checked at load.
+grid point, checked at load. ✏ **`duration_table` (`D10`) is the one field a set may omit** — `v1`
+predates it and is immutable, so its absence means *"this set declares no duration table"*, never a
+default table; when present it is hashed like every other field, and its periods must be distinct.
 
 **CT-F10.2 — `ValuationResult`** (`kind = "fv_model"`; returned, rendered, never stored in a panel):
 ```json
@@ -154,8 +163,20 @@ grid point, checked at load.
   "band": {"grid": [{"discount_rate": "decimal", "terminal_growth": "decimal",
                      "value_per_share": "Money"}], "low": "Money", "high": "Money"},
   "implied": {"solves_for": "stage1_growth", "value": "decimal | null",
-              "status": "SOLVED | NO_ROOT_IN_BRACKET", "residual": "Money | null"} }
+              "status": "SOLVED | NO_ROOT_IN_BRACKET", "residual": "Money | null"},
+  "market_capitalisation": "Money — price.value × diluted_shares (D10)",
+  "implied_by_duration": [{"explicit_years": "int", "solves_for": "stage1_growth",
+                           "value": "decimal | null", "status": "SOLVED | NO_ROOT_IN_BRACKET",
+                           "residual": "Money | null",
+                           "required_final_year_fcff": "Money | null — D11",
+                           "share_of_trailing_revenue": "decimal | null — D11, at FLAT revenue"}],
+  "trailing_revenue": {"value": "Money", "item": "revenue", "periods": "the four D6 quarters"} }
 ```
+✏ `implied_by_duration` is present exactly when the assumption set declares a `duration_table`, one row
+per declared period in the declared order (`D10`). ✏ `D11`: `required_final_year_fcff` is the year-`N`
+flow of the SAME `discount` trail at the solved growth (one rounding, `MO-5`), and
+`share_of_trailing_revenue` is it ÷ `trailing_revenue`, both null exactly when the row is
+`NO_ROOT_IN_BRACKET`; `trailing_revenue` is present exactly when the table is.
 Rules: every monetary field one currency; `value_per_share ∈ [band.low, band.high]`; `implied.value` is
 null exactly when `status = NO_ROOT_IN_BRACKET`. ★ **Net debt (`D8`)** = debt + finance leases not already
 inside a debt tag − cash − marketable securities (current and non-current). ★ **Rounding (`MO-5`):** each present value is rounded
@@ -280,6 +301,23 @@ returned as a value.
   `known_omissions`. → *unit* +
   *integration* (Micron's recorded facts against the 10-Q). ✏ *added 2026-09-14.*
 
+- **AC-F10.22** *(★ the price requirement by duration — `D10`)* — **Given** an assumption set with a
+  `duration_table`, **when** a valuation is produced, **then** `implied_by_duration` holds one row per
+  declared period, each the `D7` solve with only `explicit_years` replaced, so the row for the set's own
+  `explicit_years` equals `implied`; each row round-trips to the price within one minor unit per share
+  or is `NO_ROOT_IN_BRACKET` with a null value; **and** `market_capitalisation = price × diluted_shares`
+  exactly; **and given** a set with no table (`v1`), **then** the result carries no `implied_by_duration`
+  key; **and** a `v2` trail recomputes every row from its own fields (`AC-F10.4`). → *invariant /
+  property.* (`D10`, `P5`, `AP-2`) ✏ *added 2026-10-01.*
+
+- **AC-F10.23** *(★ the required cash flow, in revenue terms — `D11`)* — **Given** a `v2` valuation,
+  **when** its duration table is read, **then** each SOLVED row's `required_final_year_fcff` equals the
+  final explicit-year flow of `discount` at that row's growth and period, and `share_of_trailing_revenue`
+  equals it ÷ the trailing four-quarter revenue (the quarters `D6` uses); a `NO_ROOT_IN_BRACKET` row has
+  both null; **and given** trailing revenue absent, **then** it raises `ValuationUnavailable` naming
+  `revenue` — never a share over a substituted denominator; **and** a `v1` result carries neither field.
+  → *invariant / property.* (`D11`, `P5`, `AP-2`) ✏ *added 2026-10-02.*
+
 ## 7. Decisions (resolved questions — kept with their rejected options)
 
 **`D1` — Normalised earnings are owned by a judgement block that feeds D-02's mechanics.** *(Victor
@@ -385,6 +423,30 @@ approval.)* It reads as *"the price requires X % a year for N years"* — the se
 about. ✗ Rejected: an implied cash-flow level (harder to judge); implied terminal growth (hides the
 question in the least-knowable number).
 
+**`D10` — The price requirement by duration, and market capitalisation.** *(Victor Truong, 2026-10-01.)*
+`J-09`'s first live answer could not set its third requirement — *"28.3 % for 10 years, then 2.5 %"* —
+against Stage A, because the 10 years is a declared assumption and `implied_duration` was declared
+absent. ★ **Adopted: re-run `D7`'s solve at each period of a declared table, 5 / 7 / 10 / 15 years,
+in a new set `dcf_two_stage@v2`** (every other value identical to `v1`). The rows read as *"the price
+requires X % for 5 years … Y % for 15"*, so a reader can compare a required run of growth with the
+company's own history without the system choosing one horizon for them. Market capitalisation (raw
+price × diluted shares) joins the trail, so `J-09` never multiplies it in a prompt. ✗ Rejected —
+ⓐ **solving for the number of years at a fixed growth**: one number, but the fixed growth is a judgement
+the system would have to supply; ⓑ **valuation multiples** (EV/FCFF, P/FCF): still a non-goal (§2);
+ⓒ **adding the table to `v1`**: `v1` is published and immutable (`AC-F10.12`).
+
+**`D11` — The required cash flow, stated in revenue terms.** *(Victor Truong, 2026-10-02.)* `J-09`'s
+second live answer still had one curable `insufficient_evidence` row — *"implied operating margin: not
+derivable"* — and it capped conviction (`DX-140` counts curable absences). ★ **Adopted: for each
+duration row, the FCFF the price requires in the final explicit year, and that figure as a share of
+trailing revenue, labelled *at flat revenue*.** Pure arithmetic on numbers the trail already holds, so a
+reader can set it beside the company's own FCFF margin history (MU: the price needs ≈48 % at flat
+revenue at 10 years; its best year FY2016–FY2024 was 28.5 %). ★ **Reconciling with `D7`:** `D7` rejected
+an implied cash-flow level as the thing to SOLVE FOR; `D11` changes no solve — it restates the solved
+answer in a second unit. ✗ Rejected — ⓐ accepting the cap (a curable gap left open on every thesis);
+ⓒ solving for margin at an assumed revenue growth (the growth is a judgement the system would supply,
+which `D7` avoided). ⚠ It is an FCFF share of revenue, **not** an operating margin; the label says so.
+
 ## 8. Open questions (must resolve before/at implementation)
 
 - ~~**Q1**~~ → `D4`. ~~**Q3**~~ → `D5`. ~~**Q4**~~ → `D7`. ~~**Q5**~~ → `D6`. *(Kept below, struck, for the
@@ -436,7 +498,11 @@ question in the least-knowable number).
 | AC-F10.20 | `tests/unit/test_valuation_f10.py::test_ac_f10_20_net_debt_counts_securities_and_finance_leases` · `::test_ac_f10_20_a_lease_inclusive_debt_tag_is_not_counted_twice` · `::test_ac_f10_20_an_unreported_item_is_declared_never_zero` · `::test_ac_f10_20_operating_leases_are_excluded_by_design_not_omitted` · `tests/integration/test_valuation_real_mu.py::test_ac_f10_20_real_net_debt_matches_the_10q` | `src/feature_engineer/valuation/basis.py::balance`, `::known_omissions` |
 | AC-F10.19 | `tests/unit/test_normalise_d5.py::test_ac_f10_19_the_averages_are_D02_functions_and_D01_holds_no_series_arithmetic` · `::test_ac_f10_19_a_year_filed_after_as_of_is_absent_and_a_mixed_currency_window_refuses` · `tests_src/test_architecture.py::test_architectural_rule_holds` (RA-45) | `src/feature_engineer/valuation/normalised.py::cycle_average_fcff`, `::cycle_average_fcff_margin`, `::annual_history` |
 
-✅ **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
+| AC-F10.22 | `tests/unit/test_valuation_f10.py::test_ac_f10_22_*` (8 tests, 10 cases; 5 of 5 mutations caught) | `src/feature_engineer/valuation/implied.py::implied_by_duration`, `src/feature_engineer/valuation/assumptions.py` (`duration_table`), `src/feature_engineer/valuation/service.py::_assemble` (`market_capitalisation`), `config/valuation/dcf_two_stage_v2.yaml` |
+
+| AC-F10.23 | `tests/unit/test_valuation_f10.py::test_ac_f10_23_*` (4 tests; 4 of 4 mutations caught) | `src/feature_engineer/valuation/implied.py::implied_by_duration`, `src/feature_engineer/valuation/types.py::DurationRow`, `src/feature_engineer/valuation/service.py::_assemble` (`trailing_revenue`) |
+
+✅ **23 of 23 ACs** have passing tests (AC-F10.23 added 2026-10-02 with `D11`; AC-F10.22 2026-10-01 with `D10`). Previously: **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
 weak tests were strengthened (a contiguity test that tripped the COUNT check first, and a refusal test
 that passed through the second guard instead of the first). Also required by `D-03`'s `AC-3.14`: three
 MethodEntries under `src/feature_engineer/methods/entries/` — the FCFF formula, the DCF mechanics and

@@ -1,0 +1,10 @@
+# L3 §2.1q decision 3 — the daily forward-consensus snapshot (systemd USER unit).
+# Install:  cp deploy/snapshot-analyst-estimates.service.example ~/.config/systemd/user/snapshot-analyst-estimates.service
+# ⚠ No credential here: the tool reads the FMP key from the environment or the repo's .env.
+[Unit]
+Description=Snapshot FMP forward analyst estimates (collective-investment-ai-assistant)
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/victor/Workspace/collective-investment-ai-assistant
+ExecStart=/home/victor/anaconda3/bin/python3 tools/snapshot_analyst_estimates.py

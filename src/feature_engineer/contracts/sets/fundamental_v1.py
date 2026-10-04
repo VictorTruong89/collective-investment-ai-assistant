@@ -88,7 +88,12 @@ FUNDAMENTAL_V1 = FeatureContract(
     #   `f_roic` and every feature built on them take values where they were null (MU:
     #   a decade). Same names and formulas, different inputs ⇒ a new version, or an
     #   artifact trained on v2 would pass parity against different numbers.
-    version=3,
+    # ★★ **v4 — `F11` `D4` (2026-10-02).** `capex` gained the fallback
+    #   `PaymentsToAcquireProductiveAssets` (second), so every capex-based feature takes
+    #   values for filers that use only that tag. Same reasoning as v3.
+    # ★★ **v5 — `DX-143` ⓐ (2026-10-02).** `revenue` gained `SalesRevenueNet` (third), so every
+    #   revenue-based feature takes values for pre-ASC 606 years. Same reasoning as v3/v4.
+    version=5,
     created="2026-08-27",
     note=("§5.3's 45 f_* features plus Group C's 2. ⚠ Computed PER FILING and joined as-of "
           "afterwards — the reverse order silently nulls every multi-period "

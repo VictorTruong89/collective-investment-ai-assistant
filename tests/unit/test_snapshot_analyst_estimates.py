@@ -47,3 +47,45 @@ def test_an_empty_answer_records_nothing(tmp_path):
     with pytest.raises(RuntimeError, match="nothing recorded"):
         snapshot("MU", FakeClient([]), root=tmp_path, now=NOW)
     assert not any(tmp_path.rglob("*.json"))
+
+
+# ── L3 §2.1q decision 3 (Victor, 2026-10-02): a tracked home and a daily timer ──
+
+def test_snapshots_live_in_a_version_controlled_path_never_under_state():
+    """`DX-12`'s shape, fifth sighting: history under gitignored `.state/` dies with the laptop."""
+    import subprocess
+
+    from tools.snapshot_analyst_estimates import REPO, ROOT
+    probe = ROOT / "MU" / "probe.json"
+    ignored = subprocess.run(["git", "check-ignore", "-q", str(probe.relative_to(REPO))],
+                             cwd=REPO).returncode == 0
+    assert not ignored, f"{ROOT} is gitignored — snapshots there are not durable"
+    assert ".state" not in ROOT.parts
+
+
+def test_with_no_arguments_the_tickers_come_from_config():
+    from tools.snapshot_analyst_estimates import configured_tickers
+    assert configured_tickers() == ["MU", "AMD"]
+
+
+def test_one_failing_ticker_does_not_stop_the_others_and_the_run_fails_loud(tmp_path, monkeypatch):
+    import tools.snapshot_analyst_estimates as mod
+
+    class Client:
+        def get(self, endpoint, **params):
+            if params["symbol"] == "MU":
+                raise RuntimeError("HTTP 500")
+            return [{"x": 1}]
+
+    monkeypatch.setattr(mod, "ROOT", tmp_path)
+    assert mod.run(["MU", "AMD"], Client()) == 1
+    assert [p.parent.name for p in tmp_path.rglob("*.json")] == ["AMD"]
+
+
+def test_the_timer_example_runs_weekdays_after_the_new_york_close_and_catches_up():
+    from tools.snapshot_analyst_estimates import REPO
+    timer = (REPO / "deploy/snapshot-analyst-estimates.timer.example").read_text()
+    assert "OnCalendar=Mon..Fri 18:30 America/New_York" in timer
+    assert "Persistent=true" in timer
+    service = (REPO / "deploy/snapshot-analyst-estimates.service.example").read_text()
+    assert "tools/snapshot_analyst_estimates.py" in service and "FMP_API_KEY=" not in service

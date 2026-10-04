@@ -1,0 +1,5 @@
+# L3 §2.1q decision 3 (Victor, 2026-10-02): tickers whose FORWARD consensus is snapshotted daily.
+# ⚠ FMP's analyst-estimates holds only today's values; a day not captured is gone for good.
+tickers:
+  - MU
+  - AMD
