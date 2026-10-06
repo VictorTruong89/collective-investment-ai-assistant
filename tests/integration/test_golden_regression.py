@@ -61,7 +61,15 @@ def cases():
 #: stays visible (`DX-76`).
 from src.fundamental.prompts.envelope import envelope_hash as _envelope_hash  # noqa: E402
 
-DECLARED_ENVELOPES = {"None", _envelope_hash("judgement", stage_a=True)}
+#: ✏ 2026-10-04 (Victor, `DX-131` ⓒ) — the extraction envelope BEFORE *"both period endpoints"*
+#: was replaced. Every signed extraction recording was made under it; held on purpose rather than
+#: re-recorded, because the parse (`_stated_period`) already cleared the dates the old wording
+#: produced, so no signed case reads differently. Hardcoded: the old text no longer exists to hash.
+EXTRACTION_ENVELOPE_PRE_2026_10_04 = (
+    "sha256:ec614f69f6da1425cd3013486216d03c7fca97db4628d1297f1d3883d9996f0f")
+
+DECLARED_ENVELOPES = {"None", _envelope_hash("judgement", stage_a=True),
+                      EXTRACTION_ENVELOPE_PRE_2026_10_04}
 
 
 def test_ac_5_7_the_golden_set_replays_green(cases):

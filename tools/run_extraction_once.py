@@ -61,6 +61,25 @@ FILINGS = {
             "slice": (500, 560)},
 }
 
+#: ✏ 2026-10-04 (`L3` §2.1p row 6) — bundles of SEVERAL documents, for blocks that read more
+#: than one filing: `E-03` (this annual filing against the prior one) and `E-08` (Form 4s).
+#: ★ A section is cut at its HEADINGS, never at line numbers — a range tuned to one filing
+#: silently slices the wrong text out of another (see `slice` above).
+DOCUMENT_SETS = {
+    "mu-10k-risk-factors": {
+        "ticker": "MU", "as_of": date(2025, 6, 26),
+        "section": ("ITEM 1A. RISK FACTORS", "ITEM 1B. UNRESOLVED STAFF COMMENTS"),
+        "docs": (
+            {"path": "tests_src/fixtures/filings/MU_FY2024_10K.txt",
+             "accession": "0000723125-24-000027", "form": "10-K", "period_end": "2024-08-29"},
+            {"path": "tests_src/fixtures/filings/MU_FY2023_10K.txt",
+             "accession": "0000723125-23-000054", "form": "10-K", "period_end": "2023-08-31"},
+        )},
+    "mu-form4-2025q3": {
+        "ticker": "MU", "as_of": date(2025, 6, 26),
+        "index": "tests_src/fixtures/filings/MU_form4_2025-02-28_2025-06-25/index.json"},
+}
+
 #: ★ Module-level defaults, unchanged: `golden_replay` and the wiring tests
 #: import `FILING`, and filing 1's cases resolve against it.
 #: ★ `DX-119` — who the analysis is ABOUT, for a bundle that cannot say so itself (an
@@ -142,19 +161,15 @@ def assert_no_repo_annotation(text: str, path) -> None:
             f"accept a quote taken from it. Move it to the .meta.txt sidecar.")
 
 
-def sector_bundle(path, *, ticker: str) -> EvidenceBundle:
-    """`DX-117` — the industry evidence as ONE pinned `sector_file` part.
-
-    ★ Every document travels verbatim, in the file's one permitted order (`RA-99`), with its
-    source and date; `X-01` then verifies every quote `E-13` returns against this text.
-    """
+def load_sector_file(path):
+    """A sector file from its JSON — v1 or v2 (✏ 2026-10-04: `value`/`unit`/`period`)."""
     import json as _json
 
-    from src.fundamental.bundle.assemble import sector_file
     from src.fundamental.sector.models import Omission, SectorFile, SectorRecord
+    from src.fundamental.sector.schema import SCHEMA_V1
 
     doc = _json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
-    file = SectorFile(
+    return SectorFile(
         industry=doc["industry"], as_of=date.fromisoformat(doc["as_of"]),
         file_version=int(doc["file_version"]), source_list_version=doc["source_list_version"],
         records=tuple(SectorRecord(record_id=r["record_id"],
@@ -162,11 +177,60 @@ def sector_bundle(path, *, ticker: str) -> EvidenceBundle:
                                    subject=r["subject"], source_id=r["source_id"],
                                    url=r.get("url", ""), quote=r["quote"],
                                    status=r.get("status", ""),
-                                   prior_status=r.get("prior_status", ""))
+                                   prior_status=r.get("prior_status", ""),
+                                   value=r.get("value", ""), unit=r.get("unit", ""),
+                                   period=r.get("period", ""))
                       for r in doc["records"]),
-        omissions=tuple(Omission(**o) for o in doc.get("omissions", ())))
+        omissions=tuple(Omission(**o) for o in doc.get("omissions", ())),
+        schema_version=doc.get("schema_version", SCHEMA_V1))
+
+
+def sector_bundle(path, *, ticker: str) -> EvidenceBundle:
+    """`DX-117` — the industry evidence as ONE pinned `sector_file` part.
+
+    ★ Every document travels verbatim, in the file's one permitted order (`RA-99`), with its
+    source and date; `X-01` then verifies every quote `E-13` returns against this text.
+    """
+    from src.fundamental.bundle.assemble import sector_file
+
+    file = load_sector_file(path)
     return EvidenceBundle(ticker=ticker.upper(), as_of=file.as_of,
                           parts=(sector_file(file),))
+
+
+def document_set_bundle(name: str, *, only: str | None = None) -> EvidenceBundle:
+    """A bundle of several documents, one `filing` part each, pinned by accession (`RA-1`).
+
+    ✏ `DX-149` ⓐ — `only` keeps ONE document of the set: its own single-document bundle.
+    """
+    spec = DOCUMENT_SETS[name]
+    if "index" in spec:
+        index = REPO / spec["index"]
+        docs = [{"path": str(index.parent.relative_to(REPO) / f"{f['accession']}.txt"),
+                 "accession": f["accession"], "form": "4", "period_end": f["filed"]}
+                for f in json.loads(index.read_text(encoding="utf-8"))["forms"]]
+    else:
+        docs = list(spec["docs"])
+    if only is not None:
+        docs = [d for d in docs if d["accession"] == only]
+        if not docs:
+            raise KeyError(f"{only!r} is not a document of {name!r}")
+    parts = []
+    for d in docs:
+        path = REPO / d["path"]
+        text = path.read_text(encoding="utf-8")
+        assert_no_repo_annotation(text, path)
+        if "section" in spec:
+            head, tail = spec["section"]
+            if text.count(head) != 1 or text.count(tail) != 1:
+                raise ValueError(f"{path.name}: the section headings {spec['section']} must each "
+                                 f"occur exactly once (P5 — never guess which one)")
+            text = text[text.index(head):text.index(tail)]
+        parts.append(BundlePart(kind="filing",
+                                pins={"accession_id": d["accession"], "form": d["form"],
+                                      "period_end": d["period_end"]},
+                                content=text))
+    return EvidenceBundle(ticker=spec["ticker"], as_of=spec["as_of"], parts=tuple(parts))
 
 
 def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
@@ -201,13 +265,17 @@ def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
 # --------------------------------------------------------------------------- #
 # 3. the parse — response -> ExtractedItem[]
 # --------------------------------------------------------------------------- #
-def parse_items(call, bundle_text: str | None = None, accession_id: str | None = None) -> list:
+def parse_items(call, bundle_text: str | None = None, accession_id: str | None = None,
+                documents: dict[str, str] | None = None) -> list:
     """Map one `CallResult` to `ExtractedItem`s (`MP-5`, `MP-18`).
 
     ⚠ **Offsets are computed here, not asked for.** A model-supplied character
     offset is a number it cannot verify and we can: `X-01` would reject a wrong
     one anyway, so asking for it spends tokens to create a failure mode.
     ★ The quote is the model's; the offset is arithmetic (`AP-5`).
+
+    ✏ 2026-10-04 — `documents` (accession → text) is a bundle of several documents: each
+    found item must NAME one of them, and its quote is located in that one only.
     """
     payload = getattr(call, "parsed", call)
     if isinstance(payload, str):
@@ -219,9 +287,9 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
     # produced offsets pointing into the FULL document, outside the bundle, so
     # every item would have failed verification for a reason that had nothing to
     # do with the model. ★ The default keeps the whole-filing behaviour.
-    if bundle_text is None:
+    if bundle_text is None and documents is None:
         bundle_text = FILING.read_text(encoding="utf-8")
-    flat_bundle = " ".join(bundle_text.split())     # DX-131 — dates across line breaks
+    flat_bundle = " ".join((" ".join(documents.values()) if documents else bundle_text).split())  # DX-131
     out = []
     for row in rows:
         # ★ MP-7 — `not_found` is a CORRECT answer, and needs a note saying
@@ -249,7 +317,16 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
                 "found item needs a verbatim quote — X-01 has nothing to check "
                 "it against (RA-6, RA-131)"
             )
-        start, end = _locate(bundle_text, quote)
+        cited, text = accession_id, bundle_text
+        if documents is not None:
+            cited = row.get("accession_id")
+            if cited not in documents:
+                raise ValueError(
+                    f"{row['evidence_id']!r}: the bundle holds {len(documents)} documents and "
+                    f"this item names no document it holds ({cited!r}) — its quote cannot be "
+                    f"attributed (X-01, RA-131)")
+            text = documents[cited]
+        start, end = _locate(text, quote)
         if start < 0:
             # ⚠ P5 — loud. A quote not in the document is the hallucination
             # X-01 exists to catch; failing here just catches it one step
@@ -263,6 +340,11 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
         period_start, period_end, cleared = _stated_period(
             flat_bundle, row.get("period_start"), row.get("period_end"))
         note = row.get("note", "")
+        if row["evidence_id"] == "in.type":
+            # ★ `DX-148` ⓑ — the value stays the form's code (X-01 ② checks it); the label is a
+            #   lookup, stated beside it, never chosen by the model.
+            from src.fundamental.filings.form4 import transaction_label
+            note = " ".join(filter(None, [note, f"[DX-148] label: {transaction_label(value)}"]))
         if cleared:
             note = " ".join(filter(None, [note, (
                 f"[DX-131] period date(s) {', '.join(cleared)} not stated in the "
@@ -279,11 +361,23 @@ def parse_items(call, bundle_text: str | None = None, accession_id: str | None =
             # holds `'State of\n\n\nNew York'` where the quote holds
             # `'State of\nNew York'`, so the span ended 2 chars early on
             # `'…provides fo'`.
-            quote=quote, accession_id=accession_id or ACCESSION, offset=(start, end),
+            quote=quote, accession_id=cited or ACCESSION, offset=(start, end),
             period_start=period_start, period_end=period_end,
             cumulative_ytd=bool(row.get("cumulative_ytd")),
             qualifier=row.get("qualifier", ""), note=note,
         ))
+    if documents is not None:
+        # ★ `DX-149` ⓒ (Victor, 2026-10-04) — `X-01` proves what an answer holds, never what it
+        #   left out: one call over 20 Form 4s returned items from 6 and said nothing of 14.
+        #   A document counts as read when a found item cites it or a not_found names it.
+        cited = {it.span.accession_id for it in out if it.span is not None}
+        stated = " ".join(it.note for it in out if it.span is None)
+        silent = [a for a in documents if a not in cited and a not in stated]
+        if silent:
+            raise ValueError(
+                f"the answer cites nothing from {len(silent)} of {len(documents)} documents "
+                f"and names none of them as empty: {silent[:5]} — a document left out "
+                f"silently is not read (DX-149, RA-98)")
     return _dedupe_not_found(out)
 
 
@@ -446,7 +540,21 @@ _TYPO = {"\u201c": '"', "\u201d": '"', "\u2018": "'", "\u2019": "'",
 # --------------------------------------------------------------------------- #
 # 4. the job
 # --------------------------------------------------------------------------- #
-def main() -> int:
+def _guarded(run, argv: list[str]) -> int:
+    """A document's failure is REPORTED and counted, never allowed to end the loop (`P5`)."""
+    try:
+        return run(argv)
+    except Exception as exc:                     # noqa: BLE001 — named, counted, non-zero
+        print(f"  ⛔ {argv[argv.index('--document') + 1]}: {type(exc).__name__}: {exc}")
+        return 1
+
+
+def _run_one(argv: list[str]) -> int:
+    """One document's run — its own `run_id`, trace and `bundle_hash` (`DX-149` ⓐ)."""
+    return _guarded(main, argv)
+
+
+def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--dry-run", action="store_true", help="★ free — plan + cost")
@@ -479,12 +587,30 @@ def main() -> int:
     #   the competitors' own and carry no cover page for it (`DX-119`).
     ap.add_argument("--sector", default=None, metavar="SECTOR_FILE_JSON",
                     help="run over the sector file (tools/ingest_sector_file.py output)")
+    # ✏ 2026-10-04 — a bundle of several documents (`E-03`'s two 10-Ks, `E-08`'s Form 4s).
+    ap.add_argument("--document-set", default=None, choices=sorted(DOCUMENT_SETS),
+                    help="run over a declared set of documents instead of one filing")
+    ap.add_argument("--document", default=None, metavar="ACCESSION",
+                    help="with --document-set: only this document (its own bundle and run)")
+    ap.add_argument("--per-document", action="store_true",
+                    help="with --document-set: one run per document (DX-149 ⓐ)")
     ap.add_argument("--segment-note-only", action="store_true",
                     help="⚠⚠ DIAGNOSTIC ONLY (DX-32) — never for a recording "
                          "a golden case grades: the slice omits the evidence a "
                          "PERIOD START is derived from, so discrete and "
                          "cumulative figures collapse onto one MP-18 identity")
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
+    if (args.document or args.per_document) and not args.document_set:
+        print("  ⛔ --document / --per-document need --document-set")
+        return 2
+    if args.per_document:
+        # ★ `DX-149` ⓐ — each document is its own call, so no answer has to hold twenty.
+        rest = [a for a in (argv if argv is not None else sys.argv[1:]) if a != "--per-document"]
+        accessions = [p.pins["accession_id"] for p in document_set_bundle(args.document_set).parts]
+        failed = [a for a in accessions if _run_one([*rest, "--document", a]) != 0]
+        print(f"\n  ── per-document: {len(accessions) - len(failed)} of {len(accessions)} "
+              f"run(s) succeeded" + (f" · ⛔ FAILED {failed}" if failed else ""))
+        return 1 if failed else 0
     _select(args.ticker)
 
     if not FILING.exists():
@@ -508,7 +634,13 @@ def main() -> int:
         factory = e01_v2
     registry.register(factory())
     subject = SUBJECT_NAMES[args.ticker] if args.sector else None
+    if args.document_set and (args.sector or args.segment_note_only):
+        print("  ⛔ --document-set is its own bundle; it does not combine with --sector or "
+              "--segment-note-only")
+        return 2
     bundle = (sector_bundle(args.sector, ticker=args.ticker) if args.sector
+              else document_set_bundle(args.document_set, only=args.document)
+              if args.document_set
               else build_bundle(whole_filing=not args.segment_note_only))
     if subject:
         # ★ `DX-119` — printed because it is a DECLARATION, not a default: a reader of the
@@ -525,7 +657,12 @@ def main() -> int:
     from src.fundamental.prompts.call import MAX_TOKENS
     est_out = MAX_TOKENS["extraction"]
 
-    print(f"  filing     : {FILING.relative_to(REPO)}")
+    if args.document_set:
+        print(f"  documents  : {args.document_set} — {len(bundle.parts)} part(s): "
+              + ", ".join(p.pins["accession_id"] for p in bundle.parts[:4])
+              + (" …" if len(bundle.parts) > 4 else ""))
+    else:
+        print(f"  filing     : {FILING.relative_to(REPO)}")
     print(f"  bundle     : {chars:,} chars  (hash {bundle.bundle_hash[:16]}…)")
     # ⚠ The version is READ, not typed. This line said "E-01 v1" while running
     #   v2 — a label hardcoded beside the value it describes drifts the moment
@@ -568,7 +705,9 @@ def main() -> int:
     # ⚠ DX-26 — a date alone repeats all day, so two runs appended to ONE
     # trace. The seconds make each run its own record.
     run_id = (f"run-{datetime.now().strftime('%Y-%m-%dT%H%M%S')}-"
-              f"{TICKER.lower()}-{args.block.lower().replace('-', '')}")
+              f"{TICKER.lower()}-{args.block.lower().replace('-', '')}"
+              # ✏ `DX-149` ⓐ — one run per document: the document names its run.
+              + (f"-{args.document.split('-')[-1]}" if args.document else ""))
     store = TraceStore(REPO / ".state/runs", run_id)
     print(f"\n  ⚠ LIVE. run_id = {run_id}")
     print(f"  transport  : {transport_label()}")
@@ -620,7 +759,12 @@ def main() -> int:
                                     c, bundle.parts[0].content,
                                     # ⚠ `DX-121` — an industry quote cites the SECTOR FILE,
                                     #   not the analysed company's accession.
-                                    accession_id=sector_citation(bundle.parts[0].pins) or None))
+                                    accession_id=sector_citation(bundle.parts[0].pins)
+                                    or (bundle.parts[0].pins["accession_id"]
+                                        if args.document_set else None),
+                                    documents=({p.pins["accession_id"]: p.content
+                                                for p in bundle.parts}
+                                               if len(bundle.parts) > 1 else None)))
     except Exception as exc:                       # noqa: BLE001
         store.close("FAILED")
         if "authentication" in str(exc).lower() or "api_key" in str(exc).lower():

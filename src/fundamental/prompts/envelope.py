@@ -49,9 +49,10 @@ on where you looked. `not_found` is a correct answer. A value that is "roughly"
 in the document, or that you assembled from two places, is not.
 
 ★ If the document gives a cumulative year-to-date figure where a discrete
-  quarterly figure was requested, return it tagged `cumulative_ytd` with both
-  period endpoints, and do NOT subtract to produce the discrete quarter. That
-  subtraction is arithmetic and belongs to D-02.
+  quarterly figure was requested, return it tagged `cumulative_ytd` with
+  the period end, and its start only where the document states it. Do NOT
+  subtract to produce the discrete quarter, and do not compute a date.
+  Both are arithmetic and belong to D-02.
 """
 
 #: §4.0 — the judgement preamble, composed before `S-1`…`S-6`.

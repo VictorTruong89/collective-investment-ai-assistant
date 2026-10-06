@@ -13,6 +13,8 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.5.2 | 2026-10-04 | Victor | **`E-08 v2`** — `in.type` asks for the Form 4 transaction CODE verbatim; the label is mapped in code (`DX-148` ⓑ). |
+| 0.5.1 | 2026-10-04 | Victor | **§3.0 extraction envelope:** *"with both period endpoints"* → *"with the period end, and its start only where the document states it … do not compute a date"* (`DX-131` ⓒ). Changes the extraction `envelope_hash`; the old one is a declared held split (`DX-76`). |
 | 0.5.0 | 2026-10-04 | Victor | ★ **`J-15 v3` — the window rule is stated to the model.** Two sentences appended to v2's last paragraph, nothing else changed: the test window must reach the deadline, and a run of quarters is mode `consecutive`. ⚠ v2 could not satisfy `DX-144` ⓐ except by luck — the re-ask `run-2026-10-04T024042-mu-thesis` was refused on it, with every test written `each` + a stray `consecutive` count (`DX-147`). |
 | 0.4.0 | 2026-10-01 | Victor | ★ **`J-15 v2` — each falsifier carries its own structured TEST.** One paragraph added to v1, nothing changed: write the test in the grammar `falsifier_check` decides, over the supplied observables, or rewrite the condition until it can be. ★ Makes `RM-13` automatic per thesis instead of hand-translated (`DX-125`, `DX-128`), which `L8` §9 made the primary judgement instrument. |
 | 0.3.0 | 2026-08-23 | Victor | ✅ **QP-8 closed — the relay prompt is GENERATED from these blocks** (§10A). ★★ **The finding that made it cheap: only THREE shared blocks (S-2, S-6, S-7) carry the entire API-vs-chat difference.** The task blocks are transport-agnostic as written, so generation is composition plus a **closed substitution map**, not a rewrite. **RG-1…RG-6**, with **RG-4** the load-bearing one — CI regenerates and diffs, ⚠ *without which the generated file becomes a source again within a month and nobody notices until the two disagree.* ★ **§10A.4 records which blocks the current hand-written file is made of, and which three are deliberately omitted** (J-10 always reports an absence; J-14 cannot read the pass that produced it; J-19 needs a peer set a chat cannot align). ⚠ **§10A.5 states the cost honestly: composed prose reads worse than hand-written**, and the artifact is pasted by a human who has to want to use it. |
@@ -428,9 +430,10 @@ on where you looked. `not_found` is a correct answer. A value that is "roughly"
 in the document, or that you assembled from two places, is not.
 
 ★ If the document gives a cumulative year-to-date figure where a discrete
-  quarterly figure was requested, return it tagged `cumulative_ytd` with both
-  period endpoints, and do NOT subtract to produce the discrete quarter. That
-  subtraction is arithmetic and belongs to D-02.
+  quarterly figure was requested, return it tagged `cumulative_ytd` with
+  the period end, and its start only where the document states it. Do NOT
+  subtract to produce the discrete quarter, and do not compute a date.
+  Both are arithmetic and belong to D-02.
 ```
 
 > ★ **The last paragraph is a scar.** `F9` records that EDGAR's 6-K interim figures for foreign
@@ -438,6 +441,13 @@ in the document, or that you assembled from two places, is not.
 > wrong on MU by 71 %. **Cumulative-vs-discrete is the single most expensive extraction error this
 > project has actually made**, and an extractor that silently subtracts reproduces it inside the
 > LLM layer where no `TTM_SOURCE_TOLERANCE` check can see it.
+>
+> ✏ **2026-10-04 (Victor; `DX-131` ⓒ, `L3` §2.1p row 7) — *"with both period endpoints"* replaced.** It
+> asked every E-block for a YTD start the filing almost never states (MU: *"August 30, 2024"* 0 times),
+> which `S-2` forbids computing; `E-07` `E-09` `E-10` `E-12` complied by adding a day to the prior year
+> end. The parse already clears an unstated date (`_stated_period`); now the prompt stops asking for one.
+> ⚠ This changes the extraction `envelope_hash` (`DX-76`): recordings under the old one are a DECLARED
+> held split in `test_golden_regression.DECLARED_ENVELOPES`, not re-recorded.
 
 ## E-01 · Segment revenue and operating income — `v2`
 
@@ -745,6 +755,36 @@ answer is `not_stated` — never "probably a plan".
 
 > Inherited directly from the legacy mega-prompt's **Rule 12**, which was right about this and is
 > the one procedural rule from that document worth keeping verbatim.
+
+## E-08 · Insider transactions and 10b5-1 status — `v2`
+
+> ✏ **2026-10-04 (Victor; `DX-148` ⓑ). One line changed: `in.type` asks for the form's CODE.** v1 asked
+> for a label (*purchase | sale | …*) a Form 4 never prints, while the envelope says a value is copied
+> exactly as the document states it; the first run returned `"S(1)"` and `X-01` refused it. ★ The codes
+> are SEC-defined, so the label is a lookup (`AP-5`): `src/fundamental/filings/form4.py`
+> (S→sale, P→purchase, M→option exercise, G→gift, A→award, anything else→other). `in.plan_status`
+> stays a declared closed set (`DX-122`).
+
+```text
+For each insider transaction in the bundle's Form 4 material:
+
+  in.person        name and stated relationship
+  in.date          transaction date
+  in.type          the transaction code exactly as the form states it (S, P,
+                   M, A, G, F, ...) — the label is mapped from it, never
+                   chosen here
+  in.shares        share count
+  in.price         price, where stated
+  in.plan_status   ★ 10b5-1 | not_10b5-1 | not_stated — from the form's own
+                   checkbox, never inferred from context
+  in.plan_date     the plan adoption date, where the form states one
+  in.holdings_after shares beneficially owned following the transaction
+
+★ `in.plan_status` is the whole point of this extraction. A scheduled sale under
+a plan adopted a year earlier and a discretionary at-market sale look identical
+in a headline and mean different things. If the form does not state it, the
+answer is `not_stated` — never "probably a plan".
+```
 
 ## E-09 · Accounting-policy and estimate changes — `v1`
 

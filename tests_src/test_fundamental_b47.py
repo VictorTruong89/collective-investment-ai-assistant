@@ -217,10 +217,12 @@ def test_the_row_is_derived_and_has_no_setter():
 
 def test_ac_1_69_an_undeclared_schema_version_raises():
     """AC-1.69 / RA-100 — versioned, and the version has to exist."""
+    # ✏ 2026-10-04 — `sector.v2` is now DECLARED (Victor: E-15's value/unit/period), so the
+    #   undeclared example moves to a version that does not exist. The rule is unchanged.
     with pytest.raises(SchemaDriftError):
-        schema_for("sector.v2")
+        schema_for("sector.v99")
     with pytest.raises(SchemaDriftError):
-        sector(schema_version="sector.v2")
+        sector(schema_version="sector.v99")
 
 
 def test_ac_1_69a_a_changed_field_set_fingerprints_differently():

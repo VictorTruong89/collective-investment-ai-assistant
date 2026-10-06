@@ -221,11 +221,13 @@ def test_dx_122_the_declared_classification_values_are_the_blocks_own_words():
     from src.fundamental.claims.classification import CLASSIFICATION_VALUES
     from src.fundamental.prompts.e_blocks import BLOCKS
 
-    text = " ".join(BLOCKS["E-13"][0]().text.split())
+    # ✏ 2026-10-04 — `E-08`'s two closed sets joined `E-13`'s: each id is checked against the
+    #   block that OWNS it, found by its item ids, never by a hardcoded block.
     for evidence_id, values in CLASSIFICATION_VALUES.items():
-        assert evidence_id in text, f"{evidence_id} is not an item E-13 asks for"
+        (owner,) = [b for b, (_f, ids, _v) in BLOCKS.items() if evidence_id in ids]
+        text = " ".join(BLOCKS[owner][0]().text.split())
         for value in values:
-            assert value in text, f"{evidence_id}: {value!r} is not in E-13's own list"
+            assert value in text, f"{evidence_id}: {value!r} is not in {owner}'s own list"
 
 
 def _classified(value: str, quote: str, bundle):

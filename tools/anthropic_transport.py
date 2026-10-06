@@ -149,6 +149,27 @@ _EXTRACTION_TOOL_TEMPLATE = {
                             ),
                         },
                         "note": {"type": "string"},
+                        # ✏ 2026-10-04 — a bundle of SEVERAL documents (`E-03`'s two 10-Ks):
+                        #   an unchanged risk factor is word-for-word in both, so only the
+                        #   answer can say which one it quoted. Optional: a one-document
+                        #   bundle needs no name (the envelope already asks for it).
+                        # ✏ 2026-10-04 — `E-15`: a capacity row's status, from the block's own
+                        #   closed set. Optional: no other row kind has one.
+                        "status_label": {
+                            "type": "string",
+                            "description": (
+                                "E-15 capacity rows only: the status, one of the words the "
+                                "block lists. Omit for every other item."
+                            ),
+                        },
+                        "accession_id": {
+                            "type": "string",
+                            "description": (
+                                "The accession_id of the document the quote is from, "
+                                "copied from the bundle part's pins. Required when the "
+                                "bundle holds more than one document."
+                            ),
+                        },
                     },
                 },
             }

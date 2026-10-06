@@ -953,6 +953,188 @@ def e13_v1() -> PromptBlock:
     return block("E-13", "v1", "extraction", E13_V1_TEXT)
 
 
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-15 `v1`. ✏ Declared 2026-10-04
+#: (Victor: the sector ingest moves onto it). Runs over the sector file's source documents
+#: (`run_extraction_once.py --block E-15 --sector FILE`); its verified rows are appended to a
+#: `sector.v2` file by `tools/ingest_sector_file.py --rows-from RUN_ID` (`sector/rows.py`).
+#: ⚠ `CHEAP_E_BLOCKS` names it cheap tier (`INV-8`); the dev runner sends it on the deep tier.
+E15_V1_TEXT = """\
+TASK TYPE: EXTRACTION into a shared file.
+
+You are adding rows to an industry evidence file that EVERY thesis in this
+industry will read. Nothing you write here is a conclusion.
+
+For each item in the source list, extract every row it supports:
+
+  capacity     competitor · what is being added · units as the source states
+               them · stated online date · status (announced | under
+               construction | commissioning | operating) · any condition
+               attached, verbatim
+  pricing      a disclosed price, ASP or contract term, with its period
+  inventory    a disclosed inventory or channel figure, with its units
+  demand       a disclosed order, backlog or customer-commitment figure
+  policy       an export control, tariff or regulatory action, with its date
+
+Every row carries: source item id · the date the item was published · a
+verbatim quote.
+
+★ Rows are APPEND-ONLY. If an item updates something already in the file — a
+capacity that moved from `announced` to `operating` — emit a NEW row with the
+new status and the new date. Never revise the old row. The transition history
+is the finding, and an announcement that quietly never became capacity is
+invisible once the row is overwritten.
+
+⚠ You process EVERY item in the source list. If an item supports no rows, say
+so with a one-line reason. Skipping an item silently is how a file that
+contains no opinion acquires one — through what got left out.
+
+You may not add a field. If something does not fit the shape above, report it
+as an unfitted item and stop; the schema is versioned and a new column is an
+analytical change, not a convenience.
+"""
+
+#: `MP-5` — `E-15`'s ids are its five ROW KINDS, in its own order.
+E15_ITEM_IDS = ("capacity", "pricing", "inventory", "demand", "policy")
+
+#: `E-15`'s capacity status set — its own words (`DX-122`'s rule: a label from a declared set).
+E15_CAPACITY_STATUSES = ("announced", "under construction", "commissioning", "operating")
+
+
+def e15_v1() -> PromptBlock:
+    """`E-15` `v1` — sector-file ingest (append-only rows)."""
+    return block("E-15", "v1", "extraction", E15_V1_TEXT)
+
+
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-03 `v1`. ✏ Declared 2026-10-04
+#: (`L3` §2.1p row 6): runs on `--document-set mu-10k-risk-factors` (this 10-K's Item 1A against the prior one's).
+E03_V1_TEXT = """\
+Compare the risk-factor section of the most recent annual filing against the
+prior one.
+
+  rf.added      risk factors present now and absent before — full text
+  rf.removed    present before and absent now — full text
+  rf.reworded   present in both with materially changed wording; return BOTH
+                versions and mark the specific clause that changed
+  rf.reordered  a risk that moved materially in ordering, with both positions
+
+Boilerplate churn is not a change. A risk that gained a specific number, a named
+counterparty, a named jurisdiction, or a shift from "may" to "has" IS a change,
+and is the reason this extraction exists.
+"""
+
+#: `MP-5` — `E-03`'s item ids, parsed from its own item list.
+E03_ITEM_IDS = ("rf.added", "rf.removed", "rf.reworded", "rf.reordered")
+
+
+def e03_v1() -> PromptBlock:
+    """`E-03` `v1` — risk-factor delta."""
+    return block("E-03", "v1", "extraction", E03_V1_TEXT)
+
+
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-08 `v1`. ✏ Declared 2026-10-04
+#: (`L3` §2.1p row 6): runs on `--document-set mu-form4-2025q3` (the Form 4s; `in.type`/`in.plan_status` are declared classifications, `DX-122`).
+E08_V1_TEXT = """\
+For each insider transaction in the bundle's Form 4 material:
+
+  in.person        name and stated relationship
+  in.date          transaction date
+  in.type          purchase | sale | option exercise | gift | award | other
+  in.shares        share count
+  in.price         price, where stated
+  in.plan_status   ★ 10b5-1 | not_10b5-1 | not_stated — from the form's own
+                   checkbox, never inferred from context
+  in.plan_date     the plan adoption date, where the form states one
+  in.holdings_after shares beneficially owned following the transaction
+
+★ `in.plan_status` is the whole point of this extraction. A scheduled sale under
+a plan adopted a year earlier and a discretionary at-market sale look identical
+in a headline and mean different things. If the form does not state it, the
+answer is `not_stated` — never "probably a plan".
+"""
+
+#: `MP-5` — `E-08`'s item ids, parsed from its own item list.
+E08_ITEM_IDS = ("in.person", "in.date", "in.type", "in.shares", "in.price", "in.plan_status",
+                "in.plan_date", "in.holdings_after")
+
+
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-08 `v2`. ★ v1 with ONE line
+#: changed: `in.type` is the form's code; the label is mapped (`filings/form4.py`, `DX-148` ⓑ).
+E08_V2_TEXT = """\
+For each insider transaction in the bundle's Form 4 material:
+
+  in.person        name and stated relationship
+  in.date          transaction date
+  in.type          the transaction code exactly as the form states it (S, P,
+                   M, A, G, F, ...) — the label is mapped from it, never
+                   chosen here
+  in.shares        share count
+  in.price         price, where stated
+  in.plan_status   ★ 10b5-1 | not_10b5-1 | not_stated — from the form's own
+                   checkbox, never inferred from context
+  in.plan_date     the plan adoption date, where the form states one
+  in.holdings_after shares beneficially owned following the transaction
+
+★ `in.plan_status` is the whole point of this extraction. A scheduled sale under
+a plan adopted a year earlier and a discretionary at-market sale look identical
+in a headline and mean different things. If the form does not state it, the
+answer is `not_stated` — never "probably a plan".
+"""
+
+
+def e08_v2() -> PromptBlock:
+    """`E-08` `v2` — `in.type` as the Form 4 code (`DX-148`)."""
+    return block("E-08", "v2", "extraction", E08_V2_TEXT)
+
+
+def e08_v1() -> PromptBlock:
+    """`E-08` `v1` — insider transactions and 10b5-1 status."""
+    return block("E-08", "v1", "extraction", E08_V1_TEXT)
+
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-05 `v1`. ✏ Declared 2026-10-04
+#: (`L3` §2.1p row 6): runs on the filing bundle (`tools/run_extraction_once.py --block E-05`).
+E05_V1_TEXT = """\
+  cc.customer      any customer disclosed at ≥10% of revenue: identifier as
+                   given (often "Customer A") and the percentage, per period
+  cc.supplier      any supplier, sole-source or single-source dependency named
+  cc.geography     revenue by geography as disclosed
+  cc.channel       distributor/channel concentration if disclosed
+
+Absence of disclosure is `not_found`, and it is meaningful: it means either no
+customer crossed the threshold or the company did not disclose. Say which the
+document supports; do not choose between them.
+"""
+
+#: `MP-5` — `E-05`'s item ids, parsed from its own item list.
+E05_ITEM_IDS = ("cc.customer", "cc.supplier", "cc.geography", "cc.channel")
+
+
+def e05_v1() -> PromptBlock:
+    """`E-05` `v1` — concentration."""
+    return block("E-05", "v1", "extraction", E05_V1_TEXT)
+
+
+#: Verbatim from `L1-fundamental-analysis-master-prompt.md` §E-11 `v1`. ✏ Declared 2026-10-04
+#: (`L3` §2.1p row 6): runs on the filing bundle (`tools/run_extraction_once.py --block E-11`).
+E11_V1_TEXT = """\
+  lg.matter       each matter: counterparty, claim, jurisdiction, stage
+  lg.amount       damages sought or accrued, where stated
+  lg.accrual      whether a loss is accrued, and the amount
+  lg.language     verbatim probability language ("reasonably possible",
+                  "probable", "cannot be estimated")
+
+★ The verbatim language IS the finding. Those phrases are accounting terms of
+art with defined thresholds, and paraphrasing one destroys the information.
+"""
+
+#: `MP-5` — `E-11`'s item ids, parsed from its own item list.
+E11_ITEM_IDS = ("lg.matter", "lg.amount", "lg.accrual", "lg.language")
+
+
+def e11_v1() -> PromptBlock:
+    """`E-11` `v1` — litigation and regulatory."""
+    return block("E-11", "v1", "extraction", E11_V1_TEXT)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # ★★ `F10` `D5` (2026-09-13) — the normalised-earnings judgement, and `J-07`'s
 # sentence that contradicted it. Text generated from the design doc.
@@ -1455,6 +1637,12 @@ BLOCKS = {
     "E-10": (e10_v1, E10_ITEM_IDS, "v1"),
     "E-12": (e12_v1, E12_ITEM_IDS, "v1"),
     "E-13": (e13_v1, E13_ITEM_IDS, "v1"),
+    # ✏ 2026-10-04 — `L3` §2.1p row 6. ⊘ `E-14` `J-18` `J-19` deferred with their workflows.
+    "E-03": (e03_v1, E03_ITEM_IDS, "v1"),
+    "E-05": (e05_v1, E05_ITEM_IDS, "v1"),
+    "E-08": (e08_v2, E08_ITEM_IDS, "v2"),     # ✏ DX-148 ⓑ — in.type is the form's code
+    "E-11": (e11_v1, E11_ITEM_IDS, "v1"),
+    "E-15": (e15_v1, E15_ITEM_IDS, "v1"),     # ✏ 2026-10-04 — the sector ingest (sector.v2)
     # ⚠ `J-01` is a JUDGEMENT block: its "item ids" are the closed option set,
     #   not evidence ids. ★ `RA-5` keeps extraction and judgement apart —
     #   extraction has ground truth, judgement has a recorded judge.

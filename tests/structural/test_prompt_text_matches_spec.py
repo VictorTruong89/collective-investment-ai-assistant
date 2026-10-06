@@ -112,7 +112,10 @@ def _item_ids_named_in(text: str) -> list[str]:
     first-token parse returns `sc.basic` alone and drops `sc.diluted`, which
     `v2`'s `share_count` level cites.
     """
-    return [i for m in _ITEM_LINE.finditer(text) for i in m.groups() if i]
+    ids = [i for m in _ITEM_LINE.finditer(text) for i in m.groups() if i]
+    # ✏ 2026-10-04 — `E-15`'s items are ROW KINDS, a bare word at the item-list indent
+    #   (`  capacity     competitor · …`), not `xx.yyy` ids. Read the same way: in order.
+    return ids or re.findall(r"^  ([a-z]+) {3,}\S", text, re.M)
 
 
 def test_mp_5_EVERY_extraction_block_declares_exactly_the_ids_its_prompt_names():
@@ -214,6 +217,11 @@ _BLOCK_HEADINGS = {
     "E-10": "## E-10 · Share count and dilution — `{v}`",
     "E-12": "## E-12 · Management's stated capital priorities — `{v}`",
     "E-13": "## E-13 · Competitor capacity announcements — `{v}`",
+    "E-03": "## E-03 · Risk-factor delta — `{v}`",
+    "E-05": "## E-05 · Concentration — `{v}`",
+    "E-08": "## E-08 · Insider transactions and 10b5-1 status — `{v}`",
+    "E-11": "## E-11 · Litigation and regulatory — `{v}`",
+    "E-15": "## E-15 · Sector-file ingest — `{v}` — ★ cheap tier",
     # ⚠ `J-01` is a JUDGEMENT block and its section sits one level deeper
     #   (`###`) in the design doc. ★ Declared 2026-09-10 (`DX-64`) — the first
     #   J-block with text in `src/`, after `STAGE_BLOCKS` had named J-01…J-17
@@ -301,6 +309,26 @@ def test_dx67_every_envelope_section_matches_its_spec_section():
         body = doc.split(f"## S-{n} · ", 1)[1]
         spec = body.split("```text", 1)[1].split("```", 1)[0].strip("\n")
         assert text.strip("\n") == spec, f"{name} has drifted from the design doc"
+
+
+def test_the_extraction_preamble_matches_section_3_0():
+    """`RA-13` for the extraction preamble — ⚠ it was composed into every E-block and
+    guarded by nothing, which is how `DX-131`'s root cause sat in it unnoticed."""
+    from src.fundamental.prompts.envelope import EXTRACTION_PREAMBLE
+
+    body = DOC.read_text(encoding="utf-8").split("## 3.0 The shared extraction envelope", 1)[1]
+    spec = body.split("```text", 1)[1].split("```", 1)[0].strip("\n")
+    assert EXTRACTION_PREAMBLE.strip("\n") == spec
+
+
+def test_dx_131_the_preamble_never_asks_for_a_date_the_document_does_not_state():
+    """✏ 2026-10-04 (Victor) — *"with both period endpoints"* asked every E-block for the
+    YTD start the filing does not state, which `S-2` forbids computing (`DX-131` ⓒ)."""
+    from src.fundamental.prompts.envelope import EXTRACTION_PREAMBLE
+
+    assert "both\n  period endpoints" not in EXTRACTION_PREAMBLE
+    assert "its start only where the document states it" in EXTRACTION_PREAMBLE
+    assert "do not compute a date" in EXTRACTION_PREAMBLE
 
 
 def test_dx67_the_guard_covers_every_section_the_doc_declares():

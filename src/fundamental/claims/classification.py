@@ -20,6 +20,10 @@ from __future__ import annotations
 #: prompt text; a structural test asserts every value appears there verbatim (`RA-13`).
 CLASSIFICATION_VALUES: dict[str, tuple[str, ...]] = {
     "cx.status": ("announced", "under construction", "commissioning", "operating"),
+    # ✏ 2026-10-04 — `E-08`: the plan status is a ticked box, not these words. ① still holds:
+    #   the quote must be the form's own text. (`in.type` left this set the same day —
+    #   `DX-148` ⓑ: it is now the form's code, verbatim, and its label is mapped.)
+    "in.plan_status": ("10b5-1", "not_10b5-1", "not_stated"),
 }
 
 

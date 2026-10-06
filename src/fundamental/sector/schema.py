@@ -24,6 +24,11 @@ OMISSION_FIELDS_V1 = ("source_id", "reason", "observed_at")
 
 SCHEMA_V1 = "sector.v1"
 
+#: ✏ 2026-10-04 (Victor) — `sector.v2` = v1 + the three columns an `E-15` row carries that v1
+#: has no place for. ★ v1 is untouched: a column arrives by a new version (`RA-100`).
+RECORD_FIELDS_V2 = (*RECORD_FIELDS_V1, "value", "unit", "period")
+SCHEMA_V2 = "sector.v2"
+
 
 @dataclass(frozen=True, slots=True)
 class SectorSchema:
@@ -52,6 +57,7 @@ class SectorSchema:
 #: one in place is the defect RA-100 names.
 SCHEMAS = {
     SCHEMA_V1: SectorSchema(SCHEMA_V1, RECORD_FIELDS_V1, OMISSION_FIELDS_V1),
+    SCHEMA_V2: SectorSchema(SCHEMA_V2, RECORD_FIELDS_V2, OMISSION_FIELDS_V1),
 }
 
 

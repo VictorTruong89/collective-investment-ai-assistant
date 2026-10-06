@@ -193,6 +193,29 @@ def test_exceeding_the_declared_budget_fails_the_run():
     assert "budget" in str(e.value).lower()
 
 
+def test_ac_0_24_a_claude_code_call_is_priced_at_zero_BY_THE_GATEWAY():
+    """AC-0.24 — GW-27, at the gateway and not only at one composition root.
+
+    ⛔ Found 2026-10-04: `run_extraction_once` builds its own gateway with list prices, so a
+    subscription call of $2.74 NOTIONAL was charged against the $2.00 run budget and its
+    verified answer refused. ★ The response says which transport carried it; a `claude_code`
+    response costs $0 of API money whatever the config's prices say."""
+    big = ok_transport(tokens_in=400_000, tokens_out=40_000, transport="claude_code")
+    g = gw(cfg(**{"llm.budget.usd_per_run": 0.02}), transport=big)
+    send(g)
+    send(g)                                   # ~$3 each at list price; $0 of spend
+    assert all(c.cost_usd == 0.0 for c in g.calls)
+
+
+def test_ac_0_24_an_api_call_is_still_priced_and_still_BUDGETED():
+    """⚠ The exemption is the transport's, never a default: an API response is priced."""
+    g = gw(cfg(**{"llm.budget.usd_per_run": 0.02}),
+           transport=ok_transport(transport="anthropic_api"))
+    send(g)
+    with pytest.raises(BudgetExceededError):
+        send(g)
+
+
 def test_every_call_is_available_for_the_run_manifest():
     """AC-0.9, GW-16 — a retry invisible to the manifest makes a slow flaky run
     indistinguishable from a fast clean one."""

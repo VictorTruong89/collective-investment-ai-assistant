@@ -154,9 +154,16 @@ def sector_file(file) -> BundlePart:
     (RA-99/RA-141); the pins are `industry · schema_version · file_version`, so
     a re-ingest that changes any record changes `bundle_hash`.
     """
+    # ✏ `sector.v2` — a row's reading is rendered only when it has one, so a v1 file renders
+    #   byte-identically and its `bundle_hash` does not move.
+    def reading(r) -> str:
+        parts = [f"value={r.value}" if r.value else "", f"unit={r.unit}" if r.unit else "",
+                 f"period={r.period}" if r.period else ""]
+        shown = "  ".join(p for p in parts if p)
+        return f"{shown}  " if shown else ""
     lines = [f"{r.date.isoformat()}  {r.kind}  {r.subject}  "
              f"{r.prior_status + ' -> ' if r.prior_status else ''}{r.status}  "
-             f"[{r.source_id}] {r.quote}"
+             f"{reading(r)}[{r.source_id}] {r.quote}"
              for r in file.records]
     if file.omissions:
         lines.append("")

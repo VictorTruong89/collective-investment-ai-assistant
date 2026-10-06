@@ -150,8 +150,13 @@ class ExtractedItem:
         base = (self.evidence_id, self.qualifier,
                 (self.period.start, self.period.end) if self.period else None,
                 bool(self.is_cumulative_ytd))
-        if self.is_figure or self.span is None:
+        if self.span is None:
             return base
+        if self.is_figure:
+            # ✏ 2026-10-04 — a bundle of SEVERAL documents (`E-08`'s Form 4s): the same figure
+            #   from another filing is another figure, so the cited DOCUMENT joins the identity.
+            #   ★ Constant within one document, so the one-filing guard is unchanged.
+            return (*base, self.span.accession_id)
         return (*base, (self.span.accession_id, self.span.start, self.span.end))
 
     def __post_init__(self) -> None:

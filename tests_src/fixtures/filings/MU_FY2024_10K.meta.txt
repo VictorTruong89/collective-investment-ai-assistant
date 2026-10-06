@@ -1,0 +1,18 @@
+SIDECAR — repo annotation for MU_FY2024_10K.txt (DX-102: never inside the fixture).
+
+=============================================================================
+PROVENANCE — do not edit the body of the .txt at all.
+=============================================================================
+Filer          : MICRON TECHNOLOGY INC  (CIK 0000723125)
+Form           : 10-K
+Fiscal period  : FY2024, year ended 2024-08-29
+Filed          : 2024-10-04
+Accession      : 0000723125-24-000027
+Source URL     : https://www.sec.gov/Archives/edgar/data/723125/000072312524000027/mu-20240829.htm
+Retrieved      : 2026-10-04 via EDGAR (declared User-Agent, EDGAR_CONTACT)
+Converted      : 2026-10-04 by tools/convert_filing.py — HTML -> text, mechanical,
+                 the same converter as the 10-Q fixtures. NO content removed.
+Used by        : E-03 (risk-factor delta), via run_extraction_once.py
+                 --document-set mu-10k-risk-factors, which cuts the bundle at the
+                 headings "ITEM 1A. RISK FACTORS" .. "ITEM 1B. UNRESOLVED STAFF
+                 COMMENTS" (by heading, never by line number).

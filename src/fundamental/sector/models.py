@@ -34,6 +34,7 @@ from src.fundamental.sector.schema import (
     RECORD_FIELDS_V1,
     SCHEMA_V1,
     assert_schema_current,
+    schema_for,
 )
 
 #: RA-97 — the five the rule names, plus the near-synonyms the same field would
@@ -123,6 +124,10 @@ class SectorRecord:
     quote: str = ""
     status: str = ""
     prior_status: str = ""
+    # ✏ `sector.v2` (2026-10-04) — an `E-15` row's reading. Empty on a v1 record.
+    value: str = ""
+    unit: str = ""
+    period: str = ""
 
     def __post_init__(self) -> None:
         if self.kind == KIND_CAPACITY:
@@ -214,9 +219,18 @@ class SectorFile:
 
     def __post_init__(self) -> None:
         # ── RA-100/RA-140: the field set, before anything reads it.
+        schema = schema_for(self.schema_version)
         fingerprint = assert_schema_current(
-            self.schema_version, RECORD_FIELDS_V1, OMISSION_FIELDS_V1)
+            self.schema_version, schema.record_fields, schema.omission_fields)
         object.__setattr__(self, "schema_fingerprint", fingerprint)
+        # ✏ `sector.v2` — a record carrying a field its file's schema has no column for is
+        #   REFUSED: writing it would drop the reading silently (`RA-100` inverted).
+        for record in self.records:
+            extra = [f for f in ("value", "unit", "period")
+                     if getattr(record, f) and f not in schema.record_fields]
+            if extra:
+                raise ValueError(f"{record.record_id}: {extra} have no column in "
+                                 f"{self.schema_version} — write a sector.v2 file")
 
         # ── RA-99/RA-141: one sort, over records, and it is not negotiable.
         ordered = tuple(sorted(self.records, key=lambda r: (r.date, r.record_id)))
@@ -232,9 +246,16 @@ class SectorFile:
             "schema_fingerprint": self.schema_fingerprint,
             "file_version": self.file_version,
             "source_list_version": self.source_list_version,
-            "records": [r.to_json_obj() for r in self.records],
+            "records": [self._record_obj(r) for r in self.records],
             "omissions": [o.to_json_obj() for o in self.omissions],
         }
+
+    def _record_obj(self, record: SectorRecord) -> dict:
+        """The record's v1 object plus the columns this file's schema adds (`sector.v2`)."""
+        obj = record.to_json_obj()
+        for f in schema_for(self.schema_version).record_fields:
+            obj.setdefault(f, getattr(record, f))
+        return obj
 
     # ── RA-101: the row is a PROJECTION. There is no setter, by construction.
     def capacity_row(self, subject: str) -> CapacityRow:

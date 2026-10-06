@@ -1,0 +1,107 @@
+{
+ "_readme": [
+  "Form 4s for MU filed 2025-02-28 (the 10-Q quarter's start) through 2025-06-25 (the day BEFORE the as-of 2025-06-26: a same-day filing's time is unknown, so it is excluded). Retrieved 2026-10-04 from EDGAR (declared User-Agent); each rendered form (xslF345X05) converted by tools/convert_filing.py, mechanically, nothing removed. Used by E-08 via run_extraction_once.py --document-set mu-form4-2025q3."
+ ],
+ "forms": [
+  {
+   "accession": "0001562180-25-004955",
+   "filed": "2025-06-18",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025004955/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-004702",
+   "filed": "2025-06-10",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025004702/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-004700",
+   "filed": "2025-06-10",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025004700/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003629",
+   "filed": "2025-05-06",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003629/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003246",
+   "filed": "2025-04-25",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003246/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003229",
+   "filed": "2025-04-22",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003229/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003228",
+   "filed": "2025-04-22",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003228/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003198",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003198/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003197",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003197/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003196",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003196/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003195",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003195/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003194",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003194/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003193",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003193/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-003192",
+   "filed": "2025-04-17",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025003192/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002925",
+   "filed": "2025-04-02",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002925/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002782",
+   "filed": "2025-03-27",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002782/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002548",
+   "filed": "2025-03-18",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002548/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002229",
+   "filed": "2025-03-07",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002229/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002228",
+   "filed": "2025-03-07",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002228/xslF345X05/primarydocument.xml"
+  },
+  {
+   "accession": "0001562180-25-002125",
+   "filed": "2025-03-05",
+   "url": "https://www.sec.gov/Archives/edgar/data/723125/000156218025002125/xslF345X05/primarydocument.xml"
+  }
+ ]
+}

@@ -335,7 +335,12 @@ class Gateway:
 
         elapsed = int((time.monotonic() - started) * 1000)
         tin, tout = int(raw.get("tokens_in", 0)), int(raw.get("tokens_out", 0))
-        cost = self._cost(model_id, tin, tout)
+        # ✏ AC-0.24 / GW-27 (2026-10-04) — the TRANSPORT says what the call cost in API
+        #   dollars when it knows ($0 on the subscription); config prices it otherwise.
+        #   ⚠ Pricing it from config alone charged a notional $2.74 against a $2.00 budget.
+        from src.shared.llm.claude_code_transport import cost_usd
+        stated = cost_usd(raw)
+        cost = self._cost(model_id, tin, tout) if stated is None else stated
         stop = raw.get("stop_reason")
 
         # GW-23 — a truncation is a FAILURE, not a short answer.
