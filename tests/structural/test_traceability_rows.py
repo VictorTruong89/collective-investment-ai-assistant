@@ -36,8 +36,9 @@ def test_dx53_the_check_covers_every_spec_and_every_row():
     specs = {s.parent.name for s, _ in rows}
     # ✏ 2026-09-13 — `F10` (17 ACs) joined. ⚠ Still pinned on purpose: a spec that
     #   loses its table must turn this red, and a count that silently grew would too.
-    assert len(rows) == 180, "148 + F10's 23 + F11's 9 ACs, one row each (F11 approved and built 2026-10-02)"
-    assert len(specs) == 13, "all thirteen specs carry a table (F11 joined 2026-10-02)"
+    # ✏ 2026-10-05 — `F12` (30 ACs, 🟡 draft) joined.
+    assert len(rows) == 210, "148 + F10's 23 + F11's 9 + F12's 30 ACs, one row each (F12 drafted 2026-10-05)"
+    assert len(specs) == 14, "all fourteen specs carry a table (F12 joined 2026-10-05)"
 
 
 # ── ⓑ basename fallback — the decision that made this shippable ───────────

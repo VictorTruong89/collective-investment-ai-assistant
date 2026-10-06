@@ -90,3 +90,96 @@ def formula_ids_referenced_in_src(root: Path | None = None) -> set[str]:
                 encoding="utf-8"), re.M):
             found.add(match.group(1))
     return found
+
+
+# ── AC-F12.19 (≡ AC-3.16) — every entry's known-answer test is a real test ──────
+_REPO = _SRC.parent
+_KAT_LINK = re.compile(r"`?((?:tests|tests_src)/[\w/]+\.py)?::(test_\w+)`?")
+
+
+def _section(text: str, heading: str) -> str:
+    match = re.search(rf"^##\s+{re.escape(heading)}\s*$(.*?)(?=^##\s|\Z)", text,
+                      re.M | re.S | re.I)
+    return match.group(1) if match else ""
+
+
+def unresolved_known_answer_tests(entry_dirs=None, repo: Path | None = None
+                                  ) -> dict[str, str]:
+    """`{formula_id: why}` for every entry whose known-answer test cannot be found.
+
+    ★ The section must name at least one `path.py::test_name` (a bare
+    `::test_name` inherits the last path named before it). A named test RUNS
+    with the suite, so a link that resolves is a test that executes; ⚠ the link
+    is what rots — a renamed function or a moved file leaves prose behind that
+    still reads like coverage.
+    """
+    repo = repo or _REPO
+    problems: dict[str, str] = {}
+    for directory in entry_dirs or ENTRY_DIRS:
+        for path in sorted(Path(directory).glob("*.md")):
+            section = _section(path.read_text(encoding="utf-8"), "Known-answer test")
+            last, links, bad = None, [], []
+            for file_part, name in _KAT_LINK.findall(section):
+                last = file_part or last
+                links.append((last, name))
+            for file_part, name in links:
+                target = repo / file_part if file_part else None
+                if target is None or not target.is_file():
+                    bad.append(f"{file_part or '?'}::{name} (no such file)")
+                elif not re.search(rf"^def {name}\(", target.read_text(
+                        encoding="utf-8"), re.M):
+                    bad.append(f"{file_part}::{name} (no such test)")
+            if not links:
+                problems[path.stem] = "names no `path.py::test_name` known-answer test"
+            elif bad:
+                problems[path.stem] = "; ".join(bad)
+    return problems
+
+
+# ── AC-F12.22 (≡ AC-3.19, QA-25) — an entry is amended with its code ───────────
+#: ★ Entries whose formula has no `FORMULA_ID = "..."` assignment anywhere in
+#: `src/`, so there is no file to pin. ⚠ A FIXED list: a new entry without an
+#: assignment must be added here by hand, which is the moment to ask why.
+UNLOCATED_FORMULAS = frozenset({
+    "cv.purge_embargo.derived.v1", "effective_n.overlap_corrected.v1",
+    "mde.rank_ic.v1", "rank_ic.spearman.v1",
+    "volatility.realised_open_to_open_std.v1",
+})
+_CODE_PIN = re.compile(r"^Code:\s*(\S+)\s*@\s*sha256:([0-9a-f]{16})\s*$", re.M)
+
+
+def code_digest(path: Path) -> str:
+    """The first 16 hex of the file's sha256 — what an entry pins."""
+    import hashlib
+
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()[:16]
+
+
+def stale_entries(repo: Path | None = None) -> dict[str, str]:
+    """`{formula_id: why}` for every located formula whose entry does not pin
+    the CURRENT code. ★ QA-25: *the MethodEntry and the code are amended in the
+    same commit* — so a code change alone turns this red, and the fix is to
+    re-read the entry, amend it, and re-pin."""
+    repo = repo or _REPO
+    src = repo / "src"
+    declared: dict[str, Path] = {}
+    for path in sorted(src.rglob("*.py")):
+        for match in re.finditer(r'^FORMULA_ID\s*=\s*"([^"]+)"',
+                                 path.read_text(encoding="utf-8"), re.M):
+            declared[match.group(1)] = path
+    entries = {p.stem: p for d in src.glob("*/methods/entries") for p in d.glob("*.md")}
+    problems: dict[str, str] = {}
+    for formula_id, code in sorted(declared.items()):
+        entry = entries.get(formula_id)
+        if entry is None:
+            continue                                  # AC-F12.17's failure, not this one
+        pin = _CODE_PIN.search(entry.read_text(encoding="utf-8"))
+        rel = code.relative_to(repo).as_posix()
+        if pin is None:
+            problems[formula_id] = f"entry pins no code (want `Code: {rel} @ sha256:…`)"
+        elif pin.group(1) != rel:
+            problems[formula_id] = f"entry pins {pin.group(1)}, formula is in {rel}"
+        elif pin.group(2) != code_digest(code):
+            problems[formula_id] = (f"{rel} changed since its entry was amended "
+                                    f"(pinned {pin.group(2)}, now {code_digest(code)})")
+    return problems

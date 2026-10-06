@@ -37,12 +37,12 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state (2026-10-05):** **13 specs, all 🟢 approved, 180/180 ACs green**, with 17 governed
-path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
-modules), and the suite stands at 2,549 pass with 1 deliberate red (`J-07`). The analysis layer has 32/35
+**Current state (2026-10-05):** **14 specs 🟢 approved — 180/180 ACs green, plus `F12` quant core
+(2026-10-05) at 27/30 (3 vacuous)**, with 18 governed path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
+modules), and the suite stands at 2,575 pass with 1 deliberate red (`J-07`). The analysis layer has 32/35
 prompt blocks declared, every one run live and verified (`E-14` `J-18` `J-19` deferred by decision), and four
 MU theses produced (k=1 each; SELL → HOLD → SELL → SELL, all falsified or on course to be). ⊘ AMD thesis
-skipped; falsifier improvement waits for real runs. Next: quant domain, then go-live (`MS-0`). ⊘ **The golden-case programme is CLOSED**
+skipped; falsifier improvement waits for real runs. Quant closed as *govern & close* (`F12`); go-live prepared in `sdd/design/rel1_design/L9-go-live-checklist.md` — ⚠ the daily graph still authors the old 3-call thesis (G1). ⊘ **The golden-case programme is CLOSED**
 (`L8` §9, 2026-10-01): 53 live cases kept and maintained, **no new golden cases**. Judgement quality is
 measured by falsifiers and rule checks. **Live progress is `sdd/design/rel1_design/L3-build-sequence.md`
 §2.1**; the golden-case programme is `L8-golden-case-retrospective.md`.

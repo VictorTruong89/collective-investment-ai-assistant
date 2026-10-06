@@ -57,3 +57,14 @@ class NominationContractError(QuantError):
     """CT-3.4 — the nomination D-12 consumes is malformed."""
 
     code = "QNT.NOMINATION.INVALID"
+
+
+class GateVacuousError(QuantError):
+    """QA-17 / AC-F12.10 (≡ AC-3.10) — a gate that cannot fail.
+
+    ★ F0 **D-18**: every candidate errored, the defaults were adopted, and the gate
+    still reported PASS for over a month. A PASS with no statistic behind it is that
+    shape, and is refused when the result is built.
+    """
+
+    code = "QNT.GATE.VACUOUS"

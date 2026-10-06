@@ -20,6 +20,12 @@ from datetime import date
 
 from src.quant.errors import NominationContractError
 
+#: ★ AC-F12.30 — F12 `D3`/`D7` (Victor, 2026-10-05), verbatim. Carried by every
+#: Nomination and every BacktestResult (PG-10: the limit travels on the artifact).
+REGIME_LIMITATION = (
+    "Not regime-conditioned: one model is fitted across all market states; "
+    "a result from one regime is not evidence for another.")
+
 
 @dataclass(frozen=True, slots=True)
 class Candidate:
@@ -50,8 +56,21 @@ class Nomination:
     #: can tell a name that was **beaten** from one that was **barred** —
     #: DE-13's rule one domain over.
     excluded: tuple[dict, ...] = ()
+    #: ★ QA-30 / AC-F12.26 — the D-02 contract (`name@vN`), the adjustment
+    #: date, and D-07's calendar report id this nomination was computed under.
+    #: Defaulted only so the dataclass orders; an empty one is REFUSED below.
+    contract_version: str = ""
+    adj_as_of: date | None = None
+    calendar_check_id: str = ""
 
     def __post_init__(self) -> None:
+        for name in ("contract_version", "adj_as_of", "calendar_check_id"):
+            if not getattr(self, name):
+                # QA-30 / AC-F12.26 — refused, never defaulted (P5).
+                raise NominationContractError(
+                    f"{name} is required — every D-03 output records the D-02 "
+                    f"contract version, as_of, adj_as_of and the calendar-check id "
+                    f"it was computed under (QA-30)")
         if self.nominating_horizon != "h1m":
             # QA-120: h1m is the ONLY nominating horizon (CT-3.1's arbitration).
             raise NominationContractError(
@@ -106,6 +125,10 @@ class Nomination:
                             "ranked_quantity": c.ranked_quantity, "z": c.z}
                            for c in self.candidates],
             "excluded": [dict(e) for e in self.excluded],
+            "contract_version": self.contract_version,
+            "adj_as_of": self.adj_as_of.isoformat(),
+            "calendar_check_id": self.calendar_check_id,
+            "limitation": REGIME_LIMITATION,
             "arbitration": {"nominated_by": self.nominating_horizon,
                             "delayed_by": list(self.delayed_by),
                             "vetoed_by": list(self.vetoed_by),

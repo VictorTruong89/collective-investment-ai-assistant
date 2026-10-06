@@ -24,7 +24,7 @@ def _panel(n, dates, rho_true, seed=11):
 
 @pytest.mark.parametrize("rho_true", [0.0, 0.10, 0.35, 0.60])
 def test_the_raw_measure_recovers_a_known_correlation(rho_true):
-    """★★ The gate's input is validated against a panel whose true common
+    """AC-F12.28 — ★★ The gate's input is validated against a panel whose true common
     correlation is known by construction — not against intuition."""
     measured = average_pairwise_correlation(_panel(200, 750, rho_true))
     assert measured == pytest.approx(rho_true, abs=0.02)
@@ -32,7 +32,7 @@ def test_the_raw_measure_recovers_a_known_correlation(rho_true):
 
 @pytest.mark.parametrize("n", [12, 50, 200, 500])
 def test_the_residual_measure_returns_minus_one_over_n_minus_one_regardless(n):
-    """★★★ **The reason the gate is not fed QA-43's literal measure.**
+    """AC-F12.28 — ★★★ **The reason the gate is not fed QA-43's literal measure.**
 
     ⚠ Removing a factor built from the same names removes the very correlation
     being measured. Measured 2026-08-27: the residual correlation is **identical
@@ -81,7 +81,7 @@ def test_breadth_is_bets_per_year_not_a_name_count():
 
 
 def test_an_unmeasurable_breadth_is_none_never_the_name_count():
-    """★★ QA-43 — ⚠ *Neither `BR = n` nor the equally-weighted-mean haircut is
+    """AC-F12.28 — ★★ QA-43 — ⚠ *Neither `BR = n` nor the equally-weighted-mean haircut is
     admissible as a default.* Substituting `n` would pass every universe by
     construction."""
     result = effective_breadth(_panel(4, 750, 0.3), horizon_days=21)

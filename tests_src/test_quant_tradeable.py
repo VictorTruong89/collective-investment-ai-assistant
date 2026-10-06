@@ -29,7 +29,7 @@ def _panel(last_bar: dict, sessions: int = 10):
 # --------------------------------------------------------------------------- #
 
 def test_a_delisted_name_is_excluded_with_its_reason():
-    """AC-3.32 — an untradeable name never reaches `candidates` and appears in
+    """AC-F12.29 — AC-3.32 — an untradeable name never reaches `candidates` and appears in
     `excluded[]` with its reason."""
     barred = untradeable(_panel({"NVDA": AS_OF, "AVB": AS_OF}), as_of=AS_OF,
                          delisted={"AVB": "delisted 2026-08-17"})
@@ -42,7 +42,7 @@ def test_a_delisted_name_is_excluded_with_its_reason():
 
 
 def test_a_barred_name_absent_from_candidates_is_still_recorded():
-    """AC-3.32 — ★★ the regression this module exists for. ⚠ *Measured
+    """AC-F12.29 — AC-3.32 — ★★ the regression this module exists for. ⚠ *Measured
     2026-08-27:* `AVB` and `EQR` are delisted **and absent from the day's
     cross-section**, so filtering the candidate list recorded NOTHING and a
     reader could not tell a name that was BEATEN from one that was BARRED.
@@ -57,7 +57,7 @@ def test_a_barred_name_absent_from_candidates_is_still_recorded():
 
 
 def test_a_stale_name_is_excluded_even_though_it_still_prices():
-    """AC-3.32 — a name with a stale last bar is excluded **even when it still
+    """AC-F12.29 — AC-3.32 — a name with a stale last bar is excluded **even when it still
     prices**. ★ Nothing said it was delisted; it simply stopped printing."""
     stale = AS_OF - timedelta(days=STALE_SESSIONS + 3)
     barred = untradeable(_panel({"NVDA": AS_OF, "HALT": stale}), as_of=AS_OF)

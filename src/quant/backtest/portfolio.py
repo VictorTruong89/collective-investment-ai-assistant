@@ -8,9 +8,16 @@ construction** (MT-17 requires every required gate to PASS).
 ```text
    scored predictions -> pick top-N per rebalance date
                       -> hold for the horizon
-                      -> gross  = mean realised label return
+                      -> gross  = drifted-weight realised return (F12 D6)
                       -> net    = gross - commission on the turnover
 ```
+
+★ **Held names DRIFT; only entries and exits trade** (F12 `D6`, AC-F12.14,
+Victor 2026-10-05). ⚠ The period return used to be the MEAN of the picked
+labels — which silently re-equalised every held name at every rebalance and
+charged $0 for it, a trade QA-61 says must be charged and one a small flat-fee
+book would not make. An exit is sold and its proceeds are split equally across
+the entries; the opening basket is equal weight.
 
 ⚠⚠ **This measures a PORTFOLIO, not the daily card.** INV-6 permits exactly one
 actionable recommendation per day; a backtest of a one-name book measures the
@@ -81,6 +88,7 @@ def simulate(predictions: pd.DataFrame, *, horizon_days: int, capital: float,
 
     day = pd.to_datetime(frame["date"]).dt.date
     held: set = set()
+    weights: dict = {}                          # ★ D6 — drifted, never re-equalised
     periods, turnovers, benchmark = [], [], []
 
     for when in rebalances:
@@ -94,10 +102,26 @@ def simulate(predictions: pd.DataFrame, *, horizon_days: int, capital: float,
         #   a survivorship-flattered sample makes any absolute return look good.
         benchmark.append(float(book[label_column].mean()))
 
-        # ★ Equal weight. ⚠ Not a sizing decision — D-06 owns sizing (PS-43);
-        #   this is the neutral choice that makes the number about the RANKING.
-        periods.append(float(picked[label_column].mean()))
-        turnovers.append(len(names - held) + len(held - names))
+        # ★ Equal weight AT ENTRY. ⚠ Not a sizing decision — D-06 owns sizing
+        #   (PS-43); this is the neutral choice that makes the number about the
+        #   RANKING. ★ D6: a held name keeps its drifted weight; an exit's
+        #   weight is sold and split equally across the entries.
+        entries, exits = names - held, held - names
+        if not weights:
+            weights = {t: 1.0 / len(names) for t in names}
+        else:
+            freed = sum(weights.pop(t) for t in exits)
+            weights.update({t: freed / len(entries) for t in entries})
+        label = dict(zip(picked["ticker"], picked[label_column].astype(float), strict=True))
+        period = sum(w * label[t] for t, w in weights.items())
+        periods.append(float(period))
+        if 1.0 + period <= 0.0:
+            raise QuantError(
+                f"the simulated book lost {period:.1%} in the period from {when} — "
+                f"weights cannot drift from a wiped-out book (P5: raise, not guess)")
+        weights = {t: w * (1.0 + label[t]) / (1.0 + period)
+                   for t, w in weights.items()}
+        turnovers.append(len(entries) + len(exits))
         held = names
 
     if not periods:
@@ -133,7 +157,7 @@ def simulate(predictions: pd.DataFrame, *, horizon_days: int, capital: float,
         "capital": capital,
         "top_n": top_n,
         "years": round(years, 2),
-        "costs_charged": costs.components,
+        "costs_charged": costs.costs_charged,
     }
 
 

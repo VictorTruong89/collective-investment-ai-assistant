@@ -17,6 +17,8 @@ import json
 from dataclasses import dataclass, field
 from datetime import date
 
+from src.quant.contracts.nomination import REGIME_LIMITATION
+
 #: QA-11's list, from §7.1. ⚠ Every one of them, or the spec does not run.
 PINNED_FIELDS = (
     "universe", "start", "end", "horizon_set_name", "horizon_set_version",
@@ -129,7 +131,9 @@ class BacktestResult:
                 "formula_ids": list(self.formula_ids),
                 # ★ QA-13/INV-010 — the label travels with the number.
                 "label": ("BACKTESTED, NET OF STATED COSTS — not an expected "
-                          "return (QA-13, INV-010)")}
+                          "return (QA-13, INV-010)"),
+                # ★ AC-F12.30 — F12 D3/D7, verbatim (PG-10).
+                "limitation": REGIME_LIMITATION}
 
     def _hash(self) -> str:
         payload = {k: v for k, v in self.to_json_obj().items()

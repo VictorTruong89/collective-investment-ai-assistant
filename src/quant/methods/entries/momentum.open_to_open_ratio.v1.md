@@ -1,5 +1,8 @@
 # MethodEntry — `momentum.open_to_open_ratio.v1`
 
+Code: src/feature_engineer/technical/momentum.py @ sha256:d49babbf2ff77fcd
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 > **CT-3.3.** One per `formula_id`. A `formula_id` referenced anywhere in `src/`
 > with no MethodEntry **fails the build** (QA-20, AC-3.14).
 

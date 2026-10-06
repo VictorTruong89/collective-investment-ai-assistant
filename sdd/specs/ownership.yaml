@@ -214,6 +214,16 @@ map:
       Victor's config, every threshold must come from the subject's F10 trail (AC-F11.5),
       and every rate carries its n (AC-F11.6). Built 2026-10-02; the glob matches code.
 
+  - globs:
+      - "src/quant/**"
+    spec: sdd/specs/F12_quant_core/spec.md
+    why: >
+      F12 — D-03 quant core (🟢 approved 2026-10-05): HorizonSet, the evaluation protocol
+      D-04's promote() is judged by, the MethodEntry register, the daily Nomination.
+      Graduates what was built, carries L1-quant §14's AC-3.x as AC-F12.k (DX-151: bare
+      AC-3.x collides with F3). ⚠ Stateless (QA-28) and must not import src/models or
+      src/fundamental (QA-28, INV-014). src/models/** (D-04) stays ungoverned by D4.
+
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
   # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 

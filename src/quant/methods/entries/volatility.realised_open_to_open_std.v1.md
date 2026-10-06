@@ -45,7 +45,8 @@ a ratio of 1.0006** (D-03 §5.9.1c), so the substitution is empirically near-fre
 
 ## Known-answer test
 
-`tests_src/test_quant_b3.py::test_method_known_answer_vol_21`
+`tests_src/test_feature_engineer_b3.py::test_method_known_answer_vol_21_constant_growth_is_exactly_zero`
+*(✏ 2026-10-05, AC-F12.19: the link named a function that never existed in `test_quant_b3.py`.)*
 
 A constant-growth series has identical log returns every day, so its sd is
 **exactly 0.0** — and 0.0 here is a *measured* zero, not a missing one. With

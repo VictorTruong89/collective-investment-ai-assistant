@@ -1,5 +1,8 @@
 # `dcf.two_stage_fcff_firm_rate.v1` — two-stage DCF, FCFF at a firm rate, minus net debt
 
+Code: src/feature_engineer/valuation/dcf.py @ sha256:9022eb6b62c8ab02
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
     fcff_y  = base × (1 + g₁)^y                         y = 1 … N

@@ -97,7 +97,7 @@ def test_rank_ic_is_one_when_the_ordering_is_perfect():
 
 
 def test_qa17_an_uncomputable_statistic_is_not_evaluated_never_a_pass():
-    """★★ QA-17 / **D-18's precedent** — *a gate that cannot fail is
+    """AC-F12.9 — ★★ QA-17 / **D-18's precedent** — *a gate that cannot fail is
     decoration.*"""
     single = pd.DataFrame([{"date": date(2026, 1, 5), "ticker": "MU",
                             "horizon_days": 21, "score": 1.0, "value": 0.1}])
@@ -118,7 +118,7 @@ def test_qa5_horizons_are_never_compared_on_raw_metric_value():
 
 
 def test_qa4_every_statistic_carries_effective_n_and_a_corrected_se():
-    """QA-4 / AC-3.7 — ★ and the t-statistic is against the **corrected** SE."""
+    """AC-F12.7 — QA-4 / AC-3.7 — ★ and the t-statistic is against the **corrected** SE."""
     result = rank_ic(predictions(dates=120), horizon_days=21)
     obj = result.to_json_obj()
     for key in ("effective_n", "corrected_se", "t_stat", "mde_t3", "formula_id"):
@@ -172,7 +172,7 @@ def test_the_leakage_check_fires_when_the_gap_narrows():
 
 
 def test_qa19_cv_groups_on_ticker_and_date():
-    """QA-19 — ★ **all copies of a row fall in the same fold**, or a row
+    """AC-F12.3 — QA-19 — ★ **all copies of a row fall in the same fold**, or a row
     replicated across horizons trains on one copy and tests on another."""
     from src.quant.backtest.protocol import group_key
 
@@ -193,17 +193,17 @@ def test_qa50_costs_are_charged_by_default():
     assert model.charge(notional=10_000, sides=2) == pytest.approx(2 * FLAT_COMMISSION)
 
 
-def test_the_flat_fee_is_measured_not_asserted():
-    """★★ ⚠ `backtester.py:14-18` reads *"BROKER REALITY: flat $10 per trade"*.
+def test_the_flat_fee_is_sourced_not_asserted():
+    """★★ CN-2 — a world-fact constant carries its source and check date.
 
-    **137 real BMO orders put it at 9.95** — CAD and USD alike (D-11 RC-43).
-    ★ CN-2: a world-fact constant carries its source and check date, and the
-    0.5 % error is **not** trivial where §5.6a uses it — the horizon argument
-    turns on a cost *differential*.
+    ✏ 2026-10-05 (F12 `D8`, Victor): **BMO InvestorLine is now commission-free on
+    buys and sells across all of his accounts**, so the fee is **0.00**. It was
+    **9.95**, measured over 137 real orders to 2026-08-25 (D-11 RC-43) — which
+    itself replaced the legacy `10.00` asserted at `backtester.py:14`.
     """
-    assert FLAT_COMMISSION == 9.95
-    assert "measured" in CostModel().to_json_obj()["source"]
-    assert "2026-08-25" in CostModel().to_json_obj()["source"]
+    assert FLAT_COMMISSION == 0.0
+    source = CostModel().to_json_obj()["source"]
+    assert "commission-free" in source and "2026-10-05" in source
 
 
 def test_qa48_the_capital_base_changes_the_drag_by_ten_times():
@@ -212,8 +212,11 @@ def test_qa48_the_capital_base_changes_the_drag_by_ten_times():
 
     That is an undeclared convention doing load-bearing work, sitting in the
     line §5.6a's whole argument was built on.
+
+    ✏ 2026-10-05 (F12 `D8`): the live fee is $0, so the mechanics are tested at
+    the historical $9.95 — a zero fee would make the ratio 0/0 and prove nothing.
     """
-    model = CostModel()
+    model = CostModel(flat_commission=9.95)
     small = model.annual_drag_pct(capital=100_000, trades_per_year=24,
                                   avg_notional=9_000)
     large = model.annual_drag_pct(capital=1_000_000, trades_per_year=24,
@@ -228,7 +231,7 @@ def test_qa48_the_capital_base_changes_the_drag_by_ten_times():
 # --------------------------------------------------------------------------- #
 
 def test_qa11_an_unpinned_spec_is_inadmissible_as_evidence():
-    """★★ QA-11 — *any unpinned input makes the result unreproducible and
+    """AC-F12.11 — ★★ QA-11 — *any unpinned input makes the result unreproducible and
     therefore **inadmissible as evidence**.*"""
     assert "initial_capital" in PINNED_FIELDS
     for field in ("initial_capital", "calendar_check_id", "decision_anchor",
@@ -267,7 +270,7 @@ def test_qa15_a_gate_declares_more_than_a_comparison():
 
 
 def test_qa16_gates_are_evaluated_per_horizon_and_never_pooled():
-    """QA-16 — one gate set per horizon."""
+    """AC-F12.8 — QA-16 — one gate set per horizon."""
     with pytest.raises(QuantError, match="never pooled"):
         assert_not_pooled([GateSet("h1m"), GateSet("h1m")])
 
@@ -282,7 +285,7 @@ def test_a_noise_signal_fails_the_ic_gate_and_a_real_one_passes():
 
 
 def test_the_result_carries_its_label_and_its_formula_ids():
-    """QA-12/QA-13 — ★ *backtested returns are never presented as expected
+    """AC-F12.15 — QA-12/QA-13 — ★ *backtested returns are never presented as expected
     returns*, and the label travels with the number."""
     result = evaluate(spec(), predictions=predictions(dates=150, signal=0.8),
                       horizons=[h for h in PRODUCTION_V1.horizons
@@ -312,7 +315,7 @@ def test_the_result_feeds_d04s_promotion_gate():
 
 
 def test_qa14_a_survivorship_blind_backtest_is_biased_not_a_result():
-    """QA-14 / INV-017 — ★ D-07's `delisted-companies` exists; using it is the
+    """AC-F12.16 — QA-14 / INV-017 — ★ D-07's `delisted-companies` exists; using it is the
     spec's job to declare."""
     blind = spec(survivorship_handled=False)
     result = BacktestResult(spec_id=blind.spec_id, gate_sets=())
@@ -325,3 +328,43 @@ def test_folds_for_runs_the_leakage_check_on_every_fold():
     days = [d.date() for d in pd.bdate_range("2024-01-01", periods=400)]
     protocol = derive_protocol(PRODUCTION_V1, n_folds=3)
     assert len(folds_for(spec(), days, protocol)) == 3
+
+
+def test_ac_f12_10_a_gate_set_where_every_gate_failed_cannot_pass():
+    """AC-F12.10 (≡ AC-3.10, QA-17, F0 D-18) — *a gate where every candidate failed
+    cannot report PASS.* ★ Invariant, checked EXHAUSTIVELY over every combination of
+    up to three gate verdicts: the set is PASS iff it is non-empty and every gate
+    PASSED — so no mix of FAIL and NOT_EVALUATED, and no empty set, rounds up."""
+    from itertools import product
+
+    from src.quant.gates.metric_gate import (
+        FAIL,
+        NOT_EVALUATED,
+        PASS,
+        GateResult,
+        GateSet,
+    )
+
+    def gate(i, verdict):
+        stat = None if verdict == NOT_EVALUATED else 0.1
+        return GateResult(f"g{i}", "h1m", stat, 0.0, None, None, "f.v1", verdict)
+
+    assert GateSet("h1m", ()).verdict == NOT_EVALUATED
+    for n in (1, 2, 3):
+        for verdicts in product((PASS, FAIL, NOT_EVALUATED), repeat=n):
+            gs = GateSet("h1m", tuple(gate(i, v) for i, v in enumerate(verdicts)))
+            assert (gs.verdict == PASS) == all(v == PASS for v in verdicts), verdicts
+
+
+def test_ac_f12_10_a_pass_with_no_statistic_is_vacuous_and_raises():
+    """AC-F12.10 — `QNT.GATE.VACUOUS` (§13): *a gate that cannot fail.* ★ D-18's shape
+    is a PASS over nothing — every candidate errored, the default was adopted, and the
+    gate still passed. A PASS with no statistic behind it is refused at construction,
+    as is a verdict outside the three."""
+    from src.quant.errors import GateVacuousError
+    from src.quant.gates.metric_gate import PASS, GateResult
+
+    with pytest.raises(GateVacuousError, match="QA-17"):
+        GateResult("ic_significance", "h1m", None, 0.03, None, None, "f.v1", PASS)
+    with pytest.raises(GateVacuousError, match="verdict"):
+        GateResult("ic_significance", "h1m", 0.1, 0.03, None, None, "f.v1", "OK")

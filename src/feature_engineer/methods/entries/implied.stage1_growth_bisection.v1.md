@@ -1,5 +1,8 @@
 # `implied.stage1_growth_bisection.v1` — the stage-1 growth the price requires
 
+Code: src/feature_engineer/valuation/implied.py @ sha256:9a68ee73a6749194
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
 Find `g₁` such that `value_per_share(g₁) = price`, holding every other

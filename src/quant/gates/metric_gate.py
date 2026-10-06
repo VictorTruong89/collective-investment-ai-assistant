@@ -43,6 +43,19 @@ class GateResult:
     verdict: str
     why: str = ""
 
+    def __post_init__(self) -> None:
+        """AC-F12.10 — ★ a PASS must rest on a statistic (QA-17, D-18)."""
+        from src.quant.errors import GateVacuousError
+
+        if self.verdict not in (PASS, FAIL, NOT_EVALUATED):
+            raise GateVacuousError(
+                f"gate {self.gate_id!r}: verdict {self.verdict!r} is not one of "
+                f"PASS / FAIL / NOT_EVALUATED")
+        if self.verdict == PASS and self.statistic is None:
+            raise GateVacuousError(
+                f"gate {self.gate_id!r} reported PASS with no statistic — a gate "
+                f"that cannot fail is decoration (QA-17, F0 D-18)")
+
     @property
     def t_stat(self) -> float | None:
         if self.statistic is None or not self.corrected_se:

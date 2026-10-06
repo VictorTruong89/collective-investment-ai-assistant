@@ -50,11 +50,12 @@ the machinery that records what it changed.
 
 ⚠ **`MS-7` is the first thing cut if `MS-0` or `MS-3`–`MS-4` overrun.** Said now, while it is cheap to say.
 
-## 2.1 Current position — ★★★ platform COMPLETE · FIRST THESIS (MU SELL — 2 of 4 falsifiers FIRED, computed) · ★★ scorecard coverage **1.000** (E-09 solved) · analysis 77 % declared · 69 % working · ★ dev calls on the subscription (§2.1o) · ⊘ golden programme CLOSED (§2.1p) · ★ consensus + duration in the bundle (§2.1q) · updated 2026-10-03
+## 2.1 Current position — ★★★ platform COMPLETE · FIRST THESIS (MU SELL — 2 of 4 falsifiers FIRED, computed) · ★★ scorecard coverage **1.000** (E-09 solved) · analysis 77 % declared · 69 % working · ★ dev calls on the subscription (§2.1o) · ⊘ golden programme CLOSED (§2.1p) · ★ consensus + duration in the bundle (§2.1q) · ★ quant re-scoped, `F12` drafted (§2.1s) · updated 2026-10-05
 
 ```text
    ┌─ PHASE 0 · SPECS ────────────────────────────────── COMPLETE ──┐
-   │  ★★ 13 of 13 specs 🟢 APPROVED · 180 ACs (F10 23 · F11 9)      │
+   │  ★★ 13 specs 🟢 APPROVED · 180 ACs (F10 23 · F11 9)            │
+   │  ★ F12 quant core 🟢 2026-10-05 · 27/30 green · 3 vacuous      │
    └────────────────────────────────────────────────────────────────┘
                               ▼
    ┌─ MS-1 … MS-7 · THE PLATFORM ─────────── ★★★ 148/148 ACs ───────┐
@@ -105,14 +106,16 @@ the machinery that records what it changed.
    │           uncapped — falsifiers #3 #4 FIRED, #1 #2 pending    │
    │   ✅ blocks 32/35 (3 deferred) · ✅ DX-131ⓒ wording · ⊘ AMD     │
    │      ✅ DX-149 (E-08 20/20 forms) · ✅ DX-150 (Samsung omitted) │
-   │   then: quant ~70 % · go-live · falsifiers after real runs     │
+   │   ✅ QUANT: govern & close · F12 🟢 27/30 (§2.1s) · fee $0 D8  │
+   │   ◐ GO-LIVE prepared: L9 checklist · ⚠ G1 old daily thesis    │
+   │   then: Victor's go-live decisions · falsifiers after real runs│
    │  open: DX-57 60 61 78 79 87 89-92 134 · partial 44 71 80        │
    └─────────────────────────────────────────────────────────────────┘
 ```
 
 | | Result |
 |---|---|
-| tests | **2,494 pass · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
+| tests | **2,575 pass (2026-10-05) · 6 skip · ⛔ 1 fail — J-07 re-established by Victor, a measured disagreement** (J-07 parked to pending, 2026-09-13) |
 | guarantees | **12**, `tools/check_all.py` → ⛔ **2 FAILED** — and both are the SAME fact, not two: *the test suite* and *the suite from a fresh clone* (`DX-5`) each carry `test_ac_5_7_the_golden_set_replays_green`, red since 2026-09-13 because Victor RE-ESTABLISHED the `J-07` value against the recording. ⚠ The other 10 pass. ★ This row read `ALL CHECKS PASSED` until 2026-09-17 and was **stale from the day J-07 went red** — a summary line that outlives its measurement is exactly the defect this table exists to prevent |
 | findings | **140 `DX` logged — 130 closed** (✏ 2026-10-02: `DX-140` logged and closed) (+`DX-138` detected, `DX-139` closed) (✏ 2026-10-01: `DX-131`…`DX-137` added; `DX-131` `DX-132` `DX-133` `DX-135` `DX-136` `DX-137` closed) · ⬜ open since: `DX-134` · ⬜ open: `DX-57` `DX-60` `DX-61` `DX-78` `DX-79` `DX-87` `DX-89` `DX-90` `DX-91` `DX-92` `DX-108`(3,4) · ◐ `DX-116` (measured) · `DX-117` (source list) · ✅ `DX-96` closed by `DX-129` (E-09 ran) · ◐ partial: `DX-44` `DX-71` `DX-80` |
 | golden set | ⊘ **CLOSED 2026-10-01 (`L8` §9): 53 live, kept and maintained, no new cases; 10 thesis drafts frozen.** ✏ *History below is as of 2026-09-17:* **33 live** (28 extraction · 5 thesis: J-01 ✅ · J-05 ✅ `balance_sheet_resilience@v3` L3 · J-06 ✅ `capital_allocation@v3` L4 · J-08 ✅ · ⛔ J-07 `late` vs recorded `mid` — parked and RE-ESTABLISHED 2026-09-13 by Victor's decision, red on purpose) · every value established by the fund manager. Graded blocks: `E-01` `E-02` `J-01` only. ★ Eight cases were withdrawn and re-established on 2026-09-11 rather than rebaselined |
@@ -398,6 +401,69 @@ post-envelope one. The established value is unchanged; only the artefact moved.
 - **Not k=3.** `K_RUNS`=3 is what `CT-9.2` requires; this is k=1.
 - **Not a thesis.** Stage A is 8 of 17 blocks. Stages B-D (`J-09`…`J-17`) are undeclared.
 
+## 2.1s ★ 2026-10-05 — quant measured, row 9 re-scoped to *govern & close*, `F12` drafted
+
+> **$0 API.** Task 1 of `_TEMP_handover_2026-10-05.md`. Victor's four rulings (2026-10-05): **govern &
+> close** · regime = **declared limitation** · factors = **existing D-02 feature sets** · `F12` covers
+> **`src/quant/**` only**. Recorded as `F12` `D1`–`D4`.
+
+| | 2026-09-17 | 2026-10-05 | |
+|---|---|---|---|
+| `src/quant/` | 22 files · 1,805 lines | **22 · 1,805** | unchanged — no quant code since the baseline |
+| `QA-n` cited by src + tests | 37 / 126 (29 %) | 43 / 126 (34 %) | the same code; the wider count includes D-02/D-04/D-07 modules that cite `QA-n` |
+| `AC-3.x` cited | 21 / 26 (81 %) | ⚠ **17 / 29 met** by D-03's own tests | `DX-151`: bare `AC-3.x` also means `F3` and upstream's `F3_sdd_adoption` — the old count matched all three |
+
+**Row 9's list, checked against the record:**
+
+| item | finding |
+|---|---|
+| retrain cadence | ✅ **already built** — `MT-45…47` (Victor, `L1-model-training` §8.1), `is_retrain_morning`, `OR-37/38` guards, `MT-46` tested. D-04, not D-03 |
+| `AB-16` | ✅ **closed 2026-08-27**, verified: `excluded[]` is persisted in `recommendation.json` (`src/recording/artifacts/store.py`) |
+| `DX-62` | ✅ **resolved 2026-09-10** — Victor chose ⓒ (ranking golden kind removed, `F5` `D6`). Nothing to re-frame |
+| nomination pipeline | ✅ built — `CT-3.4`, rank (B3), tradeable (`QA-125/126`, `AC-3.32`) |
+| factor construction | no section anywhere in the design → **existing D-02 feature sets** (`D2`) |
+| regime handling | listed only as a §9.2 gap → **declared limitation** (`D3`, `AC-F12.30`) |
+
+★ **Built:** `sdd/specs/F12_quant_core/spec.md` (🟡 draft): the 29 D-03 criteria carried one-for-one as
+`AC-F12.1…29` (+ `AC-F12.30`, the regime limitation) → ✅ 17 met by existing tests · ⬜ 10 gaps (`.4` label
+window · `.6` mandate justification on HorizonSet · `.10` vacuous gate · `.12` `costs_charged` enum · `.13`
+$20 known answer · `.14` held re-weight, ⚠ possible spec/code disagreement · `.19` every KAT runs · `.22`
+stale MethodEntry check · `.26` nomination provenance · `.30`) · ⊘ 3 vacuous (`.5` no multi-horizon design ·
+`.25` no screen built · `.27` no deterministic stop). `src/quant/**` wired in `ownership.yaml`; F11 + F12
+added to `vision.md` §4.1 and the spec index; `DX-151` logged and closed.
+
+✅ **Same day — `F12` APPROVED 🟢 (Victor) and built: 26 / 30 green.** `Q1` → `D6` (held names drift; only
+entries and exits trade), `Q2` → `D7` (the regime sentence, verbatim). Built test-first:
+
+| AC | what changed | finding |
+|---|---|---|
+| `.14` | `portfolio.simulate`: drifted weights; an exit's proceeds buy the entry | ⚠ the period return was the MEAN of the picks — every held name re-equalised for $0. **Every backtest return moves** |
+| `.12` | `CostModel.costs_charged` | ⚠ **defect**: charging off still said `commission_only` beside a $0 fee |
+| `.10` | `GateResult` refuses a PASS with no statistic → `GateVacuousError` (`QNT.GATE.VACUOUS`) | the GateSet invariant already held (exhaustive test) |
+| `.6` | `HorizonSet.mandate_justification` / `approved_by` / `approved_on`, v1 text verbatim from `CT-3.1` | — |
+| `.26` `.30` | `Nomination` + `contract_version` / `adj_as_of` / `calendar_check_id` (refused empty) + the regime sentence on Nomination and BacktestResult; both daily paths pass them through (OR-1) | — |
+| `.19` | every MethodEntry must name a resolvable `path::test` | ⚠ **3 broken links on first run** (breadth, volatility, fcff) — fixed |
+| `.22` | each located formula's entry pins `Code: <path> @ sha256:…` (10 pinned, baseline); 5 unlocated are a fixed list | ⚠ pins reach D-02 valuation, D-04 zoo, D-06 sizing — editing those 10 files now needs a re-pin |
+| `.4` | perturbation invariant over D-02 labels | already held |
+
+✅ **`AC-F12.13` closed by `D8` (Victor):** *"BMO InvestorLine has changed policy that allows completely free buying
+or selling, across all of my accounts"* → **`FLAT_COMMISSION = 0.00`** (was $9.95, measured). Known answer: one flat
+fee per trade, so a round trip is 2 × fee — $0 today, $19.90 at the old fee (mechanics pinned there). ⚠ Consequences:
+`cost_survival` can no longer fail a signal on commission; spread and slippage (QA-49, unmodelled) are the only costs
+left, so every net figure overstates by them. ⚠ `DX-152` (OPEN): D-11's merged-order detection reads the fee and
+loses its evidence at $0. **`F12` = 27/30 green, 3 vacuous.** Suite **2,572 pass / 1 red (`J-07`)**; ruff adds
+nothing over the pre-existing 39 findings in these files.
+
+★ **Task 3 — go-live prepared, nothing spent or switched: [`L9-go-live-checklist.md`](L9-go-live-checklist.md).**
+⚠⚠ **G1: the daily graph authors the OLD 3-call thesis** (`J-11/J-15/J-16@v1`, empty scorecard) — the 32-block
+`CT-9.2` thesis runs only via `tools/run_thesis_once.py` on MU fixtures; recommended ⓑ go live quant-only with
+theses on demand, ⓐ wiring as the next build. Also measured: no daily-run timer exists; no promoted model; all 53
+golden cases come from **15 recorded calls** (≈ $8.60 to re-run all, ≈ $3.10 for a 5-call / 31-case sample);
+thesis cadence moves the yearly bill from ~$0 to ~$25k. ⚠ **Fixed `tools/spend_report.py`**: it priced every
+subscription call as API spend once traces stopped carrying `response` inline ($137.18 "floor"); the real floor is
+**$72.41 / 105 calls, unchanged since 2026-09-17** (`tests/unit/test_spend_report.py`). Suite **2,575 / 1 red**.
+⊘ Task 2 (sector v2): Victor — **switch at go-live**, not now.
+
 ## 2.1r ★ 2026-10-04 — §2.1p rows 6–7: four blocks declared, the envelope wording fixed
 
 > **$0 API** (subscription; one session-limit stop, resumed free). Scope (Victor, 2026-10-04): row 8 (AMD)
@@ -664,8 +730,8 @@ API dollars are no longer the unit (development is on the subscription, `GW-24`)
 | **6** | 8 undeclared blocks (`E-03` `E-05` `E-08` `E-11` `E-14` `E-15` `J-18` `J-19`) + `J-13`'s 6th metric | 2–3 sessions | review | ~10 calls |
 | **7** | `DX-76` envelope versioning + the "both period endpoints" wording | <1 session | — | re-record of affected blocks |
 | **8** | ~~Second ticker end to end (AMD thesis)~~ ⊘ **SKIPPED entirely (Victor, 2026-10-04)** | — | — | — |
-| **9** | Quant domain, ~30 % → done: factor construction, retrain cadence, regime handling, nomination pipeline, `DX-62`, `AB-16` | ⚠ the largest block: ~8–15 sessions | design decisions | none |
-| **10** | Go-live (`MS-0`): API spot-check of the 53 live cases, transport switch, budget, `MS-8.9` retire upstream | 1–2 sessions | the switch, the budget, retiring the old repo | ⚠ the first paid API calls since 2026-09-17 |
+| **9** | ◐ **Re-scoped 2026-10-05 (§2.1s): govern & close.** ~~factor construction~~ → existing D-02 feature sets (`F12` `D2`) · ~~retrain cadence~~ already built (`MT-45/46`, `OR-37/38`) · ~~regime handling~~ → declared limitation (`D3`) · nomination built (`CT-3.4`, `QA-125/126`) · ~~`DX-62`~~ resolved 2026-09-10 · ~~`AB-16`~~ closed 2026-08-27. ✅ **DONE 2026-10-05** — `F12` 🟢 approved + built **27/30** (3 vacuous); commission $0 (`D8`) | 1 session (was 8–15) | — | none |
+| **10** | Go-live (`MS-0`): API spot-check of the 53 live cases, transport switch, budget, `MS-8.9` retire upstream · ◐ **prepared 2026-10-05: [`L9`](L9-go-live-checklist.md)** — ⚠⚠ G1 the daily thesis is the old 3-call path | 1–2 sessions + G1ⓐ if chosen | G1, cadence, budget, the switch, retiring the old repo | ⚠ the first paid API calls since 2026-09-17 — sample ≈ $3 |
 
 ✏ **2026-10-04 (Victor):** row 8 is skipped entirely, and **falsifier improvement is deferred until all code is complete and real daily runs produce real observations**. Rows 6–7 are in progress (§2.1q).
 
@@ -3063,6 +3129,8 @@ status · resolution *(filled in later, never at the same time as the row)*.
 | **DX-148** | 2026-10-04 | ⚠ `E-08`'s closed labels vs the envelope's *"value exactly as the document states it"* | `DX-122` (`cx.status`, same shape); `MP-5` | `E-08` v1 asks `in.type` as *purchase \| sale \| option exercise \| gift \| award \| other* and `in.plan_status` as *10b5-1 \| not_10b5-1 \| not_stated*. A Form 4 states a CODE (`S`, `M`, `A`, `G`, `F`) and a ticked box. The first run returned `in.type = "S(1)"` — verbatim, as the envelope asks — and `X-01` refused it against the declared set | `run_extraction_once.py --block E-08 --document-set mu-form4-2025q3` (2026-10-04, refused, nothing persisted) | ◐ medium — blocks E-08, harms nothing | ⬜ **OPEN — Victor.** ⓐ `E-08 v2`: *"in.type and in.plan_status are LABELS — return a word from the list, never the form's code; quote the form's line it is read from"* · ⓑ `AP-5`: map the SEC transaction code to the label in code (the codes are SEC-defined), and ask the model for the code verbatim · ⓒ leave E-08 unrun | ★ Second time a closed label met the verbatim-value rule: a label is a READING, and the envelope only describes copying |
 | **DX-149** | 2026-10-04 | ⚠ `E-08` covers 6 of 20 documents in one bundle — silently | `RA-98` (completeness), `X-01` (checks returned items only) | One call over 20 Form 4s returned 73 verified items, all from the six earliest forms; the fourteen later ones got none, with no truncation reported | `run-2026-10-04T074317-mu-e08` | ◐ medium — an insider read that misses most of the quarter | ✅ **CLOSED 2026-10-04/05 — Victor chose ⓐ + ⓒ.** ⓐ `--per-document` (and `--document ACCESSION`): one run per document, its own `run_id`/trace/bundle hash; a document whose run raises is NAMED and counted, never allowed to end the loop. ⓒ the parse refuses a multi-document answer that cites nothing from a document and names none as empty. Re-run: **20 of 20 forms, 249 items verified** (was 73 from 6). Mutation-checked. Was: ⓐ one call per document for `E-08` (runner `--per-document`; 20 small calls) · ⓑ add *"every form in the bundle"* to E-08 (prompt) · ⓒ a completeness check: refuse a multi-document answer that cites no item from a document (would have refused this run) | ★ Verification proves what is there, never what is absent — the shape `RA-98` names for the sector file, met in a filing set |
 | **DX-150** | 2026-10-04 | ⚠ `E-15` cannot quote a slide deck whose columns are interleaved | `DX-35` (layout breaks a verbatim quote; one refusal aborts the answer), `X-01` ① | The Samsung 1Q25 presentation fixture carries slide columns interleaved line by line; a sentence (*"Earnings impacted by ASP erosion, as well as HBM sales decline from AI Chip …"*) is split by other slide text. E-15 returned it as one quote (as a `policy` row); `X-01` refused it — 2 of 2 runs | `run-2026-10-04T075551-mu-e15`, `…075648-mu-e15`; `tests_src/fixtures/industry/samsung-ir/2025-04-30_*.txt` | ◐ medium — blocks E-15 on this file | ✅ **CLOSED 2026-10-04 — Victor chose ⓒ** (*"not filing in US, skip Samsung"*). `ingest_sector_file.py --omit SOURCE=REASON` skips a listed source BY DECISION as a logged `Omission` (`RA-98`); the source list (the reviewed artifact) is unchanged. E-15 over SK hynix + Sandisk: `run-2026-10-04T080906-mu-e15` **14 items verified** → `memory_v1_2025-06-26_e15_v2.json` (`sector.v2`, file v2, **+10 row records**: demand 3 · capacity 2 · pricing 2 · inventory 2 · policy 1). ⚠ SK hynix is not a US filer either; kept, as ruled. Was: ⓐ re-render the Samsung fixture column by column (fixture change: every recording over the sector file moves bundle hash; E-13's industry run would need re-recording) · ⓑ `E-15 v2`: *"quote one contiguous line of the document; a sentence broken by layout is quoted line by line"* (prompt) · ⓒ drop the Samsung deck from `memory_v1`'s source list for E-15 | ★ The second converter-shaped failure that a NEW block exposed in an old fixture (`DX-35` was the first) |
+| **DX-151** | 2026-10-05 | ⚠ The quant coverage figure *"26 `AC-3.x`, 81 % cited"* was inflated by an ID collision | constitution §1.1 / `DX-44` (bare `AC-3.x` left unrenamed) | Bare `AC-3.1…3.12` is ALSO `F3` corporate actions (`tests/unit/test_corporate_actions.py`, `src/data_engine/corporate_actions/`), and `tests/test_sdd_process.py` uses `AC-3.1…3.7` for upstream's `F3_sdd_adoption` — three live meanings. The 2026-09-17 count matched all three | per-AC grep 2026-10-05: of D-03's 29 criteria (26 + `3.11a/b/c`), **17 are met by D-03's own tests**, not 21 of 26 | ◐ medium — overstated a domain's completeness in the build record | ✅ **CLOSED 2026-10-05** — `F12` (🟡 draft) carries the D-03 criteria as **`AC-F12.k`** with a one-for-one map to `AC-3.x`, so new tests cite an unambiguous id. The design doc and the old tests are left as they are (inherited territory) | ★ `DX-44`'s deliberate stopping point ("the remaining five are left… lower hazard") had a measured cost after all: not a wrong rule, a wrong NUMBER in the build record |
+| **DX-152** | 2026-10-05 | ⚠ Commission-free trading removes D-11's only evidence that same-day orders were merged | `RC-14`/`RC-15`, `src/recording/orders/group.py::implied_orders` | Victor: BMO InvestorLine is now commission-free on buys and sells across all accounts (F12 `D8`). D-11 derives the fee per order and counts how many $9.95 fees it contains — *"the fee is the only evidence — the export carries no order id"*. At $0, a merged pair and a single order both show 0.00. ★ Ingestion does NOT break (`implied_orders` accepts k = 0), and the USD-sell excess becomes visible on its own | reading `group.py` 2026-10-05; no new export yet | ◐ low–medium — a merged order would count as one; affects order counts, not cash or positions | ⬜ **OPEN — Victor's** (the effective date of the policy is not stated; `BMO_FLAT_COMMISSION` stays 9.95 because historical exports really charged it). Options: ⓐ date-switch the expected fee at the policy date · ⓑ accept that merged orders are undetectable after it, and say so on the record · ⓒ wait for the first commission-free export and measure | ★ A world fact changing under a heuristic that was MEASURED on the old world — the measurement stays true for the past and silently stops applying |
 | **DX-138** | 2026-10-01 | ⚠⚠ Judgement answers put words in the filing's mouth: a quote with a CHANGED NUMBER | `AP-2` cited claims only; `X-01` is literal for extraction and nothing checked judgement quotes | ★ Found by the first run of `tools/rule_checks.py` (`L8` §9 rule 4ⓑ). Of **914 `FACT [...] "…"` quotes** in 45 recorded calls, 254 cite a non-filing source (D-02, frozen answers, declared absences) and are exempt; of the rest, after allowing layout (table rows the filing splits across lines) and `...` abridgement, **2 calls misquote the filing**. ⓐ ⚠⚠ `J-03` (Stage A, 2026-09-12) quotes NAND ASPs as *"ranged from plus low-50%…"*; the filing says **"plus low-30% to a minus low-50%"**. A wrong number inside quotation marks, attributed to the SEC filing. It corrects itself later in the same answer, which is why nobody saw it. ⓑ `J-08` drops one word ("We have **also** signed"), meaning intact | `run-2026-09-12T024848-mu-stage-a` `judge:J-03:llm:1`, `judge:J-08:llm:1` | ★ high (ⓐ) · low (ⓑ) | ◐ **DETECTED, recorded in `rule_checks.KNOWN`, not fixed.** Both recordings are history; the check now fails on any NEW misquote in any recorded call. ⬜ Live prevention: run the rule checks at the end of every `run_*` so a misquote is reported the day it is made | ★★ **This is exactly what golden cases could not see.** `J-03` and `J-08` were both graded (`J-08` signed) and stayed green, because a golden case asserts one field and the misquote sat in the reasoning. ⇒ A rule that holds for every quote in every call finds what a field-level comparison never will |
 | **DX-137** | 2026-10-01 | ⚠⚠ The pending golden files repeated their top-level `cases:` key — a loader saw 11 of 29 drafts | `CT-5.2`; the `L8` §5 inventory | ★ Found while refreshing `L8` §5, whose two counts disagreed ("2 unsigned" vs "27 pending"). `extraction.pending.yaml` had **four** top-level `cases:` keys (two empty, then 16 drafts, then 3), and `thesis.pending.yaml` had **two** (2, then 8). ⚠ YAML keeps only the LAST value of a repeated key and says nothing, so `yaml.safe_load` returned **3 and 8**: **18 of 29 drafts invisible to any loader.** Nothing loads these files today, which is the only reason nothing broke | `tests_src/fixtures/golden/{extraction,thesis}.pending.yaml` | ◐ medium | ✅ **CLOSED 2026-10-01, free.** Merged into one list per file (the first thesis section re-indented). ★ Verified **case-for-case identical** against `HEAD`, section by section: 19 + 10. `tests/structural/test_golden_fixtures_have_no_duplicate_keys.py` loads every golden fixture with a duplicate-key-refusing loader, and fails on the `HEAD` versions | ★★ **The true unsigned count is 29**, not 27: `L8` counted the 2026-09-17 drafts and missed the two older `J-20`/`J-09` drafts. ⚠ A format that silently discards data is the `DX-135` shape again: a shorter list reads as a tidier one |
 | **DX-136** | 2026-10-01 | ★ Development LLM calls move to the subscription, and **8 tests would have started the real CLI** | `CLAUDE.md` house rule (Victor, 2026-10-01); `L2-shared-infrastructure` §5.7 | ★ Building the `claude_code` transport as the **default** meant every test that monkeypatched `tools.anthropic_transport.anthropic_transport` stopped intercepting anything: the runners now asked for the subscription transport, so **8 tests (4 thesis-runner, 3 judgement-runner, 1 `build_gateway`) would have spawned the real `claude` binary on every `pytest`**, spending subscription usage silently. ⚠ They were caught only because the guard went in first | `tests/conftest.py` · `tests_src/conftest.py` (new `CIA_CLAUDE_BIN` sentinel) · the 8 tests | ◐ medium | ✅ **CLOSED 2026-10-01.** An autouse fixture points `CIA_CLAUDE_BIN` at a path that does not exist, so a stray call raises `TransportError` instead of running. The 8 tests cover the API path and now say so: `CIA_LLM_TRANSPORT=anthropic_api`. Suite back to its single deliberate `J-07` red | ★★ **Changing a default changes what every existing mock intercepts.** A patch on the old factory reads as protection and protects nothing once the default moves. ⇒ Put the guard in BEFORE flipping the default, and let the failures name the tests that relied on the old one |

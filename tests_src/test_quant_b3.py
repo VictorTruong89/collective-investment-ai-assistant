@@ -26,7 +26,9 @@ def nomination(**kw):
     base = dict(as_of=AS_OF, run_id="r", decision_anchor="open",
                 horizon_set=("production", 1), nominating_horizon="h1m",
                 universe_n=130, model_artifact_id="sha256:abc",
-                candidates=(Candidate("NVDA", 1, 0.04, 2.6),))
+                candidates=(Candidate("NVDA", 1, 0.04, 2.6),),
+                contract_version="b3_minimal@v1", adj_as_of=AS_OF,
+                calendar_check_id="cal:abc")
     return Nomination(**{**base, **kw})
 
 
@@ -35,7 +37,7 @@ def nomination(**kw):
 # --------------------------------------------------------------------------- #
 
 def test_ac_3_1_the_horizon_set_is_named_and_versioned():
-    """AC-3.1 — QA-1. Every model/backtest declares its HorizonSet name and version."""
+    """AC-F12.1 — AC-3.1 — QA-1. Every model/backtest declares its HorizonSet name and version."""
     assert (PRODUCTION_V1.name, PRODUCTION_V1.version) == ("production", 1)
     assert PRODUCTION_V1.ranked_quantity == "denormalised_return"
     with pytest.raises(HorizonUnpinnedError):
@@ -43,7 +45,7 @@ def test_ac_3_1_the_horizon_set_is_named_and_versioned():
 
 
 def test_ac_3_2_purge_shorter_than_the_longest_horizon_raises():
-    """AC-3.2 — QA-3/QA-18. A short purge leaks the label window across a fold."""
+    """AC-F12.2 — AC-3.2 — QA-3/QA-18. A short purge leaks the label window across a fold."""
     with pytest.raises(HorizonUnpinnedError, match="leaks it across folds"):
         HorizonSet("bad", 1, (Horizon("h1q", 63, "research"),),
                    Arbitration("h1m", (), ()), purge_days=5, embargo_days=5,
@@ -62,7 +64,7 @@ def test_qa_47_arbitration_is_explicit_and_lives_in_the_horizon_set():
 # --------------------------------------------------------------------------- #
 
 def test_ac_3_14_every_formula_id_in_src_resolves_to_a_methodentry():
-    """AC-3.14 — QA-20. ★ **A `formula_id` with no MethodEntry FAILS THE BUILD.**
+    """AC-F12.17 — AC-3.14 — QA-20. ★ **A `formula_id` with no MethodEntry FAILS THE BUILD.**
 
     *A method with no stated provenance is a number with borrowed authority*, and
     `rsi_14` is the live proof: ours is a rolling mean where every charting
@@ -73,13 +75,13 @@ def test_ac_3_14_every_formula_id_in_src_resolves_to_a_methodentry():
 
 
 def test_ac_3_15_every_methodentry_carries_the_six_required_fields():
-    """AC-3.15 — §8.2: statement, symbols, reference, assumptions, alternatives, KAT."""
+    """AC-F12.18 — AC-3.15 — §8.2: statement, symbols, reference, assumptions, alternatives, KAT."""
     for formula_id in sorted(declared_formula_ids()):
         assert missing_sections(formula_id) == [], f"{formula_id} is incomplete"
 
 
 def test_ac_3_17_a_house_variant_is_flagged_as_one():
-    """AC-3.17 — QA-22. A method with no external reference says so in words.
+    """AC-F12.20 — AC-3.17 — QA-22. A method with no external reference says so in words.
 
     Both of B3's non-standard choices are declared: the open-to-open volatility
     and the within-ticker `z`.
@@ -89,7 +91,7 @@ def test_ac_3_17_a_house_variant_is_flagged_as_one():
 
 
 def test_ac_3_18_assumptions_name_the_ones_this_system_violates():
-    """AC-3.18 — QA-23. ⚠ And they point at the correction, not merely at the risk."""
+    """AC-F12.21 — AC-3.18 — QA-23. ⚠ And they point at the correction, not merely at the risk."""
     for formula_id in sorted(declared_formula_ids()):
         text = method(formula_id)
         section = text.split("## Assumptions", 1)[1].split("## ", 1)[0]
@@ -183,7 +185,7 @@ def test_qa_119_z_travels_beside_the_ranked_quantity():
 # --------------------------------------------------------------------------- #
 
 def test_ac_3_20_and_3_21_stateless_and_no_forbidden_imports():
-    """AC-3.20 / AC-3.21 — QA-28. No fitted parameters; no D-04, no D-01."""
+    """AC-F12.23 / AC-F12.24 — AC-3.20 / AC-3.21 — QA-28. No fitted parameters; no D-04, no D-01."""
     from tests_src.architecture import qa_21, scan, st_10
     graph = scan()
     assert qa_21(graph) == []
@@ -211,3 +213,131 @@ def test_within_ticker_z_never_fills_a_flat_series_with_zero():
     s = pd.Series([1.0] * 30)
     z = within_ticker_z(s, pd.Series(["X"] * 30))
     assert z.tail(5).isna().all()
+
+
+def test_ac_f12_6_the_horizon_set_records_its_mandate_justification():
+    """AC-F12.6 (≡ AC-3.6, QA-2) — *the HorizonSet records its mandate justification.*
+    ★ CT-3.1 carries `mandate_justification`, `approved_by` and `approved_on`; the code
+    carried none of them, so v1's grounds lived only in prose (§5.6). A set without
+    a justification is refused — QA-2: justified against the mandate, *not chosen
+    for statistical convenience*."""
+    assert "M-4" in PRODUCTION_V1.mandate_justification
+    assert "L0 §12.1" in PRODUCTION_V1.mandate_justification
+    assert (PRODUCTION_V1.approved_by, PRODUCTION_V1.approved_on) == ("victor", "2026-08-16")
+    with pytest.raises(HorizonUnpinnedError, match="QA-2"):
+        HorizonSet("unjustified", 1, (Horizon("h1m", 21, "selection"),),
+                   Arbitration("h1m", (), ()), purge_days=21, embargo_days=5,
+                   ranked_quantity="denormalised_return")
+
+
+@pytest.mark.parametrize("missing", ["contract_version", "adj_as_of", "calendar_check_id"])
+def test_ac_f12_26_a_nomination_records_its_provenance(missing):
+    """AC-F12.26 (≡ AC-3.23, QA-30) — *every output records contract version, as_of,
+    adj_as_of, calendar id.* ★ `BacktestSpec` pinned all four; the `Nomination` — the
+    output D-12 actually consumes every day — carried `as_of` only. Each one absent
+    is refused, never defaulted (P5)."""
+    obj = nomination().to_json_obj()
+    assert (obj["contract_version"], obj["adj_as_of"], obj["calendar_check_id"]) == \
+        ("b3_minimal@v1", AS_OF.isoformat(), "cal:abc")
+    empty = None if missing == "adj_as_of" else ""
+    with pytest.raises(NominationContractError, match=missing):
+        nomination(**{missing: empty})
+
+
+def test_ac_f12_30_both_outputs_state_the_regime_limitation():
+    """AC-F12.30 (F12 `D3`/`D7`, PG-10) — every Nomination and BacktestResult carries
+    the fixed sentence, verbatim, so no single-regime result reads as regime-robust."""
+    from src.quant.contracts.backtest import BacktestResult
+    from src.quant.contracts.nomination import REGIME_LIMITATION
+
+    assert REGIME_LIMITATION == (
+        "Not regime-conditioned: one model is fitted across all market states; "
+        "a result from one regime is not evidence for another.")
+    assert nomination().to_json_obj()["limitation"] == REGIME_LIMITATION
+    assert BacktestResult("bts:x", ()).to_json_obj()["limitation"] == REGIME_LIMITATION
+
+
+@pytest.mark.parametrize("horizon", [1, 5, 21])
+def test_ac_f12_4_a_label_reads_only_prices_inside_its_horizon(horizon):
+    """AC-F12.4 (≡ AC-3.4, INV-1) — *labels for a horizon use only prices within that
+    horizon.* ★ Invariant, checked by PERTURBATION: for every labelled row `i`, moving
+    any price other than the two anchors (`i` and `i+h`) leaves its label unchanged,
+    and `available_at` is the date `h` sessions on. The labels are D-02's
+    (`build_labels`); this test reads them and changes nothing there."""
+    import numpy as np
+
+    from src.feature_engineer.contracts.labels import LabelDef, build_labels
+
+    n = horizon + 8
+    dates = pd.bdate_range("2025-01-02", periods=n).date
+    prices = 100.0 + np.arange(n, dtype=float) * 1.5
+    label_def = LabelDef(f"t{horizon}", horizon, "open")
+
+    def labels(p):
+        panel = pd.DataFrame({"ticker": "X", "date": dates, "adj_open_minor": p})
+        return build_labels(label_def=label_def, price_panel=panel)
+
+    base = labels(prices)
+    assert len(base) == n - horizon
+    for i in range(n - horizon):
+        assert base["value"][i] == pytest.approx(prices[i + horizon] / prices[i] - 1)
+        assert pd.Timestamp(base["available_at"][i]) == pd.Timestamp(dates[i + horizon])
+        for j in set(range(n)) - {i, i + horizon}:
+            moved = prices.copy()
+            moved[j] *= 3.0
+            assert labels(moved)["value"][i] == pytest.approx(base["value"][i]), (i, j)
+
+
+def test_ac_f12_19_every_methodentry_names_a_known_answer_test_that_exists():
+    """AC-F12.19 (≡ AC-3.16) — *every MethodEntry's known-answer test executes and
+    passes.* ★ Each entry's `## Known-answer test` section must name at least one
+    `path.py::test_name` that resolves to a real test function; the suite then runs
+    it, so a resolvable link is an executed one. ⚠ An entry naming no test, a file
+    that is gone, or a function that was renamed is reported — the link is the
+    thing that rots."""
+    from src.quant.methods.registry import unresolved_known_answer_tests
+
+    assert unresolved_known_answer_tests() == {}
+
+
+def test_ac_f12_19_a_dangling_known_answer_link_is_reported(tmp_path):
+    """AC-F12.19 — the check FIRES (IM-3): a renamed test function is caught."""
+    from src.quant.methods.registry import unresolved_known_answer_tests
+
+    (tmp_path / "entries").mkdir()
+    (tmp_path / "entries" / "x.v1.md").write_text(
+        "## Known-answer test\n\n`tests_src/test_quant_b3.py::test_no_such_function`\n")
+    found = unresolved_known_answer_tests(entry_dirs=(tmp_path / "entries",))
+    assert "x.v1" in found and "test_no_such_function" in found["x.v1"]
+
+
+def test_ac_f12_22_every_located_formula_is_pinned_to_its_code():
+    """AC-F12.22 (≡ AC-3.19, QA-25) — *changing a formula without amending its
+    MethodEntry in the same commit fails CI.* ★ Each entry whose formula_id is
+    declared by a `FORMULA_ID = "..."` assignment pins the sha256 of that file
+    (`Code: <path> @ sha256:<hex>`); a mismatch is a stale entry. ⚠ Entries with no
+    assignment have no code to pin — they are a FIXED list, so it cannot grow
+    silently."""
+    from src.quant.methods.registry import UNLOCATED_FORMULAS, stale_entries
+
+    assert stale_entries() == {}
+    expected = frozenset({
+        "cv.purge_embargo.derived.v1", "effective_n.overlap_corrected.v1",
+        "mde.rank_ic.v1", "rank_ic.spearman.v1",
+        "volatility.realised_open_to_open_std.v1"})
+    assert frozenset(UNLOCATED_FORMULAS) == expected
+
+
+def test_ac_f12_22_a_code_change_without_its_entry_is_stale(tmp_path):
+    """AC-F12.22 — the check FIRES: edit the code, leave the entry, and it is stale."""
+    from src.quant.methods.registry import code_digest, stale_entries
+
+    src = tmp_path / "src" / "dom"
+    (src / "methods" / "entries").mkdir(parents=True)
+    code = src / "f.py"
+    code.write_text('FORMULA_ID = "f.v1"\n\ndef f(x):\n    return x + 1\n')
+    entry = src / "methods" / "entries" / "f.v1.md"
+    entry.write_text(f"Code: src/dom/f.py @ sha256:{code_digest(code)}\n")
+    assert stale_entries(repo=tmp_path) == {}
+    code.write_text('FORMULA_ID = "f.v1"\n\ndef f(x):\n    return x + 2\n')
+    assert "f.v1" in stale_entries(repo=tmp_path)

@@ -42,7 +42,7 @@ def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
             ic_significance_gate(ic, horizon_id=horizon.id),
             cost_survival_gate(gross_return=gross_return, net_return=net_return,
                                horizon_id=horizon.id,
-                               costs_charged=costs.components),
+                               costs_charged=costs.costs_charged),
             breadth_gate(effective_breadth=effective_breadth,
                          names=int(round(ic.names_per_date)),
                          horizon_id=horizon.id),
@@ -52,7 +52,7 @@ def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
     assert_not_pooled(gate_sets)
     return BacktestResult(spec_id=spec.spec_id, gate_sets=tuple(gate_sets),
                           gross_return=gross_return, net_return=net_return,
-                          costs_charged=costs.components)
+                          costs_charged=costs.costs_charged)
 
 
 def folds_for(spec: BacktestSpec, dates, protocol) -> tuple:

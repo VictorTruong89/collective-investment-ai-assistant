@@ -157,17 +157,19 @@ def _rank(job, manifest, ctx: RunContext):
     still ranked by `z(mom_21) × vol_21 × √21`* — `_incumbent_model()` loaded the
     artifact only so OR-44 could read its anchor, and nothing scored with it.
     """
-    from src.orchestration.jobs.b3_run import _nominate
+    from src.orchestration.jobs.b3_run import _nominate, nomination_provenance
 
+    provenance = nomination_provenance(ctx.contract, ctx.adj_as_of,
+                                       ctx.require("calendar_check"))
     incumbent = ctx.incumbent
     if incumbent and incumbent.get("estimator") is not None:
-        return _nominate_with_model(ctx, manifest, incumbent)
+        return _nominate_with_model(ctx, manifest, incumbent, provenance)
     return _nominate(ctx.require("features"), as_of=ctx.as_of,
                      run_id=manifest.run_id, universe_n=len(ctx.universe),
-                     anchor=manifest.decision_anchor)
+                     anchor=manifest.decision_anchor, provenance=provenance)
 
 
-def _nominate_with_model(ctx: RunContext, manifest, incumbent):
+def _nominate_with_model(ctx: RunContext, manifest, incumbent, provenance):
     """★ D-03 consuming D-04's artifact — **parity first, then scoring.**
 
     ⚠ `check_parity` runs **once over the whole batch, before any score**
@@ -216,7 +218,8 @@ def _nominate_with_model(ctx: RunContext, manifest, incumbent):
         candidates=tuple(Candidate(c["ticker"], c["rank"], c["ranked_quantity"],
                                    c["z"]) for c in ranked),
         excluded=excluded,
-        research_only=PRODUCTION_V1.arbitration.research_only)
+        research_only=PRODUCTION_V1.arbitration.research_only,
+        **provenance)
 
 
 def _observe(job, manifest, ctx: RunContext):

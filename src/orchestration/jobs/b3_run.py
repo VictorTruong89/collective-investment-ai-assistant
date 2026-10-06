@@ -115,6 +115,7 @@ def run_skeleton(
     nomination = rec.run("rank", lambda: _nominate(
         panel, as_of=as_of, run_id=manifest.run_id, universe_n=len(universe),
         anchor=manifest.decision_anchor,
+        provenance=nomination_provenance(B3_MINIMAL_V1, adj_as_of, report),
     ))
 
     # 5 — D-01's gate. A real CT-1.4 emitter (BS-11), constant PASS, grade empty.
@@ -197,7 +198,15 @@ def _calendar(*, universe, as_of, adj_as_of, events, root, run_id, window):
         adj_as_of=adj_as_of, run_id=run_id)
 
 
-def _nominate(panel, *, as_of, run_id, universe_n, anchor):
+def nomination_provenance(contract, adj_as_of, calendar_report) -> dict:
+    """★ QA-30 / F12 AC-F12.26 — what the nomination was computed under, passed
+    through as supplied (OR-1: nothing here is derived from data)."""
+    return {"contract_version": f"{contract.name}@v{contract.version}",
+            "adj_as_of": adj_as_of,
+            "calendar_check_id": calendar_report.report_id}
+
+
+def _nominate(panel, *, as_of, run_id, universe_n, anchor, provenance):
     """D-03's CT-3.4. `model_artifact_id` is the ranker's content hash (QA-121)."""
     horizon = PRODUCTION_V1.horizon(PRODUCTION_V1.arbitration.nominates)
     ranked = rank_candidates(panel, as_of=as_of, horizon_days=horizon.trading_days)
@@ -210,6 +219,7 @@ def _nominate(panel, *, as_of, run_id, universe_n, anchor):
         candidates=tuple(Candidate(c["ticker"], c["rank"], c["ranked_quantity"], c["z"])
                          for c in ranked),
         research_only=PRODUCTION_V1.arbitration.research_only,
+        **provenance,
     )
 
 

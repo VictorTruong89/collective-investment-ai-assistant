@@ -403,7 +403,9 @@ def test_bs28_a_verdict_can_now_render_with_its_stability_figure():
     nomination = Nomination(as_of=as_of, run_id="r", decision_anchor="open",
                             horizon_set=("production", 1), nominating_horizon="h1m",
                             universe_n=130, model_artifact_id="sha256:abc",
-                            candidates=(Candidate("MU", 1, 0.04, 2.6),))
+                            candidates=(Candidate("MU", 1, 0.04, 2.6),),
+                     contract_version="b3_minimal@v1", adj_as_of=as_of,
+                     calendar_check_id="cal:test")
     rec = compose(nomination=nomination, gate_verdicts=[gate_verdict],
                   alert_set=AlertSet((), COMPLETE), run_id="r", as_of=as_of,
                   gate_roster_declared=("thesis",), manifest_anchor="open",
@@ -439,7 +441,9 @@ def test_bs28_an_unmeasured_stability_still_refuses_the_actionable_path():
     nomination = Nomination(as_of=as_of, run_id="r", decision_anchor="open",
                             horizon_set=("production", 1), nominating_horizon="h1m",
                             universe_n=130, model_artifact_id="sha256:abc",
-                            candidates=(Candidate("MU", 1, 0.04, 2.6),))
+                            candidates=(Candidate("MU", 1, 0.04, 2.6),),
+                     contract_version="b3_minimal@v1", adj_as_of=as_of,
+                     calendar_check_id="cal:test")
     # ⚠ Hand-built past D-12: DN-39 now refuses this pairing upstream, and the
     #   subject of THIS test is that **D-09 refuses it too** — the boundary must
     #   not depend on the layer above having held.

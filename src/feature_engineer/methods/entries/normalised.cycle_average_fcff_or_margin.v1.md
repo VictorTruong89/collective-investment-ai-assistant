@@ -1,5 +1,8 @@
 # `normalised.cycle_average_fcff_or_margin.v1` — cycle averages over a judgement's window
 
+Code: src/feature_engineer/valuation/normalised.py @ sha256:9add9cba0f976e5d
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
 Given a window of fiscal years `W = {first … last}` chosen by `J-20` (`F10` `D5`):

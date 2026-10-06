@@ -1,5 +1,8 @@
 # `fcff.ocf_plus_after_tax_interest_minus_capex_minus_sbc.v2` — the reported cash-flow basis
 
+Code: src/feature_engineer/valuation/basis.py @ sha256:0a9c3467592971e7
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
 Trailing-twelve-month free cash flow to the firm, from four discrete, contiguous
@@ -59,5 +62,5 @@ treating pay in shares as a cost owners bear through dilution.
 
 OCF 12,000 · interest 400 · tax 1,000 on pretax 4,000 (`t` = 0.25) · capex 8,000 ·
 SBC 800 ⇒ `12,000 + 400 × 0.75 − 8,000 − 800 = 3,500`. Loss year (pretax ≤ 0) ⇒ `t = 0` ⇒
-`12,000 + 400 − 8,000 − 800 = 3,600` (`::test_ac_f10_17_a_loss_year_uses_a_zero_tax_rate`).
+`12,000 + 400 − 8,000 − 800 = 3,600` (`tests/unit/test_valuation_f10.py::test_ac_f10_17_a_loss_year_uses_a_zero_tax_rate`).
 `tests/unit/test_valuation_f10.py::test_ac_f10_17_the_reported_basis_is_ocf_plus_after_tax_interest_minus_capex_minus_sbc`

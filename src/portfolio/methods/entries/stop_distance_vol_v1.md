@@ -1,5 +1,8 @@
 # `stop_distance_vol_v1` — the volatility-scaled stop
 
+Code: src/portfolio/sizing/stop_distance.py @ sha256:4eb25feee76a29cb
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
     stop_distance = k · σ̂ · √h · entry      ⇒      shares ∝ 1 / σ̂

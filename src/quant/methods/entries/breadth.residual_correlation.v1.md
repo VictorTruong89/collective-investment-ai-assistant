@@ -1,5 +1,8 @@
 # `breadth.residual_correlation.v1` — effective breadth
 
+Code: src/quant/metrics/breadth.py @ sha256:af9fcfa2cb7e7470
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
     rho     = mean off-diagonal correlation of the RETURNS  (pairwise-complete)
@@ -87,3 +90,7 @@ is known by construction and asserts the estimator recovers it:
 ★ And the negative control: the **residual** form returns `−1/(n−1)` at both
 `rho_true = 0.00` and `0.35`, which is the assertion that keeps the divergence
 above honest.
+
+`tests_src/test_quant_breadth.py::test_the_raw_measure_recovers_a_known_correlation` ·
+`tests_src/test_quant_breadth.py::test_the_residual_measure_returns_minus_one_over_n_minus_one_regardless`
+*(✏ 2026-10-05, AC-F12.19: the section named the file only.)*

@@ -40,7 +40,9 @@ def _rec(variant="api", *, thesis_ref=_SENTINEL):
     nom = Nomination(as_of=AS_OF, run_id="r", decision_anchor="open",
                      horizon_set=("production", 1), nominating_horizon="h1m",
                      universe_n=1, model_artifact_id="sha256:abc",
-                     candidates=(Candidate("NVDA", 1, 0.1115, 0.425),))
+                     candidates=(Candidate("NVDA", 1, 0.1115, 0.425),),
+                     contract_version="b3_minimal@v1", adj_as_of=AS_OF,
+                     calendar_check_id="cal:test")
     # ★ A gate carrying a graded verdict, so `analyst_verdict` renders — that
     #   is the unit whose reliability CLASS `AC-F9.6` changes.
     gate = GateVerdict("thesis", "NVDA", AS_OF, "PASS", "graded for test",

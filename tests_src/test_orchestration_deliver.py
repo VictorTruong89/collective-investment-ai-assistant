@@ -35,6 +35,8 @@ def _card():
         horizon_set=("production", 1), nominating_horizon="h1m",
         universe_n=510, model_artifact_id="sha256:85b75744",
         candidates=(Candidate("MNST", 1, 0.0263, 0.04),),
+        contract_version="b3_minimal@v1", adj_as_of=date(2024, 8, 30),
+        calendar_check_id="cal:test",
         excluded=({"ticker": "AVB", "reason": "delisted 2026-08-17"},))
     recommendation = compose(
         nomination=nomination,

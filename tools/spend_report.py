@@ -28,15 +28,26 @@ RUNS = REPO / ".state/runs"
 PRICE_IN, PRICE_OUT = 5.00 / 1e6, 25.00 / 1e6
 
 
-def main() -> int:
-    if not RUNS.exists():
-        print("  no runs recorded")
-        return 0
+def _response(run: pathlib.Path, rec: dict) -> dict:
+    """The call's response. ⚠ Newer traces keep it only in the payload file
+    (`trace/payloads/<payload_ref>.json`); reading the trace line alone missed
+    `transport` there and priced every subscription call as API spend (found
+    2026-10-05: a $137 "floor" that was mostly $0 subscription calls)."""
+    if rec.get("response"):
+        return rec["response"]
+    ref = rec.get("payload_ref")
+    path = run / "trace" / "payloads" / f"{ref}.json"
+    if ref and path.is_file():
+        return json.loads(path.read_text(encoding="utf-8")).get("response") or {}
+    return {}
 
+
+def tally(runs: pathlib.Path) -> dict:
+    """Floor (API dollars), subscription count and notional, and the rows."""
     total = billed_unknown = subscription = 0
     notional = 0.0
     rows = []
-    for run in sorted(RUNS.iterdir()):
+    for run in sorted(runs.iterdir()):
         log = run / "trace.jsonl"
         if not log.exists():
             continue
@@ -52,7 +63,7 @@ def main() -> int:
             tok = rec.get("tokens") or {}
             tin, tout = tok.get("input", 0), tok.get("output", 0)
             err = rec.get("error")
-            resp = rec.get("response") or {}
+            resp = _response(run, rec)
             # ★ GW-27 — a subscription call is $0 of API money. Its list price is
             #   `notional_usd`, reported apart and never added to the floor.
             if (resp.get("transport") == "claude_code"
@@ -68,6 +79,19 @@ def main() -> int:
             rows.append((run.name, tin, tout, rec.get("latency_ms", 0) / 1000,
                          cost, status, (err or "")[:40]))
 
+    return {"floor": round(total, 4), "subscription": subscription,
+            "notional": round(notional, 4), "billed_unknown": billed_unknown,
+            "rows": rows}
+
+
+def main() -> int:
+    if not RUNS.exists():
+        print("  no runs recorded")
+        return 0
+    t = tally(RUNS)
+    total, rows = t["floor"], t["rows"]
+    subscription, notional = t["subscription"], t["notional"]
+    billed_unknown = t["billed_unknown"]
     print(f"  {'run':<26} {'in':>8} {'out':>7} {'sec':>5} {'cost':>8}  outcome")
     for name, tin, tout, lat, cost, status, err in rows:
         note = f"{status}  {err}" if err else status

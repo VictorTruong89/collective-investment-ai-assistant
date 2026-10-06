@@ -439,7 +439,7 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
 
 
 #: ★ The one gate D-03 cannot answer from a fit alone. ⚠ `cost_survival` needs a
-#: BACKTEST — gross and net returns after QA-123's 9.95 commission — and D-04
+#: BACKTEST — gross and net returns after QA-123's commission ($0 since F12 D8, 2026-10-05; was 9.95) — and D-04
 #: does not run one (**MT-19: D-04 does not evaluate itself**). Reporting it as
 #: `NOT_EVALUATED` is what makes promotion refuse; scoring it PASS here would be
 #: D-04 marking its own homework.

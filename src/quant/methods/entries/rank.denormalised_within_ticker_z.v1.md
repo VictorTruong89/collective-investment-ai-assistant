@@ -1,5 +1,8 @@
 # MethodEntry — `rank.denormalised_within_ticker_z.v1`
 
+Code: src/quant/signals/rank.py @ sha256:c0691b0bca17336f
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 > ⚠ **B3 only.** B4 replaces `z_hat` with a fitted model's cross-sectional
 > standardised prediction. The *denormalisation* survives that change; the
 > standardisation does not.

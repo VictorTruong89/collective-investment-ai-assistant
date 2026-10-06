@@ -64,6 +64,7 @@ metric-gate · unit · integration.
 | **F9** | [Thesis source port](F9_thesis_source_port/spec.md) | 🟡 **draft** — 10 ACs, ⚠ 2 blocked (Q1) | AC-F9.1 … AC-F9.10 | ⛔ none |
 | **F10** | [Valuation trail (D-02)](F10_valuation_trail/spec.md) — ★ gates Stage B | 🟢 **approved 2026-09-13** — ✏ amended `D10` (2026-10-01) · `D11` (2026-10-02) | AC-F10.1 … AC-F10.23 | ✅ **23/23 green** |
 | **F11** | [Reference-class base rates (D-02)](F11_reference_class_base_rates/spec.md) — the `J-10` input | 🟢 **approved 2026-10-02** — `D1`–`D6` | AC-F11.1 … AC-F11.9 | ✅ **9/9 green** · ⚠ `DX-143` (thin real data) |
+| **F12** | [Quant core (D-03)](F12_quant_core/spec.md) — governs `src/quant/**` | 🟢 **approved 2026-10-05** — `D1`–`D8` (Victor) | AC-F12.1 … AC-F12.30 | ✅ **27/30 green** · ⊘ 3 vacuous |
 
 ★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if
 nothing after it landed.

@@ -1,5 +1,8 @@
 # `gbdt.lightgbm_rank.v1` — gradient-boosted trees for the 1m selection leg
 
+Code: src/models/zoo/gbdt.py @ sha256:870c5de7f888d4f8
+*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+
 ## Statement
 
 A LightGBM regressor fitted on the volatility-normalised forward return at the

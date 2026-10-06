@@ -34,6 +34,8 @@ def nomination(**kw):
         horizon_set=("production", 1), nominating_horizon="h1m", universe_n=1,
         model_artifact_id="sha256:deadbeef",
         candidates=(Candidate("NVDA", 1, 0.0412, 2.61),),
+        contract_version="b3_minimal@v1", adj_as_of=date(2024, 8, 30),
+        calendar_check_id="cal:test",
     )
     return Nomination(**{**base, **kw})
 
