@@ -6,6 +6,19 @@
 > list-price estimates from measured traces (`tools/spend_report.py`, fixed 2026-10-05), priced at
 > `claude-opus-5` $5 / $25 per million input / output tokens.
 
+## ✅ Decisions taken — Victor, 2026-10-05
+
+| step | decision |
+|---|---|
+| 1 · G1 daily thesis | ✅ **ⓑ — card only; theses on demand.** The daily run does not author a thesis |
+| 5 · thesis cadence | ✅ **only on Victor's manual command** — no scheduled or automatic re-authoring |
+| 3 · budget `QI-2` | ⏸ **no figure yet** — pending real-run tests and reviews |
+| 4 · transport switch | ⛔ **do NOT turn on the paid Anthropic API yet.** Dev and on-demand runs stay on the subscription |
+| FMP | ✅ **OK to use** — fixed monthly subscription (standing approval unchanged) |
+| 2 · API spot-check | ⏸ not approved — it would be a paid API call, which step 4 rules out for now |
+
+⚠ Recorded only — nothing was run, scheduled or switched when these were noted.
+
 ## 0. Where it stands (measured 2026-10-05)
 
 | | |
@@ -32,6 +45,7 @@ consensus). `entrypoint.py`'s `THESIS_ASSEMBLER_MISSING` comment is itself stale
 | ⓒ go live with the old 3-call path | cheapest, but it is not the analysis the project measured, and its falsifiers predate DX-139/144/147 | none | ~3 calls/name |
 
 ★ Recommendation: **ⓑ now, ⓐ as the next build** — ⓒ would put an unmeasured analysis on a card.
+✅ **Decided ⓑ** (Victor, 2026-10-05). ✅ **The old path was REMOVED the same day** (L3 §2.1s, `DX-153`): the daily graph is `daily_inference@v8` with no `thesis`/`observe` job and no `--thesis` flag. Restore: `git apply -R sdd/archive/2026-10-05_removed_old_thesis_path.patch`.
 
 ## 2. The steps
 

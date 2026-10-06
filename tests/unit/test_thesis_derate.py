@@ -108,11 +108,11 @@ def test_the_derating_travels_with_the_thesis_so_a_reader_can_re_derive_it():
 def test_the_thesis_confidence_is_no_longer_the_UNMEASURED_placeholder():
     """⚠ `AB-1` — authoring shipped `{"value": None, "basis": "not_measured"}`, which reads as
     *"coverage was measured and is unknown"*. It is now the measured ratio."""
-    from src.fundamental.thesis.run import UNMEASURED_CONFIDENCE
-
+    # ✏ 2026-10-05 — the placeholder's module (`thesis/run.py`) was removed; its basis was
+    #   the literal "not_measured".
     d = Derating.of(verdict="HOLD", conviction="Medium", rubrics=_rubrics(),
                     extracted=frozenset(), outputs={}, stage_a=[])
-    assert d.confidence["basis"] != UNMEASURED_CONFIDENCE["basis"]
+    assert d.confidence["basis"] != "not_measured"
     assert isinstance(d.confidence["value"], float)
 
 

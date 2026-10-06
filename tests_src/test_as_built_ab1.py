@@ -9,16 +9,15 @@ import pytest
 from src.fundamental.scorecard.coverage import (
     CONFIDENCE_FLOOR, CONFIDENCE_HOLD_CAP,
 )
-from src.fundamental.thesis.run import UNMEASURED_CONFIDENCE
-
-
-def test_ab1_confidence_declares_itself_unmeasured_not_zero():
-    """★★ ⚠ `{"value": 0.0, "basis": "evidence_coverage"}` says *coverage was
-    measured and came out zero*. **That is a lie by shape** — it makes a company
-    with no evidence indistinguishable from a pipeline that never looked."""
-    assert UNMEASURED_CONFIDENCE["value"] is None
-    assert UNMEASURED_CONFIDENCE["basis"] == "not_measured"
-    assert UNMEASURED_CONFIDENCE["reason"]
+#: ✏ 2026-10-05 — was imported from `thesis/run.py`, the old three-call path's placeholder,
+#:   removed that day (L3 §2.1s). The shape is kept here as the renderer's test input; the
+#:   test that pinned the placeholder ITSELF went with its subject.
+UNMEASURED_CONFIDENCE = {
+    "value": None,
+    "basis": "not_measured",
+    "reason": "B4.2 extraction and B4.3 scorecard are not wired into authoring, "
+              "so evidence_coverage was never computed (AB-1, RA-67)",
+}
 
 
 def test_ab1_the_confidence_floor_is_not_neutralised():

@@ -50,9 +50,10 @@ def test_j15_v3_is_what_the_stage_b_to_d_runner_ships():
 
 
 def test_the_orchestrated_prose_path_stays_on_v1_on_purpose():
-    """⚠ `thesis/run.py` parses falsifiers from PROSE with no schema, so `v2`'s
-    "the grammar the answer schema declares" has nothing to point at there. A silent
-    move would send v2 text to a path that cannot honour it."""
+    """⚠ `j_blocks.py` (the registry `build_gateway` declares) stays on `v1`. ✏ 2026-10-05:
+    the prose path that read it (`thesis/run.py`) was REMOVED (L3 §2.1s), so nothing
+    calls these blocks now; a silent move to v2 would still describe a prompt no runner
+    honours. Migrate or remove `j_blocks` deliberately, not by version bump."""
     from src.fundamental.prompts.blocks.j_blocks import J15
 
     assert J15.version == "v1"

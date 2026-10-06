@@ -38,10 +38,11 @@ class RunContext:
     contract: object
     #: Supplied inputs — D-07 fetches these at the edge (DE-1: it holds the key).
     raw_prices: object = None
-    #: ★ A `ProbedThesis` for the nominated name, or `None`. ⚠ When it is
-    #: `None` the gate falls back to the **declared stub** and the card is
-    #: informational (BS-11/BS-33) — never actionable on a thesis that does not
-    #: exist.
+    #: ★ A SUPPLIED probed thesis (`.thesis`, `.stability`) for the nominated
+    #: name, or `None`. ⚠ When it is `None` the gate falls back to the
+    #: **declared stub** and the card is informational (BS-11/BS-33) — never
+    #: actionable on a thesis that does not exist. ✏ 2026-10-05: no job in the
+    #: daily graph produces one any more (the old `thesis` job was removed).
     probed_thesis: object = None
     events: tuple = ()
     event_store_root: str = ""
@@ -52,15 +53,10 @@ class RunContext:
     #: Where CT-11.7 run artifacts land. ⚠ Gitignored: a generated store in
     #: version control is a second source of truth that silently goes stale.
     artifact_root: object = None
-    #: ★ WF-1's injected D-07 handle and the switch that arms authoring.
     #: ⚠ **There is deliberately no `gateway` field.** ST-5 lets only D-01 reach
     #: the model, and a shim that can hold a gateway can make a call.
-    engine: object = None
-    #: ★ D-07's Class-B ledger and FMP client, for the `observe` job. They are
-    #: the engine's own collaborators; the adapter passes them through and
-    #: computes nothing (OR-1).
-    observation_ledger: object = None
-    fmp_client: object = None
+    #: ⊘ 2026-10-05: `engine`, `observation_ledger`, `fmp_client` removed with the
+    #: old `observe` + `thesis` jobs that were their only readers.
     #: ★ The promoted artifact, or `None`. ⚠ Its presence is what switches D-03
     #: from the rule to the model — and MT-17 makes *promoted*, not *fitted*,
     #: the condition.
@@ -81,10 +77,6 @@ class RunContext:
     smtp_password: object = None
     #: RP-24 — archived bytes are written **before** the send and verified after.
     archive_root: object = None
-    author_thesis: bool = False
-    #: ⚠ Forces a fresh authoring even when RC-61 would reuse. ★ Reuse is the
-    #: caller's decision, never the store's.
-    reauthor: bool = False
     #: ★ `fetch(symbol) -> (price, currency) | None`, a D-07 closure. D-11 calls
     #: it for the names IT holds — orchestration never learns the holdings.
     price_fetch: object = None
@@ -222,38 +214,6 @@ def _nominate_with_model(ctx: RunContext, manifest, incumbent, provenance):
         **provenance)
 
 
-def _observe(job, manifest, ctx: RunContext):
-    """D-07 Class-B capture for the nominated name — ★ `resolve(job)`.
-
-    ⚠ Runs only when authoring is armed: a capture the run will not read is a
-    request nobody needed, and `DEFAULT_SCHEDULE`'s cadence gates it anyway.
-    """
-    if not ctx.author_thesis or ctx.observation_ledger is None or \
-            ctx.fmp_client is None:
-        return {}
-    return resolve(job)(ctx.fmp_client, ctx.observation_ledger,
-                        ticker=ctx.require("rank").top.ticker, as_of=ctx.as_of)
-
-
-def _thesis(job, manifest, ctx: RunContext):
-    """D-01 WF-1 — ★ `resolve(job)`, and **only when the run asked for it**.
-
-    Returns the `ProbedThesis` or `None`. ⚠ `None` is not a failure: it is the
-    ordinary state of a run that did not buy three Opus passes, and
-    `_thesis_gate` reads it as "fall back to the declared stub".
-    """
-    if not ctx.author_thesis or ctx.engine is None:
-        return None
-    # ★★ **No gateway is passed, and none can be built here** — ST-5/AC-8.4.
-    #   D-01 reads its own credential; orchestration hands it a flag.
-    return resolve(job)(ctx.require("rank").top.ticker, as_of=ctx.as_of,
-                        engine=ctx.engine,
-                        panel=ctx.outputs.get("features"), contract=ctx.contract,
-                        # ★ RC-61 — an unchanged bundle reuses its thesis
-                        #   instead of paying for three more Opus passes.
-                        cache_root=ctx.artifact_root, reauthor=ctx.reauthor)
-
-
 def _thesis_gate(job, manifest, ctx: RunContext):
     """D-01 — CT-1.4, from the **real thesis** when one exists.
 
@@ -266,7 +226,7 @@ def _thesis_gate(job, manifest, ctx: RunContext):
     from src.fundamental.thesis.stub_gate import stub_gate_verdict
 
     ticker = ctx.require("rank").top.ticker
-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
+    probed = ctx.probed_thesis
     if probed is None or probed.thesis.ticker != ticker:
         return stub_gate_verdict(ticker, ctx.as_of)
     return evaluate(GateInputs(thesis=probed.thesis, stale=ctx.thesis_stale,
@@ -311,7 +271,7 @@ def _decide(job, manifest, ctx: RunContext):
     from src.decision.compose.service import compose, enforce_inv6
 
     alerts = ctx.require("risk")
-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
+    probed = ctx.probed_thesis
     stability = (probed.thesis.verdict_stability if probed else None)
     # ★★ DN-39 — actionable requires BOTH a complete risk pass and a stability
     #   figure. ⚠ Asking for it and being refused is the same defect as marking
@@ -361,7 +321,7 @@ def _record(job, manifest, ctx: RunContext):
             "silently left no record is indistinguishable from one that never "
             "happened (RC-59, P6)")
 
-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
+    probed = ctx.probed_thesis
     return resolve(job)(
         run_id=manifest.run_id, root=ctx.artifact_root,
         manifest=manifest, recommendation=ctx.require("decide"),
@@ -428,7 +388,7 @@ def _deliver(job, manifest, ctx: RunContext):
 #: which is louder than a job that silently does nothing.
 ADAPTERS = {
     "calendar_check": _calendar_check, "prices": _prices, "features": _features,
-    "rank": _rank, "observe": _observe, "thesis": _thesis,
+    "rank": _rank,
     "thesis_gate": _thesis_gate,
     "book": _book, "risk": _risk,
     "decide": _decide, "render": _render,

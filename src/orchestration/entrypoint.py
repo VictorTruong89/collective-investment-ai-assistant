@@ -74,17 +74,9 @@ def main(argv=None) -> int:
         description="D-08 daily run. The timer calls this and holds no policy "
                     "of its own (OR-41).")
     parser.add_argument("--as-of", type=date.fromisoformat, default=None)
-    parser.add_argument(
-        "--thesis", action="store_true",
-        help="★ Author a k=3 probed thesis for the top-ranked name (D-01 WF-1). "
-             "⚠ COSTS MONEY — three live Opus passes, roughly $1 per run, which "
-             "is why the daily run does not do it silently. Without it the "
-             "thesis gate stays the declared stub and DN-39 keeps the card "
-             "informational.")
-    parser.add_argument(
-        "--reauthor", action="store_true",
-        help="⚠ Author a fresh thesis even if one exists for this exact bundle "
-             "(RC-61). Costs another ~$1.34; the default reuses.")
+    # ⊘ `--thesis` / `--reauthor` REMOVED 2026-10-05 (Victor; L3 §2.1s): they armed
+    #   the old three-call thesis path. Theses are authored on demand by
+    #   `tools/run_thesis_once.py`; the daily card stays informational (DN-39).
     parser.add_argument(
         "--universe", choices=("sp500", "watchlist"), default="sp500",
         help="★ DEFAULT `sp500` — the same ~510 the model trains on, so rank and "
@@ -134,8 +126,7 @@ def main(argv=None) -> int:
         print(f"BLOCKED {triggered.code}: {triggered.reason}", file=sys.stderr)
         return EXIT_BLOCKED
 
-    context = _context_for(triggered, as_of, want_thesis=args.thesis,
-                           reauthor=args.reauthor,
+    context = _context_for(triggered, as_of,
                            universe_name=args.universe,
                            deliver=args.deliver)
     if context is None:
@@ -184,13 +175,11 @@ def _run_config(args) -> dict:
     """★ OR-9/CN-5 — every config value the run used, hashed into the manifest.
 
     ⚠ **The switches belong in it.** `--universe` changes what the
-    cross-section normalises over (DE-36) and `--thesis` changes whether the
-    card can be actionable at all: two runs on the same day with different
-    flags are different runs, and an identical `config_hash` would say they
-    were not.
+    cross-section normalises over (DE-36): two runs on the same day with
+    different flags are different runs, and an identical `config_hash` would
+    say they were not. ✏ 2026-10-05: `thesis`/`reauthor` left with their flags.
     """
-    return {"universe": args.universe, "thesis": args.thesis,
-            "reauthor": args.reauthor, "deliver": args.deliver,
+    return {"universe": args.universe, "deliver": args.deliver,
             "universe_config": UNIVERSE_CONFIG}
 
 
@@ -216,8 +205,7 @@ def _delivery_credentials(deliver: bool):
             Secret("GMAIL_APP_PASSWORD", password))
 
 
-def _context_for(manifest, as_of: date, *, want_thesis: bool = False,
-                 reauthor: bool = False, universe_name: str = "watchlist",
+def _context_for(manifest, as_of: date, *, universe_name: str = "watchlist",
                  deliver: bool = False):
     """Assemble the run's inputs — ★ **one CT-7.1 panel over the whole
     universe** (D-07 `assemble_universe_panel`).
@@ -295,27 +283,8 @@ def _context_for(manifest, as_of: date, *, want_thesis: bool = False,
         deliver=deliver, recipient=recipient,
         smtp_user=smtp_user, smtp_password=smtp_password,
         archive_root=_state_dir() / "deliveries",
-        author_thesis=want_thesis, reauthor=reauthor,
-        engine=_data_engine(universe, as_of=as_of) if want_thesis else None,
-        observation_ledger=_observation_ledger() if want_thesis else None,
-        fmp_client=_fmp_client() if want_thesis else None,
         price_fetch=_price_fetch(client, start, as_of),
         events=(), event_store_root=str(_state_dir() / "events"))
-
-
-#: ★★ **The one thing standing between this pipeline and an actionable card,
-#: on the D-01 side.** `author_thesis(bundle, author=..., k=3)` works — it was
-#: run live against MU on 2026-08-25 (3 orderings, $1.09 of an $8.00 cap). What
-#: does not exist is an **assembler that builds an `EvidenceBundle` for an
-#: arbitrary ticker from D-07's data**; the live probe composed one by hand.
-#:
-#: ⚠ Until that lands, `RunContext.probed_thesis` stays `None`, `_thesis_gate`
-#: falls back to the declared stub, and DN-39 keeps the card informational —
-#: which is the correct outcome, not a workaround.
-THESIS_ASSEMBLER_MISSING = (
-    "D-01 has no ticker -> EvidenceBundle assembler; the k=3 probe is built and "
-    "proven but has nothing to feed it in an unattended run (RA-4, BS-11)"
-)
 
 
 def _ingested_today(ledger, ticker: str) -> bool:
@@ -556,7 +525,7 @@ def _fundamentals_for(universe, as_of: date):
     """D-07's PIT fundamentals and sectors for the `f_*` block.
 
     ★ **Reads the ledgers; it does not ingest.** Ingest is the training run's
-    job (`--thesis` refreshes what a thesis needs) — a daily inference run that
+    job — a daily inference run that
     silently fetched 500 companyfacts payloads would be doing D-07's write path
     on a schedule nobody declared.
     """
@@ -657,12 +626,6 @@ def _contract_for(incumbent):
         name="price_and_fundamental", version=int(ref.get("version", 1)),
         created=str(_TODAY), note="rebuilt at inference from the model's manifest",
         features=PRICE_OHLCV_V1.features + FUNDAMENTAL_V1.features)
-
-
-def _observation_ledger():
-    from src.data_engine.observation.ledger import ObservationLedger
-
-    return ObservationLedger(_state_dir() / "obs")
 
 
 def _fmp_client():

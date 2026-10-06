@@ -172,7 +172,7 @@ declared below. ⚠ The check asks only *"is it written down?"* — meaning stay
 | **`PRC-n`** | 64 | *(cross-cutting)* | Pricing rules |
 | **`WF-n`** | 55 | `L1-fundamental-analysis` | Workflow steps |
 | **`Q-n`** | 50 | `L0-system-vision` | ⚠ Open questions — **a fourth meaning of `Q`**; see below |
-| **`QP`/`QS`/`QK`/`QO`/`QC`/`QB`/`QX`-nn** | 20-44 | per-domain L1s | Domain open-question families (portfolio, strategy, knowledge, ops, recording, combination, experiments) |
+| **`QP`/`QS`/`QK`/`QO`/`QC`/`QB`/`QX`/`QI`-nn** | 20-44 | per-domain L1s · `QI` = `L2-shared-infrastructure` | Domain open-question families (portfolio, strategy, knowledge, ops, recording, combination, experiments, shared infrastructure — ✏ `QI` declared 2026-10-05 when the go-live notes took it past 20 uses) |
 | **`DQ-nn`** | 39 | `L0-system-vision` | Data-quality questions |
 | **`VS-n`** | 33 | `L0-system-vision` §4.2 | ★ **Valuation split** — D-02 arithmetic vs D-01 judgement (`VS-1` `fv_model` ≠ `fv_analyst` · `VS-4` judgement-parameterised arithmetic is D-01's). *Declared 2026-09-13 when `F10` took its use count past the threshold* |
 | **`IM-n`** | 38 | `L3-build-sequence` | Implementation-method rules |

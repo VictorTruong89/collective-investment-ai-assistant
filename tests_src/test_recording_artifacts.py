@@ -146,19 +146,6 @@ def test_a_rehydrated_falsifier_deadline_is_a_date_not_a_string():
     assert isinstance(back.falsifiers[0].deadline, date)
 
 
-def test_a_cached_thesis_carries_no_invented_runs(tmp_path):
-    """★ RM-1's figure travels on the thesis (`verdict_stability`). ⚠ A
-    fabricated run list would let a monitor count evidence that never
-    happened."""
-    from src.fundamental.thesis.author_for import _cached
-    from tests_src.test_fundamental_b44 import thesis
-
-    original = thesis()
-    record_run(run_id="r1", root=tmp_path, thesis=original)
-    hit = _cached(original.bundle_hash, tmp_path)
-    assert hit is not None and hit.runs == ()
-
-
 def test_a_stored_thesis_that_no_longer_meets_ct_1_1_is_not_served(tmp_path):
     """★ `__post_init__` runs on the way back in — a record written under an
     older contract raises rather than being silently trusted."""

@@ -151,7 +151,7 @@ def assert_timer_has_no_policy(timer_line: str) -> None:
 #: ★ `daily_inference@v3` — the production graph. Declared here so `plan()`
 #: returns it without executing anything (T-2).
 DAILY_INFERENCE = JobGraph(
-    job_graph_id="daily_inference@v7",
+    job_graph_id="daily_inference@v8",   # v8: observe + thesis removed (2026-10-05)
     jobs=(
         Job("calendar_check", "src.data_engine.service:DataEngine.calendar_check_report", budget_s=60),
         Job("prices", "src.data_engine.service:DataEngine.get_prices",
@@ -160,29 +160,15 @@ DAILY_INFERENCE = JobGraph(
             depends_on=("prices",), budget_s=300),
         Job("rank", "src.quant.signals.rank:rank_candidates",
             depends_on=("features",), budget_s=120),
-        # ★ WF-1 — assemble the bundle and author k=3. ⚠ **Optional and OFF
-        #   unless the run asks for it**: three live Opus passes are real spend
-        #   (~$1), and a daily job that quietly bills per invocation is a
-        #   surprise P5 has no equivalent for. Without it `thesis_gate` falls
-        #   back to the declared stub and DN-39 keeps the card informational.
-        # ★★ Class-B evidence for the NOMINATED name. ⚠ *Added 2026-08-26:*
-        #   the pre-run sweep covers the top of the universe plus what is held,
-        #   and **SNDK — rank #1 — sits at #124 of 130.** It was captured only
-        #   because Victor happens to hold it. A guarantee that holds by
-        #   accident is not one, and the miss would be silent: a thinner bundle,
-        #   not a failure.
-        Job("observe", "src.data_engine.ingest.observations:capture",
-            depends_on=("rank",), budget_s=120, optional=True),
-        Job("thesis", "src.fundamental.thesis.author_for:author_for",
-            # ⚠ **`rank`, not just `features`** — the adapter authors for the
-            #   NOMINATED name, so rank is a real dependency. A graph that runs
-            #   in the right order by accident is T-2's defect: *dependencies are
-            #   declared data*, and an undeclared one survives only until a
-            #   scheduler reorders on the declaration it was given.
-            depends_on=("features", "rank", "observe"), budget_s=1800,
-            optional=True),
+        # ⊘ REMOVED 2026-10-05 (Victor; L3 §2.1s): the `observe` and `thesis` jobs —
+        #   the old three-call thesis path (J-11/J-15/J-16 @v1, `author_for`) and the
+        #   Class-B capture that existed only to feed it. Theses are authored on
+        #   demand by `tools/run_thesis_once.py` (32 blocks, J-15 v3). Restore from
+        #   commit ac6e14f or `sdd/archive/2026-10-05_removed_old_thesis_path.patch`.
+        # ★ With no thesis in the run the gate falls back to the declared stub and
+        #   DN-39 keeps the card informational.
         Job("thesis_gate", "src.fundamental.thesis.gate:evaluate",
-            depends_on=("features", "thesis"), budget_s=600),
+            depends_on=("features", "rank"), budget_s=600),
         # ★ D-11's book, INVOKED by dotted name and resolved at run time.
         #   ⚠ OR-2 / AC-8.2: orchestration may invoke a D-11 entrypoint but may
         #   never import one — *an inference run writing positions.json means a

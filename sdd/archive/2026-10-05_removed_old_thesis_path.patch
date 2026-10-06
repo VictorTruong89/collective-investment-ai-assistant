@@ -1,0 +1,1368 @@
+ARCHIVED — DO NOT CODE FROM THIS FILE. It is a restore record, not an instruction.
+
+Removal of the old three-call thesis path — 2026-10-05, at Victor's request (L3 §2.1s).
+Baseline: commit ac6e14f ("[rel-01] developed quant") holds every file below in its
+pre-removal state.
+
+To restore everything (from the repo root):
+    git apply -R sdd/archive/2026-10-05_removed_old_thesis_path.patch
+To restore ONE file instead:
+    git checkout ac6e14f -- <path>
+
+The diff below is `git diff ac6e14f` over src/, tests/ and tests_src/, plus the one
+new file (tests_src/test_fundamental_j_blocks.py). git apply ignores this header.
+
+diff --git a/src/fundamental/thesis/author_for.py b/src/fundamental/thesis/author_for.py
+deleted file mode 100644
+index 83186cc..0000000
+--- a/src/fundamental/thesis/author_for.py
++++ /dev/null
+@@ -1,120 +0,0 @@
+-"""★★ `ticker + as_of` → a **probed** thesis. D-01's one entry point for WF-1.
+-
+-The pieces all existed and nothing joined them: `bundle_for` assembles the
+-evidence, `author_once` performs one authoring pass, `author_thesis` runs k of
+-them and measures RM-1. ⚠ Between them sat a scratch script, which is why
+-`RunContext.probed_thesis` was `None` in every unattended run.
+-
+-★ **RA-105 — D-01 sequences its own work.** A caller may invoke this; it may not
+-reorder, skip or re-enter a step. *A caller able to skip Stage A has removed
+-RA-14*, so the composition lives here rather than in the orchestrator.
+-"""
+-
+-from __future__ import annotations
+-
+-from datetime import date
+-
+-#: RM-1 needs k ≥ 3 before an agreement figure means anything, and **AC-1.8
+-#: makes k < 3 unable to be the actionable pick** — so this is the floor, not a
+-#: default worth tuning down.
+-K_RUNS = 3
+-
+-#: How far out a falsifier may be asked to resolve. ⚠ A deadline inside the
+-#: bundle's own window would be answerable before the thesis is even filed.
+-DEFAULT_HORIZON_DAYS = 210
+-
+-
+-def author_for(ticker: str, *, as_of: date, engine, gateway=None, panel=None,
+-               contract=None, k: int = K_RUNS, deadline: date | None = None,
+-               run_id: str | None = None, cache_root=None, reauthor: bool = False):
+-    """Assemble, author k times, and return the `ProbedThesis`.
+-
+-    `gateway` is an `AnalysisGateway`, or `None` to build D-01's own. ★★ **ST-5
+-    — D-01 is the only domain permitted to import the LLM gateway**, so a caller
+-    outside D-01 must pass `None`: *a shim that can build a gateway can make a
+-    call*, and AC-1.38's grep is the only thing keeping that untrue.
+-    """
+-    from datetime import timedelta
+-
+-    from src.fundamental.bundle.for_ticker import bundle_for, observable_fields
+-    from src.fundamental.thesis.author import AuthoringRun
+-    from src.fundamental.thesis.probe import author_thesis
+-    from src.fundamental.thesis.run import author_once
+-
+-    ticker = ticker.upper()
+-    bundle = bundle_for(ticker, as_of=as_of, engine=engine, panel=panel,
+-                        contract=contract)
+-
+-    # ★★ RC-61 — an unchanged bundle reuses its thesis. ⚠ The bundle is built
+-    #   FIRST and only then looked up: `bundle_hash` is the key, and computing
+-    #   it is the only way to know whether the evidence moved. Assembly is
+-    #   cheap; the three Opus passes are the $1.34.
+-    if cache_root is not None and not reauthor:
+-        cached = _cached(bundle.bundle_hash, cache_root)
+-        if cached is not None:
+-            return cached
+-    observables = observable_fields(engine, ticker, as_of, contract)
+-    resolve_by = deadline or (as_of + timedelta(days=DEFAULT_HORIZON_DAYS))
+-    stem = run_id or f"wf1-{ticker.lower()}-{as_of.isoformat()}"
+-
+-    from src.fundamental.prompts.call import build_gateway
+-    gateway = gateway or build_gateway()
+-
+-    def author(view, index: int):
+-        return author_once(bundle=view, gateway=gateway,
+-                           run=AuthoringRun(ticker=ticker, as_of=as_of),
+-                           index=index, observables=observables,
+-                           deadline=resolve_by, run_id=f"{stem}-{index}")
+-
+-    return author_thesis(bundle, author=author, k=k, as_of=as_of)
+-
+-
+-def _cached(bundle_hash: str, cache_root):
+-    """A stored thesis for this exact evidence, rehydrated — or `None`.
+-
+-    ★ **The lookup is invoked by dotted name, not imported.** D-01 depends on
+-    D-07, D-02 and D-00 (§3) and **not on D-11**; reaching into the record
+-    directly would add a dependency the spec does not grant, so this resolves
+-    the same way the orchestrator does (OR-48).
+-
+-    ⚠ Returns `None` on any failure. A cache that raises turns a saving into an
+-    outage, and re-authoring is always correct — merely expensive.
+-    """
+-    import importlib
+-
+-    try:
+-        module = importlib.import_module("src.recording.artifacts.store")
+-        payload = module.latest_thesis_for(bundle_hash, root=cache_root)
+-    except Exception:                          # noqa: BLE001 — see the docstring
+-        return None
+-    if payload is None:
+-        return None
+-
+-    from src.fundamental.thesis.models import Thesis
+-    from src.fundamental.thesis.probe import ProbedThesis
+-
+-    try:
+-        thesis = Thesis.from_json_obj(payload)
+-    except Exception:                          # noqa: BLE001 — a stale shape
+-        return None
+-    # ⚠ `runs=()` — ★ **the k runs are not replayed and must not be invented.**
+-    #   RM-1's figure travels on the thesis itself (`verdict_stability`); a
+-    #   fabricated run list would let a monitor count evidence that never
+-    #   happened.
+-    return ProbedThesis(thesis=thesis,
+-                        stability=_stability_of(thesis), runs=())
+-
+-
+-def _stability_of(thesis):
+-    """RM-1's result as it was stored. ⚠ Never recomputed — recomputing from a
+-    single stored verdict would report `agreement = 1.00` for every cached
+-    thesis, which is a measurement of nothing."""
+-    from src.fundamental.monitor.variance import StabilityResult
+-
+-    payload = getattr(thesis, "verdict_stability", None)
+-    if not payload:
+-        return None
+-    try:
+-        return StabilityResult.from_json_obj(payload)
+-    except Exception:                          # noqa: BLE001
+-        return None
+diff --git a/src/fundamental/thesis/probe.py b/src/fundamental/thesis/probe.py
+deleted file mode 100644
+index a1f1db6..0000000
+--- a/src/fundamental/thesis/probe.py
++++ /dev/null
+@@ -1,185 +0,0 @@
+-"""D-01 §7.1 — `author_thesis(bundle, k)`. RM-1, RA-20, RA-61, RA-62, AC-1.8.
+-
+-★★ **`k > 1` runs the stability probe.** §12's API says so and nothing ran it:
+-the probe machinery measured verdicts a caller had to produce by hand, and the
+-authoring path produced one.
+-
+-```text
+-   RM-1 asks: does this bundle produce THE SAME VERDICT when the INPUT is
+-   restructured in ways the answer should be invariant to?
+-
+-     option_order       the enumerated verdicts, permuted   (RA-17)
+-     evidence_order     the bundle's parts, reordered       (RA-4 — the hash
+-                                                             is order-independent)
+-     prompt_paraphrase  ⚠ NOT APPLIED — see RA-61 below
+-```
+-
+-⚠ **Only two of the three perturbations are real.** `prompt_paraphrase` would
+-change the prompt text, and **RA-13 hashes it** — a paraphrase is a different
+-prompt version, not a perturbation of one. ★ Declaring it and not applying it
+-would be worse than either: the probe would claim a robustness it never tested.
+-"""
+-
+-from __future__ import annotations
+-
+-from dataclasses import dataclass, field
+-from datetime import date
+-
+-from src.fundamental.monitor.variance import (
+-    K_STAB,
+-    StabilityResult,
+-    rm1_perturbation_probe,
+-)
+-
+-#: ★★ **What this probe actually varies — and the list is short for reasons.**
+-#:
+-#: | Perturbation | Applied | Why |
+-#: |---|---|---|
+-#: | `option_order` | ✅ | RA-17 shuffles the enumerated verdicts per call and records the permutation |
+-#: | `evidence_order` | ✅ | ⚠ **at the PAYLOAD, not the bundle** — see below |
+-#: | `prompt_paraphrase` | ❌ | RA-13 hashes the prompt text, so a paraphrase is a **new version**, not a perturbation of one |
+-#:
+-#: ⚠ **`evidence_order` was a NO-OP for its first hour of life.** The obvious
+-#: implementation rotates `bundle.parts` — and `EvidenceBundle.__post_init__`
+-#: **sorts them**, because RA-4 makes the hash independent of arrival order.
+-#: The rotation was undone before the bundle was returned, and the probe
+-#: **reported a perturbation it had never applied.** ★ That is precisely the
+-#: failure `prompt_paraphrase` is excluded to avoid, arriving through the other
+-#: door: *declaring a robustness you did not test is worse than testing
+-#: neither.* The order must be varied where it actually reaches the model —
+-#: **the composed payload** — which leaves the bundle, and its hash, untouched.
+-APPLIED_PERTURBATIONS = ("option_order", "evidence_order")
+-
+-
+-@dataclass(frozen=True, slots=True)
+-class ProbeRun:
+-    """One authoring pass, and what it cost."""
+-
+-    index: int
+-    verdict: str
+-    conviction: str
+-    evidence_order: tuple[str, ...]
+-    option_permutation: tuple[str, ...]
+-    run_ids: tuple[str, ...] = ()
+-    tokens_in: int = 0
+-    tokens_out: int = 0
+-
+-    def to_json_obj(self) -> dict:
+-        return {"index": self.index, "verdict": self.verdict,
+-                "conviction": self.conviction,
+-                "evidence_order": list(self.evidence_order),
+-                "option_permutation": list(self.option_permutation),
+-                "run_ids": list(self.run_ids), "tokens_in": self.tokens_in,
+-                "tokens_out": self.tokens_out}
+-
+-
+-@dataclass(frozen=True, slots=True)
+-class ProbedThesis:
+-    """The thesis, **and the spread that let it be published** (RA-20)."""
+-
+-    thesis: object
+-    #: ⚠ **`None` below `K_STAB`, never a weak result.** `StabilityResult`
+-    #: refuses to exist at `k < 3` (AC-1.8) and that guard is right: *a single
+-    #: chat response has no distribution* (RA-115), and neither does a single
+-    #: authoring pass. ★ `CT-1.1.verdict_stability` is **`null`** for exactly
+-    #: this case — the absence is the contract, not a gap in it.
+-    stability: StabilityResult | None
+-    runs: tuple[ProbeRun, ...] = field(default_factory=tuple)
+-
+-    @property
+-    def actionable(self) -> bool:
+-        """★★ AC-1.8 — the actionable pick carries a `k ≥ 3` stability result.
+-
+-        ⚠ This is the property RA-115 uses to keep a relay report off the
+-        actionable slot, and BS-33 uses to keep the skeleton's card honest.
+-        """
+-        return self.stability is not None and self.stability.k >= K_STAB
+-
+-    def to_json_obj(self) -> dict:
+-        return {"thesis": self.thesis.to_json_obj(),
+-                # ★ `null`, not an empty object — CT-1.1's own value.
+-                "verdict_stability": (self.stability.to_json_obj()
+-                                      if self.stability else None),
+-                "actionable": self.actionable,
+-                "runs": [r.to_json_obj() for r in self.runs]}
+-
+-
+-def evidence_rotation(bundle, index: int) -> int:
+-    """How far to rotate the evidence **in the composed payload** for run `index`.
+-
+-    ★ **Not on the bundle.** `EvidenceBundle.__post_init__` sorts its parts so
+-    that RA-4's hash is order-independent — so rotating them there is undone
+-    immediately, and a probe built that way reports a perturbation it never
+-    applied. ⚠ Rotating the payload keeps `bundle_hash` identical across the
+-    `k` runs, which is what makes the runs **comparable at all** (RA-2).
+-    """
+-    parts = len(bundle.parts)
+-    return (index % parts) if parts else 0
+-
+-
+-def perturb_bundle(bundle, index: int):
+-    """⚠ **Deliberately the identity.** The bundle must be byte-identical across
+-    the `k` runs, or RM-1 measures two different questions.
+-
+-    ★ Kept as a named no-op rather than deleted: a reader looking for *"where is
+-    the bundle perturbed?"* should find this and its reason, not silence.
+-    """
+-    return bundle
+-
+-
+-def author_thesis(bundle, *, author, k: int = 1, as_of: date | None = None):
+-    """§12 — ★ `k > 1` runs the stability probe (RM-1).
+-
+-    `author(bundle, index)` performs **one full authoring pass** and returns a
+-    `ProbeRun` plus the `Thesis`. ⚠ *The caller supplies the verdicts, not the
+-    calls* — keeping the running separate from the measurement is what lets
+-    RM-2 and RM-3 read the same `k` outputs without a second `k×` spend.
+-
+-    ★ **The published thesis is the FIRST run's**, not a vote. A modal verdict
+-    assembled from k runs is a thesis nobody wrote, and its falsifiers would
+-    belong to a different pass than its verdict (RA-16).
+-    """
+-    from src.fundamental.errors import ResearchError
+-
+-    if k < 1:
+-        raise ResearchError("k must be at least 1")
+-
+-    runs, theses = [], []
+-    for index in range(k):
+-        probe_run, thesis = author(bundle, index)
+-        runs.append(probe_run)
+-        theses.append(thesis)
+-
+-    # ⚠ Below `K_STAB` there is NO stability result — `StabilityResult` refuses
+-    #   to be constructed (AC-1.8), and forcing one would manufacture a
+-    #   distribution from a single draw.
+-    stability = (rm1_perturbation_probe(
+-        [r.verdict for r in runs], perturbations=APPLIED_PERTURBATIONS)
+-        if k >= K_STAB else None)
+-    published = theses[0]
+-    if stability is not None:
+-        import dataclasses
+-
+-        published = dataclasses.replace(
+-            published, verdict_stability=stability.to_json_obj())
+-    return ProbedThesis(thesis=published, stability=stability,
+-                        runs=tuple(runs))
+-
+-
+-def assert_publishable(probed: ProbedThesis) -> ProbedThesis:
+-    """RA-20 / AC-1.8 / BS-28 — ★ **a verdict cannot reach a human without its
+-    stability figure.**
+-
+-    ⚠ *`k=1` is not a failure* — it is a legitimate cheap run whose output is
+-    **not actionable**. What is forbidden is publishing one as though it were.
+-    """
+-    from src.fundamental.errors import ResearchError
+-
+-    if not probed.actionable:
+-        k = probed.stability.k if probed.stability else 1
+-        raise ResearchError(
+-            f"the thesis carries k={k} and the actionable pick "
+-            f"needs k>={K_STAB} (AC-1.8, RA-20). ★ It may still inform, gate "
+-            f"and populate the card — it may not be the one thing INV-6 lets "
+-            f"you trade on")
+-    return probed
+diff --git a/src/fundamental/thesis/run.py b/src/fundamental/thesis/run.py
+deleted file mode 100644
+index 73d620c..0000000
+--- a/src/fundamental/thesis/run.py
++++ /dev/null
+@@ -1,187 +0,0 @@
+-"""D-01 §4A.2 — one authoring pass, end to end. RA-14, RA-15, RA-16, RA-19.
+-
+-```text
+-  1  BLIND VIEW      bundle.redact()      RA-14 — price WITHHELD, physically (Stage A)
+-  2  STAGE-A FREEZE  hashed               RA-108 — before anything sees price
+-  3  J-11 BEAR CASE  separate call, full  RA-15 — not the pass that argued bull
+-  4  J-15 FALSIFIERS separate call, full  RA-16 — BEFORE the verdict
+-  5  PERSIST         commit hash          ★ the write that makes 4 provable
+-  6  J-16 VERDICT    full bundle          the reconciliation stage
+-```
+-
+-★★ **Step 5 is the one that is easy to skip and impossible to fake.** *One call
+-emitting both satisfies the old wording and buys nothing: the falsifiers get
+-fitted to a verdict already reached.* The commit hash is what distinguishes
+-*"the falsifiers were committed first"* from *"one call produced both and we
+-wrote them in that order"*.
+-"""
+-
+-from __future__ import annotations
+-
+-import re
+-from dataclasses import dataclass
+-from datetime import date
+-
+-from src.fundamental.thesis.models import BearCase, Falsifier
+-from src.fundamental.thesis.probe import ProbeRun
+-
+-VERDICT_PATTERN = re.compile(
+-    r"\b(BUY|HOLD|SELL|INSUFFICIENT[_ ]DATA)\b", re.I)
+-CONVICTION_PATTERN = re.compile(
+-    r"\b(Medium-High|Low|Medium|High)\b", re.I)
+-
+-
+-@dataclass(frozen=True, slots=True)
+-class ParsedVerdict:
+-    """What J-16 returned, read from the text. ⚠ **Parsed, never inferred.**
+-
+-    ★ A verdict this parser cannot find is `INSUFFICIENT_DATA` **only if J-16
+-    said so** — an unparseable response raises, because *a plausible default is
+-    exactly what P5 forbids* and the model was given a bounded option list.
+-    """
+-
+-    verdict: str
+-    conviction: str
+-    text: str
+-
+-    @classmethod
+-    def parse(cls, text: str) -> ParsedVerdict:
+-        from src.fundamental.errors import VerdictNotEnumError
+-
+-        found = VERDICT_PATTERN.search(text or "")
+-        if not found:
+-            raise VerdictNotEnumError(
+-                "verdict", (text or "")[:80],
+-                ("BUY", "HOLD", "SELL", "INSUFFICIENT_DATA"))
+-        verdict = found.group(1).upper().replace(" ", "_")
+-        conviction = CONVICTION_PATTERN.search(text or "")
+-        return cls(verdict=verdict,
+-                   conviction=(conviction.group(1) if conviction else "Medium"),
+-                   text=text)
+-
+-
+-def parse_falsifiers(text: str, *, deadline: date, observables) -> tuple:
+-    """J-15's output, as `Falsifier` objects.
+-
+-    ⚠ **The `Falsifier` contract does the validating, not this parser** — it
+-    already refuses a tautology, an unnamed observable and a missing
+-    materiality (RA-35). A parser that pre-filtered would hide what the model
+-    actually wrote, and RM-13's *"were the falsifiers decorative?"* question
+-    needs the real output.
+-    """
+-    out, ordinal = [], 0
+-    for line in (text or "").splitlines():
+-        stripped = line.strip(" -*\t")
+-        if not stripped or len(stripped) < 25:
+-            continue
+-        # ⚠ The field must be NAMED. RA-35: *a falsifier naming a field this
+-        #   system does not receive is not checkable, however precise it
+-        #   sounds* — and one naming no field at all is worse. The bundle now
+-        #   carries the available list (`observables()`), so a model that names
+-        #   none had the list and declined to use it.
+-        field = next((o for o in observables if o.lower() in stripped.lower()), "")
+-        if not field:
+-            continue
+-        ordinal += 1
+-        out.append(Falsifier(
+-            ordinal=ordinal, condition=stripped[:400], observable_field=field,
+-            source="D-02", deadline=deadline,
+-            materiality=f"stated with condition {ordinal}", about_business=True))
+-        if ordinal >= 4:
+-            break
+-    return tuple(out)
+-
+-
+-#: ★★ **Confidence is DECLARED UNMEASURED, not reported as `0.0`.**
+-#:
+-#: ⏸ **POSTPONED to the next release — Victor, 2026-08-27.** Wiring B4.2's
+-#: extraction and B4.3's scorecard into authoring needs mathematical and
+-#: algorithmic reconsideration plus experiment; it is not a plumbing job. See
+-#: `L6-as-built-remaining.md` **AB-1**.
+-#:
+-#: ⚠ **The value it replaces was a lie by shape.** `{"value": 0.0, "basis":
+-#: "evidence_coverage"}` says *coverage was measured and came out zero*. The
+-#: truth is that coverage was **never computed** — `scorecard/`, `claims/` and
+-#: `filings/` are built and tested and this path calls none of them. ★ A reader
+-#: cannot tell a company with no evidence from a pipeline that never looked, and
+-#: **RA-30 already gives a monitor the vocabulary to decline** rather than
+-#: invent a number (RA-136 added `not_measurable` for exactly this shape).
+-#:
+-#: ★ **This is why `CONFIDENCE_FLOOR` needs no change.** RA-38 computes the
+-#: floor *from* coverage; with no coverage the floor is **unreachable, not
+-#: disabled** — so the constant stays at `0.3` and keeps doing its live work in
+-#: the relay path (`relay/ingest.py`, AC-1.77), where the floors are the only
+-#: thing de-rating a pasted chat report.
+-UNMEASURED_CONFIDENCE = {
+-    "value": None,
+-    "basis": "not_measured",
+-    "reason": "B4.2 extraction and B4.3 scorecard are not wired into authoring, "
+-              "so evidence_coverage was never computed (AB-1, RA-67)",
+-}
+-
+-
+-def author_once(*, bundle, gateway, run: AuthoringRun, index: int,
+-                observables, deadline: date, run_id: str):
+-    """One full pass. ★ Returns `(ProbeRun, Thesis)` for `author_thesis`.
+-
+-    ⚠ Every call goes through `AnalysisGateway`, so the four guards run on each:
+-    **pinned → aligned → no ambient context → view match** (RA-13, RA-14, RA-12).
+-    """
+-    from src.fundamental.thesis.probe import evidence_rotation
+-
+-    # ✏ `DX-110` (2026-09-15): J-11 and J-15 read the FULL bundle — Stage C and D per the
+-    #   master prompt and `author.STAGE_VIEW`. They ran blind here, which contradicted both;
+-    #   the blind view belongs to Stage A, and `run.author` still freezes Stage A over it.
+-    # ★ RM-1's second perturbation, applied where it reaches the model. The
+-    #   bundle — and therefore `bundle_hash` — is identical across the k runs.
+-    rotation = evidence_rotation(bundle, index)
+-
+-    bear_call = gateway.call(prompt_name="J-11", prompt_version="v1",
+-                             bundle=bundle, run_id=run_id, step="bear_case",
+-                             evidence_rotation=rotation)
+-    bear = BearCase(text=bear_call.text[:4000],
+-                    falsification_condition=_first_condition(bear_call.text),
+-                    prompt_version="J-11@v1", run_id=bear_call.run.call_id)
+-
+-    # ★ RA-16 — J-15 runs BEFORE the verdict, as its own call.
+-    falsifier_call = gateway.call(prompt_name="J-15", prompt_version="v1",
+-                                  bundle=bundle, run_id=run_id, step="falsifiers",
+-                                  evidence_rotation=rotation)
+-    falsifiers = parse_falsifiers(falsifier_call.text, deadline=deadline,
+-                                  observables=observables)
+-
+-    # ── step 6 — the verdict, on the FULL bundle (the reconciliation stage).
+-    verdict_call = gateway.call(prompt_name="J-16", prompt_version="v1",
+-                                bundle=bundle, run_id=run_id, step="verdict",
+-                                evidence_rotation=rotation)
+-    parsed = ParsedVerdict.parse(verdict_call.text)
+-
+-    thesis = run.author(
+-        bundle=bundle, stage_a_payload={"bear_case_seen": True},
+-        falsifiers=falsifiers, verdict=parsed.verdict,
+-        conviction=parsed.conviction, bear_case=bear,
+-        scorecard={}, confidence=UNMEASURED_CONFIDENCE,
+-        bull_run_ids=(verdict_call.run.call_id,), run_id=run_id,
+-        thesis_version=1)
+-
+-    calls = (bear_call, falsifier_call, verdict_call)
+-    return ProbeRun(
+-        index=index, verdict=parsed.verdict, conviction=parsed.conviction,
+-        # ★ What the MODEL saw, which is the thing being perturbed.
+-        evidence_order=tuple(
+-            list(p.kind for p in bundle.parts)[rotation:]
+-             + list(p.kind for p in bundle.parts)[:rotation]),
+-        option_permutation=verdict_call.run.option_permutation,
+-        run_ids=tuple(c.run.call_id for c in calls),
+-        tokens_in=sum(c.run.tokens_in or 0 for c in calls),
+-        tokens_out=sum(c.run.tokens_out or 0 for c in calls),
+-    ), thesis
+-
+-
+-def _first_condition(text: str) -> str:
+-    """RA-15's *"name the single condition that would confirm it"*."""
+-    for line in (text or "").splitlines():
+-        stripped = line.strip(" -*\t")
+-        if len(stripped) > 30:
+-            return stripped[:300]
+-    return "the bear case stated no confirming condition"
+diff --git a/src/orchestration/entrypoint.py b/src/orchestration/entrypoint.py
+index 9f14f37..ca651ec 100644
+--- a/src/orchestration/entrypoint.py
++++ b/src/orchestration/entrypoint.py
+@@ -74,17 +74,9 @@ def main(argv=None) -> int:
+         description="D-08 daily run. The timer calls this and holds no policy "
+                     "of its own (OR-41).")
+     parser.add_argument("--as-of", type=date.fromisoformat, default=None)
+-    parser.add_argument(
+-        "--thesis", action="store_true",
+-        help="★ Author a k=3 probed thesis for the top-ranked name (D-01 WF-1). "
+-             "⚠ COSTS MONEY — three live Opus passes, roughly $1 per run, which "
+-             "is why the daily run does not do it silently. Without it the "
+-             "thesis gate stays the declared stub and DN-39 keeps the card "
+-             "informational.")
+-    parser.add_argument(
+-        "--reauthor", action="store_true",
+-        help="⚠ Author a fresh thesis even if one exists for this exact bundle "
+-             "(RC-61). Costs another ~$1.34; the default reuses.")
++    # ⊘ `--thesis` / `--reauthor` REMOVED 2026-10-05 (Victor; L3 §2.1s): they armed
++    #   the old three-call thesis path. Theses are authored on demand by
++    #   `tools/run_thesis_once.py`; the daily card stays informational (DN-39).
+     parser.add_argument(
+         "--universe", choices=("sp500", "watchlist"), default="sp500",
+         help="★ DEFAULT `sp500` — the same ~510 the model trains on, so rank and "
+@@ -134,8 +126,7 @@ def main(argv=None) -> int:
+         print(f"BLOCKED {triggered.code}: {triggered.reason}", file=sys.stderr)
+         return EXIT_BLOCKED
+ 
+-    context = _context_for(triggered, as_of, want_thesis=args.thesis,
+-                           reauthor=args.reauthor,
++    context = _context_for(triggered, as_of,
+                            universe_name=args.universe,
+                            deliver=args.deliver)
+     if context is None:
+@@ -184,13 +175,11 @@ def _run_config(args) -> dict:
+     """★ OR-9/CN-5 — every config value the run used, hashed into the manifest.
+ 
+     ⚠ **The switches belong in it.** `--universe` changes what the
+-    cross-section normalises over (DE-36) and `--thesis` changes whether the
+-    card can be actionable at all: two runs on the same day with different
+-    flags are different runs, and an identical `config_hash` would say they
+-    were not.
++    cross-section normalises over (DE-36): two runs on the same day with
++    different flags are different runs, and an identical `config_hash` would
++    say they were not. ✏ 2026-10-05: `thesis`/`reauthor` left with their flags.
+     """
+-    return {"universe": args.universe, "thesis": args.thesis,
+-            "reauthor": args.reauthor, "deliver": args.deliver,
++    return {"universe": args.universe, "deliver": args.deliver,
+             "universe_config": UNIVERSE_CONFIG}
+ 
+ 
+@@ -216,8 +205,7 @@ def _delivery_credentials(deliver: bool):
+             Secret("GMAIL_APP_PASSWORD", password))
+ 
+ 
+-def _context_for(manifest, as_of: date, *, want_thesis: bool = False,
+-                 reauthor: bool = False, universe_name: str = "watchlist",
++def _context_for(manifest, as_of: date, *, universe_name: str = "watchlist",
+                  deliver: bool = False):
+     """Assemble the run's inputs — ★ **one CT-7.1 panel over the whole
+     universe** (D-07 `assemble_universe_panel`).
+@@ -295,29 +283,10 @@ def _context_for(manifest, as_of: date, *, want_thesis: bool = False,
+         deliver=deliver, recipient=recipient,
+         smtp_user=smtp_user, smtp_password=smtp_password,
+         archive_root=_state_dir() / "deliveries",
+-        author_thesis=want_thesis, reauthor=reauthor,
+-        engine=_data_engine(universe, as_of=as_of) if want_thesis else None,
+-        observation_ledger=_observation_ledger() if want_thesis else None,
+-        fmp_client=_fmp_client() if want_thesis else None,
+         price_fetch=_price_fetch(client, start, as_of),
+         events=(), event_store_root=str(_state_dir() / "events"))
+ 
+ 
+-#: ★★ **The one thing standing between this pipeline and an actionable card,
+-#: on the D-01 side.** `author_thesis(bundle, author=..., k=3)` works — it was
+-#: run live against MU on 2026-08-25 (3 orderings, $1.09 of an $8.00 cap). What
+-#: does not exist is an **assembler that builds an `EvidenceBundle` for an
+-#: arbitrary ticker from D-07's data**; the live probe composed one by hand.
+-#:
+-#: ⚠ Until that lands, `RunContext.probed_thesis` stays `None`, `_thesis_gate`
+-#: falls back to the declared stub, and DN-39 keeps the card informational —
+-#: which is the correct outcome, not a workaround.
+-THESIS_ASSEMBLER_MISSING = (
+-    "D-01 has no ticker -> EvidenceBundle assembler; the k=3 probe is built and "
+-    "proven but has nothing to feed it in an unattended run (RA-4, BS-11)"
+-)
+-
+-
+ def _ingested_today(ledger, ticker: str) -> bool:
+     """Has this ticker's ledger already been refreshed today?
+ 
+@@ -556,7 +525,7 @@ def _fundamentals_for(universe, as_of: date):
+     """D-07's PIT fundamentals and sectors for the `f_*` block.
+ 
+     ★ **Reads the ledgers; it does not ingest.** Ingest is the training run's
+-    job (`--thesis` refreshes what a thesis needs) — a daily inference run that
++    job — a daily inference run that
+     silently fetched 500 companyfacts payloads would be doing D-07's write path
+     on a schedule nobody declared.
+     """
+@@ -659,12 +628,6 @@ def _contract_for(incumbent):
+         features=PRICE_OHLCV_V1.features + FUNDAMENTAL_V1.features)
+ 
+ 
+-def _observation_ledger():
+-    from src.data_engine.observation.ledger import ObservationLedger
+-
+-    return ObservationLedger(_state_dir() / "obs")
+-
+-
+ def _fmp_client():
+     """DE-1 — ★ **all external access goes through D-07**, and the key never
+     leaves the `Secret` wrapper (DE-8)."""
+diff --git a/src/orchestration/jobs/graph.py b/src/orchestration/jobs/graph.py
+index f54b393..3d72975 100644
+--- a/src/orchestration/jobs/graph.py
++++ b/src/orchestration/jobs/graph.py
+@@ -151,7 +151,7 @@ def assert_timer_has_no_policy(timer_line: str) -> None:
+ #: ★ `daily_inference@v3` — the production graph. Declared here so `plan()`
+ #: returns it without executing anything (T-2).
+ DAILY_INFERENCE = JobGraph(
+-    job_graph_id="daily_inference@v7",
++    job_graph_id="daily_inference@v8",   # v8: observe + thesis removed (2026-10-05)
+     jobs=(
+         Job("calendar_check", "src.data_engine.service:DataEngine.calendar_check_report", budget_s=60),
+         Job("prices", "src.data_engine.service:DataEngine.get_prices",
+@@ -160,29 +160,15 @@ DAILY_INFERENCE = JobGraph(
+             depends_on=("prices",), budget_s=300),
+         Job("rank", "src.quant.signals.rank:rank_candidates",
+             depends_on=("features",), budget_s=120),
+-        # ★ WF-1 — assemble the bundle and author k=3. ⚠ **Optional and OFF
+-        #   unless the run asks for it**: three live Opus passes are real spend
+-        #   (~$1), and a daily job that quietly bills per invocation is a
+-        #   surprise P5 has no equivalent for. Without it `thesis_gate` falls
+-        #   back to the declared stub and DN-39 keeps the card informational.
+-        # ★★ Class-B evidence for the NOMINATED name. ⚠ *Added 2026-08-26:*
+-        #   the pre-run sweep covers the top of the universe plus what is held,
+-        #   and **SNDK — rank #1 — sits at #124 of 130.** It was captured only
+-        #   because Victor happens to hold it. A guarantee that holds by
+-        #   accident is not one, and the miss would be silent: a thinner bundle,
+-        #   not a failure.
+-        Job("observe", "src.data_engine.ingest.observations:capture",
+-            depends_on=("rank",), budget_s=120, optional=True),
+-        Job("thesis", "src.fundamental.thesis.author_for:author_for",
+-            # ⚠ **`rank`, not just `features`** — the adapter authors for the
+-            #   NOMINATED name, so rank is a real dependency. A graph that runs
+-            #   in the right order by accident is T-2's defect: *dependencies are
+-            #   declared data*, and an undeclared one survives only until a
+-            #   scheduler reorders on the declaration it was given.
+-            depends_on=("features", "rank", "observe"), budget_s=1800,
+-            optional=True),
++        # ⊘ REMOVED 2026-10-05 (Victor; L3 §2.1s): the `observe` and `thesis` jobs —
++        #   the old three-call thesis path (J-11/J-15/J-16 @v1, `author_for`) and the
++        #   Class-B capture that existed only to feed it. Theses are authored on
++        #   demand by `tools/run_thesis_once.py` (32 blocks, J-15 v3). Restore from
++        #   commit ac6e14f or `sdd/archive/2026-10-05_removed_old_thesis_path.patch`.
++        # ★ With no thesis in the run the gate falls back to the declared stub and
++        #   DN-39 keeps the card informational.
+         Job("thesis_gate", "src.fundamental.thesis.gate:evaluate",
+-            depends_on=("features", "thesis"), budget_s=600),
++            depends_on=("features", "rank"), budget_s=600),
+         # ★ D-11's book, INVOKED by dotted name and resolved at run time.
+         #   ⚠ OR-2 / AC-8.2: orchestration may invoke a D-11 entrypoint but may
+         #   never import one — *an inference run writing positions.json means a
+diff --git a/src/orchestration/jobs/wiring.py b/src/orchestration/jobs/wiring.py
+index c03cca1..8f0e598 100644
+--- a/src/orchestration/jobs/wiring.py
++++ b/src/orchestration/jobs/wiring.py
+@@ -38,10 +38,11 @@ class RunContext:
+     contract: object
+     #: Supplied inputs — D-07 fetches these at the edge (DE-1: it holds the key).
+     raw_prices: object = None
+-    #: ★ A `ProbedThesis` for the nominated name, or `None`. ⚠ When it is
+-    #: `None` the gate falls back to the **declared stub** and the card is
+-    #: informational (BS-11/BS-33) — never actionable on a thesis that does not
+-    #: exist.
++    #: ★ A SUPPLIED probed thesis (`.thesis`, `.stability`) for the nominated
++    #: name, or `None`. ⚠ When it is `None` the gate falls back to the
++    #: **declared stub** and the card is informational (BS-11/BS-33) — never
++    #: actionable on a thesis that does not exist. ✏ 2026-10-05: no job in the
++    #: daily graph produces one any more (the old `thesis` job was removed).
+     probed_thesis: object = None
+     events: tuple = ()
+     event_store_root: str = ""
+@@ -52,15 +53,10 @@ class RunContext:
+     #: Where CT-11.7 run artifacts land. ⚠ Gitignored: a generated store in
+     #: version control is a second source of truth that silently goes stale.
+     artifact_root: object = None
+-    #: ★ WF-1's injected D-07 handle and the switch that arms authoring.
+     #: ⚠ **There is deliberately no `gateway` field.** ST-5 lets only D-01 reach
+     #: the model, and a shim that can hold a gateway can make a call.
+-    engine: object = None
+-    #: ★ D-07's Class-B ledger and FMP client, for the `observe` job. They are
+-    #: the engine's own collaborators; the adapter passes them through and
+-    #: computes nothing (OR-1).
+-    observation_ledger: object = None
+-    fmp_client: object = None
++    #: ⊘ 2026-10-05: `engine`, `observation_ledger`, `fmp_client` removed with the
++    #: old `observe` + `thesis` jobs that were their only readers.
+     #: ★ The promoted artifact, or `None`. ⚠ Its presence is what switches D-03
+     #: from the rule to the model — and MT-17 makes *promoted*, not *fitted*,
+     #: the condition.
+@@ -81,10 +77,6 @@ class RunContext:
+     smtp_password: object = None
+     #: RP-24 — archived bytes are written **before** the send and verified after.
+     archive_root: object = None
+-    author_thesis: bool = False
+-    #: ⚠ Forces a fresh authoring even when RC-61 would reuse. ★ Reuse is the
+-    #: caller's decision, never the store's.
+-    reauthor: bool = False
+     #: ★ `fetch(symbol) -> (price, currency) | None`, a D-07 closure. D-11 calls
+     #: it for the names IT holds — orchestration never learns the holdings.
+     price_fetch: object = None
+@@ -222,38 +214,6 @@ def _nominate_with_model(ctx: RunContext, manifest, incumbent, provenance):
+         **provenance)
+ 
+ 
+-def _observe(job, manifest, ctx: RunContext):
+-    """D-07 Class-B capture for the nominated name — ★ `resolve(job)`.
+-
+-    ⚠ Runs only when authoring is armed: a capture the run will not read is a
+-    request nobody needed, and `DEFAULT_SCHEDULE`'s cadence gates it anyway.
+-    """
+-    if not ctx.author_thesis or ctx.observation_ledger is None or \
+-            ctx.fmp_client is None:
+-        return {}
+-    return resolve(job)(ctx.fmp_client, ctx.observation_ledger,
+-                        ticker=ctx.require("rank").top.ticker, as_of=ctx.as_of)
+-
+-
+-def _thesis(job, manifest, ctx: RunContext):
+-    """D-01 WF-1 — ★ `resolve(job)`, and **only when the run asked for it**.
+-
+-    Returns the `ProbedThesis` or `None`. ⚠ `None` is not a failure: it is the
+-    ordinary state of a run that did not buy three Opus passes, and
+-    `_thesis_gate` reads it as "fall back to the declared stub".
+-    """
+-    if not ctx.author_thesis or ctx.engine is None:
+-        return None
+-    # ★★ **No gateway is passed, and none can be built here** — ST-5/AC-8.4.
+-    #   D-01 reads its own credential; orchestration hands it a flag.
+-    return resolve(job)(ctx.require("rank").top.ticker, as_of=ctx.as_of,
+-                        engine=ctx.engine,
+-                        panel=ctx.outputs.get("features"), contract=ctx.contract,
+-                        # ★ RC-61 — an unchanged bundle reuses its thesis
+-                        #   instead of paying for three more Opus passes.
+-                        cache_root=ctx.artifact_root, reauthor=ctx.reauthor)
+-
+-
+ def _thesis_gate(job, manifest, ctx: RunContext):
+     """D-01 — CT-1.4, from the **real thesis** when one exists.
+ 
+@@ -266,7 +226,7 @@ def _thesis_gate(job, manifest, ctx: RunContext):
+     from src.fundamental.thesis.stub_gate import stub_gate_verdict
+ 
+     ticker = ctx.require("rank").top.ticker
+-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
++    probed = ctx.probed_thesis
+     if probed is None or probed.thesis.ticker != ticker:
+         return stub_gate_verdict(ticker, ctx.as_of)
+     return evaluate(GateInputs(thesis=probed.thesis, stale=ctx.thesis_stale,
+@@ -311,7 +271,7 @@ def _decide(job, manifest, ctx: RunContext):
+     from src.decision.compose.service import compose, enforce_inv6
+ 
+     alerts = ctx.require("risk")
+-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
++    probed = ctx.probed_thesis
+     stability = (probed.thesis.verdict_stability if probed else None)
+     # ★★ DN-39 — actionable requires BOTH a complete risk pass and a stability
+     #   figure. ⚠ Asking for it and being refused is the same defect as marking
+@@ -361,7 +321,7 @@ def _record(job, manifest, ctx: RunContext):
+             "silently left no record is indistinguishable from one that never "
+             "happened (RC-59, P6)")
+ 
+-    probed = ctx.outputs.get("thesis") or ctx.probed_thesis
++    probed = ctx.probed_thesis
+     return resolve(job)(
+         run_id=manifest.run_id, root=ctx.artifact_root,
+         manifest=manifest, recommendation=ctx.require("decide"),
+@@ -428,7 +388,7 @@ def _deliver(job, manifest, ctx: RunContext):
+ #: which is louder than a job that silently does nothing.
+ ADAPTERS = {
+     "calendar_check": _calendar_check, "prices": _prices, "features": _features,
+-    "rank": _rank, "observe": _observe, "thesis": _thesis,
++    "rank": _rank,
+     "thesis_gate": _thesis_gate,
+     "book": _book, "risk": _risk,
+     "decide": _decide, "render": _render,
+diff --git a/tests/integration/test_ms3_traced_run.py b/tests/integration/test_ms3_traced_run.py
+index f70a6b0..1edaab6 100644
+--- a/tests/integration/test_ms3_traced_run.py
++++ b/tests/integration/test_ms3_traced_run.py
+@@ -1,6 +1,6 @@
+ """`MS-3`'s done-when: a full run is traced, and the trace replays. `AC-2.3`.
+ 
+-★★ **This is a REAL run of the REAL graph.** `DAILY_INFERENCE` — all 13 jobs, in
++★★ **This is a REAL run of the REAL graph.** `DAILY_INFERENCE` — all 11 jobs (13 until 2026-10-05), in
+ dependency order — driven by the inherited `Orchestrator`, with its real cadence,
+ preconditions, budget, retry and checkpoint machinery. Nothing about D-08 is
+ simulated.
+@@ -80,7 +80,7 @@ def test_ms3_a_full_run_of_the_real_graph_is_traced(traced_run):
+     traced_ids = [s["job_id"] for s in steps]
+     expected = [j.job_id for j in DAILY_INFERENCE.order()]
+     assert traced_ids == expected, "every job, in dependency order"
+-    assert len(traced_ids) == 13
++    assert len(traced_ids) == 11    # ✏ 2026-10-05: observe + thesis removed
+     assert all(s["run_id"] == manifest.run_id for s in steps)
+ 
+ 
+diff --git a/tests/structural/test_j15_v2_structured_falsifiers.py b/tests/structural/test_j15_v2_structured_falsifiers.py
+index 24ac36c..acb7c83 100644
+--- a/tests/structural/test_j15_v2_structured_falsifiers.py
++++ b/tests/structural/test_j15_v2_structured_falsifiers.py
+@@ -50,9 +50,10 @@ def test_j15_v3_is_what_the_stage_b_to_d_runner_ships():
+ 
+ 
+ def test_the_orchestrated_prose_path_stays_on_v1_on_purpose():
+-    """⚠ `thesis/run.py` parses falsifiers from PROSE with no schema, so `v2`'s
+-    "the grammar the answer schema declares" has nothing to point at there. A silent
+-    move would send v2 text to a path that cannot honour it."""
++    """⚠ `j_blocks.py` (the registry `build_gateway` declares) stays on `v1`. ✏ 2026-10-05:
++    the prose path that read it (`thesis/run.py`) was REMOVED (L3 §2.1s), so nothing
++    calls these blocks now; a silent move to v2 would still describe a prompt no runner
++    honours. Migrate or remove `j_blocks` deliberately, not by version bump."""
+     from src.fundamental.prompts.blocks.j_blocks import J15
+ 
+     assert J15.version == "v1"
+diff --git a/tests/unit/test_thesis_derate.py b/tests/unit/test_thesis_derate.py
+index 7526d29..1631793 100644
+--- a/tests/unit/test_thesis_derate.py
++++ b/tests/unit/test_thesis_derate.py
+@@ -108,11 +108,11 @@ def test_the_derating_travels_with_the_thesis_so_a_reader_can_re_derive_it():
+ def test_the_thesis_confidence_is_no_longer_the_UNMEASURED_placeholder():
+     """⚠ `AB-1` — authoring shipped `{"value": None, "basis": "not_measured"}`, which reads as
+     *"coverage was measured and is unknown"*. It is now the measured ratio."""
+-    from src.fundamental.thesis.run import UNMEASURED_CONFIDENCE
+-
++    # ✏ 2026-10-05 — the placeholder's module (`thesis/run.py`) was removed; its basis was
++    #   the literal "not_measured".
+     d = Derating.of(verdict="HOLD", conviction="Medium", rubrics=_rubrics(),
+                     extracted=frozenset(), outputs={}, stage_a=[])
+-    assert d.confidence["basis"] != UNMEASURED_CONFIDENCE["basis"]
++    assert d.confidence["basis"] != "not_measured"
+     assert isinstance(d.confidence["value"], float)
+ 
+ 
+diff --git a/tests_src/test_as_built_ab1.py b/tests_src/test_as_built_ab1.py
+index 8b954fa..2990da4 100644
+--- a/tests_src/test_as_built_ab1.py
++++ b/tests_src/test_as_built_ab1.py
+@@ -9,16 +9,15 @@ import pytest
+ from src.fundamental.scorecard.coverage import (
+     CONFIDENCE_FLOOR, CONFIDENCE_HOLD_CAP,
+ )
+-from src.fundamental.thesis.run import UNMEASURED_CONFIDENCE
+-
+-
+-def test_ab1_confidence_declares_itself_unmeasured_not_zero():
+-    """★★ ⚠ `{"value": 0.0, "basis": "evidence_coverage"}` says *coverage was
+-    measured and came out zero*. **That is a lie by shape** — it makes a company
+-    with no evidence indistinguishable from a pipeline that never looked."""
+-    assert UNMEASURED_CONFIDENCE["value"] is None
+-    assert UNMEASURED_CONFIDENCE["basis"] == "not_measured"
+-    assert UNMEASURED_CONFIDENCE["reason"]
++#: ✏ 2026-10-05 — was imported from `thesis/run.py`, the old three-call path's placeholder,
++#:   removed that day (L3 §2.1s). The shape is kept here as the renderer's test input; the
++#:   test that pinned the placeholder ITSELF went with its subject.
++UNMEASURED_CONFIDENCE = {
++    "value": None,
++    "basis": "not_measured",
++    "reason": "B4.2 extraction and B4.3 scorecard are not wired into authoring, "
++              "so evidence_coverage was never computed (AB-1, RA-67)",
++}
+ 
+ 
+ def test_ab1_the_confidence_floor_is_not_neutralised():
+diff --git a/tests_src/test_fundamental_author_for.py b/tests_src/test_fundamental_author_for.py
+deleted file mode 100644
+index 3d0d73e..0000000
+--- a/tests_src/test_fundamental_author_for.py
++++ /dev/null
+@@ -1,62 +0,0 @@
+-"""D-01 WF-1 — `ticker + as_of` → a probed thesis, composed in one place."""
+-from datetime import date, timedelta
+-
+-import pytest
+-
+-from src.fundamental.thesis.author_for import (
+-    DEFAULT_HORIZON_DAYS, K_RUNS, author_for,
+-)
+-
+-AS_OF = date(2026, 8, 25)
+-
+-
+-def test_k_runs_is_the_rm1_floor_not_a_tunable_default():
+-    """★ AC-1.8 makes a k<3 result unable to be the actionable pick, so three is
+-    a floor. ⚠ A `k=1` default would make every thesis silently unusable."""
+-    assert K_RUNS >= 3
+-
+-
+-def test_the_falsifier_deadline_lands_outside_the_bundle_window():
+-    """⚠ A deadline inside the bundle's own window is answerable before the
+-    thesis is filed — which is a fact, not a prediction."""
+-    assert DEFAULT_HORIZON_DAYS > 90
+-    assert AS_OF + timedelta(days=DEFAULT_HORIZON_DAYS) > AS_OF
+-
+-
+-def test_orchestration_passes_no_gateway_so_d01_must_be_able_to_build_one():
+-    """★★ ST-5 / AC-8.4 — orchestration may not import the gateway, so
+-    `gateway` must be optional or the wired path cannot run at all."""
+-    import inspect
+-
+-    assert inspect.signature(author_for).parameters["gateway"].default is None
+-
+-
+-def test_exactly_one_d01_file_can_reach_the_model():
+-    """AC-1.38 — ★ narrower than ST-5 on purpose: checkable by reading one file.
+-
+-    ⚠ The builder was first written as its own module and this caught it.
+-    """
+-    from pathlib import Path
+-
+-    importers = [str(p) for p in sorted(Path("src/fundamental").rglob("*.py"))
+-                 if "src.shared.llm" in p.read_text(encoding="utf-8")]
+-    assert importers == ["src/fundamental/prompts/call.py"]
+-
+-
+-def test_a_missing_api_key_is_reported_as_configuration_not_as_no_thesis(monkeypatch):
+-    """P5 — ⚠ *"no API key"* and *"the model declined"* are different states, and
+-    a caller that cannot tell them apart reports a config fault as a verdict."""
+-    from src.fundamental.errors import ResearchError
+-    from src.fundamental.prompts.call import build_gateway
+-
+-    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
+-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+-    with pytest.raises(ResearchError, match="ANTHROPIC_API_KEY"):
+-        build_gateway()
+-
+-
+-def test_the_deep_tier_model_is_opus(monkeypatch):
+-    """INV-8 — thesis authoring is quality-critical and low-frequency."""
+-    from src.fundamental.prompts.call import THESIS_MODEL
+-
+-    assert THESIS_MODEL == "claude-opus-5"
+diff --git a/tests_src/test_fundamental_probe.py b/tests_src/test_fundamental_probe.py
+deleted file mode 100644
+index 1c43846..0000000
+--- a/tests_src/test_fundamental_probe.py
++++ /dev/null
+@@ -1,273 +0,0 @@
+-"""D-01 §7.1 — RM-1's k-run probe against a real authoring path.
+-
+-★★ **§12's API said `k > 1` runs the stability probe, and nothing ran it.** The
+-probe machinery measured verdicts a caller produced by hand; the authoring path
+-produced one. This wires them.
+-
+-⚠ **Two defects only a live run could find**, both recorded as RA-145/RA-146:
+-J-15 tells the model to choose a field *"from the supplied list of available
+-observables"* and **nothing supplied one**; and once the list existed, the
+-**blind view withheld it**, because it began as a `computed` part.
+-
+-Tier: unit + integration (constitution §4).
+-"""
+-
+-from __future__ import annotations
+-
+-from datetime import date
+-from types import SimpleNamespace
+-
+-import pytest
+-
+-from src.fundamental import (
+-    AuthoringRun, ResearchError, assemble, computed, filing, profile,
+-)
+-from src.fundamental.bundle.assemble import observables
+-from src.fundamental.bundle.models import BLIND_WITHHELD_KINDS, PIN_FIELDS
+-from src.fundamental.prompts.blocks.j_blocks import (
+-    ALL_BLOCKS, J11, J15, J16, production_registry,
+-)
+-from src.fundamental.prompts.call import AnalysisGateway
+-from src.fundamental.thesis.probe import (
+-    APPLIED_PERTURBATIONS, assert_publishable, author_thesis, evidence_rotation,
+-    perturb_bundle,
+-)
+-from src.fundamental.thesis.run import ParsedVerdict, author_once, parse_falsifiers
+-
+-AS_OF = date(2026, 8, 25)
+-OBSERVABLES = ("f_gross_margin", "f_net_debt_ebitda", "mom_21", "vol_21")
+-DECODING = {"control": "effort", "value": "high", "thinking_mode": "adaptive"}
+-
+-
+-def bundle():
+-    return assemble(ticker="MU", as_of=AS_OF, parts=[
+-        filing("0000-1", "Micron FQ3 2026: gross margin 55.4%, up from 51.2%."),
+-        computed("b3_minimal", 1, "f_gross_margin=0.554 price=182.40"),
+-        profile(AS_OF, "Micron. Memory semiconductors. Cyclical commodity."),
+-        observables(OBSERVABLES)])
+-
+-
+-class FakeGateway:
+-    """Records what each prompt was shown — ★ the thing the perturbation moves."""
+-
+-    def __init__(self, verdicts=("BUY", "BUY", "BUY")):
+-        self.verdicts = list(verdicts)
+-        self.seen: list = []
+-
+-    def call(self, *, prompt_name, prompt_version, tier, payload, max_tokens,
+-             run_id, schema=None, ticker=None):
+-        self.seen.append((prompt_name,
+-                          tuple(p["kind"] for p in payload["bundle"]["parts"])))
+-        if prompt_name == "J-16":
+-            verdict = self.verdicts[
+-                min(len([s for s in self.seen if s[0] == "J-16"]) - 1,
+-                    len(self.verdicts) - 1)]
+-            text = f"Verdict: {verdict}. Conviction: Medium-High."
+-        elif prompt_name == "J-15":
+-            text = ("Gross margin below 55% for two consecutive quarters — "
+-                    "f_gross_margin — the pricing-power premise fails.\n"
+-                    "Net debt to EBITDA above 3.0x at any quarter-end — "
+-                    "f_net_debt_ebitda — the balance-sheet premise fails.")
+-        else:
+-            text = ("Capacity additions crush DRAM pricing by FY2028.\n"
+-                    "Industry utilisation above 90% for three quarters confirms it.")
+-        call = SimpleNamespace(
+-            model_id="stub",
+-            decoding=SimpleNamespace(to_json_obj=lambda: dict(DECODING)),
+-            tokens_in=900, tokens_out=300, attempts=1, outcome="ok",
+-            call_id=f"c-{prompt_name}-{len(self.seen)}")
+-        return SimpleNamespace(text=text, parsed=None, call=call)
+-
+-
+-def probe(k=3, verdicts=("BUY", "BUY", "BUY")):
+-    fake = FakeGateway(verdicts)
+-    gateway = AnalysisGateway(fake, production_registry())
+-    source = bundle()
+-
+-    def author(b, i):
+-        return author_once(bundle=b, gateway=gateway,
+-                           run=AuthoringRun(ticker="MU", as_of=AS_OF), index=i,
+-                           observables=OBSERVABLES, deadline=date(2027, 3, 31),
+-                           run_id=f"probe-{i}")
+-
+-    return author_thesis(source, author=author, k=k), fake, source
+-
+-
+-# --------------------------------------------------------------------------- #
+-# RA-16 — the ordering the whole thing turns on
+-# --------------------------------------------------------------------------- #
+-
+-def test_ra16_the_falsifiers_are_written_before_the_verdict():
+-    """★★ RA-16 — ⚠ *one call emitting both satisfies the old wording and buys
+-    nothing: **the falsifiers get fitted to a verdict already reached.***"""
+-    _, fake, _ = probe(k=1)
+-    names = [prompt for prompt, _ in fake.seen]
+-    assert names == ["J-11", "J-15", "J-16"]
+-    assert names.index("J-15") < names.index("J-16")
+-
+-
+-def test_ra15_the_bear_case_is_a_separate_call():
+-    """RA-15 — ★ so it cannot be written by the pass that argued the bull."""
+-    _, fake, _ = probe(k=1)
+-    assert [p for p, _ in fake.seen].count("J-11") == 1
+-
+-
+-def test_ra14_stage_c_and_d_calls_read_the_full_bundle_per_stage_view():
+-    """RA-14 / MP-3 — ✏ `DX-110` (2026-09-15). ⚠ This asserted J-11 and J-15 ran BLIND,
+-    pinning the old path's contradiction of the master prompt and `author.STAGE_VIEW`
+-    (Stages C and D are `view:full`). ★ The blind view is Stage A's, and the Stage-A
+-    freeze is still made over `bundle.redact()` inside `run.author`."""
+-    from src.fundamental.thesis.author import STAGE_C, STAGE_D, STAGE_VIEW
+-
+-    assert STAGE_VIEW[STAGE_C] == STAGE_VIEW[STAGE_D] == "full"
+-    _, fake, _ = probe(k=1)
+-    for prompt, kinds in fake.seen:
+-        assert "computed" in kinds, f"{prompt} is Stage C/D and reads the full bundle"
+-
+-
+-# --------------------------------------------------------------------------- #
+-# RA-145 / RA-146 — what the live run found
+-# --------------------------------------------------------------------------- #
+-
+-def test_ra146_the_observables_list_survives_the_blind_view():
+-    """★★ RA-146 — ⚠ the list began as a `computed` part and **the blind view
+-    stripped it**, so J-11 and J-15 — *the two calls that run blind* — were
+-    exactly the ones that could not see it.
+-
+-    ★ **RA-14 withholds ANCHORS, not vocabulary**: `f_gross_margin` says what is
+-    checkable, never what it is worth.
+-    """
+-    assert "observables" in PIN_FIELDS
+-    assert "observables" not in BLIND_WITHHELD_KINDS
+-    _, fake, _ = probe(k=1)
+-    for prompt, kinds in fake.seen:
+-        assert "observables" in kinds, prompt
+-
+-
+-def test_ra145_a_falsifier_naming_no_field_is_refused():
+-    """★★ RA-145 / RA-35 — ⚠ *a falsifier naming a field this system does not
+-    receive is not checkable, however precise it sounds* — and one naming **no**
+-    field is worse.
+-
+-    This is verbatim what the live model produced before the list existed:
+-    well-formed prose, no field, `NoFalsifierError`.
+-    """
+-    fieldless = ("Reported gross margin prints below 51.2% in any quarter "
+-                 "reported on or before the FQ2 2027 filing.\n"
+-                 "The HBM sell-out disclosure disappears from two filings.")
+-    assert parse_falsifiers(fieldless, deadline=date(2027, 3, 31),
+-                            observables=OBSERVABLES) == ()
+-
+-    named = ("Gross margin below 55% for two quarters — f_gross_margin — "
+-             "the pricing-power premise fails.")
+-    (falsifier,) = parse_falsifiers(named, deadline=date(2027, 3, 31),
+-                                    observables=OBSERVABLES)
+-    assert falsifier.observable_field == "f_gross_margin"
+-
+-
+-# --------------------------------------------------------------------------- #
+-# RM-1 — the probe itself
+-# --------------------------------------------------------------------------- #
+-
+-def test_the_perturbation_moves_what_the_model_reads_not_the_bundle():
+-    """★★ ⚠ **`evidence_order` was a no-op for its first hour.**
+-
+-    The obvious implementation rotates `bundle.parts` — and
+-    `EvidenceBundle.__post_init__` **sorts them**, because RA-4 makes the hash
+-    independent of arrival order. The rotation was undone before the bundle
+-    was returned, and the probe **reported a perturbation it never applied.**
+-
+-    ★ The order must move where it reaches the model — the composed payload —
+-    which leaves `bundle_hash` identical, and that is what makes the k runs
+-    comparable at all (RA-2).
+-    """
+-    source = bundle()
+-    assert perturb_bundle(source, 2) is source, "the bundle is NOT perturbed"
+-    assert evidence_rotation(source, 1) != evidence_rotation(source, 2)
+-
+-    _, fake, used = probe(k=3)
+-    orders = [kinds for prompt, kinds in fake.seen if prompt == "J-16"]
+-    assert len(set(orders)) == 3, "three runs, three payload orderings"
+-    assert used.bundle_hash == bundle().bundle_hash, "the bundle never changed"
+-
+-
+-def test_prompt_paraphrase_is_declared_absent_not_silently_skipped():
+-    """★ RA-13 hashes the prompt, so a paraphrase is a **new version**, not a
+-    perturbation of one. ⚠ *Declaring a robustness you did not test is worse
+-    than testing neither.*"""
+-    assert APPLIED_PERTURBATIONS == ("option_order", "evidence_order")
+-    probed, _, _ = probe(k=3)
+-    assert "prompt_paraphrase" not in probed.stability.perturbations_applied
+-
+-
+-def test_ra17_the_verdict_options_are_permuted_per_call():
+-    """RA-17 — ★ enumerated options are order-randomised and **recorded**."""
+-    assert set(J16.options) == {"BUY", "HOLD", "SELL", "INSUFFICIENT_DATA"}
+-    probed, _, _ = probe(k=3)
+-    permutations = {r.option_permutation for r in probed.runs}
+-    assert all(set(p) == set(J16.options) for p in permutations)
+-
+-
+-def test_ac_1_8_k_below_three_is_not_actionable():
+-    """★★ AC-1.8 / RA-20 / BS-28 — ⚠ *`k=1` is not a failure* — it is a
+-    legitimate cheap run whose output is **not actionable**. What is forbidden
+-    is publishing one as though it were."""
+-    single, _, _ = probe(k=1)
+-    # ★ `None`, not a weak result — `StabilityResult` refuses to exist below
+-    #   K_STAB, and `CT-1.1.verdict_stability` is `null` for exactly this case.
+-    assert single.stability is None and single.actionable is False
+-    assert single.to_json_obj()["verdict_stability"] is None
+-    assert single.thesis.verdict_stability is None
+-    with pytest.raises(ResearchError, match="may not be the one thing INV-6"):
+-        assert_publishable(single)
+-
+-    three, _, _ = probe(k=3)
+-    assert three.actionable is True
+-    assert_publishable(three)
+-
+-
+-def test_a_split_verdict_lowers_agreement_and_stays_publishable():
+-    """RA-20 — ★ *the fraction is published verbatim*; the probe measures, it
+-    does not judge. A 2/3 split is a real result, not a failure."""
+-    probed, _, _ = probe(k=3, verdicts=("BUY", "BUY", "HOLD"))
+-    assert probed.stability.modal == "BUY"
+-    assert probed.stability.agreement == pytest.approx(2 / 3)
+-    assert probed.thesis.verdict_stability["agreement"] == pytest.approx(2 / 3)
+-
+-
+-def test_the_published_thesis_is_the_first_run_not_a_vote():
+-    """★ *A modal verdict assembled from k runs is a thesis nobody wrote*, and
+-    its falsifiers would belong to a different pass than its verdict (RA-16)."""
+-    probed, _, _ = probe(k=3, verdicts=("HOLD", "BUY", "BUY"))
+-    assert probed.thesis.verdict == "HOLD" == probed.runs[0].verdict
+-    assert probed.stability.modal == "BUY" != probed.thesis.verdict
+-
+-
+-def test_the_j_blocks_are_the_master_prompts_text_and_are_hashed():
+-    """MP-12 / RA-13 — ★ a text edit without a version bump raises."""
+-    registry = production_registry()
+-    registry.check_all()
+-    assert {b.name for b in ALL_BLOCKS} == {"J-11", "J-15", "J-16"}
+-    assert (J11.view, J15.view, J16.view) == ("full", "full", "full")      # ✏ DX-110
+-    import src.fundamental.prompts.e_blocks as eb
+-    for blk in (J11, J15, J16):                  # ★ one text per name and version
+-        # ✏ 2026-10-01 — compare against the factory for THIS block's version: `J-15` is
+-        #   `v1` here (prose path) and `v2` in the Stage B–D runner, so the current
+-        #   registry entry is not the right reference for every block any more.
+-        factory = getattr(eb, f"{blk.name.lower().replace('-', '')}_{blk.version}")
+-        assert blk.text == factory().text
+-    object.__setattr__(J15, "text", J15.text + " edited")
+-    from src.fundamental import PromptDriftError
+-    with pytest.raises(PromptDriftError):
+-        J15.check()
+-    object.__setattr__(J15, "text", J15.text[: -len(" edited")])
+-
+-
+-def test_an_unparseable_verdict_raises_rather_than_defaulting():
+-    """P5 — ★ the model was given a bounded option list; a response that names
+-    none of them is a failure, **never `INSUFFICIENT_DATA` by default**."""
+-    from src.fundamental import VerdictNotEnumError
+-
+-    assert ParsedVerdict.parse("Verdict: SELL. Conviction: Low.").verdict == "SELL"
+-    with pytest.raises(VerdictNotEnumError):
+-        ParsedVerdict.parse("I would need more information to say.")
+diff --git a/tests_src/test_orchestration_wiring.py b/tests_src/test_orchestration_wiring.py
+index 348bf06..18bf454 100644
+--- a/tests_src/test_orchestration_wiring.py
++++ b/tests_src/test_orchestration_wiring.py
+@@ -75,7 +75,7 @@ def test_every_job_in_the_graph_has_an_adapter():
+     assert {j.job_id for j in DAILY_INFERENCE.jobs} == set(ADAPTERS)
+ 
+ 
+-def test_the_graph_runs_all_thirteen_jobs_and_produces_a_card():
++def test_the_graph_runs_all_eleven_jobs_and_produces_a_card():
+     """★★ **D-07 → D-02 → D-03 → {D-01, D-05} → D-12 → D-09, driven by the
+     graph** rather than by a hand-rolled sequence."""
+     orc, ctx = orchestrator(), context()
+@@ -83,11 +83,9 @@ def test_the_graph_runs_all_thirteen_jobs_and_produces_a_card():
+ 
+     assert outcome.status == "SUCCESS"
+     assert artifact_allowed(outcome) is True
+-    # ★ 13: `book` (D-11), `observe` (D-07 Class-B) and `thesis` (D-01 WF-1).
+-    #   ⚠ `thesis` and `observe` SUCCEED while
+-    #   returning `None` — a run that did not buy three Opus passes is an
+-    #   ordinary run, not a failed one.
+-    assert [j.status for j in outcome.jobs] == ["SUCCESS"] * 13
++    # ✏ 2026-10-05: 13 → 11 — `observe` and `thesis` (the old three-call thesis
++    #   path) were removed (L3 §2.1s); `thesis_gate` falls back to the stub.
++    assert [j.status for j in outcome.jobs] == ["SUCCESS"] * 11
+     assert set(ctx.outputs) == set(ADAPTERS)
+ 
+     card = ctx.outputs["render"]
+diff --git a/tests_src/test_recording_artifacts.py b/tests_src/test_recording_artifacts.py
+index b2134c8..b95ca6c 100644
+--- a/tests_src/test_recording_artifacts.py
++++ b/tests_src/test_recording_artifacts.py
+@@ -146,19 +146,6 @@ def test_a_rehydrated_falsifier_deadline_is_a_date_not_a_string():
+     assert isinstance(back.falsifiers[0].deadline, date)
+ 
+ 
+-def test_a_cached_thesis_carries_no_invented_runs(tmp_path):
+-    """★ RM-1's figure travels on the thesis (`verdict_stability`). ⚠ A
+-    fabricated run list would let a monitor count evidence that never
+-    happened."""
+-    from src.fundamental.thesis.author_for import _cached
+-    from tests_src.test_fundamental_b44 import thesis
+-
+-    original = thesis()
+-    record_run(run_id="r1", root=tmp_path, thesis=original)
+-    hit = _cached(original.bundle_hash, tmp_path)
+-    assert hit is not None and hit.runs == ()
+-
+-
+ def test_a_stored_thesis_that_no_longer_meets_ct_1_1_is_not_served(tmp_path):
+     """★ `__post_init__` runs on the way back in — a record written under an
+     older contract raises rather than being silently trusted."""
+diff --git a/tests_src/test_fundamental_j_blocks.py b/tests_src/test_fundamental_j_blocks.py
+new file mode 100644
+index 0000000..a6d7c02
+--- /dev/null
++++ b/tests_src/test_fundamental_j_blocks.py
+@@ -0,0 +1,61 @@
++"""D-01 — the J-block registry `build_gateway` registers (`j_blocks.py`). MP-12, RA-13.
++
++✏ 2026-10-05: moved out of `test_fundamental_probe.py` when the old three-call thesis
++path (`thesis/run.py`, `probe.py`, `author_for.py`) was removed (L3 §2.1s). `j_blocks.py`
++and `build_gateway` were KEPT — AC-1.38 needs `prompts/call.py` to remain D-01's one
++gateway builder — so the hashing guard over the blocks stays.
++"""
++
++from __future__ import annotations
++
++import pytest
++
++from src.fundamental.prompts.blocks.j_blocks import (
++    ALL_BLOCKS,
++    J11,
++    J15,
++    J16,
++    production_registry,
++)
++
++
++def test_the_j_blocks_are_the_master_prompts_text_and_are_hashed():
++    """MP-12 / RA-13 — ★ a text edit without a version bump raises."""
++    registry = production_registry()
++    registry.check_all()
++    assert {b.name for b in ALL_BLOCKS} == {"J-11", "J-15", "J-16"}
++    assert (J11.view, J15.view, J16.view) == ("full", "full", "full")      # ✏ DX-110
++    import src.fundamental.prompts.e_blocks as eb
++    for blk in (J11, J15, J16):                  # ★ one text per name and version
++        # ✏ 2026-10-01 — compare against the factory for THIS block's version: `J-15` is
++        #   `v1` here (prose path) and `v2` in the Stage B–D runner, so the current
++        #   registry entry is not the right reference for every block any more.
++        factory = getattr(eb, f"{blk.name.lower().replace('-', '')}_{blk.version}")
++        assert blk.text == factory().text
++    object.__setattr__(J15, "text", J15.text + " edited")
++    from src.fundamental import PromptDriftError
++    with pytest.raises(PromptDriftError):
++        J15.check()
++    object.__setattr__(J15, "text", J15.text[: -len(" edited")])
++
++
++# ✏ 2026-10-05 — the two `build_gateway` tests below came from the deleted
++#   `test_fundamental_author_for.py`; `build_gateway` was KEPT, so its tests stay.
++
++def test_a_missing_api_key_is_reported_as_configuration_not_as_no_thesis(monkeypatch):
++    """P5 — ⚠ *"no API key"* and *"the model declined"* are different states, and
++    a caller that cannot tell them apart reports a config fault as a verdict."""
++    from src.fundamental.errors import ResearchError
++    from src.fundamental.prompts.call import build_gateway
++
++    monkeypatch.setenv("CIA_LLM_TRANSPORT", "anthropic_api")   # this test covers the API path (GW-24)
++    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
++    with pytest.raises(ResearchError, match="ANTHROPIC_API_KEY"):
++        build_gateway()
++
++
++def test_the_deep_tier_model_is_opus(monkeypatch):
++    """INV-8 — thesis authoring is quality-critical and low-frequency."""
++    from src.fundamental.prompts.call import THESIS_MODEL
++
++    assert THESIS_MODEL == "claude-opus-5"
