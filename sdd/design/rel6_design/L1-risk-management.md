@@ -552,12 +552,12 @@ BOUNDARY
 
 | ID | Question | Note |
 |---|---|---|
-| **QK-1** | ⚠ **L0 §4.2's D-05 entry still claims sizing.** | One-line fix — text stranded from v0.5.0 when Portfolio Strategy was deleted; v0.6.0 restored D-06 and never removed it. **Sizing is D-06's** |
+| ~~**QK-1**~~ | ~~L0 §4.2's D-05 entry still claims sizing.~~ ✅ **CLOSED 2026-10-06 (Victor): D-06 owns position size.** L0 was already corrected in v0.11.0 | One-line fix — text stranded from v0.5.0 when Portfolio Strategy was deleted; v0.6.0 restored D-06 and never removed it. **Sizing is D-06's** |
 | ~~**QK-2**~~ | ~~★ **What is the theme taxonomy?**~~ ✅ **CLOSED 2026-08-25 — `CT-5.3`, RK-37.** | `THEME_REPORT_THRESHOLD_PCT` is 40 % and *"AI/semiconductor"* is defined nowhere. **The one threshold M-2 explicitly names has no definition behind it.** Needs a declared, versioned membership rule — and it is a judgement call about what counts (is `ENB` in the AI theme because it powers datacentres?) |
-| **QK-3** | Does D-05 own **effective breadth** as a reported number? | D-03 QA-43 requires it for power calculations; D-05 needs it for RK-9. **Same quantity, two consumers** — it should have one home, and D-05 is the one with the book |
+| ~~**QK-3**~~ | ~~Does D-05 own effective breadth as a reported number?~~ ✅ **CLOSED 2026-10-06 (Victor): D-04 owns the effective-breadth number**; D-05 consumes it for RK-9 | D-03 QA-43 requires it for power calculations; D-05 needs it for RK-9. **Same quantity, two consumers** — it should have one home, and D-05 is the one with the book |
 | ~~**QK-4**~~ | ~~Should the **premature-exit flag** have a threshold?~~ ✅ **CLOSED 2026-08-25 — the distribution, RK-39.** ★ *And for a second reason QK-4 did not state: the only artifact carrying an intended horizon is the thesis, which RK-28 forbids D-05 to import.* | A fixed "exited inside N days" repeats the fixed-percentage mistake D-06 QS-1 rejects. Reporting the holding-period distribution against the intended horizon may be the honest form |
 | ~~**QK-5**~~ | ~~Where does the verdict gate land?~~ | ✅ **CLOSED — `D-12 Decision`.** D-05 is **not** the gate: INV-026 gives it zero blocking authority, so it could never have been (§1.4). D-05's alerts travel **beside** the recommendation (`L2` CB-11) |
-| **QK-6** | Is a **single-theme stress** (RK-26) parameterised from history, or stated? | A 2022-style semiconductor drawdown is the obvious candidate. Needs a MethodEntry either way (QA-20) |
+| ~~**QK-6**~~ | ~~Is a single-theme stress (RK-26) parameterised from history, or stated?~~ ✅ **CLOSED 2026-10-06 (Victor): taken from history** (still needs its MethodEntry, QA-20) | A 2022-style semiconductor drawdown is the obvious candidate. Needs a MethodEntry either way (QA-20) |
 
 ---
 

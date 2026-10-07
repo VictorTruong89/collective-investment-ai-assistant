@@ -112,7 +112,8 @@ def compose(
         as_of=as_of, run_id=run_id, decision_anchor=nomination.decision_anchor,
         candidate={"ticker": top.ticker, "rank": top.rank,
                    "ranked_quantity": top.ranked_quantity,
-                   "horizon": nomination.nominating_horizon},
+                   "horizon": nomination.nominating_horizon,
+                   "ranked_by": _ranked_by(nomination)},
         verdict_final=final, verdict_nominated=NOMINATED_VERDICT,
         gates=tuple(outcomes), attribution=attribute(NOMINATED_VERDICT, outcomes),
         grade=_transport_grade(nomination, top, gate_verdicts),
@@ -137,6 +138,21 @@ def _algebra_status(status: str) -> str:
     analyst said no" from "there was no analyst".
     """
     return "VETO" if status == "NO_THESIS" else status
+
+
+def _ranked_by(nomination) -> dict:
+    """DN-40 / AC-12.30 — what ranked the pick, carried byte-identical (DN-26).
+
+    ★ `kind` is an IDENTITY check against D-03's declared rule id, not a
+    computation: QA-121 makes the rule's content hash the nomination's
+    `model_artifact_id` whenever no promoted model ranked.
+    """
+    from src.quant import RANK_FORMULA_ID, rule_id
+
+    artifact = nomination.model_artifact_id
+    is_rule = artifact == rule_id()
+    return {"artifact_id": artifact, "kind": "rule" if is_rule else "model",
+            "formula_id": RANK_FORMULA_ID if is_rule else None}
 
 
 def _transport_grade(nomination, top, gate_verdicts) -> dict:

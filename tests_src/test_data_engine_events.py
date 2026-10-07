@@ -80,7 +80,7 @@ def test_a_refresh_is_never_recorded_for_a_class_that_was_not_fetched(tmp_path):
 # --------------------------------------------------------------------------- #
 
 def test_the_handling_covers_blocks_the_run_did_not_seed(tmp_path):
-    """★★★ ⚠ The handling used to be built from the events **this run seeded**,
+    """AC-7.75 (DE-57) — ★★★ ⚠ The handling used to be built from the events **this run seeded**,
     and the entrypoint seeds none — so the moment `ingest/events.py` populates
     the store, every split in it would be unhandled and the daily run would
     **HALT**.
@@ -111,7 +111,7 @@ def test_the_handling_covers_blocks_the_run_did_not_seed(tmp_path):
 
 
 def test_an_event_not_yet_knowable_is_not_handled(tmp_path):
-    """DE-34 — ⚠ *a split announced after `as_of` is absent even though it sits
+    """AC-7.75 (DE-57, DE-34) — DE-34 — ⚠ *a split announced after `as_of` is absent even though it sits
     in today's feed*. ★ Handling something the run could not have known about
     would be look-ahead **inside the guard**."""
     from src.data_engine.calendar.gate import _blocks_in_window
@@ -127,7 +127,7 @@ def test_an_event_not_yet_knowable_is_not_handled(tmp_path):
 
 
 def test_the_training_run_uses_the_same_gate_as_the_daily_one():
-    """FE-4 — ⚠ *two copies of one idea is where the drift starts*, and the
+    """AC-7.75 (DE-57, FE-4) — FE-4 — ⚠ *two copies of one idea is where the drift starts*, and the
     training run's copy was **a stub asserting PROCEED without checking**
     (AB-9)."""
     import inspect
@@ -209,7 +209,7 @@ def test_a_refresh_with_no_recorded_coverage_is_unverifiable(tmp_path):
 # --------------------------------------------------------------------------- #
 
 def test_a_delisting_is_not_cleared_by_the_price_adjustment(tmp_path):
-    """★★★ ⚠ *Found 2026-08-27 the moment `delisting` was ingested.* The handling
+    """AC-7.77 (DE-59) — ★★★ ⚠ *Found 2026-08-27 the moment `delisting` was ingested.* The handling
     cleared **every** BLOCK-severity finding, and while the store held only
     splits that read as correct — adding delistings marked the real **AVB and
     EQR `handled=True`**.
@@ -233,7 +233,7 @@ def test_a_delisting_is_not_cleared_by_the_price_adjustment(tmp_path):
 
 
 def test_an_unhandled_delisting_halts_the_window(tmp_path):
-    """★ The consequence, and it is the right one — *a name that stopped trading
+    """AC-7.77 (DE-59) — ★ The consequence, and it is the right one — *a name that stopped trading
     is something a human should look at*."""
     from src.data_engine.calendar.gate import check_window
     from src.data_engine.calendar.store import EventStore
@@ -252,7 +252,7 @@ def test_an_unhandled_delisting_halts_the_window(tmp_path):
 
 
 def test_the_delisting_feed_cannot_correct_historical_survivorship():
-    """★★ **INV-017 stays UNCORRECTED, and this says why in code.**
+    """AC-7.77 (DE-60) — ★★ **INV-017 stays UNCORRECTED, and this says why in code.**
 
     ⚠ Measured 2026-08-27: `delisted-companies` returns 100 rows on page 0 and
     **402 on every page after**. Page 0 spans about three weeks. So the source
@@ -650,7 +650,7 @@ def test_a_reported_result_is_knowable_on_its_announcement_date(tmp_path):
 
 
 def test_a_scheduled_date_is_knowable_because_we_looked_TODAY(tmp_path):
-    """⚠⚠ **The knowability axes differ, and conflating them is look-ahead.**
+    """AC-7.88 (DE-71, DE-65) — ⚠⚠ **The knowability axes differ, and conflating them is look-ahead.**
     A future earnings date is not knowable *on that date* — what is knowable is
     that we saw this schedule today. ★ And a scheduled date **moves**, so
     today's calendar cannot answer a historical question (DE-65)."""
@@ -980,3 +980,49 @@ def test_a_derived_class_is_exempt_not_never_refreshed(tmp_path):
                 derived=("price_adjustment_state",))
     assert "price_adjustment_state" in state["exempt"]
     assert "price_adjustment_state" not in state["never"]
+
+
+class _DelistingFeed:
+    """Three weeks of rows, as the Starter plan serves `delisted-companies`."""
+
+    def get(self, endpoint, **params):
+        assert endpoint == "delisted-companies"
+        return [{"symbol": "AVB", "exchange": "NYSE", "delistedDate": "2026-08-18",
+                 "companyName": "AvalonBay"},
+                {"symbol": "OTHR", "exchange": "NASDAQ", "delistedDate": "2026-08-06",
+                 "companyName": "Other"},
+                {"symbol": "LATE", "exchange": "NYSE", "delistedDate": "2026-08-26",
+                 "companyName": "Late"}]
+
+
+def test_ac_7_77_the_delisting_refresh_records_the_window_REACHED(tmp_path):
+    """AC-7.77 (DE-59, DE-60) — *the feed's reachable window is recorded, not the
+    requested one.* ✏ Written 2026-10-06 (L9 §8 D4): the other half of AC-7.77 (a
+    delisting HALTs, is not cleared) was tested; this half was not. ⚠ Recording a
+    ten-year window from a three-week feed would make the class read CHECKED over
+    years nobody fetched — DE-56/DE-58's defect again."""
+    from src.data_engine.calendar.store import EventStore
+    from src.data_engine.ingest.events import refresh_delistings
+
+    store = EventStore(tmp_path)
+    out = refresh_delistings(_DelistingFeed(), store, tickers=("AVB",),
+                             as_of=date(2026, 8, 28))
+    record = store.freshness()["delisting"]
+    assert (record["covers_from"], record["covers_to"]) == ("2026-08-06", "2026-08-26")
+    assert record["covers_tickers"] == ["AVB"]
+    assert out["findings"] == 1, "only the wanted, US-listed name becomes a finding"
+
+
+def test_ac_7_77_an_empty_delisting_feed_records_no_refresh(tmp_path):
+    """AC-7.77 — no dated rows means nothing was reached, so NO window is recorded
+    (the class stays UNCHECKED rather than reading as a clean sweep)."""
+    from src.data_engine.calendar.store import EventStore
+    from src.data_engine.ingest.events import refresh_delistings
+
+    class _Empty:
+        def get(self, endpoint, **params):
+            return []
+
+    store = EventStore(tmp_path)
+    out = refresh_delistings(_Empty(), store, tickers=("AVB",), as_of=date(2026, 8, 28))
+    assert out["refreshed"] == [] and "delisting" not in store.freshness()

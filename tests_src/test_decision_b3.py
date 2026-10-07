@@ -355,7 +355,8 @@ def test_the_b3_stub_gate_composes_without_fabricating_a_grade():
                    not_actionable_reason="B3 stub")
     assert rec.verdict_final == BUY
     assert rec.grade["k"] is None and rec.grade["verdict_distribution"] is None
-    assert rec.gates[0].produced_by_stub == "B4.4"
+    from src.fundamental import REPLACED_AT     # ✏ 2026-10-06: was the passed milestone "B4.4"
+    assert rec.gates[0].produced_by_stub == REPLACED_AT
 
 
 # --------------------------------------------------------------------------- #

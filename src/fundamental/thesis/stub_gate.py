@@ -28,17 +28,20 @@ from datetime import date
 
 from src.fundamental.contracts.gate import PASS, GateVerdict, Grade
 
-#: The milestone that replaces this (L3 §3A.2, BS-27). Carried into the manifest
-#: so `stubs[].replaced_at` is sourced from the stub itself rather than typed
-#: twice and allowed to drift.
-REPLACED_AT = "B4.4"
+#: What replaces this, carried into the manifest so `stubs[].replaced_at` is
+#: sourced from the stub itself rather than typed twice and allowed to drift.
+#: ✏ 2026-10-06 (L1-reporting RP-53, L9 §10 C2): was the milestone `"B4.4"`, long
+#: passed — D-01 IS built. The placeholder now stands for a decision, not a gap:
+#: the daily run writes no thesis (Victor 2026-10-05, DX-153).
+REPLACED_AT = "never in the daily run — theses are authored on demand (DX-153)"
 
 GATE_ID = "thesis"
 
 STUB_REASON = (
-    "B3 walking-skeleton stub: D-01 is not built, so no thesis was authored and "
-    "no verdict was formed. This gate is a contract emitter, not an analyst — "
-    "L3 BS-11/BS-27. It is replaced by the real gate at B4.4."
+    "Placeholder thesis gate: the daily run writes no thesis — theses are "
+    "authored on demand, by the fund manager's command (Victor 2026-10-05, "
+    "DX-153) — so no verdict was formed for this name. This gate is a contract "
+    "emitter, not an analyst; it grades nothing (L3 BS-11/BS-34)."
 )
 
 

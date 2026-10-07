@@ -177,3 +177,47 @@ def test_ac_8_19_partial_success_is_failure_and_produces_no_artifact():
     incomplete = RunOutcome("r", INCOMPLETE, (JobRun("a", SUCCESS, 1, 0.1),), now, now)
     assert incomplete.produces_human_artifact is False
     assert RunOutcome("r", SUCCESS, (), now, now).produces_human_artifact is True
+
+
+_T0 = datetime(2026, 10, 6, 14, 0, tzinfo=timezone.utc)
+
+
+def _crash_on_replace(monkeypatch):
+    """Kill the write at its last step — the moment a non-atomic writer has
+    already put half a file on disk."""
+    import src.orchestration.state.manifest_store as store_mod
+
+    def boom(*_a, **_k):
+        raise KeyboardInterrupt("killed mid-write")
+    monkeypatch.setattr(store_mod.os, "replace", boom, raising=True)
+
+
+def test_ac_8_20_a_killed_manifest_write_leaves_no_half_file(tmp_path, monkeypatch):
+    """AC-8.20 — OR-17 / INV-032. ★ *A killed run leaves either the old state or the
+    new one, never a half-written one.* ✏ Written 2026-10-06 (L9 §9 O5): the store
+    used plain `write_text`, so a kill mid-write left a truncated `manifest.json` —
+    which `read()` would then fail on, or worse, which OR-13 would refuse to replace."""
+    store = ManifestStore(tmp_path)
+    m = manifest()
+    _crash_on_replace(monkeypatch)
+    with pytest.raises(KeyboardInterrupt):
+        store.write(m)
+    run_dir = tmp_path / m.run_id
+    assert not (run_dir / "manifest.json").exists(), "no half-written manifest"
+    assert not list(run_dir.glob("*.tmp")), "the temporary file is cleaned up"
+
+
+def test_ac_8_20_a_killed_outcome_write_keeps_the_old_outcome(tmp_path, monkeypatch):
+    """AC-8.20 — the OLD state survives a killed overwrite, byte for byte."""
+    store = ManifestStore(tmp_path)
+    m = manifest()
+    store.write(m)
+    first = RunOutcome(run_id=m.run_id, status=INCOMPLETE, jobs=(),
+                       started_at=_T0, ended_at=_T0)
+    path = store.write_outcome(first)
+    before = path.read_bytes()
+    _crash_on_replace(monkeypatch)
+    with pytest.raises(KeyboardInterrupt):
+        store.write_outcome(RunOutcome(run_id=m.run_id, status=SUCCESS, jobs=(),
+                                       started_at=_T0, ended_at=_T0))
+    assert path.read_bytes() == before

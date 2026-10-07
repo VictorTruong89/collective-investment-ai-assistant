@@ -115,7 +115,7 @@ verified. It has had its **falsifiers** verified (each names a real observable f
 
 ## AB-3 — Canadian listings and CDRs are not valued (RC-58)
 
-**Status:** ⏸ Victor, 2026-08-25. **Owner:** D-11/D-07.
+**Status:** ✅ **ACCEPTED as a standing limitation — Victor, 2026-10-06** (L9 §6 R1): no plan upgrade, no second price source. The daily risk pass stays `UNCHECKED` and the card informational (DN-39) by decision. *(Was: ⏸ Victor, 2026-08-25.)* **Owner:** D-11/D-07.
 
 ★ **This is the single thing keeping the daily card non-actionable.** DN-39 requires a `COMPLETE`
 risk pass; a complete pass needs book-wide exposure; that needs every held name priced. **All four
@@ -155,7 +155,9 @@ Held safe by **ST-2's one-way import rule** rather than by a spec.
 
 ## AB-12 — ★★★ The IC gate's standard error is the NULL one, and QA-4 promises otherwise
 
-**Status:** ⚠ **OPEN — found 2026-08-27 wiring promotion. Needs Victor's call.**
+**Status:** ✅ **RULED 2026-10-06 (Victor) — the REALISED standard error decides acceptance** (Newey-West with `h−1`
+lags preferred); the null `corrected_se` stays as the MDE / power figure. ⬜ Not yet built. Reasoning and rejected
+options: `sdd/design/rel1_design/L9-go-live-checklist.md` §5.3. *(Was: ⚠ OPEN — found 2026-08-27 wiring promotion.)*
 **Owner:** D-03. **Rules:** QA-4, QA-17, §5.3b.
 
 ⚠⚠ **This is the gate promotion turns on, and two defensible statistics disagree
@@ -525,8 +527,8 @@ need careful review of as-built and design and other consideration."* ⚠ Record
 
 | # | Decision | Registered as | ⚠ What it blocks |
 |---|---|---|---|
-| 1 | **CAD/CDR valuation** | AB-3 | ★ the *only* thing keeping the card non-actionable — no account can produce a `COMPLETE` risk pass |
-| 2 | **The IC gate's standard error** | AB-12 | ⚠⚠ the same run gives **t = 4.94 (PASS)** and **t = 1.42 (fail)**; a promotion decision rests on which is used |
+| 1 | ✅ **CAD/CDR valuation** — ACCEPTED as a limitation 2026-10-06 (L9 §6 R1) | AB-3 | ★ the *only* thing keeping the card non-actionable — no account can produce a `COMPLETE` risk pass |
+| 2 | ✅ **The IC gate's standard error** — RULED 2026-10-06: realised SE (L9 §5.3) | AB-12 | ⚠⚠ the same run gives **t = 4.94 (PASS)** and **t = 1.42 (fail)**; a promotion decision rests on which is used |
 | 3 | **Universe breadth** | AB-4 · QQ-11 · QQ-14 | ⚠ the `breadth` gate reports `NOT_EVALUATED` because QA-43's residual measurement **does not exist** |
 | 4 | **Confidence + claim-binding** | AB-1 · AB-2 | ⏸ already deferred to **R7** — *"needs mathematics, not plumbing"* |
 

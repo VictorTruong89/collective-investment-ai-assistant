@@ -228,6 +228,29 @@ def test_ac_2_20_coverage_counts_nan_but_present_as_missing():
     assert thin["coverage_fraction"] == 0.5
 
 
+def test_ac_2_21_a_ticker_with_absent_inputs_is_degraded_never_dropped():
+    """AC-2.21 — FE-27 / DE-13. ★ *A feature whose inputs are absent emits null and is
+    counted in the coverage report; it never silently drops the row.*
+
+    ✏ Written 2026-10-06 (L9 §15 F3): the rule was cited by nothing. Two names, one with
+    too little history for its 21-session features: it must stay IN the panel, with
+    nulls, and be REPORTED degraded — a dropped row would shrink the cross-section
+    without a word, which is the D-17 shape one layer out.
+    """
+    prices = pd.concat([price_panel(n=30, ticker="NVDA"), price_panel(n=10, ticker="AMD")],
+                       ignore_index=True)
+    panel = build_panel(contract=B3_MINIMAL_V1, price_panel=prices,
+                        calendar_report=clean_report(), as_of=AS_OF, adj_as_of=None)
+    assert set(panel["ticker"]) == {"NVDA", "AMD"}, "the thin name is not dropped"
+    assert (panel["ticker"] == "AMD").sum() == 10, "every AMD row survives"
+    assert panel.loc[panel["ticker"] == "AMD", "mom_21"].isna().all(), "null, never 0.0"
+
+    report = coverage(panel, B3_MINIMAL_V1)
+    assert report["NVDA"]["coverage_fraction"] == 1.0
+    assert report["AMD"]["coverage_fraction"] == 0.0, "reported DEGRADED"
+    assert report["AMD"]["missing"] == sorted(B3_MINIMAL_V1.feature_names)
+
+
 # --------------------------------------------------------------------------- #
 # INV-014
 # --------------------------------------------------------------------------- #

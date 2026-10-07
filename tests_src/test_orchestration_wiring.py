@@ -199,3 +199,49 @@ def test_the_dispatch_proves_the_declared_target_exists():
     ghost = Job("rank", "src.quant.signals.rank:no_such_function")
     with pytest.raises(AttributeError, match="does not resolve"):
         dispatch(ghost, object())
+
+
+def test_ac_8_41_the_daily_context_carries_the_declared_taxonomy():
+    """AC-8.41 (OR-53, CT-5.3) — ★ the daily run supplies D-05's declared taxonomy.
+
+    ⚠ Found 2026-10-06 (L9 §6 R2): `RunContext.taxonomy` was never set, so `_risk`
+    fell back to the B3 refusal even for a valued book. Checked at the seam the
+    entrypoint uses (`_theme_taxonomy`) and on the `RunContext(...)` call itself,
+    because `_context_for` fetches the universe live.
+    """
+    import ast
+    import inspect
+
+    from src.orchestration import entrypoint
+    from src.risk import THEMES_V1
+
+    assert entrypoint._theme_taxonomy() is THEMES_V1
+    tree = ast.parse(inspect.getsource(entrypoint._context_for))
+    calls = [n for n in ast.walk(tree) if isinstance(n, ast.Call)
+             and getattr(n.func, "id", "") == "RunContext"]
+    assert calls and all(any(k.arg == "taxonomy" for k in c.keywords) for c in calls)
+
+
+def test_ac_8_42_one_state_root_name_everywhere():
+    """AC-8.42 (OR-54, DX-154) — ★ every state-root read in `src/` uses ONE name.
+
+    ⚠ Found 2026-10-06: the daily run read `PIPELINE_STATE`, training and ingest read
+    `PIPELINE_STATE_DIR` — a model trained under one would be invisible to the other.
+    """
+    import re
+    from pathlib import Path
+
+    names = set()
+    for path in Path("src").rglob("*.py"):
+        names |= set(re.findall(r'environ\.get\(\s*"(PIPELINE_STATE\w*)"',
+                                path.read_text(encoding="utf-8")))
+    assert names == {"PIPELINE_STATE_DIR"}, names
+
+
+def test_ac_8_42_the_retired_name_is_refused_not_ignored(monkeypatch, tmp_path):
+    """AC-8.42 — P5: a set `PIPELINE_STATE` would otherwise be silently ignored."""
+    from src.orchestration import entrypoint
+
+    monkeypatch.setenv("PIPELINE_STATE", str(tmp_path / "old"))
+    with pytest.raises(SystemExit, match="PIPELINE_STATE_DIR"):
+        entrypoint._state_dir()

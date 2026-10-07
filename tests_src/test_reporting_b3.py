@@ -32,10 +32,10 @@ STABILITY = {"k": 5, "modal": "BUY", "agreement": 0.6}
 
 
 def recommendation(*, gate=None, actionable=False, alerts=None, reason="B3 stub",
-                   stability=None):
+                   stability=None, model_artifact_id="sha256:abc"):
     nom = Nomination(as_of=AS_OF, run_id="r", decision_anchor="open",
                      horizon_set=("production", 1), nominating_horizon="h1m",
-                     universe_n=1, model_artifact_id="sha256:abc",
+                     universe_n=1, model_artifact_id=model_artifact_id,
                      candidates=(Candidate("NVDA", 1, 0.1115, 0.425),),
                      contract_version="b3_minimal@v1", adj_as_of=AS_OF,
                      calendar_check_id="cal:test")
@@ -254,8 +254,10 @@ def test_ac_9_24c_html_and_markdown_carry_the_same_class_tagged_fields():
     html, md = render_html(card), render_markdown(card)
     assert_content_equivalent(html, md)
     with pytest.raises(RenderingsDivergedError):
-        assert_content_equivalent(html, md.replace("| verdict | BUY |",
-                                                   "| verdict | SELL |"))
+        # ✏ 2026-10-06 (RP-53): the placeholder card reads "no verdict …", so the
+        #   mutation targets the verdict row generically rather than the word BUY.
+        assert_content_equivalent(html, md.replace("| verdict | ",
+                                                   "| verdict | SELL ", 1))
 
 
 def test_ac_9_27_rendering_is_deterministic():

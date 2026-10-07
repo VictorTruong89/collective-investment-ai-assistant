@@ -119,7 +119,8 @@ def main(argv=None) -> int:
     triggered = orc.trigger(as_of=as_of, calendar=_calendar, day_bar=_day_bar(as_of),
                             model=_incumbent_model(),
                             git_sha=sha, dirty=dirty,
-                            config_hash=config_hash(_run_config(args)))
+                            config_hash=config_hash(_run_config(args)),
+                            stubs=_daily_stubs())
     if isinstance(triggered, BlockedPrecondition):
         # ⚠ Blocked is not failure. A non-trading day and an already-claimed
         #   cadence window are both INFO (OR-42, OR-46).
@@ -140,14 +141,57 @@ def main(argv=None) -> int:
         _summarise(context)
         return EXIT_OK
 
-    # ★ OR-19 + OR-45 — a failed run is LOUD, and the notice carries no
-    #   analytical content. *A pipeline that fails quietly is indistinguishable
-    #   from one that was never scheduled.*
+    _announce_failure(outcome, context)
+    return EXIT_FAILED
+
+
+def _daily_stubs() -> tuple:
+    """OR-55 / AC-8.43 — ★ the placeholder thesis gate, declared in the manifest.
+
+    ⚠ The daily run passed `stubs=()`, so the record said `[]` while the gate WAS
+    the placeholder (OR-43: *a stub indistinguishable from a real implementation
+    in the RECORD is how a placeholder survives into production*). Sourced from
+    the stub module itself so the two cannot drift.
+    """
+    from src.fundamental import GATE_ID, REPLACED_AT
+    from src.orchestration.contracts.manifest import Stub
+
+    return (Stub(domain="D-01", job=GATE_ID,
+                 behaviour="constant PASS, grade empty — no thesis in the daily run",
+                 replaced_at=REPLACED_AT, rule="OR-55, RP-53, DX-153"),)
+
+
+def _announce_failure(outcome, context, *, transport=None) -> None:
+    """OR-19 + OR-45 / AC-8.22, AC-8.22a — ★ a failed run is LOUD, on the SAME
+    channel a success uses.
+
+    ⚠ *Until 2026-10-06 (L9 §9 O2)* the notice was only printed to stderr while a
+    successful `--deliver` run emailed the card, so a failed delivering run was
+    silent where the human looks. With `--deliver` it is now emailed by D-09
+    (resolved by dotted name, never imported — OR-3 / AC-8.2's seam). The notice
+    carries no analytical content. A send that fails is itself reported (P5) and
+    never changes the run's exit status.
+    """
+    from src.orchestration.jobs.graph import resolve_target
+
     notice = failure_notice(outcome)
     assert_no_analysis(notice)
     print(f"{notice['status']} {notice['run_id']}: "
           f"{notice['failed_jobs']} {notice['error_codes']}", file=sys.stderr)
-    return EXIT_FAILED
+    if not getattr(context, "deliver", False):
+        return
+    if not getattr(context, "recipient", ""):
+        print("⚠ the failure notice was not emailed: REPORT_RECIPIENT is unset, and "
+              "the recipient is never defaulted (RP-51)", file=sys.stderr)
+        return
+    try:
+        send = resolve_target("src.reporting.deliver.email:send_failure_notice")
+        send(notice, sender=context.smtp_user.reveal(), recipient=context.recipient,
+             user=context.smtp_user, password=context.smtp_password,
+             transport=transport)
+    except Exception as exc:                    # noqa: BLE001 — reported, not swallowed
+        print(f"⚠ the failure notice could NOT be emailed: {type(exc).__name__}: "
+              f"{exc} (OR-19)", file=sys.stderr)
 
 
 #: The universe the cross-section is computed over. ⚠ **DE-36: the UNIVERSE,
@@ -273,6 +317,7 @@ def _context_for(manifest, as_of: date, *, universe_name: str = "watchlist",
 
     recipient, smtp_user, smtp_password = _delivery_credentials(deliver)
     return RunContext(
+        taxonomy=_theme_taxonomy(),
         as_of=as_of, adj_as_of=as_of, universe=universe,
         contract=contract, incumbent=incumbent, fundamentals=fundamentals,
         delisted=_delisted_for(universe, as_of),
@@ -397,6 +442,17 @@ def _data_engine(universe, *, as_of: date, ingest: bool = True):
                       observation_ledger=observations, price_source=None)
 
 
+def _theme_taxonomy():
+    """OR-53 / AC-8.41 — D-05's declared theme taxonomy (`CT-5.3`), supplied.
+
+    ★ Declared data, chosen by nobody at run time (OR-1). ⚠ Until 2026-10-06 the
+    daily context never set it, so `_risk` refused even a valued book.
+    """
+    from src.risk import THEMES_V1
+
+    return THEMES_V1
+
+
 def _observation_targets() -> tuple:
     """The names in the book. ★ **Not a guess at the nominee.**
 
@@ -492,9 +548,21 @@ def _summarise(context) -> None:
 
 
 def _state_dir():
+    """OR-54 / AC-8.42 — ★ one state root, one name, shared with training and ingest.
+
+    ⚠ `DX-154`: this read `PIPELINE_STATE` while `src.models.train` and
+    `src.data_engine.ingest` read `PIPELINE_STATE_DIR`. The retired name is
+    REFUSED when set — ignoring it would put this run's state somewhere else
+    without a word (P5).
+    """
     import pathlib
 
-    root = pathlib.Path(os.environ.get("PIPELINE_STATE", ".state"))
+    if "PIPELINE_STATE" in os.environ:
+        raise SystemExit(
+            "PIPELINE_STATE is retired (DX-154, OR-54): set PIPELINE_STATE_DIR "
+            "instead — training and ingest read that name, and two names for one "
+            "state root put a model where the daily run never looks")
+    root = pathlib.Path(os.environ.get("PIPELINE_STATE_DIR", ".state"))
     root.mkdir(parents=True, exist_ok=True)
     return root
 

@@ -39,7 +39,7 @@ from src.reporting.render.lint import enforce
 #: verdict at face value and meet its provenance a screen later.
 FIELD_ORDER = ("falsifier", "verdict", "analyst_verdict", "thesis_source",
                "stability", "confidence",
-               "rank", "ranked_quantity", "alerts", "deferral")
+               "rank", "ranked_quantity", "ranked_by", "alerts", "deferral")
 
 #: D-12's conservatism order, restated for the escalation check only. D-09 does
 #: not compose — it verifies that what it was handed was not made *more*
@@ -99,12 +99,27 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
             f"(RP-7, DC-5, P3)"
         )
 
-    units.append(RenderUnit(
-        field="verdict", value=rec.verdict_final, reliability=COMPUTATION,
-        source="D-12", as_of=as_of,
-        note=("composed, never originated (DN-1); softened from "
-              f"{rec.verdict_nominated}" if rec.was_downgraded else "composed (DN-1)"),
-    ))
+    ranked_by = rec.candidate.get("ranked_by") or {}
+    if any(g.produced_by_stub for g in rec.gates) and not rec.thesis_ref:
+        # ★★ RP-53 / AC-9.35 — ⚠ the card read "Verdict: BUY": D-12 nominates BUY
+        #   for every rank-1 name and the placeholder gate always PASSes. Nothing
+        #   analysed the name, so the card says so. The composed verdict stays in
+        #   `recommendation.json` untouched; this is what the CARD claims.
+        units.append(RenderUnit(
+            field="verdict",
+            value=(f"no verdict — ranked #1 by the "
+                   f"{ranked_by.get('kind') or 'ranker'}; no thesis"),
+            reliability=COMPUTATION, source="D-12", as_of=as_of,
+            note=(f"composed {rec.verdict_final} through a placeholder gate — "
+                  "not a judgement (RP-53)")))
+    else:
+        units.append(RenderUnit(
+            field="verdict", value=rec.verdict_final, reliability=COMPUTATION,
+            source="D-12", as_of=as_of,
+            note=("composed, never originated (DN-1); softened from "
+                  f"{rec.verdict_nominated}" if rec.was_downgraded
+                  else "composed (DN-1)"),
+        ))
 
     # ★ F9 AC-F9.6 — WHICH SOURCE produced the thesis, and how far to trust the
     # transport. ⚠ Read once here so the verdict unit below and the source unit
@@ -154,6 +169,11 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
         field="ranked_quantity", value=rec.candidate["ranked_quantity"],
         reliability=COMPUTATION, source="D-03", as_of=as_of,
         note="denormalised 21-session return, z * sigma * sqrt(h) (QA-58)"))
+    # ★ RP-54 / AC-9.36 — WHAT ranked the pick, on the card (PG-10 transparency).
+    units.append(RenderUnit(
+        field="ranked_by", value=_ranked_by_text(ranked_by),
+        reliability=COMPUTATION, source="D-03", as_of=as_of,
+        note="carried from the nomination by D-12 (DN-40)"))
 
     # RP-46 / RP-47 — alerts are never suppressed, and their STATUS renders.
     units.append(RenderUnit(
@@ -251,13 +271,23 @@ def _thesis_variant(rec) -> str:
     return (rec.thesis_ref.get("provenance") or {}).get("variant") or "unknown"
 
 
+def _ranked_by_text(ranked_by: dict) -> str:
+    """RP-54 — rule (by formula id) or model (by artifact id); never blank."""
+    if not ranked_by:
+        return "not recorded on this recommendation"
+    if ranked_by.get("kind") == "rule":
+        return (f"the rule {ranked_by.get('formula_id')} "
+                f"({ranked_by.get('artifact_id', '')[:19]}…) — no trained model")
+    return f"the model {ranked_by.get('artifact_id')}"
+
+
 def _falsifier_text(rec) -> str:
     """RP-15 — what would prove this wrong, rendered above the verdict."""
     stub = [g for g in rec.gates if g.produced_by_stub]
     if stub:
         return (
-            "No falsification condition exists: the thesis gate is a walking-skeleton "
-            f"stub replaced at {stub[0].produced_by_stub} (L3 BS-11). "
+            "No falsification condition exists: no thesis was written for this name "
+            "— theses are authored on demand, not in the daily run (DX-153). "
             "This card states no thesis and can therefore be proven wrong by nothing "
             "— which is why it is not actionable."
         )
@@ -273,7 +303,7 @@ def _data_gaps(rec) -> tuple[str, ...]:
     gaps = []
     for g in rec.gates:
         if g.produced_by_stub:
-            gaps.append(f"gate {g.gate_id!r} is a stub — replaced at {g.produced_by_stub}")
+            gaps.append(f"gate {g.gate_id!r} is a placeholder — {g.produced_by_stub}")
     if rec.alerts_status != "COMPLETE":
         gaps.append(f"risk: {rec.alerts_status}")
     if rec.grade.get("k") is None:

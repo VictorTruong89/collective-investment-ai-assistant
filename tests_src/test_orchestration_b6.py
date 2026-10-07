@@ -689,7 +689,7 @@ def test_the_entrypoint_blocks_rather_than_inventing_a_day_t_open(
     """
     import src.orchestration.entrypoint as entrypoint
 
-    monkeypatch.setenv("PIPELINE_STATE", str(tmp_path))
+    monkeypatch.setenv("PIPELINE_STATE_DIR", str(tmp_path))   # OR-54
     monkeypatch.setattr(entrypoint, "_day_bar", lambda *a, **k: None)
 
     assert entrypoint.main(["--as-of", "2026-08-25"]) == 0

@@ -14,8 +14,10 @@
 ╚══════════════════════════════════════════════════════════════════╝
 ```
 
-★ `_state_dir()` honours `PIPELINE_STATE`, so redirecting it here covers every
-caller — present and future — without any test having to remember to.
+★ `_state_dir()` honours `PIPELINE_STATE_DIR` — as do `src.models.train` and
+`src.data_engine.ingest` (OR-54, DX-154) — so redirecting it here covers every
+caller, present and future, without any test having to remember to.
+✏ 2026-10-06: was `PIPELINE_STATE`, which only the daily run read.
 """
 
 import pytest
@@ -23,13 +25,14 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolate_pipeline_state(tmp_path, monkeypatch):
-    """Point `PIPELINE_STATE` at a per-test directory.
+    """Point `PIPELINE_STATE_DIR` at a per-test directory (OR-54).
 
     ⚠ A test that genuinely wants the real tree must set the variable itself,
     **and say why** — which is the point: it becomes a visible decision instead
     of an accident.
     """
-    monkeypatch.setenv("PIPELINE_STATE", str(tmp_path / "state"))
+    monkeypatch.setenv("PIPELINE_STATE_DIR", str(tmp_path / "state"))
+    monkeypatch.delenv("PIPELINE_STATE", raising=False)      # retired (DX-154)
 
 
 @pytest.fixture(autouse=True)

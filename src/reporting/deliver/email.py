@@ -143,6 +143,46 @@ def send(message: EmailMessage, *, user: Secret, password: Secret,
     return message["To"]
 
 
+#: OR-45 — the only fields a failure notice may carry. ⚠ Kept equal to D-08's
+#: `FAILURE_NOTICE_FIELDS`; restated here so D-09 does not import D-08 (OR-3).
+FAILURE_NOTICE_FIELDS = ("run_id", "status", "failed_jobs", "error_codes",
+                         "started_at", "ended_at")
+
+
+def build_failure_message(notice: dict, *, sender: str, recipient: str) -> EmailMessage:
+    """OR-19 / OR-45 (D-08 AC-8.22, AC-8.22a) — ★ a failure NOTICE, never a report.
+
+    No attachment, no card, no verdict: *a failure notice that quotes a partial
+    result has become a report and is forbidden.* A field outside the notice set
+    raises rather than being dropped, so analytical content cannot slip in.
+    """
+    extra = sorted(set(notice) - set(FAILURE_NOTICE_FIELDS))
+    if extra:
+        raise ValueError(f"a failure notice may not carry {extra!r} — that is "
+                         f"analytical content (OR-45)")
+    msg = EmailMessage()
+    msg["Subject"] = f"[RUN FAILED] {notice['status']} {notice['run_id']}"
+    msg["From"] = sender
+    msg["To"] = recipient
+    msg.set_content("\n".join([
+        f"The daily run {notice['run_id']} did not complete: {notice['status']}.",
+        "",
+        f"Failed jobs: {', '.join(notice['failed_jobs']) or '-'}",
+        f"Error codes: {', '.join(notice['error_codes']) or '-'}",
+        f"Started {notice['started_at']} · ended {notice['ended_at']}",
+        "",
+        "No card was produced (OR-16). The run record holds the detail.",
+    ]))
+    return msg
+
+
+def send_failure_notice(notice: dict, *, sender: str, recipient: str, user: Secret,
+                        password: Secret, transport=None) -> str:
+    """Send a failure notice on the same channel a card goes out on (OR-19)."""
+    return send(build_failure_message(notice, sender=sender, recipient=recipient),
+                user=user, password=password, transport=transport)
+
+
 def deliver(card, renderings: dict, *, sender: str, recipient: str,
             user: Secret, password: Secret, archive_root: str | Path,
             transport=None) -> Delivery:

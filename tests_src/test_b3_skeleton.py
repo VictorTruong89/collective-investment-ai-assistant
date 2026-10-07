@@ -91,7 +91,8 @@ def test_bs_27_the_stub_fact_is_in_the_manifest_and_on_the_card(skeleton):
     assert set(manifest_stubs) == {"D-01", "D-05"}
     card_stubs = {s["domain"] for s in skeleton.card.stubs}
     assert "D-01" in card_stubs
-    assert any("stub" in g for g in skeleton.card.data_gaps)
+    # ✏ 2026-10-06 (RP-53): the data gap says "placeholder", and names today's cause.
+    assert any("placeholder" in g for g in skeleton.card.data_gaps)
 
 
 def test_dn_1_the_verdict_is_traceable_to_an_input_verdict(skeleton):

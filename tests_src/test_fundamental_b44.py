@@ -465,5 +465,6 @@ def test_the_real_gate_is_not_the_stub():
     real = gate(verdict=BUY)
     stub = stub_gate_verdict("MU", AS_OF)
     assert real.produced_by_stub is None
-    assert stub.produced_by_stub == "B4.4"
+    from src.fundamental import REPLACED_AT     # ✏ 2026-10-06: was "B4.4"
+    assert stub.produced_by_stub == REPLACED_AT
     assert real.thesis_version is not None and stub.thesis_version is None
