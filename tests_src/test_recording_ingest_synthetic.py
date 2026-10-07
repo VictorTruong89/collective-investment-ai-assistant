@@ -136,3 +136,21 @@ def test_two_same_day_tranches_group_to_one_order():
     """RC-42 — two fills of one instruction are one order, not two."""
     ftc = [o for o in group_orders(acts("FIX_1")) if getattr(o, "symbol", None) == "FTC"]
     assert len(ftc) == 1, f"expected one grouped order, got {len(ftc)}"
+
+
+def test_dx156_a_commission_free_order_may_round_slightly_negative():
+    """DX-156 / RC-15 — ★ with $0 commission (F12 D8, BMO commission-free since 2026-10-05)
+    the residual is pure PRICE ROUNDING, and rounding has either sign.
+
+    ⚠ Found 2026-10-06 by `python -m src.recording.check` on Victor's fresh exports:
+    `TFSA_1 2026-10-02 CRWD 20 @ 269.04 → -5380.71` derives a fee of **-0.09** — the fill
+    was ≈269.0355, printed to 2dp. The positive tolerance already scaled with quantity
+    (≈0.6¢/share); the negative guard was a fixed 0.06, and only the old $9.95 fee had
+    kept it from firing. A negative residual BEYOND rounding still raises.
+    """
+    from src.recording.errors import CommissionImplausibleError
+    from src.recording.orders.group import assert_plausible
+
+    assert_plausible("CRWD", -0.09, tranches=1, quantity=20)        # rounding: allowed
+    with pytest.raises(CommissionImplausibleError, match="NEGATIVE"):
+        assert_plausible("CRWD", -0.50, tranches=1, quantity=20)    # beyond rounding

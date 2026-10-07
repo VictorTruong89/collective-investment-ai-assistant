@@ -168,6 +168,23 @@ def independent_names(n: int, rho: float) -> float:
     return n / (1.0 + (n - 1) * rho)
 
 
+def held_book_breadth(rho: float, *, horizon_days: int, top_n: int | None = None) -> dict:
+    """F12 `D10` — the held book's breadth, as a DIAGNOSTIC (never gated).
+
+    ⚠ It uses the universe's average correlation for the top-N names — an
+    approximation, stated: the names actually held differ by rebalance and their
+    own correlation is not measured here.
+    """
+    if top_n is None:
+        from src.quant.backtest.portfolio import TOP_N as top_n
+    per_year = TRADING_DAYS_PER_YEAR / max(horizon_days, 1)
+    n_eff = independent_names(top_n, rho)
+    return {"names": top_n, "independent_names": round(n_eff, 4),
+            "breadth": round(n_eff * per_year, 4),
+            "note": ("held book: n_eff of the top-N at the UNIVERSE correlation x "
+                     "rebalances per year — reported beside the gate, never gated (F12 D10)")}
+
+
 def effective_breadth(returns: pd.DataFrame, *, horizon_days: int,
                       sectors=None) -> dict:
     """QA-43's measure. Returns `n`, `rho`, `n_eff` and `BR` — ★ **all four**.
@@ -212,6 +229,9 @@ def effective_breadth(returns: pd.DataFrame, *, horizon_days: int,
         "breadth": round(n_eff * per_year, 4),
         "rebalances_per_year": round(per_year, 4),
         "sector_neutral": bool(sectors),
+        # ★ F12 `D10` — the HELD book, reported beside the gate and never gated: the
+        #   top-N names' independent count at the UNIVERSE correlation.
+        "held_book": held_book_breadth(rho, horizon_days=horizon_days),
         "why": "",
     }
 

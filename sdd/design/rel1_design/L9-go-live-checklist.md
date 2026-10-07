@@ -170,9 +170,9 @@ drop it from `REQUIRED_GATES` (then promotion rests on IC and cost alone — and
 
 | # | step | decides / does | depends on |
 |---|---|---|---|
-| ① | **hold promotion for review** — a training run writes the artifact and its gate report but never `promotion.json`; promotion is a separate, explicit act after review | ✅ **DECIDED (Victor, 2026-10-06): training holds promotion until he has reviewed it** — to build | — |
-| ② | **`AB-12` ruling** — 5.3 | ✅ **realised SE** (Victor, 2026-10-06) — to build | — |
-| ③ | **breadth gate** — 5.4 | ✅ **`BR ≥ (IR*/IC)²`, `IR* = 0.5`, held book** (Victor, 2026-10-06) — to build; ⚠ **refine after ⑤'s results** | — |
+| ① | **hold promotion for review** | ✅ **BUILT 2026-10-06** (MT-52 / AC-4.34): training writes the artifact + gate report marked `pending`, never `promotion.json`; `python -m src.models.promote <id>` shows the report, `--approve` promotes — still refused unless every gate PASSed (no override) | — |
+| ② | **`AB-12` ruling** — 5.3 | ✅ **BUILT 2026-10-06** — F12 `D9` / AC-F12.31: Newey-West realised SE (`h−1` lags) decides; the null MDE is still reported | — |
+| ③ | **breadth gate** — 5.4 | ✅ **BUILT 2026-10-06** — F12 `D10` / AC-F12.32: implied IR `|IC|·√BR ≥ 0.5` on the **UNIVERSE** (Victor changed it from the held book the same day); the held book reported beside it, never gated; ⚠ **provisional — refine after ⑤'s results** | — |
 | ④ | **fresh data pull + completeness check** — 510-name S&P universe, 10 years, from FMP; named failures (AB-18 silent names, AB-20 merger) reported, not dropped | ✅ decided | — |
 | ⑤ | **fresh training + D-03 backtest** under the current simulator (drift weights, $0 fee): IC with **both** SEs, breadth, gross = net return | ✅ decided | ①–④ |
 | ⑥ | **your review of the gate report**, then promote or not | Victor | ⑤ |
@@ -562,3 +562,20 @@ DEFAULT_EXTRACTIONS → run_thesis_once → check_falsifiers · rule_checks
 | **F1** | **the daily run reads fundamentals; it never fetches them** | `entrypoint._fundamentals_for` reads the fact ledger without ingesting (deliberately — *a daily run that silently fetched 500 companyfacts payloads would be doing D-07's write path on a schedule nobody declared*). The ledger is filled by the **training run** (`ingest_universe_facts`, EDGAR). So once a model on `price_and_fundamental` is promoted, its `f_*` features are **as fresh as your last manual retrain** — a 10-Q filed since then is invisible to the card. Today the rule needs no fundamentals, so it does not bite yet | Victor — accept (refresh = retrain), or a manual `ingest` step before each run |
 | **F2** | **fresh state** | this repo's fact ledger holds only MU, SNDK and WDC (F11's reference class) — the first fresh training run (§5) fills it for the universe | ✅ part of the decided fresh training |
 | **F3** | **`AC-2.21` untested** | a $0 test that a name with missing inputs appears degraded in the coverage report and is not dropped | approve |
+
+### 11.5 Fresh exports dropped 2026-10-06 — what the check found
+
+* `python -m src.recording.check` (read-only) on Victor's fresh downloads: **0 refused** after `DX-156` — the first run
+  refused `TFSA_1` on a −$0.09 rounding residual (`CRWD 2026-10-02`), the first commission-free negative; fixed.
+  Windows now end 2026-09-17 (RESP_1) and 2026-10-02 (the other three).
+* ★ **Test truth is frozen separately**: `.state/broker/frozen_2026-08-25/` holds the four August exports the
+  external-truth tests were measured on (Victor, 2026-10-06), so replacing the live files never breaks them again.
+* ✅ **RC-57 re-verified on the fresh files, 2026-10-06** — Victor read the balances off BMO InvestorLine; **all seven
+  derived cash figures match to the cent**: TFSA_1 25.30 CAD / 10,242.04 USD · TFSA_2 33.96 CAD / 318.52 USD ·
+  RRSP_1 35.63 CAD / 0.00 USD · RESP_1 28.51 CAD. The second external check of this book, on a different download.
+* Investment values BMO reported the same day (recorded for reference; D-11 cannot value them itself — CAD listings and
+  CDRs, R1): TFSA_1 9,011.10 CAD + 48,331.80 USD · TFSA_2 52,004.41 CAD + 21,932.30 USD · RRSP_1 20,009.66 CAD ·
+  RESP_1 13,685.25 CAD.
+* ✅ **The change log has its baseline**: `python -m src.recording.check --record` run 2026-10-06 (at Victor's request) —
+  4 entries in `.state/broker/ingest_log.jsonl` (66 / 127 / 182 / 160 rows); an immediate re-check reads `unchanged`
+  for all four. A later download that alters a past row is now reported as a RESTATEMENT.

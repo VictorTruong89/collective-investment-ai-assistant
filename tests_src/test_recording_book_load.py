@@ -10,7 +10,18 @@ from src.recording.book.load import (
     discover_accounts, held_instruments, load_books, quote_holdings,
     resolve_export_dir,
 )
-from tests_src.broker_fixtures import requires_real_statements
+import pytest
+
+from tests_src.broker_fixtures import real_statements_dir, requires_real_statements
+
+
+@pytest.fixture(autouse=True)
+def _frozen_statements(monkeypatch):
+    """✏ 2026-10-06 — these numbers are the August exports' (frozen copy); the live
+    folder now holds Victor's fresh downloads. `load_books` honours the variable."""
+    root = real_statements_dir()
+    if root is not None:
+        monkeypatch.setenv("BMO_STATEMENTS_DIR", str(root))
 
 # ⚠⚠ DX-5 — every test below reads the REAL BMO exports, which are NOT in git.
 # They check derived numbers against EXTERNAL TRUTH (CT-3.2) — which is exactly

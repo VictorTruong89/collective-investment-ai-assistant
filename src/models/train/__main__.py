@@ -225,6 +225,11 @@ def main(argv=None) -> int:
     print(f"  gates: {outcome['verdicts']}")
     if outcome["promoted"]:
         print("  ★ PROMOTED — every required gate passed")
+    elif outcome.get("pending_review"):
+        # ★ MT-52 — held for the fund manager's review; nothing scores with it yet.
+        print("  ★ ALL GATES PASSED — HELD FOR REVIEW (MT-52). Nothing is promoted.")
+        print(f"    review:  python -m src.models.promote {outcome['artifact_id']}")
+        print(f"    approve: python -m src.models.promote {outcome['artifact_id']} --approve")
     else:
         print(f"  ⚠ NOT PROMOTED — refused on {outcome['refused_gates']}")
         print("    ★ The artifact is written anyway: a refused model is a record.")

@@ -144,6 +144,9 @@ UNLOCATED_FORMULAS = frozenset({
     "cv.purge_embargo.derived.v1", "effective_n.overlap_corrected.v1",
     "mde.rank_ic.v1", "rank_ic.spearman.v1",
     "volatility.realised_open_to_open_std.v1",
+    # ✏ 2026-10-06 — F12 D9: declared as `FORMULA_REALISED_SE` in metrics/ic.py
+    #   (not a `FORMULA_ID =` assignment), the same shape as its neighbours above.
+    "se.newey_west_bartlett.v1",
 })
 _CODE_PIN = re.compile(r"^Code:\s*(\S+)\s*@\s*sha256:([0-9a-f]{16})\s*$", re.M)
 

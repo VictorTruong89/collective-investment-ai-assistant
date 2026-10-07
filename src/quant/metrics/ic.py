@@ -23,6 +23,8 @@ import pandas as pd
 FORMULA_RANK_IC = "rank_ic.spearman.v1"
 FORMULA_EFFECTIVE_N = "effective_n.overlap_corrected.v1"
 FORMULA_MDE = "mde.rank_ic.v1"
+#: ★ F12 `D9` / AC-F12.31 — the realised SE the IC gate decides on (closes L6 AB-12).
+FORMULA_REALISED_SE = "se.newey_west_bartlett.v1"
 
 NOT_EVALUATED = "NOT_EVALUATED"
 
@@ -44,6 +46,18 @@ class ICResult:
     formula_id: str = FORMULA_RANK_IC
     status: str = "measured"
     why: str = ""
+    #: ★ F12 `D9` — the per-date IC series and its REALISED standard error
+    #: (Newey-West, `h − 1` lags). The gate decides on this; `corrected_se`
+    #: (the NULL SE) stays as the planning figure / MDE.
+    per_date: tuple = ()
+    realised_se: float | None = None
+
+    @property
+    def t_stat_realised(self) -> float | None:
+        """`D9` — the t the gate actually uses."""
+        if self.mean_ic is None or not self.realised_se:
+            return None
+        return self.mean_ic / self.realised_se
 
     @property
     def t_stat(self) -> float | None:
@@ -62,6 +76,9 @@ class ICResult:
                 "effective_n": self.effective_n,
                 "corrected_se": self.corrected_se,
                 "t_stat": self.t_stat, "mde_t3": self.mde(),
+                "realised_se": self.realised_se,
+                "t_stat_realised": self.t_stat_realised,
+                "realised_se_formula_id": FORMULA_REALISED_SE,
                 "formula_id": self.formula_id, "status": self.status,
                 "why": self.why}
 
@@ -81,6 +98,37 @@ def corrected_se(*, dates: int, names_per_date: float,
     if dates <= 0 or names_per_date <= 1 or horizon_days <= 0:
         return None
     return math.sqrt(horizon_days / ((names_per_date - 1) * dates))
+
+
+def newey_west_se(series, *, lags: int) -> float | None:
+    """`se.newey_west_bartlett.v1` — the realised SE of a series' MEAN (F12 `D9`).
+
+    ```
+    e_t = x_t − x̄ ;  γ_k = (1/T) Σ_{t>k} e_t·e_{t−k} ;  w_k = 1 − k/(L+1)
+    Var(x̄) = (γ_0 + 2 Σ_{k=1..L} w_k·γ_k) / T
+    ```
+
+    ★ **`L = h − 1`** for per-date ICs of `h`-day labels: consecutive labels share
+    `h − 1` days, so their ICs are autocorrelated over that window. The null SE
+    assumes per-date IC variance `1/(n−1)` — true only with no skill — and the
+    realised spread was 3.5× that on the August 2026 fit (L6 AB-12).
+    ⚠ Fewer than `L + 2` observations cannot estimate the window → `None`; a
+    non-positive variance (possible with Bartlett weights on tiny samples) → `None`.
+    """
+    xs = [float(x) for x in series]
+    n = len(xs)
+    if lags < 0 or n < lags + 2:
+        return None
+    mean = sum(xs) / n
+    e = [x - mean for x in xs]
+
+    def gamma(k):
+        return sum(e[t] * e[t - k] for t in range(k, n)) / n
+
+    var = gamma(0) + 2.0 * sum((1.0 - k / (lags + 1.0)) * gamma(k)
+                               for k in range(1, lags + 1))
+    var /= n
+    return math.sqrt(var) if var > 0 else None
 
 
 def rank_ic(predictions: pd.DataFrame, *, horizon_days: int,
@@ -123,7 +171,9 @@ def rank_ic(predictions: pd.DataFrame, *, horizon_days: int,
         names_per_date=round(width, 4),
         effective_n=round(effective_n(dates=dates, horizon_days=horizon_days), 4),
         corrected_se=corrected_se(dates=dates, names_per_date=width,
-                                  horizon_days=horizon_days))
+                                  horizon_days=horizon_days),
+        per_date=tuple(per_date),
+        realised_se=newey_west_se(per_date, lags=max(horizon_days - 1, 0)))
 
 
 def assert_comparable(a: ICResult, b: ICResult) -> None:

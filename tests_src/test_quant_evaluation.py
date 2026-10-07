@@ -255,7 +255,11 @@ def test_qa43_unmeasured_breadth_is_not_evaluated_never_n():
     gate = breadth_gate(effective_breadth=None, names=130, horizon_id="h1m")
     assert gate.verdict == NOT_EVALUATED
     assert "forbids substituting n=130" in gate.why
-    assert breadth_gate(effective_breadth=4.2, names=130,
+    # ✏ 2026-10-06 (F12 D10): a MEASURED breadth is judged as IR = |IC|·√BR ≥ 0.5 —
+    #   4.2 bets a year needs IC ≥ 0.244, so it fails at a realistic IC.
+    assert breadth_gate(effective_breadth=4.2, mean_ic=0.03, names=130,
+                        horizon_id="h1m").verdict == "FAIL"
+    assert breadth_gate(effective_breadth=625.0, mean_ic=0.02, names=130,
                         horizon_id="h1m").verdict == "PASS"
 
 

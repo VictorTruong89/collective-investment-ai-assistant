@@ -43,6 +43,14 @@ REPO = pathlib.Path(__file__).resolve().parents[1]
 #: Tracked, synthetic, safe to publish. Every value is invented.
 SYNTHETIC = REPO / "tests_src" / "fixtures" / "broker_statements"
 
+#: ★★ The FROZEN truth snapshot — the four August exports every external-truth
+#: number below was measured on (RC-57: derived cash = the BMO balances Victor
+#: confirmed). ✏ 2026-10-06 (Victor): his fresh downloads replaced the live files,
+#: so the pinned tests read THIS copy, taken byte-identical from the old repo's
+#: samples; the live folder (`REAL`) is his to replace freely and the pipeline
+#: reads only that. Untracked (`.state/`), like the live one (DX-5).
+FROZEN = REPO / ".state" / "broker" / "frozen_2026-08-25"
+
 #: ★ RC-66 — the real exports, outside the spec tier. Untracked by design.
 REAL = REPO / ".state" / "broker" / "bmo_investorline"
 
@@ -64,7 +72,7 @@ def real_statements_dir() -> pathlib.Path | None:
     if override:
         p = pathlib.Path(override)
         return p if p.is_dir() else None
-    for candidate in (REAL, LEGACY):
+    for candidate in (FROZEN, REAL, LEGACY):
         if candidate.is_dir() and any(candidate.glob("TransactionHistory_*.csv")):
             return candidate
     return None

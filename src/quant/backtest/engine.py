@@ -25,6 +25,7 @@ from src.quant.metrics.ic import rank_ic
 def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
              cost_model: CostModel | None = None,
              effective_breadth: float | None = None,
+             held_book: dict | None = None,
              gross_return: float | None = None,
              net_return: float | None = None) -> BacktestResult:
     """Run the gates, **per horizon** (QA-16), and package CT-3.2.
@@ -43,9 +44,10 @@ def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
             cost_survival_gate(gross_return=gross_return, net_return=net_return,
                                horizon_id=horizon.id,
                                costs_charged=costs.costs_charged),
-            breadth_gate(effective_breadth=effective_breadth,
+            # ★ F12 D10 — the IC travels with the breadth (IR = IC·√BR).
+            breadth_gate(effective_breadth=effective_breadth, mean_ic=ic.mean_ic,
                          names=int(round(ic.names_per_date)),
-                         horizon_id=horizon.id),
+                         horizon_id=horizon.id, held_book=held_book),
         ]
         gate_sets.append(GateSet(horizon_id=horizon.id, gates=tuple(gates)))
 

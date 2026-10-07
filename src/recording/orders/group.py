@@ -231,7 +231,12 @@ def assert_plausible(order_key_text: str, commission: float, *, tranches: int,
     per share. A fixed tolerance passes small orders and fails large ones for a
     reason that has nothing to do with the fee.
     """
-    if commission < -COMMISSION_TOLERANCE_FLOOR:
+    # ✏ DX-156 (2026-10-06): the NEGATIVE guard scales with quantity too. With the
+    #   $9.95 fee a residual was never negative; commission-free (F12 D8) leaves
+    #   pure price rounding, which has either sign — `CRWD 20 @ 269.04 → −0.09`.
+    rounding = max(COMMISSION_TOLERANCE_FLOOR,
+                   COMMISSION_TOLERANCE_PER_SHARE * abs(quantity))
+    if commission < -rounding:
         raise CommissionImplausibleError(
             order_key_text, commission, "a NEGATIVE fee means cash moved in "
                                         "your favour beyond the notional.")

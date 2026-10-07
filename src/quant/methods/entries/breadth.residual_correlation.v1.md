@@ -1,7 +1,13 @@
 # `breadth.residual_correlation.v1` — effective breadth
 
-Code: src/quant/metrics/breadth.py @ sha256:af9fcfa2cb7e7470
-*(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+Code: src/quant/metrics/breadth.py @ sha256:8dd2d1600e5c1fac
+*(QA-25 / F12 AC-F12.22 — re-pinned 2026-10-06 after re-reading this entry against the change: the formula is unchanged; `held_book_breadth()` was added as a DIAGNOSTIC (F12 `D10`) and the gate now consumes `BR` through the implied IR `|IC|·√BR ≥ 0.5` — see the section below.)*
+
+## ✏ 2026-10-06 — how the gate uses this number (F12 `D10`)
+
+`breadth_gate` no longer tests `BR ≥ 3` (which could not fail at 1m: `ρ = 1` still gives `BR = 12`). It tests the
+implied information ratio `|IC| · √BR ≥ IR* = 0.5` on the UNIVERSE `BR` measured here. `held_book` — the top-N's
+`n_eff` at this same universe `ρ`, × rebalances per year — is reported beside it and never gated. Provisional.
 
 ## Statement
 

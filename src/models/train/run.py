@@ -199,6 +199,7 @@ def evaluate(result, *, horizon_id: str, names: int, effective_breadth=None,
     outcomes = {
         "ic_significance": ic_significance_gate(result, horizon_id=horizon_id),
         "breadth": breadth_gate(effective_breadth=effective_breadth,
+                                mean_ic=result.mean_ic,
                                 names=names, horizon_id=horizon_id),
     }
     if gross_return is not None or net_return is not None:
@@ -467,6 +468,7 @@ def gate_outcomes(ic_result, *, horizon_id: str, names: int,
     outcomes = {
         "ic_significance": ic_significance_gate(ic_result, horizon_id=horizon_id),
         "breadth": breadth_gate(effective_breadth=effective_breadth,
+                                mean_ic=ic_result.mean_ic,
                                 names=names, horizon_id=horizon_id),
     }
     if simulation:
@@ -502,8 +504,16 @@ def measure_breadth(scored, *, horizon_days: int, sectors=None) -> dict:
 
 def decide_promotion(artifact, *, ic_result, names: int, store,
                      backtest_result_id: str = "", promoted_by: str = "training-run",
-                     effective_breadth=None, simulation=None, breadth=None) -> dict:
-    """Persist the artifact, then promote **only if every required gate passes**.
+                     effective_breadth=None, simulation=None, breadth=None,
+                     hold_for_review: bool = True) -> dict:
+    """Persist the artifact and its gate report; ★ **never promote on its own** (MT-52).
+
+    ✏ *2026-10-06 (Victor: "training should hold promotion until I've reviewed it")*:
+    a run whose gates all pass is marked `review: pending` and STOPS there. Promotion
+    is `python -m src.models.promote <artifact_id> --approve` — a human act that still
+    refuses unless every required gate PASSed (MT-17). `hold_for_review=False` keeps
+    the old path for a caller that must promote programmatically; nothing in `src/`
+    uses it.
 
     ★ **The artifact is written either way.** A refused model is a record, and it
     is the most useful thing to hold when the next one passes.
@@ -538,13 +548,24 @@ def decide_promotion(artifact, *, ic_result, names: int, store,
         "simulation": dict(simulation) if simulation else None,
         "breadth": dict(breadth) if breadth else None,
         "required_gates": list(REQUIRED_GATES),
+        # ★ MT-52 — the D-03 BacktestResult id travels with the report, so a later
+        #   approval can name it (MT-17) without re-running anything.
+        "backtest_result_id": backtest_result_id,
     }
+    refused = [g for g in REQUIRED_GATES if verdicts.get(g) != PASS]
+    evaluation["review"] = (
+        {"status": "refused", "refused_gates": refused} if refused
+        else {"status": "pending",
+              "how": f"python -m src.models.promote {artifact.artifact_id} --approve"}
+        if hold_for_review else {"status": "promoted_by_training_run"})
     store.write(artifact, evaluation=evaluation)
 
-    refused = [g for g in REQUIRED_GATES if verdicts.get(g) != PASS]
     if refused:
         return {"promoted": False, "refused_gates": refused,
                 "verdicts": verdicts, "artifact_id": artifact.artifact_id}
+    if hold_for_review:
+        return {"promoted": False, "pending_review": True, "verdicts": verdicts,
+                "artifact_id": artifact.artifact_id}
 
     record = promote(artifact, backtest_result_id=backtest_result_id,
                      gate_outcomes=verdicts, promoted_by=promoted_by,
@@ -601,6 +622,7 @@ def d03_evaluate(*, universe, scored, simulation, breadth, horizon_days: int,
     return spec, evaluate(
         spec, predictions=frame, horizons=horizons,
         effective_breadth=(breadth or {}).get("breadth"),
+        held_book=(breadth or {}).get("held_book"),
         gross_return=(simulation or {}).get("gross_return"),
         net_return=(simulation or {}).get("net_return"))
 

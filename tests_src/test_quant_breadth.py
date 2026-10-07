@@ -109,7 +109,9 @@ def test_the_gate_reads_what_the_measure_produced():
     from src.quant.gates.metric_gate import breadth_gate
 
     measured = effective_breadth(_panel(200, 750, 0.3), horizon_days=21)
-    result = breadth_gate(effective_breadth=measured["breadth"],
+    # ✏ 2026-10-06 (F12 D10): the gate's statistic is the implied IR |IC|·√BR, so the
+    #   measured BR reaches it together with an IC.
+    result = breadth_gate(effective_breadth=measured["breadth"], mean_ic=0.03,
                           names=measured["names"], horizon_id="h1m")
     assert result.verdict in ("PASS", "FAIL")
-    assert result.statistic == pytest.approx(measured["breadth"])
+    assert result.statistic == pytest.approx(0.03 * measured["breadth"] ** 0.5, abs=1e-4)

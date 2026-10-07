@@ -12,6 +12,7 @@ folds.** ★ *A gate that cannot fail is decoration.*
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 
 PASS, FAIL, NOT_EVALUATED = "PASS", "FAIL", "NOT_EVALUATED"
@@ -73,29 +74,40 @@ class GateResult:
 
 def ic_significance_gate(result, *, horizon_id: str, t_star: float = 3.0
                          ) -> GateResult:
-    """★★ The bar is the **MDE**, not a hand-picked IC.
+    """★★ F12 `D9` / AC-F12.31 — PASS only if `|mean IC| ≥ t* × REALISED SE`.
 
-    ⚠ *A fixed IC threshold means completely different things at different `n`,
-    `T` and `h`* — §5.3b's table shows the same 0.03 is undetectable at 1q and
-    comfortable at 1w.
+    ✏ *2026-10-06 (Victor, closes L6 AB-12):* the bar used to be the MDE —
+    `t* × corrected_se`, the NULL SE, i.e. the spread per-date IC would have **if
+    the model had no skill**. That answers a planning question; the variance a
+    holder lives through is the realised one, and on the August 2026 fit the two
+    disagreed by 3.5× (t 4.94 vs 1.42). The null MDE is still reported in `why`.
+    ⚠ No realised SE (too few dates for the lag window) ⇒ NOT_EVALUATED (QA-17).
     """
-    if result.status == NOT_EVALUATED or result.mean_ic is None:
+    realised = getattr(result, "realised_se", None)
+    if result.status == NOT_EVALUATED or result.mean_ic is None or not realised:
         # ★ QA-17 — never a pass.
         return GateResult(
             gate_id="ic_significance", horizon_id=horizon_id, statistic=None,
             threshold=0.0, effective_n=result.effective_n,
-            corrected_se=result.corrected_se, formula_id=result.formula_id,
-            verdict=NOT_EVALUATED, why=result.why or "the IC was not computable")
+            corrected_se=realised, formula_id=result.formula_id,
+            verdict=NOT_EVALUATED,
+            why=(result.why or ("the realised standard error could not be "
+                                "estimated (too few dates for the h-1 lag window)"
+                                if result.mean_ic is not None
+                                else "the IC was not computable")))
+    bar = t_star * realised
+    passed = abs(result.mean_ic) >= bar
     mde = result.mde(t_star)
-    passed = abs(result.mean_ic) >= mde
     return GateResult(
         gate_id="ic_significance", horizon_id=horizon_id,
-        statistic=round(result.mean_ic, 6), threshold=round(mde, 6),
-        effective_n=result.effective_n, corrected_se=result.corrected_se,
+        statistic=round(result.mean_ic, 6), threshold=round(bar, 6),
+        effective_n=result.effective_n, corrected_se=realised,
         formula_id=result.formula_id, verdict=PASS if passed else FAIL,
-        why=(f"|IC| {abs(result.mean_ic):.4f} "
-             f"{'>=' if passed else '<'} MDE(t>{t_star:g}) {mde:.4f} at "
-             f"N_eff={result.effective_n}"))
+        why=(f"|IC| {abs(result.mean_ic):.4f} {'>=' if passed else '<'} "
+             f"{t_star:g} × realised SE {realised:.4f} = {bar:.4f} "
+             f"(t {abs(result.mean_ic) / realised:.2f}; Newey-West, F12 D9) · "
+             f"null MDE {mde:.4f} (t {abs(result.t_stat or 0):.2f}) reported, not "
+             f"decisive · N_eff={result.effective_n}"))
 
 
 def cost_survival_gate(*, gross_return: float | None, net_return: float | None,
@@ -113,24 +125,47 @@ def cost_survival_gate(*, gross_return: float | None, net_return: float | None,
         f"costs_charged={costs_charged}")
 
 
-def breadth_gate(*, effective_breadth: float | None, names: int,
-                 horizon_id: str, minimum: float = 3.0) -> GateResult:
-    """QA-43 — ★ **effective breadth is MEASURED, not assumed.**
+#: ★ F12 `D10` — the information ratio the breadth gate asks for (Victor, 2026-10-06).
+#: ⚠ PROVISIONAL: refine after the first fresh training run's results.
+IR_TARGET = 0.5
 
-    ⚠ *Neither `BR = n` nor the equally-weighted-mean haircut is admissible as a
-    default*, so an unmeasured breadth is `NOT_EVALUATED` — never `n`.
+
+def breadth_gate(*, effective_breadth: float | None, names: int,
+                 horizon_id: str, mean_ic: float | None = None,
+                 ir_target: float = IR_TARGET, held_book: dict | None = None
+                 ) -> GateResult:
+    """★★ F12 `D10` / AC-F12.32 — the implied information ratio `|IC|·√BR` ≥ `IR*`.
+
+    Grinold–Kahn: `IR ≈ IC · √BR`. Equivalently `BR ≥ (IR*/IC)²` — *this much skill
+    needs this many independent bets a year*. `BR` is the UNIVERSE's (QA-43, measured,
+    never `n`), because the IC is measured on the universe ranking and the law pairs
+    the IC and the breadth OF THE SAME DECISIONS. The held book is reported in `why`,
+    never gated.
+
+    ✏ *2026-10-06:* the gate was `BR ≥ 3`, and **it could not fail at 1m** — even at
+    ρ = 1, `n_eff = 1` and 12 rebalances give `BR = 12` (QA-17: decoration).
+    ⚠ An unmeasured `BR` or IC ⇒ NOT_EVALUATED, never a pass.
     """
-    if effective_breadth is None:
-        return GateResult(
-            "breadth", horizon_id, None, minimum, None, None,
-            "breadth.residual_correlation.v1", NOT_EVALUATED,
-            f"effective breadth was not measured. ⚠ QA-43 forbids substituting "
-            f"n={names}: a ten-name book inside one theme is closer to 1-2")
+    formula = "breadth.residual_correlation.v1"
+    if effective_breadth is None or mean_ic is None:
+        missing = ("effective breadth was not measured — ⚠ QA-43 forbids substituting "
+                   f"n={names}" if effective_breadth is None
+                   else "the mean IC was not measured")
+        return GateResult("breadth", horizon_id, None, ir_target, None, None,
+                          formula, NOT_EVALUATED, missing)
+    ir = abs(mean_ic) * math.sqrt(max(effective_breadth, 0.0))
+    held = ""
+    if held_book and held_book.get("breadth") is not None:
+        held_ir = abs(mean_ic) * math.sqrt(held_book["breadth"])
+        held = (f" · held book (diagnostic, never gated): BR {held_book['breadth']:.1f}"
+                f", IR {held_ir:.3f}")
+    needed = (ir_target / abs(mean_ic)) ** 2 if mean_ic else float("inf")
     return GateResult(
-        "breadth", horizon_id, round(effective_breadth, 4), minimum, None, None,
-        "breadth.residual_correlation.v1",
-        PASS if effective_breadth >= minimum else FAIL,
-        f"BR {effective_breadth:.2f} vs minimum {minimum:.2f} over n={names}")
+        "breadth", horizon_id, round(ir, 4), ir_target, None, None, formula,
+        PASS if ir >= ir_target - 1e-12 else FAIL,
+        f"implied IR |IC| {abs(mean_ic):.4f} × √BR {effective_breadth:.1f} = {ir:.3f} "
+        f"vs IR* {ir_target:g} (needs BR ≥ {needed:.0f}; universe n={names}; "
+        f"F12 D10, provisional){held}")
 
 
 @dataclass(frozen=True, slots=True)

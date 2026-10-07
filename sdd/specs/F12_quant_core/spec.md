@@ -2,6 +2,8 @@
 
 > **Spec-ID:** F12 · **Status:** 🟢 **approved 2026-10-05** (Victor Truong) · **Drafted:** 2026-10-05
 > ✅ Approved as drafted; `Q1` → `D6`, `Q2` → `D7`; `D8` (commission $0) added the same day.
+> ✏ **Amended 2026-10-06 (Victor):** `D9` (the IC gate decides on the REALISED standard error — `AB-12`) and `D10`
+> (the breadth gate becomes an implied-information-ratio test on the universe) → `AC-F12.31`, `AC-F12.32`.
 > **Source discussion:** `sdd/design/rel1_design/L3-build-sequence.md` §2.1s (Victor, 2026-10-05): row 9
 > re-scoped to **govern & close** — graduate the D-03 core that is already built, wire `src/quant/**`
 > into `ownership.yaml`, and record what is out of rel-1 as declared limitations. No new capability.
@@ -111,13 +113,27 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
 - **AC-F12.28** ≡ `AC-3.31` — *the raw measure recovers a known correlation; the residual one returns -1/(n-1) at every true rho; an unmeasurable breadth is None, never n (QA-43, QA-124, QQ-14).* → unit. ✅
 - **AC-F12.29** ≡ `AC-3.32` — *an untradeable name never reaches candidates and appears in excluded[] with its reason; a name with a stale last bar is excluded even when it still prices (QA-125, QA-126).* → unit. ✅
 
+**Gate rulings (✏ amended 2026-10-06)**
+
+- **AC-F12.31** *(new — `D9`, `AB-12`)* — **Given** walk-forward predictions, **when** rank IC is measured, **then** the
+  result keeps the per-date IC series and reports **both** standard errors — the null `corrected_se` (kept as the MDE /
+  planning figure, QA-4, §5.3b) and the **realised** SE: Newey-West (Bartlett) over the per-date ICs with `h − 1` lags —
+  and `ic_significance` **PASSES only if `|mean IC| ≥ 3 × realised SE`**. Too few dates for the lag window ⇒ realised SE
+  is `None` ⇒ the gate is `NOT_EVALUATED`, never PASS. → unit, with a known answer. ✅ 2026-10-06
+- **AC-F12.32** *(new — `D10`)* — **Given** a measured universe breadth `BR` (bets per year, `AC-F12.28`) and the mean
+  IC, **when** the `breadth` gate runs, **then** its statistic is the **implied information ratio `|IC| · √BR`**
+  (Grinold–Kahn) and it **PASSES only if ≥ `IR*` = 0.5** — equivalently `BR ≥ (0.5 / IC)²`. The gate **can fail at the
+  1-month horizon** (the old `BR ≥ 3` could not). The held book's breadth (`n_eff` of the top-N at the universe
+  correlation × rebalances per year) and its implied IR are **reported beside it, never gated**. An unmeasured `BR` or IC ⇒
+  `NOT_EVALUATED`. ⚠ **Provisional** — refine after the fresh training's results. → unit. ✅ 2026-10-06
+
 **Declared limitation**
 
 - **AC-F12.30** *(new — `D3`)* — **Given** any `Nomination` or `BacktestResult`, **when** it is serialised,
   **then** it carries the fixed sentence (`D7`) *"Not regime-conditioned: one model is fitted across all
   market states; a result from one regime is not evidence for another."* → data contract. (`PG-10`) ✅ 2026-10-05
 
-**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`).
+**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous.
 
 ## 7. Decisions
 
@@ -145,6 +161,21 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   ⚠ Consequences: `cost_survival` is now gross vs gross − 0, so it can no longer fail a signal on commission;
   spread and slippage (QA-49) are the only costs left and they are unmodelled — every net figure overstates
   by that unmeasured amount. The mechanics tests run at an explicit $9.95.
+- **`D9` — the IC gate decides on the REALISED standard error** *(Victor, 2026-10-06; closes L6 `AB-12`)* →
+  `AC-F12.31`. On the August 2026 fit (500 names, ten years, mean IC 0.0203) the null SE gave t = 4.94 (PASS) and the
+  realised one t = 1.42 (fail): the skill came and went (≈0.034 in 2016-18 and 2024-26, ≈0.009 in 2018-20 and 2022-24),
+  and the variance a holder lives through is the realised one. Newey-West with `h − 1` lags because consecutive 21-day
+  labels overlap. Rejected: ⓐ keep the null SE as the acceptance test (it answers *"could luck do this?"* — a planning
+  question, §5.3b's own word is MDE); ⓑ require both (equivalent to ⓒ whenever skill varies); ⓓ null SE plus a
+  stability rule (more rules, less standard).
+- **`D10` — the breadth gate is an implied information ratio, measured on the UNIVERSE** *(Victor, 2026-10-06)* →
+  `AC-F12.32`. `IR ≈ IC · √BR` (Grinold–Kahn) pairs the IC and the breadth **of the same decisions**, and the IC is
+  measured on the universe ranking — so the breadth is too. `IR* = 0.5`. ⚠ The old gate (`BR ≥ 3`) **could not fail** at
+  1m: even at ρ = 1, `n_eff = 1` and 12 rebalances give `BR = 12`. ⚠ Expect the new one to refuse a weak signal: at
+  IC 0.02 it needs `BR ≈ 600`; a 500-name universe with ρ ≈ 0.25 offers ≈ 48 (illustrative). Rejected: ⓐ the held book
+  as the gated population (Victor's first ruling — the IC is not measured on the held book, so IC × √BR(held) mixes two
+  populations; it stays as a reported diagnostic); ⓑ keep `BR ≥ 3` (decoration, QA-17); ⓒ drop the gate. **Provisional**:
+  refine after the first fresh training run.
 - **`D5` — `AC-F12.k`, not bare `AC-12.k`** — D-12 Decision's upstream criteria are `AC-12.x`
   (constitution §1.1, `DX-44`).
 
@@ -186,5 +217,7 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
 | AC-F12.28 | `tests_src/test_quant_breadth.py` (raw · residual · unmeasurable) | `src/quant/metrics/breadth.py` |
 | AC-F12.29 | `tests_src/test_quant_tradeable.py` (delisted · absent · stale) | `src/quant/signals/tradeable.py` |
 | AC-F12.30 | `tests_src/test_quant_b3.py::test_ac_f12_30_both_outputs_state_the_regime_limitation` | `src/quant/contracts/nomination.py` · `contracts/backtest.py` |
+| AC-F12.31 | `tests_src/test_quant_gates_d9_d10.py` (Newey-West known answers · the August case FAILs · no realised SE ⇒ NOT_EVALUATED) | `src/quant/metrics/ic.py` · `gates/metric_gate.py` |
+| AC-F12.32 | `tests_src/test_quant_gates_d9_d10.py` (IR = IC·√BR · boundary · can fail at 1m · held book reported, never gated) | `src/quant/gates/metric_gate.py` · `metrics/breadth.py` |
 
 ✅ 2026-10-05: the 17 pre-existing tests now carry their `AC-F12.k` id in the docstring; 9 criteria were built test-first the same day. Suite **2,572 pass / 1 red (`J-07`)**.

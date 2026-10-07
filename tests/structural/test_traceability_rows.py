@@ -37,7 +37,8 @@ def test_dx53_the_check_covers_every_spec_and_every_row():
     # ✏ 2026-09-13 — `F10` (17 ACs) joined. ⚠ Still pinned on purpose: a spec that
     #   loses its table must turn this red, and a count that silently grew would too.
     # ✏ 2026-10-05 — `F12` (30 ACs, 🟡 draft) joined.
-    assert len(rows) == 210, "148 + F10's 23 + F11's 9 + F12's 30 ACs, one row each (F12 drafted 2026-10-05)"
+    # ✏ 2026-10-06 — F12 amended: + AC-F12.31 (D9), AC-F12.32 (D10).
+    assert len(rows) == 212, "148 + F10's 23 + F11's 9 + F12's 32 ACs, one row each (F12 amended 2026-10-06)"
     assert len(specs) == 14, "all fourteen specs carry a table (F12 joined 2026-10-05)"
 
 

@@ -298,6 +298,7 @@ where every fold gave it non-zero.**
 | **MT-14** | **A partial failure reports its count and is treated as suspect.** A winner chosen from a thinned field is biased even when the winner is real |
 | **MT-15** | ★ **Every producing code path must be reachable and must be executed by a test.** D-18(c) is the rule's origin: a branch that cannot run is not a fallback, it is **dead code impersonating a feature** |
 | **MT-16** | **A broad `except` that logs and continues is a P5 violation wearing a `try` block.** Exception handling may narrow scope; it may never downgrade severity |
+| **MT-52** | ★★ **A training run never promotes on its own — it HOLDS for the fund manager's review** *(Victor, 2026-10-06)*. Training writes the artifact, its `evaluation.json` (every gate with its statistic) and a `pending_review` marker; **`promotion.json` is written only by `python -m src.models.promote <artifact_id> --approve`**, an explicit human act that shows the gate report first and still refuses unless every required gate PASSes (MT-17 — no override). ⚠ Before this, a passing training run promoted itself and the next daily run scored with it |
 | **MT-17** | Production is reachable **only** through a `PromotionRecord` carrying: `artifact_id`, contract version, horizon set version, the **D-03 `BacktestResult` id**, every gate outcome, the protocol id, and who promoted it when |
 | **MT-18** | **A gate result of `NOT_EVALUATED` is not a pass** (D-03 QA-17). Promotion requires explicit `PASS` on every required gate |
 | **MT-19** | **D-04 does not evaluate itself.** The gates are D-03's, run by D-03's code, against D-03's protocol (§1.3) |
@@ -561,6 +562,9 @@ BOUNDARY & ZOO
 □ AC-4.31  src/models imports neither src/fundamental (D-01) nor src/experiments (D-10)
 □ AC-4.32  Every zoo family has a MethodEntry; one without cannot be promoted
 □ AC-4.33  A deterministic stop/target is not altered by any downstream layer
+□ AC-4.34  ★★ A training run whose gates all PASS writes the artifact and a pending_review
+           marker and NO promotion.json; `src.models.promote --approve` promotes it only
+           if every required gate PASSed (MT-52, MT-17)
 ```
 
 ---
