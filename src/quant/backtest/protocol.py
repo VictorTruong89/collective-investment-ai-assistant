@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 
 FORMULA_PURGE = "cv.purge_embargo.derived.v1"
+#: F12 `D11` — the expanding-window protocol (`make_walk_forward_folds`).
+FORMULA_WALK_FORWARD = "cv.walk_forward.expanding.v1"
 
 #: §5.6's HorizonSet v1 — `purge_days` is `max(trading_days)` across the set.
 DEFAULT_EMBARGO_DAYS = 5
@@ -98,6 +100,39 @@ def make_folds(dates, protocol: CVProtocol) -> tuple[Fold, ...]:
         folds.append(Fold(index=index, train_dates=train, test_dates=tuple(test),
                           purged=len(ordered) - len(train) - len(test),
                           embargoed=protocol.embargo_days))
+    return tuple(folds)
+
+
+def make_walk_forward_folds(dates, protocol: CVProtocol) -> tuple[Fold, ...]:
+    """F12 `D11` / AC-F12.33 — expanding window: each block trains on the PAST only.
+
+    ★ The same `n_folds` test blocks as `make_folds`, so the two protocols are
+    compared block for block. Block 0 has no past and is never tested; a block
+    whose past is used up by the purge is dropped, never tested on nothing.
+
+    ★ **The purge is in TRADING days** — positions in `dates` — because the
+    horizon is defined in trading days. ⚠ `make_folds` purges in calendar days
+    (63 ≈ 43 trading days): `DX-161`, still open there.
+
+    ⚠ *Why this exists (`DX-162`):* `make_folds` tests block 0 (2016–18) with a
+    model trained on 2018–26. No label leaks across its purge, but a model that
+    learned later regimes is grading an earlier one.
+    """
+    ordered = sorted(set(dates))
+    if not ordered:
+        return ()
+    size = max(1, len(ordered) // protocol.n_folds)
+    folds = []
+    for index in range(1, protocol.n_folds):
+        start = index * size
+        stop = len(ordered) if index == protocol.n_folds - 1 else start + size
+        test = ordered[start:stop]
+        last_train = start - protocol.purge_days      # positions, not days
+        if not test or last_train <= 0:
+            continue
+        train = tuple(ordered[:last_train])
+        folds.append(Fold(index=index, train_dates=train, test_dates=tuple(test),
+                          purged=start - last_train, embargoed=0))
     return tuple(folds)
 
 

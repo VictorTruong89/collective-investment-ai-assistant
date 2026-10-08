@@ -48,6 +48,29 @@ BUILT_BUT_UNCOVERED = {
 }
 
 
+def _swept_by() -> dict:
+    """DE-73 / AC-7.91 — ★ which `ingest` command records which event class.
+
+    ✏ *2026-10-06 (`DX-157`):* `status` decided "built or not" from
+    `events.SOURCED` — four classes — and labelled eleven classes the `events`
+    sweep DOES record *"no ingest built"*. ★ Composed from each module's own
+    constants, so a class added to an ingest reaches `status` with no second edit.
+    """
+    from src.data_engine.ingest.events import SOURCED
+    from src.data_engine.ingest.submissions import SUBMISSION_CLASSES
+
+    return {
+        "events": (*SOURCED, *SUBMISSION_CLASSES, "restatement_silent",
+                   "earnings_reported", "earnings_scheduled",
+                   "beneficial_ownership", "analyst_action", "news",
+                   "macro_release", "ma_announcement"),
+        "symbols": ("ticker_change",),
+    }
+
+
+SWEPT_BY = _swept_by()
+
+
 def _state(sub: str) -> Path:
     root = Path(os.environ.get("PIPELINE_STATE_DIR", ".state")) / sub
     root.mkdir(parents=True, exist_ok=True)
@@ -102,11 +125,16 @@ def main(argv=None) -> int:
     universe = _universe(args.universe)
     print(f"{args.what}: {len(universe)} names · as-of {as_of}")
 
-    if args.what == "events":
-        return _events(universe, as_of, years=args.years)
-    if args.what == "symbols":
-        return _symbols(universe, as_of)
-    return _facts(universe)
+    # ★ DE-74 / AC-7.92 — a long sweep shows it is alive (elapsed + stage, to stderr).
+    from src.shared.progress import Heartbeat
+
+    with Heartbeat(args.what) as beat:
+        if args.what == "events":
+            return _events(universe, as_of, years=args.years, beat=beat)
+        beat.stage(args.what)
+        if args.what == "symbols":
+            return _symbols(universe, as_of)
+        return _facts(universe)
 
 
 def _symbols(universe, as_of: date) -> int:
@@ -356,7 +384,7 @@ def _closes_for(tickers, as_of: date, *, days: int = 120) -> dict:
     return out
 
 
-def _events(universe, as_of: date, *, years: int) -> int:
+def _events(universe, as_of: date, *, years: int, beat=None) -> int:
     """⚠ **Whole universe or no refresh recorded.** A partial sweep leaves the
     rest unchecked, and DE-36 says an unhandled split on an excluded name
     *contaminates every other name's rank*."""
@@ -373,11 +401,17 @@ def _events(universe, as_of: date, *, years: int) -> int:
     start = as_of - timedelta(days=365 * years)
     from src.data_engine.ingest.events import refresh_delistings
 
+    if beat is None:
+        from src.shared.progress import Heartbeat
+        beat = Heartbeat("events", start_thread=False, stream=open(os.devnull, "w"))
+
     client, store = FMPClient(Secret("FMP_API_KEY", key)), EventStore(_state("events"))
+    beat.stage("splits & dividends")
     outcome = refresh(client, store, tickers=universe, start=start, end=as_of)
     print(f"  {outcome['findings']} findings · refreshed {outcome['refreshed']}")
 
     # ★ Separate call, separate reachable window — see `refresh_delistings`.
+    beat.stage("delistings")
     delisted = refresh_delistings(client, store, tickers=universe, as_of=as_of)
     print(f"  delistings: {delisted['findings']} in the universe · "
           f"reached {delisted.get('reached', 'nothing')}")
@@ -390,7 +424,9 @@ def _events(universe, as_of: date, *, years: int) -> int:
     #    were split-offs or divestitures where our name is the PARENT.
     from src.data_engine.ingest.events import refresh_ma_announcements
 
+    beat.stage("EDGAR filings (amended · mid-window · 8-K)")
     _restatements(store, universe, as_of, since=start)
+    beat.stage("silent restatements")
     _silent_restatements(store, universe, as_of)
 
     # ⚠⚠ Chunked on purpose — `earnings-calendar` caps at 4 000 rows and
@@ -398,6 +434,7 @@ def _events(universe, as_of: date, *, years: int) -> int:
     #    November onward and says nothing (DE-58 a third time).
     from src.data_engine.ingest.earnings import refresh_earnings
 
+    beat.stage("earnings")
     earn = refresh_earnings(client, store, tickers=universe, as_of=as_of,
                             since=start)
     print(f"  earnings: {earn['findings']} "
@@ -407,9 +444,12 @@ def _events(universe, as_of: date, *, years: int) -> int:
     if earn.get("why"):
         print(f"    {earn['why']}", file=sys.stderr)
 
+    beat.stage("ownership · analyst actions · news")
     _disclosures(client, store, universe, as_of, since=start)
+    beat.stage("macro")
     _macro(client, store, as_of, since=start)
 
+    beat.stage("M&A")
     mna = refresh_ma_announcements(client, store, tickers=universe, as_of=as_of,
                                    since=start)
     print(f"  M&A: {mna['findings']} in the universe "
@@ -461,7 +501,7 @@ def _status() -> int:
     lists only what is present reads as completeness (DE-35)."""
     from src.data_engine.calendar.classes import EVENT_CLASSES
     from src.data_engine.calendar.store import EventStore
-    from src.data_engine.ingest.events import SOURCED
+    sweep_of = {c: cmd for cmd, classes in SWEPT_BY.items() for c in classes}
 
     facts = sorted(_state("facts").glob("*.parquet"))
     print(f"facts      : {len(facts)} tickers")
@@ -492,8 +532,10 @@ def _status() -> int:
             #   ★ Reporting it as "no ingest built" understates it; reporting it
             #   as swept would overstate it (DE-35).
             mark, why = "◐", f" ⚠ ingest BUILT — {BUILT_BUT_UNCOVERED[spec.name]}"
-        elif spec.name in SOURCED:
-            mark, why = "—", " ⚠ sourceable and never swept (AB-14)"
+        elif spec.name in sweep_of:
+            # ★ DE-73 — name the command, so "never swept" says how to fix it.
+            mark, why = "—", (f" ⚠ never swept — run `python -m src.data_engine.ingest "
+                              f"{sweep_of[spec.name]}` (AB-14)")
         else:
             mark, why = "·", " — source declared in §5A.5, no ingest built (AB-14)"
         print(f"    {mark} {spec.name}{why}")

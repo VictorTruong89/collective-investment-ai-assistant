@@ -37,19 +37,16 @@ def _state(sub: str) -> Path:
     return root
 
 
-class _UncheckedReport:
-    """⚠ The fallback when the event store has never been swept.
+def market_date(now: datetime | None = None) -> date:
+    """MT-56 / AC-4.38 (DX-163a) — today's date in NEW YORK, the market's calendar.
 
-    ★ **Named, not hidden** — it reaches the run summary and the backtest spec's
-    `calendar_check_id`, so an artifact fitted without a real check says so on
-    its own manifest. FE-10 wants a real `PROCEED`; this is the honest stand-in
-    until `--refresh-events` has run at least once (**AB-14**).
+    ⚠ Until 2026-10-08 the default was the UTC date: a run started at 23:27 EDT
+    dated itself tomorrow, one day past every source's coverage.
     """
+    from zoneinfo import ZoneInfo
 
-    report_id = "TRAIN-CALENDAR-UNCHECKED"
-    verdict = "PROCEED_WITH_FLAGS"
-    window_start = window_end = None
-    blocked = ()
+    now = now or datetime.now(timezone.utc)
+    return now.astimezone(ZoneInfo("America/New_York")).date()
 
 
 def main(argv=None) -> int:
@@ -75,9 +72,26 @@ def main(argv=None) -> int:
                         help="Reuse the fact ledger as it stands.")
     parser.add_argument("--prepare-only", action="store_true",
                         help="Build the panel and labels; do not fit.")
+    parser.add_argument(
+        "--target", choices=("xs_gauss", "raw"), default="xs_gauss",
+        help="★ What the trees are fitted on (MT-59): xs_gauss = each day's return "
+             "rank as a centred normal score (default); raw = the 21-day return. "
+             "Evaluation always reads the raw return.")
+    parser.add_argument(
+        "--allow-unchecked-calendar", action="store_true",
+        help="⚠ Proceed even when the calendar check CHECKED no class (MT-57). "
+             "The run then carries no calendar guarantee, and says so.")
     args = parser.parse_args(argv)
 
-    as_of = args.as_of or datetime.now(timezone.utc).date()
+    # ★ MT-53 / AC-4.35 — a long run shows it is alive (elapsed + stage, to stderr).
+    from src.shared.progress import Heartbeat
+
+    with Heartbeat("train") as beat:
+        return _train(args, beat)
+
+
+def _train(args, beat) -> int:
+    as_of = args.as_of or market_date()                 # ★ MT-56 — New York, not UTC
     started = time.time()
 
     universe = load_sp500()
@@ -90,16 +104,19 @@ def main(argv=None) -> int:
           f"h{args.horizon_days}d")
     print(f"⚠ survivorship: {inputs.survivorship}")
 
+    beat.stage("connecting")
     engine, ledger, client, edgar, cik_map = _wire()
     if client is None:
         print("BLOCKED: FMP_API_KEY is not set", file=sys.stderr)
         return EXIT_FAILED
 
     if not args.skip_facts and edgar is not None:
+        beat.stage("fundamentals (EDGAR companyfacts)")
         failures = ingest_universe_facts(edgar, ledger, universe, cik_map=cik_map)
         print(f"  facts: {len(universe) - len(failures)} ingested, "
               f"{len(failures)} failed  [{elapsed(started)}]")
 
+    beat.stage("prices (FMP)")
     frames, unresolved = fetch_prices(client, universe, start=inputs.start,
                                       end=as_of)
     inputs.unresolved = unresolved
@@ -110,9 +127,22 @@ def main(argv=None) -> int:
         return EXIT_FAILED
 
     # ★★ AB-9 — the real gate over the training window (FE-10).
-    calendar = _calendar_report(tuple(frames), inputs.start, as_of,
-                               refresh_events=args.refresh_events,
-                               client=client, run_id="train")
+    beat.stage("calendar check")
+    from src.data_engine.errors import UnhandledBlockError
+
+    try:
+        calendar = _calendar_report(tuple(frames), inputs.start, as_of,
+                                   refresh_events=args.refresh_events,
+                                   client=client, run_id="train")
+    except UnhandledBlockError as exc:
+        # ★★ MT-54 / AC-4.36 (DX-158) — a HALT ends the run, naming every event.
+        #   ⚠ Until 2026-10-07 this was caught as "calendar check unavailable" and
+        #   replaced by a stand-in PROCEED_WITH_FLAGS — five BLOCKs went unseen.
+        print(f"HALT: the calendar check refused the training window (DE-32) — {exc}",
+              file=sys.stderr)
+        print("  no panel is built over an unhandled BLOCK; each event needs a recorded "
+              "handling (D-07 §6A) before this window can be trained on", file=sys.stderr)
+        return EXIT_FAILED
     # ⚠ **`PROCEED` alone reads as "checked and clear".** An `UNCHECKED` class
     #   is not a blocker, so an unswept store yields PROCEED while nothing was
     #   examined — AB-14's hazard arriving in the training run. The counts say
@@ -122,13 +152,34 @@ def main(argv=None) -> int:
     print(f"  calendar: {calendar.verdict} · {calendar.report_id} · "
           f"{len(checked)}/{len(status)} classes CHECKED {checked}")
     if not checked:
-        print("    ⚠ no class was checked — the event store has never been "
-              "swept; re-run with --refresh-events (AB-14)", file=sys.stderr)
+        # ★★ MT-57 / AC-4.39 (DX-163b) — nothing checked is REFUSED, not noted.
+        print(f"    ⚠ 0/{len(status)} calendar classes CHECKED — the window has no "
+              f"calendar guarantee:", file=sys.stderr)
+        for name, why in sorted(status.items()):
+            print(f"      {name}: {why}", file=sys.stderr)
+        if not args.allow_unchecked_calendar:
+            print("REFUSED: sweep the event store first (`python -m "
+                  "src.data_engine.ingest events`, or --refresh-events), or pass "
+                  "--allow-unchecked-calendar to train without a calendar check "
+                  "(MT-57)", file=sys.stderr)
+            return EXIT_FAILED
+        print("  ⚠ UNCHECKED CALENDAR — proceeding on --allow-unchecked-calendar "
+              "(MT-57); this artifact carries no calendar guarantee", file=sys.stderr)
 
+    beat.stage("features panel")
+    # ★ MT-55 / DE-77 (DX-160) — the GICS map, so the five *_sector_z are
+    #   sector-relative. ⚠ Until 2026-10-07 none was passed and they were
+    #   market-wide z-scores under sector names.
+    from src.data_engine.ingest.edgar_facts import load_sector_map
+
+    sectors = load_sector_map()
+    covered = sum(1 for t in frames if t in sectors)
+    print(f"  sectors: {covered}/{len(frames)} names (GICS, config/sp500_tickers.yaml) "
+          f"⚠ today's classification applied to the whole window (DE-77)")
     panel, contract = build_training_panel(
         price_frames=frames, engine=_engine_for(engine, frames, cik_map),
         universe=tuple(frames), as_of=as_of, adj_as_of=as_of,
-        calendar_report=calendar)
+        calendar_report=calendar, sectors=sectors)
     print(f"  panel: {panel.shape} · contract {contract.name}@v{contract.version}"
           f"  [{elapsed(started)}]")
 
@@ -136,6 +187,7 @@ def main(argv=None) -> int:
 
     from src.data_engine import build_price_panel
 
+    beat.stage("labels")
     prices = build_price_panel(pd.concat(frames.values(), ignore_index=True),
                                (), as_of)
     labels, label_def = build_training_labels(
@@ -160,9 +212,13 @@ def main(argv=None) -> int:
     for key, value in coverage.items():
         print(f"    {key}: {value}")
 
+    beat.stage("fit")
+    print(f"  target: {args.target} (MT-59) — the trees fit this; IC, simulation and "
+          f"gates read the raw {args.horizon_days}-day return")
     artifact = fit_selection_model(
         panel=panel, labels=labels, contract=contract, label_def=label_def,
-        as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days)
+        as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days,
+        target=args.target)
     print(f"  fitted: {len(artifact.feature_names)} features  [{elapsed(started)}]")
 
     measured = rank_ic(artifact, panel, labels,
@@ -173,18 +229,39 @@ def main(argv=None) -> int:
     from src.models.artifact.store import ArtifactStore
     from src.models.train.run import decide_promotion, walk_forward_ic
 
-    print("  walk-forward (purged + embargoed) — ★ the number that can falsify:")
+    # ★ MT-58 (DX-162) — two protocols, each named for what it is. ⚠ Until
+    #   2026-10-08 the k-fold below was printed as "walk-forward".
+    print("  out-of-sample · purged k-fold (trains on BOTH sides of each test block; "
+          "feeds the gates):")
+    beat.stage("out-of-sample IC (purged k-fold)")
     ic_result, folds, scored = walk_forward_ic(
         panel=panel, labels=labels, contract=contract, label_def=label_def,
-        as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days)
+        as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days,
+        scheme="purged_kfold", target=args.target)
     for key, value in ic_result.to_json_obj().items():
         print(f"    {key}: {value}")
     for fold in folds:
         print(f"    fold {fold['index']}: ic={fold.get('ic')} "
               f"test={fold.get('test_start')}..{fold.get('test_end')}")
 
+    print("  out-of-sample · walk-forward (expanding window, trains on the PAST only; "
+          "reported, never gated — F12 D11):")
+    beat.stage("walk-forward IC (expanding window)")
+    wf_result, wf_folds, _ = walk_forward_ic(
+        panel=panel, labels=labels, contract=contract, label_def=label_def,
+        as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days,
+        scheme="walk_forward", target=args.target)
+    wf = wf_result.to_json_obj()
+    print(f"    mean_ic: {wf.get('mean_ic')} · realised_se: {wf.get('realised_se')} · "
+          f"t_stat_realised: {wf.get('t_stat_realised')} · dates: {wf.get('dates')}")
+    for fold in wf_folds:
+        print(f"    fold {fold['index']}: ic={fold.get('ic')} train_to={fold.get('n_train')} "
+              f"dates · test={fold.get('test_start')}..{fold.get('test_end')}")
+    walk_forward = {**wf, "folds": wf_folds}
+
     from src.quant.backtest.portfolio import simulate, turnover_note
 
+    beat.stage("portfolio simulation")
     simulation = simulate(scored, horizon_days=args.horizon_days,
                           capital=args.capital)
     print("  portfolio simulation — ★ what `cost_survival` reads:")
@@ -194,6 +271,7 @@ def main(argv=None) -> int:
 
     from src.models.train.run import measure_breadth
 
+    beat.stage("breadth")
     breadth = measure_breadth(scored, horizon_days=args.horizon_days)
     print("  effective breadth — ★ QA-43, the last gate:")
     for key, value in breadth.items():
@@ -204,6 +282,7 @@ def main(argv=None) -> int:
     #   homework, which `promote()` refuses by asking for an id D-04 cannot mint.
     from src.models.train.run import d03_evaluate
 
+    beat.stage("D-03 evaluation + gates")
     spec, backtest = d03_evaluate(
         universe=tuple(frames), scored=scored, simulation=simulation,
         breadth=breadth, horizon_days=args.horizon_days, as_of=as_of,
@@ -220,7 +299,8 @@ def main(argv=None) -> int:
     outcome = decide_promotion(artifact, ic_result=ic_result,
                                names=facts["names"], store=store,
                                simulation=simulation, breadth=breadth,
-                               backtest_result_id=backtest.result_id)
+                               backtest_result_id=backtest.result_id,
+                               walk_forward=walk_forward)
     print(f"  artifact: {outcome['artifact_id']}")
     print(f"  gates: {outcome['verdicts']}")
     if outcome["promoted"]:
@@ -240,9 +320,12 @@ def main(argv=None) -> int:
 def _calendar_report(universe, start, as_of, *, refresh_events, client, run_id):
     """D-07's §6A gate, sweeping first when asked.
 
-    ⚠ **Falls back to a NAMED unchecked report rather than a fabricated PROCEED**
-    when the store has never been swept — the id travels onto the backtest spec,
-    so an artifact fitted without a real check carries that fact.
+    ★★ **MT-54 — nothing is caught here.** A never-swept store already yields D-07's
+    real report with every class `UNCHECKED` (named on the run summary and on the
+    backtest spec's `calendar_check_id`); an unhandled BLOCK raises
+    `UnhandledBlockError` and the caller ends the run. ⚠ *Until 2026-10-07 (DX-158)*
+    a broad `except` replaced ANY failure — a HALT included — with a stand-in
+    `PROCEED_WITH_FLAGS` report: MT-16's defect.
     """
     from src.data_engine.calendar.store import EventStore
     from src.data_engine.ingest.events import refresh
@@ -255,13 +338,8 @@ def _calendar_report(universe, start, as_of, *, refresh_events, client, run_id):
               f"{outcome['tickers']} names · refreshed {outcome['refreshed']}")
         if outcome["why"]:
             print(f"    ⚠ {outcome['why']}", file=sys.stderr)
-    try:
-        return training_calendar_check(store=store, universe=universe,
-                                       start=start, as_of=as_of, run_id=run_id)
-    except Exception as exc:                   # noqa: BLE001 — named, not fatal
-        print(f"  note: calendar check unavailable ({exc}); using the declared "
-              f"UNCHECKED report (AB-14)", file=sys.stderr)
-        return _UncheckedReport()
+    return training_calendar_check(store=store, universe=universe,
+                                   start=start, as_of=as_of, run_id=run_id)
 
 
 def _wire():

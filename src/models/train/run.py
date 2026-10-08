@@ -28,6 +28,7 @@ a signal that *passes* has not yet been shown to work.
 
 from __future__ import annotations
 
+import os
 import time
 from dataclasses import dataclass, field
 from datetime import date, timedelta
@@ -126,6 +127,37 @@ def ingest_universe_facts(edgar, ledger, universe, *, cik_map,
     return failures
 
 
+def replay_workers() -> int:
+    """Processes for the FE-40 replay — the machine's cores less two, at most 16."""
+    return max(1, min(16, (os.cpu_count() or 2) - 2))
+
+
+def _history(engine, ticker, as_of, since):
+    return engine.get_fundamentals_history(ticker, as_of=as_of, since=since)
+
+
+def fundamentals_histories(engine, tickers, *, as_of: date, since: date,
+                           workers: int = 1) -> dict:
+    """`{ticker: get_fundamentals_history(...)}` — DE-75, in a `spawn` pool when asked.
+
+    ⚠ Measured 2026-10-07: ~45 filing snapshots per name; serially the replay
+    for 503 names is ~45 min. Per ticker it is a pure read, so the pool changes
+    the speed and nothing else.
+    """
+    tickers = list(tickers)
+    if workers <= 1 or len(tickers) <= 1:
+        return {t: _history(engine, t, as_of, since) for t in tickers}
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+    from functools import partial
+
+    work = partial(_history, engine, as_of=as_of, since=since)
+    with ProcessPoolExecutor(max_workers=workers,
+                             mp_context=multiprocessing.get_context("spawn")) as pool:
+        out = list(pool.map(work, tickers, chunksize=4))
+    return dict(zip(tickers, out, strict=True))
+
+
 def build_training_panel(*, price_frames, engine, universe, as_of: date,
                          adj_as_of: date, calendar_report, sectors=None):
     """The CT-2.2 panel over both contracts — ★ 59 of §5.3's 61 features."""
@@ -153,12 +185,21 @@ def build_training_panel(*, price_frames, engine, universe, as_of: date,
               "formula features, which need a price D-02 does not hold."),
         features=PRICE_OHLCV_V1.features + FUNDAMENTAL_V1.features)
 
-    rows_by_ticker = {t: engine.get_fundamentals(t, as_of=as_of)
-                      for t in universe if t in price_frames}
+    # ★★★ FE-40 / DE-75 (DX-159) — the ledger REPLAYED per filing date. ⚠ Until
+    #   2026-10-07 this read `get_fundamentals(t, as_of=today)` once and joined it
+    #   across ten years: every period sat at its latest re-filing, and the
+    #   fundamental half of the panel ran ~1 year stale (median 371 d, measured).
+    #   ★ `since` = the panel's first date: older snapshots can never be joined.
+    since = pd.Timestamp(prices["date"].min()).date()
+    workers = replay_workers()
+    history_by_ticker = fundamentals_histories(
+        engine, [t for t in universe if t in price_frames],
+        as_of=as_of, since=since, workers=workers)
     panel = build_panel(
         contract=combined, price_panel=prices, calendar_report=calendar_report,
         as_of=as_of, adj_as_of=adj_as_of,
-        fundamentals={"rows_by_ticker": rows_by_ticker, "sectors": sectors})
+        fundamentals={"history_by_ticker": history_by_ticker, "sectors": sectors,
+                      "workers": workers})
     return panel, combined
 
 
@@ -236,8 +277,28 @@ def default_window(as_of: date, *, years: int = DEFAULT_YEARS) -> date:
     return as_of - timedelta(days=365 * years)
 
 
+#: MT-59 — what the trees are FITTED on. Evaluation always reads the raw return.
+TARGETS = ("raw", "xs_gauss")
+
+
+def fit_target(labels, label_def, target: str):
+    """`(labels to fit on, their label_def_id)` — ★ MT-59 / FE-42.
+
+    ⚠ Only the FIT sees the transformed target; IC, the simulation and every
+    gate keep `labels` as built (the raw 21-day return).
+    """
+    from src.feature_engineer.contracts.labels import XS_GAUSS, cross_sectional_gauss
+
+    if target not in TARGETS:
+        raise ValueError(f"unknown training target {target!r}; one of {TARGETS}")
+    if target == "raw":
+        return labels, label_def.label_def_id
+    return cross_sectional_gauss(labels), f"{label_def.label_def_id}.{XS_GAUSS}"
+
+
 def fit_selection_model(*, panel, labels, contract, label_def, as_of: date,
-                        adj_as_of: date, horizon_days: int, seed: int = 42):
+                        adj_as_of: date, horizon_days: int, seed: int = 42,
+                        target: str = "raw"):
     """Fit the SELECTION model and return `(artifact, frame)`.
 
     ★ **The estimator is injected** (MT-35): D-04 owns the protocol, the zoo owns
@@ -254,18 +315,19 @@ def fit_selection_model(*, panel, labels, contract, label_def, as_of: date,
     from src.models.zoo.gbdt import LightGBMRanker
 
     features = tuple(contract.feature_names)
+    fit_labels, label_def_id = fit_target(labels, label_def, target)   # ★ MT-59
     spec = TrainSpec(
         contract_name=contract.name, contract_version=contract.version,
-        label_def_id=label_def.label_def_id, decision_anchor="open",
+        label_def_id=label_def_id, decision_anchor="open",
         horizon_id="h1m", horizon_days=horizon_days,
-        protocol={"kind": "time_series_holdout"},
+        protocol={"kind": "time_series_holdout", "target": target},
         seeds={"estimator": seed},
         framework={"lightgbm": _lightgbm_version()},
         code_version="rel6",
         # ★ FE-2 — the membership fingerprint travels with the artifact.
         contract_hash=contract.content_hash)
 
-    artifact = fit(spec, panel=panel, labels=labels,
+    artifact = fit(spec, panel=panel, labels=fit_labels,
                    estimator=LightGBMRanker(seed=seed), feature_names=features,
                    adj_as_of=adj_as_of, as_of=as_of)
     return artifact
@@ -352,8 +414,15 @@ def feature_coverage(panel, feature_names) -> dict:
 
 def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
                     adj_as_of: date, horizon_days: int, n_folds: int = 5,
-                    seed: int = 42):
-    """★★ **Out-of-sample predictions across purged, embargoed folds → D-03's IC.**
+                    seed: int = 42, scheme: str = "purged_kfold",
+                    target: str = "raw"):
+    """★★ **Out-of-sample predictions → D-03's IC**, under one of two schemes.
+
+    ★ MT-58 / F12 `D11` (`DX-162`): `scheme="purged_kfold"` (D-03 `make_folds` —
+    trains on BOTH sides of each test block; feeds the gates) or
+    `scheme="walk_forward"` (`make_walk_forward_folds` — trains on the PAST only;
+    reported beside, never gated). ⚠ The name of this function predates the
+    distinction: until 2026-10-08 it was always the k-fold.
 
     ⚠ *An in-sample IC is not a weak result, it is not a result.* Measured
     2026-08-27 on 500 names over ten years: **in-sample 0.112, walk-forward
@@ -380,7 +449,12 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
         assert_no_leakage,
         derive_protocol,
         make_folds,
+        make_walk_forward_folds,
     )
+
+    schemes = {"purged_kfold": make_folds, "walk_forward": make_walk_forward_folds}
+    if scheme not in schemes:
+        raise ValueError(f"unknown out-of-sample scheme {scheme!r}; one of {sorted(schemes)}")
     from src.quant.horizons.horizon_set import PRODUCTION_V1
     from src.quant.metrics.ic import rank_ic
 
@@ -388,9 +462,12 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
     frame = panel.merge(labels[["ticker", "date", "value"]],
                         on=["ticker", "date"], how="inner").dropna(subset=["value"])
     dates = tuple(sorted(pd.to_datetime(frame["date"]).dt.date.unique()))
-    folds = make_folds(dates, protocol)
+    folds = schemes[scheme](dates, protocol)
 
     features = tuple(contract.feature_names)
+    # ★ MT-59 — the trees see the target; `frame` (and so IC and the simulation)
+    #   keeps the RAW return.
+    fit_labels, label_def_id = fit_target(labels, label_def, target)
     day = pd.to_datetime(frame["date"]).dt.date
     predictions, per_fold = [], []
 
@@ -399,19 +476,20 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
         train = frame[day.isin(set(fold.train_dates))]
         test = frame[day.isin(set(fold.test_dates))]
         if train.empty or test.empty:
-            per_fold.append({**fold.to_json_obj(), "ic": None,
+            per_fold.append({**fold.to_json_obj(), "scheme": scheme, "ic": None,
                              "why": "empty split"})
             continue
 
         spec = TrainSpec(
             contract_name=contract.name, contract_version=contract.version,
-            label_def_id=label_def.label_def_id, decision_anchor="open",
+            label_def_id=label_def_id, decision_anchor="open",
             horizon_id="h1m", horizon_days=horizon_days,
-            protocol={"purge_days": protocol.purge_days,
+            protocol={"scheme": scheme, "target": target,
+                      "purge_days": protocol.purge_days,
                       "embargo_days": protocol.embargo_days,
                       "n_folds": n_folds, "fold": fold.index},
             seeds={"estimator": seed}, code_version="rel6")
-        artifact = fit(spec, panel=train.drop(columns=["value"]), labels=labels,
+        artifact = fit(spec, panel=train.drop(columns=["value"]), labels=fit_labels,
                        estimator=LightGBMRanker(seed=seed),
                        feature_names=features, adj_as_of=adj_as_of, as_of=as_of)
 
@@ -420,7 +498,7 @@ def walk_forward_ic(*, panel, labels, contract, label_def, as_of: date,
         predictions.append(scored)
         # ★ Per fold, through the same D-03 function — never a second formula.
         fold_ic = rank_ic(scored, horizon_days=horizon_days)
-        per_fold.append({**fold.to_json_obj(), "ic": fold_ic.mean_ic,
+        per_fold.append({**fold.to_json_obj(), "scheme": scheme, "ic": fold_ic.mean_ic,
                          "test_rows": int(len(test))})
 
     if not predictions:
@@ -505,7 +583,7 @@ def measure_breadth(scored, *, horizon_days: int, sectors=None) -> dict:
 def decide_promotion(artifact, *, ic_result, names: int, store,
                      backtest_result_id: str = "", promoted_by: str = "training-run",
                      effective_breadth=None, simulation=None, breadth=None,
-                     hold_for_review: bool = True) -> dict:
+                     hold_for_review: bool = True, walk_forward=None) -> dict:
     """Persist the artifact and its gate report; ★ **never promote on its own** (MT-52).
 
     ✏ *2026-10-06 (Victor: "training should hold promotion until I've reviewed it")*:
@@ -551,6 +629,8 @@ def decide_promotion(artifact, *, ic_result, names: int, store,
         # ★ MT-52 — the D-03 BacktestResult id travels with the report, so a later
         #   approval can name it (MT-17) without re-running anything.
         "backtest_result_id": backtest_result_id,
+        # ★ MT-58 / F12 D11 — the past-only protocol, reported beside; never gated.
+        "walk_forward": dict(walk_forward) if walk_forward else None,
     }
     refused = [g for g in REQUIRED_GATES if verdicts.get(g) != PASS]
     evaluation["review"] = (
@@ -648,4 +728,7 @@ def training_calendar_check(*, store, universe, start: date, as_of: date,
 
     return check_window(
         store=store, universe=universe, start=start, end=as_of, as_of=as_of,
-        adj_as_of=as_of, run_id=run_id, max_age_days=365 * 20)
+        adj_as_of=as_of, run_id=run_id, max_age_days=365 * 20,
+        # ★ DE-76 — this run's fundamentals are replayed per filing date (FE-40),
+        #   so a restatement is shown as filed, then amended: handled, recorded.
+        fundamentals_pit=True)

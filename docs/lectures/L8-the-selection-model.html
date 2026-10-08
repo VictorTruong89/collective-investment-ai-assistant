@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Selection Model</title>
+<meta name="description" content="Lecture 8 — ranking S&P 500 stocks with gradient-boosted trees: purpose, features, architecture, training protocol, and the 2026-10-07 training run as a case study.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EEF1F5; --code-bg:#EDF0F4;
+  --ink:#141A24; --ink-soft:#57616F; --ink-faint:#828C9A;
+  --accent:#1F4E8C; --accent-soft:#E3EBF6;
+  --verd:#0E7C6B; --verd-soft:#DEEFEB;
+  --oxide:#A33A1E; --oxide-soft:#F7E4DE;
+  --amber:#8A5A00; --amber-soft:#F6ECD6;
+  --rule:#DCE1E8; --rule-soft:#E9ECF1;
+  --fs-xs:.76rem; --fs-sm:.875rem; --fs-base:1.0625rem;
+  --fs-lg:1.22rem; --fs-xl:1.55rem; --fs-2xl:2.05rem; --fs-3xl:2.75rem;
+  --measure:70ch;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+    --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+    --accent:#77ADEB; --accent-soft:#17293F;
+    --verd:#3ECBB2; --verd-soft:#0F2C29;
+    --oxide:#E58A6D; --oxide-soft:#331E17;
+    --amber:#E0B25A; --amber-soft:#2E2412;
+    --rule:#26313F; --rule-soft:#1D2531;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+  --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+  --accent:#77ADEB; --accent-soft:#17293F;
+  --verd:#3ECBB2; --verd-soft:#0F2C29;
+  --oxide:#E58A6D; --oxide-soft:#331E17;
+  --amber:#E0B25A; --amber-soft:#2E2412;
+  --rule:#26313F; --rule-soft:#1D2531;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);
+  font-size:var(--fs-base);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface)}
+.masthead .wrap{padding-top:clamp(2.5rem,7vw,4.5rem);padding-bottom:clamp(2rem,5vw,3rem)}
+.eyebrow{font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 1.1rem}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5.5vw,var(--fs-3xl));line-height:1.08;letter-spacing:-.015em;margin:0 0 1rem;text-wrap:balance}
+.standfirst{font-size:var(--fs-lg);color:var(--ink-soft);margin:0;max-width:62ch;text-wrap:pretty}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;margin-top:1.8rem;font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);letter-spacing:.04em}
+.tocbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--rule)}
+.tocbar .wrap{display:flex;gap:.3rem;overflow-x:auto;padding-top:.5rem;padding-bottom:.5rem}
+.tocbar a{flex:0 0 auto;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;color:var(--ink-soft);padding:.45rem .65rem;border-radius:3px;white-space:nowrap}
+.tocbar a:hover{background:var(--surface-2);color:var(--ink)}
+.tocbar a b{color:var(--accent)}
+section.part{padding:clamp(2.5rem,7vw,5rem) 0 clamp(1.5rem,4vw,3rem);border-bottom:1px solid var(--rule)}
+.parthead{display:flex;gap:clamp(1rem,3vw,2rem);align-items:flex-start;margin-bottom:2rem}
+.partnum{flex:0 0 auto;font-family:var(--mono);font-weight:700;font-size:var(--fs-sm);letter-spacing:.1em;padding:.35rem .6rem;border-radius:3px;line-height:1.2;background:var(--accent-soft);color:var(--accent)}
+.parthead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4vw,var(--fs-2xl));line-height:1.15;letter-spacing:-.01em;margin:0 0 .5rem;text-wrap:balance}
+.parthead p{margin:0;color:var(--ink-soft);max-width:60ch}
+h3{font-family:var(--display);font-weight:600;font-size:var(--fs-xl);line-height:1.25;margin:2.8rem 0 1rem;text-wrap:balance;padding-top:1.1rem;border-top:1px solid var(--rule-soft)}
+h3 .sn{font-family:var(--mono);font-size:var(--fs-sm);color:var(--ink-faint);margin-right:.6rem;font-weight:500}
+h4{font-family:var(--display);font-weight:600;font-size:var(--fs-lg);margin:1.8rem 0 .5rem;line-height:1.3}
+p{margin:0 0 1.1rem;max-width:var(--measure);text-wrap:pretty}
+ul,ol{margin:0 0 1.2rem;padding-left:1.3rem;max-width:var(--measure)}
+li{margin-bottom:.45rem}
+li::marker{color:var(--ink-faint)}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.84em;background:var(--code-bg);padding:.1em .35em;border-radius:3px;color:var(--ink);overflow-wrap:anywhere}
+pre{font-family:var(--mono);font-size:var(--fs-sm);line-height:1.6;background:var(--code-bg);border:1px solid var(--rule);border-radius:5px;padding:1rem 1.2rem;overflow-x:auto;margin:0 0 1.4rem;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.formula{font-family:var(--mono);font-size:var(--fs-base);background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:.9rem 1.2rem;margin:0 0 1.3rem;max-width:var(--measure);overflow-x:auto;text-align:center}
+.formula small{display:block;font-family:var(--body);font-size:var(--fs-sm);color:var(--ink-soft);margin-top:.4rem;text-align:left}
+.callout{border-left:3px solid var(--accent);background:var(--surface);padding:1rem 1.25rem;margin:0 0 1.5rem;max-width:var(--measure);border-radius:0 4px 4px 0}
+.callout.warn{border-left-color:var(--oxide)}
+.callout.key{border-left-color:var(--verd)}
+.callout.eg{border-left-color:var(--amber)}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+.lbl{display:block;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.35rem;font-weight:700}
+.warn .lbl{color:var(--oxide)} .key .lbl{color:var(--verd)} .eg .lbl{color:var(--amber)}
+.tablewrap{overflow-x:auto;margin:0 0 1.5rem;max-width:100%}
+table{border-collapse:collapse;font-size:var(--fs-sm);line-height:1.5;min-width:540px;width:100%;max-width:1000px}
+th,td{text-align:left;vertical-align:top;padding:.55rem .7rem;border-bottom:1px solid var(--rule)}
+th{font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;background:var(--surface-2)}
+td.num{font-family:var(--mono);white-space:nowrap}
+.pass{color:var(--verd);font-weight:700;font-family:var(--mono)}
+.fail{color:var(--oxide);font-weight:700;font-family:var(--mono)}
+figure{margin:0 0 1.8rem;max-width:900px}
+figure svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--rule);border-radius:5px}
+figcaption{font-size:var(--fs-sm);color:var(--ink-soft);margin-top:.5rem;max-width:var(--measure)}
+svg text{font-family:var(--mono);fill:var(--ink)}
+svg .soft{fill:var(--ink-soft)} svg .faint{fill:var(--ink-faint)}
+svg .ln{stroke:var(--rule);stroke-width:1}
+svg .axis{stroke:var(--ink-faint);stroke-width:1}
+svg .acc{fill:var(--accent)} svg .accs{fill:var(--accent-soft);stroke:var(--accent)}
+svg .ver{fill:var(--verd)} svg .vers{fill:var(--verd-soft);stroke:var(--verd)}
+svg .oxi{fill:var(--oxide)} svg .oxis{fill:var(--oxide-soft);stroke:var(--oxide)}
+svg .amb{fill:var(--amber)} svg .ambs{fill:var(--amber-soft);stroke:var(--amber)}
+svg .box{fill:var(--surface-2);stroke:var(--rule)}
+svg .arrow{stroke:var(--ink-faint);stroke-width:1.5;fill:none}
+svg .dash{stroke-dasharray:5 4}
+.quiz{background:var(--surface);border:1px dashed var(--rule);border-radius:5px;padding:1rem 1.25rem;margin:0 0 1.5rem;max-width:var(--measure)}
+.quiz ol{margin-bottom:.4rem}
+details{margin:.3rem 0 0}
+summary{cursor:pointer;color:var(--accent);font-family:var(--mono);font-size:var(--fs-sm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;max-width:1000px;margin:0 0 1.5rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:1rem 1.15rem}
+.card h4{margin-top:0}
+.card p:last-child{margin-bottom:0}
+.refs li{font-size:var(--fs-sm);margin-bottom:.6rem}
+.tag{font-family:var(--mono);font-size:var(--fs-xs);padding:.05rem .4rem;border-radius:3px;background:var(--surface-2);color:var(--ink-soft);white-space:nowrap}
+footer{padding:2.5rem 0 4rem;color:var(--ink-faint);font-size:var(--fs-sm)}
+@media (max-width:640px){ .parthead{flex-direction:column} }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Lecture 08 · Financial engineering · study material — governs nothing</p>
+    <h1>The Selection Model: Ranking Stocks with Gradient-Boosted Trees</h1>
+    <p class="standfirst">What the model is for, what it reads, why it is a tree ensemble, how it is trained without fooling itself — what the numbers from its first training run mean, and how two fixes moved them over the next three fits.</p>
+    <div class="meta">
+      <span>Level: undergraduate</span>
+      <span>Case studies: fits <code>c30170a7…</code> · <code>26d118d2…</code> · <code>fde8fb5e…</code></span>
+      <span>Written 2026-10-07 · updated 2026-10-08</span>
+      <span>Code: <code>src/models/</code> · <code>src/quant/</code> · <code>src/feature_engineer/</code></span>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar" aria-label="Sections">
+  <div class="wrap">
+    <a href="#p1"><b>1</b> Purpose</a>
+    <a href="#p2"><b>2</b> The problem</a>
+    <a href="#p3"><b>3</b> Features</a>
+    <a href="#p4"><b>4</b> Architecture</a>
+    <a href="#p5"><b>5</b> Training</a>
+    <a href="#p6"><b>6</b> Case study I</a>
+    <a href="#p7"><b>7</b> Case study II</a>
+    <a href="#p8"><b>8</b> Improving it</a>
+    <a href="#p9"><b>9</b> Glossary &amp; refs</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<div class="callout warn" style="margin-top:2rem">
+  <span class="lbl">Read this first</span>
+  <p>No model in this lecture has been promoted. The first fit (Part 6) <strong>failed two gates</strong>; the third (Part 7) <strong>passes the significance gate and is still refused on breadth</strong>. None ranks anything today; the daily card ranks by a simple momentum rule and says so. Every return figure below comes from a backtest that is <strong>survivorship-biased</strong> (§6.5). It is used here to teach how such a figure is read, not as evidence that the strategy works.</p>
+</div>
+
+<!-- ═════════════════════════════════════════ PART 1 -->
+<section class="part" id="p1">
+  <div class="parthead">
+    <span class="partnum">PART 1</span>
+    <div>
+      <h2>Why the model exists, and where it sits</h2>
+      <p>A machine-learning model is never "the system". It is one seat in a fund with several, and its job is narrow on purpose.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">1.1</span>The fund this model works in</h3>
+  <p>The Collective Investment AI Assistant is organised like a small professional fund. Each <em>seat</em> asks one question and is fenced from the others, so that the person who has an idea is not also the person who checks it or the person who decides.</p>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Seat</th><th>Who</th><th>Question it answers</th><th>Authority</th></tr></thead>
+    <tbody>
+      <tr><td>1 · PM &amp; Trader</td><td>the human fund manager</td><td>Do I buy, sell, or do nothing?</td><td><strong>the only decision</strong></td></tr>
+      <tr><td>2 · Fundamental Analyst</td><td>AI (LLM)</td><td>Is this company's story sound? What would prove it wrong?</td><td>recommend</td></tr>
+      <tr><td><strong>3 · Quantitative Analyst</strong></td><td><strong>AI (this model + the quant gates)</strong></td><td><strong>Out of ~500 stocks, which look most attractive for the next month?</strong></td><td>recommend</td></tr>
+      <tr><td>4 · Risk</td><td>AI</td><td>What could go wrong with this book?</td><td>alert only</td></tr>
+      <tr><td>5 · Portfolio Strategy</td><td>AI</td><td>How big could a position be?</td><td>arithmetic only</td></tr>
+      <tr><td>6 · Decision Mediator</td><td>AI</td><td>What do the seats say together, and why?</td><td>composes, originates nothing</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The selection model is seat 3's engine. Its whole contract is one sentence: <strong>given what was knowable at this morning's open, order the S&amp;P 500 from most to least attractive over the next 21 trading days.</strong> It does not size positions, does not decide, and does not explain the business — those are other seats' jobs.</p>
+
+  <figure>
+    <svg viewBox="0 0 900 230" role="img" aria-label="Daily pipeline: data, features, selection model, nomination, risk and portfolio, decision mediator, human">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-faint)"/></marker></defs>
+      <rect class="box" x="15" y="70" width="120" height="70" rx="5"/>
+      <text x="75" y="98" text-anchor="middle" font-size="12">Data engine</text>
+      <text x="75" y="116" text-anchor="middle" font-size="10" class="soft">prices · filings</text>
+      <rect class="box" x="165" y="70" width="120" height="70" rx="5"/>
+      <text x="225" y="98" text-anchor="middle" font-size="12">Features</text>
+      <text x="225" y="116" text-anchor="middle" font-size="10" class="soft">61 numbers / stock</text>
+      <rect class="accs" x="315" y="60" width="140" height="90" rx="5" stroke-width="2"/>
+      <text x="385" y="92" text-anchor="middle" font-size="12" class="acc" style="font-weight:700">Selection model</text>
+      <text x="385" y="110" text-anchor="middle" font-size="10" class="soft">LightGBM · 1-month</text>
+      <text x="385" y="126" text-anchor="middle" font-size="10" class="soft">score → rank</text>
+      <rect class="box" x="485" y="70" width="120" height="70" rx="5"/>
+      <text x="545" y="98" text-anchor="middle" font-size="12">Nomination</text>
+      <text x="545" y="116" text-anchor="middle" font-size="10" class="soft">top of the list</text>
+      <rect class="box" x="635" y="20" width="120" height="58" rx="5"/>
+      <text x="695" y="46" text-anchor="middle" font-size="11">Risk · Portfolio</text>
+      <text x="695" y="62" text-anchor="middle" font-size="10" class="soft">alerts · sizing</text>
+      <rect class="box" x="635" y="132" width="120" height="58" rx="5"/>
+      <text x="695" y="158" text-anchor="middle" font-size="11">Thesis (on demand)</text>
+      <text x="695" y="174" text-anchor="middle" font-size="10" class="soft">LLM analyst</text>
+      <rect class="vers" x="780" y="70" width="105" height="70" rx="5"/>
+      <text x="832" y="98" text-anchor="middle" font-size="11">Mediator →</text>
+      <text x="832" y="116" text-anchor="middle" font-size="11" class="ver" style="font-weight:700">human PM</text>
+      <path class="arrow" d="M135,105 L163,105" marker-end="url(#ah)"/>
+      <path class="arrow" d="M285,105 L313,105" marker-end="url(#ah)"/>
+      <path class="arrow" d="M455,105 L483,105" marker-end="url(#ah)"/>
+      <path class="arrow" d="M605,95 L633,55" marker-end="url(#ah)"/>
+      <path class="arrow" d="M605,115 L633,155" marker-end="url(#ah)"/>
+      <path class="arrow" d="M755,50 L795,72" marker-end="url(#ah)"/>
+      <path class="arrow" d="M755,160 L795,138" marker-end="url(#ah)"/>
+      <text x="385" y="205" text-anchor="middle" font-size="10" class="oxi">today: not promoted → a momentum RULE ranks instead</text>
+    </svg>
+    <figcaption><strong>Figure 1.</strong> Where the selection model sits in the daily run. It turns 61 numbers per stock into one ordering. Everything downstream either checks, sizes, explains or decides — none of it re-ranks.</figcaption>
+  </figure>
+
+  <h3><span class="sn">1.2</span>Three deliberate limits on its role</h3>
+  <ol>
+    <li><strong>It nominates, it never decides.</strong> A high rank is an invitation to look, not an instruction to buy. Only seat 1, a human, decides.</li>
+    <li><strong>It works at one horizon only — one month (21 trading days).</strong> The code refuses to train a <em>selection</em> model at any other horizon. A one-week horizon is a <em>timing</em> question (it may delay or veto, never nominate), and a quarter is <em>research</em> only. Mixing them was a real defect in the older pipeline this repo absorbed: a model trained to predict next week was being used to choose stocks for next month.</li>
+    <li><strong>It must earn its place.</strong> A trained model is held for review and can only be promoted if every gate in Part 5 passes. Until then the card is ranked by a transparent rule — 21-day momentum scaled by volatility — and the card states which ranked it.</li>
+  </ol>
+
+  <div class="callout eg">
+    <span class="lbl">Real-life analogy — the scout and the coach</span>
+    <p>A football club's scout watches hundreds of young players and hands the coach a shortlist. The scout does not pick the team, does not negotiate contracts, and is judged on one thing: <em>did the players on my list turn out better than the ones I left off?</em> That is exactly how this model is judged — not by whether its favourite stock went up, but by whether its ordering was right on average.</p>
+  </div>
+
+  <h3><span class="sn">1.3</span>Why use machine learning at all?</h3>
+  <p>Finance research has documented many weak signals that each slightly predict which stocks do better: recent winners keep winning for a while (momentum), cheap stocks beat expensive ones over long periods (value), calmer stocks do better than their risk suggests (low volatility), profitable firms beat unprofitable ones (quality). Each one alone is faint, and they interact — momentum behaves differently in small and large firms; a high margin means something different for a software firm than a grocer.</p>
+  <p>A model's job is to <strong>combine many faint signals, including their interactions, in a way that a hand-written formula would not</strong>. Gu, Kelly and Xiu (2020) showed on US data that tree ensembles and neural networks combine such signals better than linear regression, mainly because they capture non-linearities and interactions. That is the hypothesis this model tests. It is a hypothesis, not a promise — Parts 6 and 7 show how the test came out.</p>
+
+  <div class="quiz">
+    <strong>Check yourself</strong>
+    <ol>
+      <li>Why is a one-week model not allowed to nominate stocks for a one-month holding?</li>
+      <li>If the model is refused, what ranks the daily card?</li>
+    </ol>
+    <details><summary>Answers</summary><p>(1) It was trained to answer a different question (short-term timing), so its errors are tuned to the wrong target. (2) A transparent momentum-over-volatility rule, and the card says "ranked by the rule".</p></details>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 2 -->
+<section class="part" id="p2">
+  <div class="parthead">
+    <span class="partnum">PART 2</span>
+    <div>
+      <h2>The financial-engineering problem</h2>
+      <p>Predicting a stock's return is nearly hopeless. Predicting which of two stocks will do better is merely very hard. The model is built for the second.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">2.1</span>Cross-sectional, not time-series</h3>
+  <p>A <strong>time-series</strong> question asks "will Apple go up next month?". A <strong>cross-sectional</strong> question asks "next month, will Apple do better or worse than the other 500 stocks?". The second is easier because a large part of every stock's move is the market moving all of them together, and a ranking ignores that common part.</p>
+  <div class="formula">
+    r<sub>i,t</sub> = β<sub>i</sub>·r<sub>market,t</sub> + (sector effect) + ε<sub>i,t</sub>
+    <small>A stock's return is part market, part sector, part its own story (ε). Ranking stocks on the same day cancels most of the market term — every stock shares it. The model's edge, if any, lives in the ε part.</small>
+  </div>
+
+  <div class="callout eg">
+    <span class="lbl">Real-life example — the marathon</span>
+    <p>Predicting a runner's finishing <em>time</em> depends heavily on the weather on race day, which you cannot know. Predicting the finishing <em>order</em> does not: a hot day slows everyone. Ranking stocks is predicting the finishing order.</p>
+  </div>
+
+  <h3><span class="sn">2.2</span>What exactly is predicted — the label</h3>
+  <p>For every stock <em>i</em> on every trading day <em>t</em>, the training target ("label") is:</p>
+  <div class="formula">
+    y<sub>i,t</sub> = open<sub>i</sub>(t + 21) ÷ open<sub>i</sub>(t) − 1
+    <small>The return from this morning's open to the open 21 trading days later, split- and dividend-adjusted. <strong>Open-to-open, both ends</strong>, because the system decides at the open: a label measured from the close would credit the model with a move that happened before anyone could act on it.</small>
+  </div>
+  <p>The model is fitted to predict <em>y</em>, but only the <strong>order</strong> of its predictions is ever used. A prediction of +3% versus +1% means "rank this one higher", not "expect 3%".</p>
+
+  <h3><span class="sn">2.3</span>How good is "good"? The information coefficient</h3>
+  <p>The standard score for a ranking signal is the <strong>information coefficient (IC)</strong>: on each day, the rank correlation (Spearman) between the model's scores and the returns that actually followed, then averaged over days.</p>
+  <div class="formula">
+    IC<sub>t</sub> = Spearman( score<sub>·,t</sub> , y<sub>·,t</sub> )   ·   IC = mean<sub>t</sub>(IC<sub>t</sub>)
+    <small>+1 means a perfect ordering, 0 means none, −1 a perfectly reversed one.</small>
+  </div>
+  <p>Students are usually shocked by how small good ICs are. <strong>In equity selection, a stable IC of 0.02–0.05 is respectable</strong> (Grinold &amp; Kahn, 2000). The reason is that monthly stock returns are mostly noise: the predictable part is a few per cent of the variation.</p>
+
+  <div class="callout eg">
+    <span class="lbl">Real-life example — the casino</span>
+    <p>A roulette wheel with a single zero gives the house an edge of about 2.7%. On any single spin the house loses almost half the time. Over a million spins it is a business. An IC of 0.03 is the same kind of thing: useless for one stock in one month, valuable only if applied to many stocks over many months — and only if it is real. Part 5 is about checking that it is real.</p>
+  </div>
+
+  <div class="quiz">
+    <strong>Check yourself</strong>
+    <ol>
+      <li>Why does a ranking model not need to forecast the market?</li>
+      <li>A signal has IC = 0.03. Roughly how often does it rank a random pair of stocks correctly?</li>
+    </ol>
+    <details><summary>Answers</summary><p>(1) The market term is shared by every stock on a date, so it cancels out of the ordering. (2) Only slightly better than a coin: for small correlations, the chance of ordering a pair correctly is about ½ + IC/π ≈ 51%. Edges in this business are tiny.</p></details>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 3 -->
+<section class="part" id="p3">
+  <div class="parthead">
+    <span class="partnum">PART 3</span>
+    <div>
+      <h2>The input features — 61 numbers per stock per day</h2>
+      <p>14 come from prices and volume, 47 from company filings. Each family has an economic reason to exist, and each was built so it could have been known on the day it is used.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">3.1</span>Price and volume features (14) — <code>price_ohlcv@v1</code></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Family</th><th>Features</th><th>What it measures</th><th>Why it might predict</th></tr></thead>
+    <tbody>
+      <tr><td>Momentum</td><td><code>ret_1d</code> <code>ret_5d</code> <code>ret_10d</code> <code>ret_20d</code></td><td>Recent open-to-open returns</td><td>Medium-term winners tend to keep winning (Jegadeesh &amp; Titman, 1993); very short-term moves tend to reverse.</td></tr>
+      <tr><td>Trend</td><td><code>sma_5_ratio</code> <code>sma_20_ratio</code> <code>sma_50_ratio</code></td><td>Today's open ÷ its 5/20/50-day average</td><td>Where the price sits against its own recent path — a smoothed momentum.</td></tr>
+      <tr><td>Volatility</td><td><code>vol_10d</code> <code>vol_20d</code></td><td>Standard deviation of daily log returns</td><td>The low-volatility anomaly: calm stocks have historically earned more than their risk implies (Ang et al., 2006; Frazzini &amp; Pedersen, 2014).</td></tr>
+      <tr><td>Oscillators</td><td><code>rsi_14</code> <code>macd_hist</code></td><td>Overbought/oversold; trend acceleration</td><td>Practitioner indicators; included so the model can test them, not because theory guarantees them.</td></tr>
+      <tr><td>Volume</td><td><code>vol_zscore_5d</code></td><td>Unusual trading volume (to <em>yesterday</em>)</td><td>Attention and information arrival. Uses T−1, because today's full volume is not known at the open.</td></tr>
+      <tr><td>Cross-sectional ranks</td><td><code>rank_ret_5d</code> <code>rank_vol_20d</code></td><td>Percentile within that day's universe</td><td>Turns absolute numbers into "relative to everyone else today" — matching the cross-sectional question.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">3.2</span>Fundamental features (47) — <code>fundamental@v2</code></h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Family</th><th>Examples</th><th>Economic idea</th></tr></thead>
+    <tbody>
+      <tr><td>Profitability</td><td><code>f_net_margin</code> <code>f_gross_margin</code> <code>f_roa</code> <code>f_roe</code> <code>f_roic</code></td><td>Profitable firms earn higher future returns (Novy-Marx, 2013 — gross profitability).</td></tr>
+      <tr><td>Cash quality</td><td><code>f_ocf_to_assets</code> <code>f_ocf_to_net_income</code> <code>f_fcf_margin</code> <code>f_accruals</code></td><td>Earnings backed by cash persist; earnings made of accruals tend to reverse (Sloan, 1996).</td></tr>
+      <tr><td>Leverage &amp; liquidity</td><td><code>f_debt_to_assets</code> <code>f_debt_to_equity</code> <code>f_interest_coverage</code> <code>f_current_ratio</code></td><td>Financial fragility.</td></tr>
+      <tr><td>Investment</td><td><code>f_capex_to_revenue</code> <code>f_rd_to_revenue</code> <code>f_total_assets_chg_1</code></td><td>Firms that grow assets fast tend to underperform; R&amp;D intensity is mispriced (Chan, Lakonishok &amp; Sougiannis, 2001).</td></tr>
+      <tr><td>Growth</td><td><code>f_revenue_chg_1/4</code> <code>f_net_income_chg_1/4</code> <code>f_revenue_rolling_chg_4</code> …</td><td>Quarter-on-quarter and year-on-year change in the business.</td></tr>
+      <tr><td>Margin trends</td><td><code>f_f_net_margin_trend_4</code> …</td><td>Is profitability improving or eroding over four quarters?</td></tr>
+      <tr><td>Scores</td><td><code>f_piotroski_f</code> (+3 components) · <code>f_moat_quant_score</code></td><td>Piotroski's (2000) nine-point health checklist; a quantitative "moat" stability score.</td></tr>
+      <tr><td>Valuation</td><td><code>f_market_to_book</code> <code>f_graham_number_ratio</code></td><td>Value: cheap firms beat expensive ones on average (Fama &amp; French, 1992).</td></tr>
+      <tr><td>Size</td><td><code>f_size_log_assets</code></td><td>The size effect (Banz, 1981) — weak among large caps, but a useful context variable for interactions.</td></tr>
+      <tr><td>Sector-relative</td><td><code>f_net_margin_sector_z</code> <code>f_roe_sector_z</code> … (5)</td><td>A 4% net margin is poor for software and excellent for a grocer. A z-score within sector compares like with like. <em>(But see the finding in §3.4.)</em></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">3.3</span>The rule that matters most: point-in-time</h3>
+  <p>Every feature must be <strong>knowable on the morning it is used</strong>. A company's March-quarter results are not knowable on 31 March; they become knowable when the 10-Q is filed, typically six weeks later. So fundamentals are joined on their <strong>filing date</strong>, looking backward only. Joining on the quarter's end date would hand the model six weeks of hindsight on every row — and produce a beautiful, worthless backtest.</p>
+
+  <div class="callout warn">
+    <span class="lbl">A real defect, found and fixed the day this model was trained (DX-159)</span>
+    <p>A company's annual report repeats the previous two years' numbers as comparatives. The fact store keeps every copy, each stamped with its own filing date — ADM's 2022 net income appears four times: in the 10-K of February 2023, the 10-K of March 2024, an <strong>amended</strong> 10-K/A of 18 November 2024, and the 10-K of February 2025.</p>
+    <p>Training used to read the store <em>once, as of today</em>, so each period carried its <em>latest</em> filing date. Joined backward onto ten years of dates, that meant on 3 June 2024 the model saw ADM's <strong>2020</strong> figures. Measured on 24 stocks: only <strong>13%</strong> of historical rows saw the right quarter; the median row was <strong>371 days stale</strong>. No look-ahead — but a year-old picture of every company.</p>
+    <p>The fix <em>replays</em> the store at every filing date: "what did we know on the day this filing landed?" — and computes the features from that. After the fix, <strong>798 of 798</strong> checked rows matched a true point-in-time read. A bonus: ADM's restatement is now handled honestly — the original figures before 18 Nov 2024, the amended ones after.</p>
+  </div>
+
+  <div class="callout eg">
+    <span class="lbl">Real-life example — the newspaper archive</span>
+    <p>To test a stock-picking rule from 2019, you must read <em>the 2019 newspaper</em>, not today's Wikipedia page about 2019. Wikipedia has been corrected and updated since; the paper has not. Point-in-time data is the newspaper archive. The DX-159 bug was like reading the 2019 paper — but the 2017 edition of it.</p>
+  </div>
+
+  <h3><span class="sn">3.4</span>Two honest caveats about the inputs</h3>
+  <ul>
+    <li><strong>Missing is not zero.</strong> A bank has no "gross margin"; a retailer reports no R&amp;D. Those cells are left empty (null), never filled with 0 — a zero margin and an unknown margin are different facts. Mean coverage across the 61 features was 75%; <code>f_rd_to_revenue</code> is under 25% filled.</li>
+    <li><strong>Finding while writing this lecture:</strong> the training run supplies no sector map, so the five <code>*_sector_z</code> features are computed with every stock in one "unknown" group — they are <em>market-wide</em> z-scores, not sector-relative ones. The code's own documentation says they should be null in that case. The model still uses them heavily (Figure 5), but they do not mean what their names say. Recorded as <code>DX-160</code> and <strong>fixed later the same day</strong>: training and the daily run now read the GICS map in <code>config/sp500_tickers.yaml</code>, and an unknown sector gives null. The case-study model below was fitted <em>before</em> the fix.</li>
+  </ul>
+
+  <div class="quiz">
+    <strong>Check yourself</strong>
+    <ol>
+      <li>Why is <code>vol_zscore_5d</code> measured up to yesterday rather than today?</li>
+      <li>Why would joining fundamentals on the quarter-end date flatter a backtest?</li>
+    </ol>
+    <details><summary>Answers</summary><p>(1) At the open, today's volume does not exist yet. (2) It lets the model use results ~6 weeks before the public saw them — information no investor could have traded on.</p></details>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 4 -->
+<section class="part" id="p4">
+  <div class="parthead">
+    <span class="partnum">PART 4</span>
+    <div>
+      <h2>The architecture — gradient-boosted decision trees (LightGBM)</h2>
+      <p>Many small, shallow trees, each correcting the mistakes of the ones before it.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">4.1</span>One decision tree</h3>
+  <p>A decision tree is a flowchart of yes/no questions about the features, ending in a prediction. The algorithm chooses each question to split the data into two groups whose returns are as different as possible.</p>
+  <figure>
+    <svg viewBox="0 0 900 260" role="img" aria-label="A small decision tree splitting on volatility, net margin and 50-day trend">
+      <rect class="accs" x="340" y="15" width="220" height="44" rx="5"/>
+      <text x="450" y="42" text-anchor="middle" font-size="13">vol_20d &lt; 1.6% ?</text>
+      <rect class="box" x="120" y="110" width="240" height="44" rx="5"/>
+      <text x="240" y="137" text-anchor="middle" font-size="13">net_margin_z &gt; 0.4 ?</text>
+      <rect class="box" x="540" y="110" width="240" height="44" rx="5"/>
+      <text x="660" y="137" text-anchor="middle" font-size="13">sma_50_ratio &gt; 1.05 ?</text>
+      <rect class="vers" x="40" y="200" width="150" height="44" rx="5"/><text x="115" y="227" text-anchor="middle" font-size="12">+0.9%</text>
+      <rect class="box" x="230" y="200" width="150" height="44" rx="5"/><text x="305" y="227" text-anchor="middle" font-size="12">+0.3%</text>
+      <rect class="box" x="520" y="200" width="150" height="44" rx="5"/><text x="595" y="227" text-anchor="middle" font-size="12">+0.1%</text>
+      <rect class="oxis" x="710" y="200" width="150" height="44" rx="5"/><text x="785" y="227" text-anchor="middle" font-size="12">−0.6%</text>
+      <path class="arrow" d="M400,59 L260,108"/><path class="arrow" d="M500,59 L640,108"/>
+      <path class="arrow" d="M200,154 L120,198"/><path class="arrow" d="M280,154 L300,198"/>
+      <path class="arrow" d="M620,154 L600,198"/><path class="arrow" d="M700,154 L780,198"/>
+      <text x="310" y="88" font-size="11" class="soft">yes</text><text x="575" y="88" font-size="11" class="soft">no</text>
+      <text x="135" y="180" font-size="11" class="soft">yes</text><text x="300" y="180" font-size="11" class="soft">no</text>
+      <text x="580" y="180" font-size="11" class="soft">no</text><text x="755" y="180" font-size="11" class="soft">yes</text>
+    </svg>
+    <figcaption><strong>Figure 2.</strong> An <em>illustrative</em> tree (not read from the fitted model). Notice the <strong>interaction</strong>: the margin question is only asked of calm stocks, the trend question only of volatile ones. A linear model would need you to invent that cross-term by hand. The leaves are small adjustments, in return units.</figcaption>
+  </figure>
+
+  <div class="callout eg">
+    <span class="lbl">Real-life analogy — twenty questions</span>
+    <p>A tree plays "twenty questions" with a stock: <em>Is it calm? Is it more profitable than average? Is it above its 50-day average?</em> Each answer narrows the group, and the final group's average past return is the guess.</p>
+  </div>
+
+  <h3><span class="sn">4.2</span>Boosting: many weak trees, each fixing the last</h3>
+  <p>One tree is crude and unstable. <strong>Gradient boosting</strong> (Friedman, 2001) builds trees one after another. Tree 1 makes a rough guess. Tree 2 is fitted to what tree 1 got wrong (the residuals). Tree 3 to what trees 1+2 got wrong, and so on. The final prediction is the sum, with each tree's contribution shrunk by a <em>learning rate</em> so no single tree dominates.</p>
+  <div class="formula">
+    F<sub>m</sub>(x) = F<sub>m−1</sub>(x) + η · h<sub>m</sub>(x),   h<sub>m</sub> fitted to  y − F<sub>m−1</sub>(x)
+    <small>F is the running prediction, h<sub>m</sub> the m-th small tree, η the learning rate (0.03 here). For squared error, "fit the gradient" is literally "fit the residuals".</small>
+  </div>
+  <div class="callout eg">
+    <span class="lbl">Real-life analogy — putting in golf</span>
+    <p>The first putt gets you near the hole. Each next putt corrects the remaining distance. A small learning rate is a cautious golfer who never tries to sink a long putt in one go — slower, but much less likely to overshoot.</p>
+  </div>
+
+  <h3><span class="sn">4.3</span>The settings used — and what each one does</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Setting</th><th>Value</th><th>Meaning, in plain words</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td class="num">objective</td><td class="num">regression</td><td>Minimise squared error between prediction and the 21-day return</td><td>See the caveat below</td></tr>
+      <tr><td class="num">n_estimators</td><td class="num">300</td><td>Number of trees</td><td>More trees = more capacity</td></tr>
+      <tr><td class="num">learning_rate</td><td class="num">0.03</td><td>How much each tree is trusted</td><td>Small = smoother, needs more trees</td></tr>
+      <tr><td class="num">num_leaves</td><td class="num">15</td><td>Max end-points per tree</td><td>Small = shallow trees, few interactions each</td></tr>
+      <tr><td class="num">min_child_samples</td><td class="num">50</td><td>A leaf must contain ≥ 50 rows</td><td>Stops the tree memorising a handful of days</td></tr>
+      <tr><td class="num">subsample · freq</td><td class="num">0.8 · 1</td><td>Each tree sees a random 80% of rows</td><td>Randomness that reduces overfitting</td></tr>
+      <tr><td class="num">colsample_bytree</td><td class="num">0.8</td><td>Each tree sees a random 80% of features</td><td>Stops one feature dominating every tree</td></tr>
+      <tr><td class="num">reg_lambda</td><td class="num">1.0</td><td>L2 penalty on leaf values</td><td>Shrinks extreme leaf predictions</td></tr>
+      <tr><td class="num">deterministic, 1 thread, seed 42</td><td class="num">on</td><td>Same data → bit-identical model</td><td>Reproducibility — a project invariant</td></tr>
+    </tbody>
+  </table></div>
+  <p>The code labels these values <strong>"admitted guesses — not tuned"</strong>. That is deliberate honesty: they are sensible small-data defaults, and tuning them properly needs the fold structure of Part 5 (see Part 8).</p>
+
+  <div class="callout warn">
+    <span class="lbl">Caveat — the name says "rank", the objective says "regression"</span>
+    <p>The family is called <code>gbdt.lightgbm_rank.v1</code>, but the estimator is <code>LGBMRegressor</code> fitted on <strong>raw</strong> 21-day returns. So the trees spend effort explaining things a ranking does not care about — above all, the market's month-to-month swings, which are shared by every stock. Only the order of predictions is used afterwards.</p>
+    <p><strong>Update, 8 Oct:</strong> since fit 3 the trees are fitted on each day's <em>return rank</em> as a normal score (<code>--target xs_gauss</code>, now the default) — the single largest improvement in case study II (§7.3). Part 8 lists further options, including a true ranking objective.</p>
+  </div>
+
+  <h3><span class="sn">4.4</span>Why gradient-boosted trees, and not something else?</h3>
+  <div class="grid2">
+    <div class="card"><h4>vs. linear regression</h4><p>Linear models cannot see interactions or thresholds unless you hand-craft them, and they are thrown off by outliers and skewed ratios. Trees split on order, so a ratio of 10 or 10,000 lands in the same branch. Gu, Kelly &amp; Xiu (2020) report trees and neural nets clearly beating linear models on US stock returns.</p></div>
+    <div class="card"><h4>vs. neural networks</h4><p>On tabular data — rows of mixed, unscaled, partly missing columns — tree ensembles still usually match or beat deep networks (Grinsztajn, Oyallon &amp; Varoquaux, 2022), and stock data has far lower signal-to-noise than those benchmarks. The project keeps neural models in the research seat until one beats the trees on the same protocol.</p></div>
+    <div class="card"><h4>Handles missing values</h4><p>LightGBM learns which branch a missing value should go down. A bank with no gross margin is routed sensibly, without inventing a zero.</p></div>
+    <div class="card"><h4>Fast and reproducible</h4><p>LightGBM (Ke et al., 2017) fits 1.2 million rows × 61 features in about 25 seconds here, with deterministic settings — which matters when the same fit must be re-run five times inside cross-validation.</p></div>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 5 -->
+<section class="part" id="p5">
+  <div class="parthead">
+    <span class="partnum">PART 5</span>
+    <div>
+      <h2>How the model is trained — and how it avoids fooling itself</h2>
+      <p>Fitting is the easy 25 seconds. Almost all of the engineering is about measuring the fit honestly.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">5.1</span>The training run, step by step</h3>
+  <ol>
+    <li><strong>Fundamentals</strong> — download each company's XBRL facts from SEC EDGAR into an append-only store (5 min for 510 names).</li>
+    <li><strong>Prices</strong> — ten years of daily OHLCV from FMP for the whole S&amp;P 500 (11½ min).</li>
+    <li><strong>Calendar check</strong> — scan the window for splits, delistings, restatements and other events that can corrupt a price series; <strong>halt</strong> on anything unhandled.</li>
+    <li><strong>Features panel</strong> — the 61 features for every (stock, day): 1,248,338 rows (4 min, mostly the point-in-time replay).</li>
+    <li><strong>Labels</strong> — the 21-day open-to-open return for each row.</li>
+    <li><strong>Fit</strong> — one LightGBM model on all of it (the <em>production</em> candidate).</li>
+    <li><strong>Validation</strong> — five more fits, each tested on a period it never saw (§5.2) → the out-of-sample IC.</li>
+    <li><strong>Backtest &amp; gates</strong> — simulate holding the top 10, measure breadth, apply the three gates (§5.4).</li>
+    <li><strong>Hold for review</strong> — the model is written to disk; promotion needs a human command and still cannot override a failed gate.</li>
+  </ol>
+
+  <h3><span class="sn">5.2</span>Validation without leakage: purged, embargoed folds</h3>
+  <p>The first rule of machine learning is "test on data the model has not seen". In finance this is harder than it looks, because <strong>labels overlap in time</strong>. The label for 2 January is the return through ~1 February; the label for 3 January covers nearly the same days. If 2 January is in training and 3 January in testing, the model has effectively seen the test answer.</p>
+  <div class="callout eg">
+    <span class="lbl">Real-life analogy — the leaked exam</span>
+    <p>If this year's exam re-uses 20 of last year's 21 questions, a student who memorised last year's paper "scores" brilliantly without learning anything. Purging means removing from the study pack every past paper that shares questions with the exam.</p>
+  </div>
+  <p>The fix (López de Prado, 2018) is to cut the timeline into five blocks. Each block takes a turn as the test set; training uses everything else <strong>except</strong> a <em>purge</em> gap on both sides of the test block (no training label may reach into it) and an <em>embargo</em> after it (5 days, for serial correlation).</p>
+
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="Five folds over 2016 to 2026; each fold tests one two-year block with purge gaps on both sides">
+      <text x="120" y="22" font-size="11" class="soft">2016</text>
+      <text x="855" y="22" font-size="11" class="soft" text-anchor="end">2026</text>
+      <g font-size="11">
+        <text x="10" y="55">fold 0</text><text x="10" y="95">fold 1</text><text x="10" y="135">fold 2</text><text x="10" y="175">fold 3</text><text x="10" y="215">fold 4</text>
+      </g>
+      <!-- each fold: total width 735 from x=120; block 147 -->
+      <g>
+        <rect class="oxis" x="120" y="40" width="147" height="22"/><rect class="box" x="267" y="40" width="18" height="22"/><rect class="accs" x="285" y="40" width="570" height="22"/>
+        <rect class="accs" x="120" y="80" width="129" height="22"/><rect class="box" x="249" y="80" width="18" height="22"/><rect class="oxis" x="267" y="80" width="147" height="22"/><rect class="box" x="414" y="80" width="18" height="22"/><rect class="accs" x="432" y="80" width="423" height="22"/>
+        <rect class="accs" x="120" y="120" width="276" height="22"/><rect class="box" x="396" y="120" width="18" height="22"/><rect class="oxis" x="414" y="120" width="147" height="22"/><rect class="box" x="561" y="120" width="18" height="22"/><rect class="accs" x="579" y="120" width="276" height="22"/>
+        <rect class="accs" x="120" y="160" width="423" height="22"/><rect class="box" x="543" y="160" width="18" height="22"/><rect class="oxis" x="561" y="160" width="147" height="22"/><rect class="box" x="708" y="160" width="18" height="22"/><rect class="accs" x="726" y="160" width="129" height="22"/>
+        <rect class="accs" x="120" y="200" width="570" height="22"/><rect class="box" x="690" y="200" width="18" height="22"/><rect class="oxis" x="708" y="200" width="147" height="22"/>
+      </g>
+      <rect class="accs" x="120" y="234" width="14" height="10"/><text x="140" y="243" font-size="10">train</text>
+      <rect class="oxis" x="200" y="234" width="14" height="10"/><text x="220" y="243" font-size="10">test</text>
+      <rect class="box" x="270" y="234" width="14" height="10"/><text x="290" y="243" font-size="10">purge / embargo gap</text>
+    </svg>
+    <figcaption><strong>Figure 3.</strong> The five folds actually used (test blocks ≈ two years each). Note fold 0: it is tested on 2016–18 but <strong>trained on 2018–26 — the future</strong>. This is <em>purged k-fold</em>, not a true walk-forward. Labels cannot leak across the gaps, but a model that learned from later market regimes is being tested on earlier ones (see §6.2). Since 8 Oct a true walk-forward runs beside it and is reported, not gated (§7.4).</figcaption>
+  </figure>
+
+  <div class="callout">
+    <span class="lbl">Two details worth knowing</span>
+    <ul>
+      <li>The purge length is the <strong>longest</strong> horizon in the set (63, the quarterly research horizon), not the 21 being trained — so adding a longer horizon later can never silently under-purge.</li>
+      <li>The purge is applied as 63 <em>calendar</em> days (≈ 43 trading days). That is more than the 21-trading-day label needs, so this fit is safe; but the horizon is defined in trading days, and for a true 63-trading-day label (~91 calendar days) the gap would be too short. Noted while writing this lecture.</li>
+    </ul>
+  </div>
+
+  <h3><span class="sn">5.3</span>Is the IC real? Standard errors that respect time</h3>
+  <p>An average IC is meaningless without its uncertainty. The naive t-statistic treats each of the 2,490 daily ICs as independent. They are not: with a 21-day label, consecutive days share 20 of their 21 days of returns. Two corrections are reported:</p>
+  <ul>
+    <li><strong>Null SE (the old way):</strong> divide by √(dates ÷ 21) — "about 119 independent months". Reported as the <em>minimum detectable effect</em>, not used to decide.</li>
+    <li><strong>Realised SE (decisive):</strong> the Newey–West estimator (Newey &amp; West, 1987), which measures how strongly the daily ICs actually move together and widens the error bar accordingly, using 20 lags.</li>
+  </ul>
+  <div class="formula">
+    t = mean IC ÷ SE   ·   pass if  |mean IC| ≥ 3 × SE<sub>Newey–West</sub>
+    <small>Why 3 and not the textbook 2? Harvey, Liu &amp; Zhu (2016) count hundreds of published "factors" and show that, after so much searching, a new one needs t &gt; 3 to be credible.</small>
+  </div>
+  <div class="callout eg">
+    <span class="lbl">Real-life example — the coin-flipping contest</span>
+    <p>Ask 1,000 people to flip a coin ten times. About one will get ten heads by pure luck, and will look like a genius. If the whole industry tests thousands of signals, some will look brilliant by chance. A higher bar (t ≥ 3) is how you avoid hiring the lucky flipper.</p>
+  </div>
+
+  <h3><span class="sn">5.4</span>The three gates</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Gate</th><th>Question</th><th>Passes when</th></tr></thead>
+    <tbody>
+      <tr><td><code>ic_significance</code></td><td>Is the out-of-sample IC distinguishable from zero?</td><td>|IC| ≥ 3 × Newey–West SE</td></tr>
+      <tr><td><code>breadth</code></td><td>Is the signal applied to enough <em>independent</em> bets to matter?</td><td>implied IR = |IC| · √BR ≥ 0.5 (provisional)</td></tr>
+      <tr><td><code>cost_survival</code></td><td>Does the strategy still make money after trading costs?</td><td>net return &gt; 0</td></tr>
+    </tbody>
+  </table></div>
+  <p>The breadth gate comes from the <strong>Fundamental Law of Active Management</strong> (Grinold, 1989):</p>
+  <div class="formula">
+    IR ≈ IC × √BR
+    <small>IR is the information ratio (excess return ÷ its volatility — a Sharpe ratio against a benchmark). BR is breadth: the number of <em>independent</em> bets per year. A tiny IC can produce a decent IR — but only with many truly independent bets.</small>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 6 -->
+<section class="part" id="p6">
+  <div class="parthead">
+    <span class="partnum">PART 6</span>
+    <div>
+      <h2>Case study I — the first fit, 7 October 2026</h2>
+      <p>510 stocks · 10 years (Oct 2016 – Oct 2026) · 1,248,338 rows · 61 features · 22 min 51 s. Every number below is from that console output.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">6.1</span>In-sample versus out-of-sample</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Measurement</th><th>IC</th><th>t</th><th>What it means</th></tr></thead>
+    <tbody>
+      <tr><td>In-sample (model scored on its own training data)</td><td class="num">0.1157</td><td class="num">7.86</td><td>Looks spectacular. It is <strong>not a result</strong>: the model is grading its own homework.</td></tr>
+      <tr><td>Out-of-sample (purged folds)</td><td class="num"><strong>0.0227</strong></td><td class="num"><strong>2.16</strong></td><td>The honest number. ~80% of the in-sample IC was memorisation.</td></tr>
+      <tr><td><em>August 2026 fit, stale fundamentals</em></td><td class="num">0.0203</td><td class="num">1.42</td><td>Before the point-in-time fix (DX-159). Slightly better now — consistent with fresher fundamentals, not proof of it.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <span class="lbl">Lesson</span>
+    <p>The ratio 0.116 : 0.023 is typical of finance. With noisy labels and 300 trees, a model will find patterns in noise. Only out-of-sample numbers are evidence.</p>
+  </div>
+
+  <h3><span class="sn">6.2</span>The five folds — a fading signal</h3>
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="Bar chart of IC by fold: 0.052, 0.020, 0.014, 0.015, 0.013, with mean 0.0227 and gate bar 0.0316">
+      <line class="axis" x1="80" y1="250" x2="860" y2="250"/>
+      <line class="axis" x1="80" y1="30" x2="80" y2="250"/>
+      <!-- scale: 0.06 -> 220px ; 1 unit = 3666.7 px -->
+      <g font-size="10" class="soft">
+        <text x="72" y="254" text-anchor="end" class="soft">0.00</text>
+        <text x="72" y="181" text-anchor="end" class="soft">0.02</text>
+        <text x="72" y="107" text-anchor="end" class="soft">0.04</text>
+        <text x="72" y="34" text-anchor="end" class="soft">0.06</text>
+      </g>
+      <line class="ln" x1="80" y1="177" x2="860" y2="177"/><line class="ln" x1="80" y1="103" x2="860" y2="103"/>
+      <rect class="acc" x="120" y="60.5" width="100" height="189.5"/>
+      <rect class="acc" x="270" y="175.2" width="100" height="74.8"/>
+      <rect class="acc" x="420" y="200.3" width="100" height="49.7"/>
+      <rect class="acc" x="570" y="195.2" width="100" height="54.8"/>
+      <rect class="acc" x="720" y="202.4" width="100" height="47.6"/>
+      <g font-size="11">
+        <text x="170" y="53" text-anchor="middle">0.052</text>
+        <text x="320" y="168" text-anchor="middle">0.020</text>
+        <text x="470" y="193" text-anchor="middle">0.014</text>
+        <text x="620" y="188" text-anchor="middle">0.015</text>
+        <text x="770" y="195" text-anchor="middle">0.013</text>
+      </g>
+      <g font-size="10" class="soft">
+        <text x="170" y="268" text-anchor="middle" class="soft">2016–18</text>
+        <text x="320" y="268" text-anchor="middle" class="soft">2018–20</text>
+        <text x="470" y="268" text-anchor="middle" class="soft">2020–22</text>
+        <text x="620" y="268" text-anchor="middle" class="soft">2022–24</text>
+        <text x="770" y="268" text-anchor="middle" class="soft">2024–26</text>
+      </g>
+      <line x1="80" y1="166.8" x2="860" y2="166.8" style="stroke:var(--verd);stroke-width:2" class="dash"/>
+      <text x="856" y="160" font-size="10" text-anchor="end" class="ver">mean 0.0227</text>
+      <line x1="80" y1="134.2" x2="860" y2="134.2" style="stroke:var(--oxide);stroke-width:2" class="dash"/>
+      <text x="856" y="128" font-size="10" text-anchor="end" class="oxi">gate needs 0.0316</text>
+      <text x="470" y="292" font-size="11" text-anchor="middle" class="soft">test period of each fold</text>
+    </svg>
+    <figcaption><strong>Figure 4.</strong> Out-of-sample IC by test period. The average (0.0227) leans on the first fold; the last three years sit near 0.013. Even the best fold alone would not make the overall average clear the gate.</figcaption>
+  </figure>
+  <p>Three explanations fit this shape, and a good analyst keeps all three open until tested:</p>
+  <ol>
+    <li><strong>Signal decay.</strong> Published anomalies weaken after publication as investors trade on them — McLean &amp; Pontiff (2016) find anomaly returns about 26% lower just after the sample a paper studied, and about 58% lower once it is published.</li>
+    <li><strong>Regime.</strong> 2016–18 was a calm, trending market where momentum and low-volatility signals worked well; 2020–22 had a pandemic crash, a meme-stock episode and a rate shock.</li>
+    <li><strong>The fold design.</strong> Fold 0 was trained on 2018–26 and tested on 2016–18. A model that learned "what worked later" may look prescient about the earlier period. A true walk-forward test would separate this from decay — now built, and §7.4 gives its answer.</li>
+  </ol>
+
+  <h3><span class="sn">6.3</span>The statistics, one by one</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Printed value</th><th>Number</th><th>Plain-English reading</th></tr></thead>
+    <tbody>
+      <tr><td><code>dates</code></td><td class="num">2,490</td><td>Trading days with an out-of-sample score and a known 21-day outcome.</td></tr>
+      <tr><td><code>names_per_date</code></td><td class="num">497</td><td>Stocks ranked on an average day.</td></tr>
+      <tr><td><code>effective_n</code></td><td class="num">118.6</td><td>2,490 ÷ 21: about 119 non-overlapping months of evidence. Ten years is not much data for a monthly signal.</td></tr>
+      <tr><td><code>corrected_se</code> · <code>t_stat</code></td><td class="num">0.0041 · 5.51</td><td>The error bar <em>if</em> the 119 months were independent. Looks convincing, but it is the optimistic version.</td></tr>
+      <tr><td><code>mde_t3</code></td><td class="num">0.0124</td><td>Minimum detectable effect: under the optimistic error, the smallest IC that would reach t = 3.</td></tr>
+      <tr><td><code>realised_se</code> · <code>t_stat_realised</code></td><td class="num">0.0105 · 2.16</td><td>Newey–West: the daily ICs cluster in good and bad stretches, so the true error bar is 2.5× wider. <strong>t = 2.16 is the honest figure.</strong></td></tr>
+      <tr><td><code>ic_significance</code></td><td class="fail">FAIL</td><td>Needed 3 × 0.0105 = 0.0316; has 0.0227. Probably not zero — but not established at the bar the project set.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout eg">
+    <span class="lbl">Real-life example — the streaky shooter</span>
+    <p>A basketball player hits 55% of shots. If her shots are independent, 200 attempts prove she is better than 50%. If she runs hot and cold for weeks at a time, those 200 shots are really a few dozen "streaks", and the evidence is much weaker. Newey–West measures how streaky the daily IC is.</p>
+  </div>
+
+  <h3><span class="sn">6.4</span>What the model leans on — feature importance</h3>
+  <figure>
+    <svg viewBox="0 0 900 400" role="img" aria-label="Feature importance by gain, top 12">
+      <g font-size="11">
+      <!-- scale: 9.4% -> 560px; 1% = 59.6px; bars from x=260 -->
+        <text x="250" y="34" text-anchor="end">vol_20d</text><rect class="acc" x="260" y="22" width="560" height="18"/><text x="826" y="35">9.4%</text>
+        <text x="250" y="64" text-anchor="end">f_net_margin_sector_z</text><rect class="ver" x="260" y="52" width="334" height="18"/><text x="600" y="65">5.6%</text>
+        <text x="250" y="94" text-anchor="end">rank_vol_20d</text><rect class="acc" x="260" y="82" width="322" height="18"/><text x="588" y="95">5.4%</text>
+        <text x="250" y="124" text-anchor="end">f_size_log_assets</text><rect class="ver" x="260" y="112" width="310" height="18"/><text x="576" y="125">5.2%</text>
+        <text x="250" y="154" text-anchor="end">f_market_to_book</text><rect class="ver" x="260" y="142" width="304" height="18"/><text x="570" y="155">5.1%</text>
+        <text x="250" y="184" text-anchor="end">f_rd_to_revenue</text><rect class="ver" x="260" y="172" width="274" height="18"/><text x="540" y="185">4.6%</text>
+        <text x="250" y="214" text-anchor="end">sma_50_ratio</text><rect class="acc" x="260" y="202" width="274" height="18"/><text x="540" y="215">4.6%</text>
+        <text x="250" y="244" text-anchor="end">f_net_margin</text><rect class="ver" x="260" y="232" width="197" height="18"/><text x="463" y="245">3.3%</text>
+        <text x="250" y="274" text-anchor="end">vol_10d</text><rect class="acc" x="260" y="262" width="167" height="18"/><text x="433" y="275">2.8%</text>
+        <text x="250" y="304" text-anchor="end">f_graham_number_ratio</text><rect class="ver" x="260" y="292" width="167" height="18"/><text x="433" y="305">2.8%</text>
+        <text x="250" y="334" text-anchor="end">f_f_gross_margin_trend_4</text><rect class="ver" x="260" y="322" width="161" height="18"/><text x="427" y="335">2.7%</text>
+        <text x="250" y="364" text-anchor="end">f_debt_to_assets_sector_z</text><rect class="ver" x="260" y="352" width="161" height="18"/><text x="427" y="365">2.7%</text>
+      </g>
+      <rect class="acc" x="560" y="380" width="12" height="10"/><text x="578" y="389" font-size="10">price feature</text>
+      <rect class="ver" x="680" y="380" width="12" height="10"/><text x="698" y="389" font-size="10">fundamental feature</text>
+    </svg>
+    <figcaption><strong>Figure 5.</strong> Share of total split gain in the production fit (top 12 of 61). Price features carry 28% of the gain, fundamentals 72%. Barely used: short-term returns (<code>ret_1d</code>, <code>ret_10d</code>), <code>sma_5_ratio</code>, volume z-score, two Piotroski components.</figcaption>
+  </figure>
+  <p>The picture reads like a summary of the factor literature: <strong>volatility</strong> (low-vol anomaly), <strong>profitability</strong> (quality), <strong>size</strong>, <strong>value</strong> (market-to-book, Graham number), and <strong>trend</strong> (50-day). That is reassuring — the model rediscovered known factors rather than something exotic. It is also a warning: known factors are the ones most likely to have decayed (§6.2).</p>
+  <div class="callout warn">
+    <span class="lbl">Read importance with care</span>
+    <ul>
+      <li>Gain importance says what the trees <em>used</em>, measured in-sample. It does not say what <em>predicts out of sample</em>, and it splits credit arbitrarily between correlated features (<code>vol_20d</code> and <code>rank_vol_20d</code> are nearly the same thing).</li>
+      <li><code>f_rd_to_revenue</code> is under 25% filled yet ranks 6th. Part of its value may be <em>whether it is missing</em> — firms that report R&amp;D are mostly tech and pharma — so it may be acting as a sector label.</li>
+      <li><code>f_net_margin_sector_z</code> is not actually sector-relative in this run (§3.4).</li>
+    </ul>
+  </div>
+
+  <h3><span class="sn">6.5</span>The backtest — the number you must not quote</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Printed value</th><th>Number</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td><code>gross_return</code></td><td class="num">17.52</td><td>+1,752% total over 9.92 years: $100,000 → ~$1.85 million, holding the top 10 names, rebalanced every 21 days.</td></tr>
+      <tr><td><code>annualised_gross</code></td><td class="num">34.2%/yr</td><td>…</td></tr>
+      <tr><td><code>benchmark_return</code> · annualised</td><td class="num">2.74 · 14.2%/yr</td><td>Equal-weighted average of the <em>same</em> universe on the same dates.</td></tr>
+      <tr><td><code>excess_annualised</code></td><td class="num">20.0%/yr</td><td>34.2% − 14.2%.</td></tr>
+      <tr><td><code>trades</code> · <code>rebalances</code></td><td class="num">1,394 · 119</td><td>~11.7 trades per rebalance ≈ 6 of the 10 names replaced each month (~59% monthly turnover).</td></tr>
+      <tr><td><code>fees_paid</code> · <code>cost_survival</code></td><td class="num">$0 · <span class="pass">PASS</span></td><td>The broker is commission-free; spread and slippage are <strong>not modelled</strong>, so this gate is nearly automatic today.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Why not believe 34% a year? Three reasons, in order of size:</p>
+  <ol>
+    <li><strong>Survivorship bias.</strong> The universe is <em>today's</em> S&amp;P 500 applied back to 2016. Every stock in it survived and grew enough to be in the index in 2026. Companies that collapsed, were acquired cheaply or dropped out are missing — exactly the ones a backtest would have held and lost money on (Brown, Goetzmann, Ibbotson &amp; Ross, 1992). The project cannot fix this on its current data plan and stamps every backtest "BIASED".</li>
+    <li><strong>The numbers disagree with each other.</strong> The fundamental law with IC 0.0227 predicts an information ratio near 0.15. A 20%-a-year excess return with a top-10 portfolio's typical tracking error of ~15–25% would imply an IR near 1. The gap is too big to be skill; it is the bias above, plus the luck of a concentrated book.</li>
+    <li><strong>Concentration.</strong> Ten stocks, equal-weighted at entry and allowed to drift. One NVIDIA-sized winner in a ten-stock book moves the whole result.</li>
+  </ol>
+  <div class="callout eg">
+    <span class="lbl">Real-life example — Abraham Wald's bombers</span>
+    <p>In the Second World War, analysts mapped bullet holes on bombers that came back and proposed armouring the most-hit areas. The statistician Abraham Wald pointed out that the planes hit elsewhere — the engines — never came back to be counted. Today's S&amp;P 500 is the set of planes that came back.</p>
+  </div>
+
+  <h3><span class="sn">6.6</span>Breadth — why 500 stocks are only ~3.6 bets</h3>
+  <p>The breadth gate converts "how many stocks" into "how many independent bets". If every pair of stocks has average return correlation ρ, then <em>n</em> stocks are worth</p>
+  <div class="formula">
+    n<sub>eff</sub> = n ÷ (1 + (n − 1)·ρ)   →   1/ρ  as n grows
+    <small>With ρ = 0.275 (measured): 510 stocks → n<sub>eff</sub> = 3.62. Breadth BR = 3.62 × 12 rebalances = 43.4 per year. Implied IR = 0.0227 × √43.4 = <strong>0.150</strong> vs the bar of 0.5 → <span class="fail">FAIL</span>.</small>
+  </div>
+  <figure>
+    <svg viewBox="0 0 900 300" role="img" aria-label="Effective independent names versus number of stocks for correlation 0.275, 0.10 and 0.05">
+      <line class="axis" x1="80" y1="250" x2="860" y2="250"/><line class="axis" x1="80" y1="30" x2="80" y2="250"/>
+      <!-- y: 0..20 -> 250..30 (11 px per unit); x categorical -->
+      <g font-size="10">
+        <text x="72" y="254" text-anchor="end" class="soft">0</text>
+        <text x="72" y="199" text-anchor="end" class="soft">5</text>
+        <text x="72" y="144" text-anchor="end" class="soft">10</text>
+        <text x="72" y="89" text-anchor="end" class="soft">15</text>
+        <text x="72" y="34" text-anchor="end" class="soft">20</text>
+      </g>
+      <line class="ln" x1="80" y1="195" x2="860" y2="195"/><line class="ln" x1="80" y1="140" x2="860" y2="140"/><line class="ln" x1="80" y1="85" x2="860" y2="85"/>
+      <g font-size="10" class="soft">
+        <text x="120" y="268" text-anchor="middle" class="soft">1</text><text x="240" y="268" text-anchor="middle" class="soft">5</text><text x="360" y="268" text-anchor="middle" class="soft">10</text><text x="480" y="268" text-anchor="middle" class="soft">20</text><text x="600" y="268" text-anchor="middle" class="soft">50</text><text x="720" y="268" text-anchor="middle" class="soft">100</text><text x="840" y="268" text-anchor="middle" class="soft">500</text>
+      </g>
+      <text x="470" y="290" font-size="11" text-anchor="middle" class="soft">number of stocks held or ranked (n)</text>
+      <!-- rho .275: 1, 2.38, 2.88, 3.21, 3.45, 3.54, 3.62 -->
+      <polyline fill="none" style="stroke:var(--oxide);stroke-width:2.5" points="120,239 240,223.8 360,218.3 480,214.7 600,212 720,211 840,210.2"/>
+      <!-- rho .10: 1, 3.57, 5.26, 6.9, 8.47, 9.17, 9.82 -->
+      <polyline fill="none" style="stroke:var(--amber);stroke-width:2.5" points="120,239 240,210.7 360,192.1 480,174.1 600,156.8 720,149.1 840,142"/>
+      <!-- rho .05: 1, 4.17, 6.9, 10.3, 14.5, 16.8, 19.3 -->
+      <polyline fill="none" style="stroke:var(--verd);stroke-width:2.5" points="120,239 240,204.1 360,174.1 480,136.7 600,90.5 720,65.2 840,37.7"/>
+      <text x="846" y="203" font-size="11" class="oxi" text-anchor="end">ρ = 0.275 (raw, measured) → 3.6</text>
+      <text x="846" y="146" font-size="11" class="amb" text-anchor="end">ρ = 0.10 → 9.8</text>
+      <text x="846" y="52" font-size="11" class="ver" text-anchor="end">ρ = 0.05 → 19.3</text>
+    </svg>
+    <figcaption><strong>Figure 6.</strong> Independent bets versus number of stocks. With the raw correlation, adding stocks beyond ~20 adds almost nothing — the curve flattens at 1/ρ ≈ 3.6. The amber and green curves are illustrative residual correlations (after removing market and sector moves), not measurements.</figcaption>
+  </figure>
+  <div class="callout eg">
+    <span class="lbl">Real-life analogy — rowers in one boat</span>
+    <p>Five hundred passengers on one ferry are not five hundred independent journeys: if the ferry is late, everyone is late. Stocks share the market "ferry". The raw ρ = 0.275 is mostly that shared ride.</p>
+  </div>
+  <p>Here is the problem with the gate as built: <strong>at ρ = 0.275, BR can never exceed about 44, so passing needs |IC| ≥ 0.5 ÷ √44 ≈ 0.076 every month</strong> — roughly double the best stable ICs reported for monthly equity signals. The gate would refuse almost any realistic model. But a ranking model does not bet on the shared ride; it bets on the ε part of Part 2. The relevant ρ is the <em>residual</em> correlation after removing market and sector moves. The code's residual estimate (0.0014) is useless here, because it removes a market factor built from these same 510 stocks — which makes the average residual correlation ≈ −1/(n−1) by construction. This is the refinement the project deferred "until there are results" — and now there are.</p>
+
+  <h3><span class="sn">6.7</span>Verdict</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Gate</th><th>Result</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><code>ic_significance</code></td><td class="fail">FAIL</td><td>t = 2.16 &lt; 3 on the realised error</td></tr>
+      <tr><td><code>breadth</code></td><td class="fail">FAIL</td><td>IR 0.150 &lt; 0.5 — and the gate's ρ needs rethinking</td></tr>
+      <tr><td><code>cost_survival</code></td><td class="pass">PASS</td><td>Commission-free; spread and slippage not modelled</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <span class="lbl">The correct conclusion</span>
+    <p>"There is <em>probably</em> a weak, fading ranking signal here, built mostly from known factors. It is not established at the evidence bar the fund set, and the backtest return is not credible." Refusing the model is the system working, not failing.</p>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 7 -->
+<section class="part" id="p7">
+  <div class="parthead">
+    <span class="partnum">PART 7</span>
+    <div>
+      <h2>Case study II — three fits, two fixes, one honest scorecard</h2>
+      <p>Part 6 dissected one model. In the following 30 hours the same model was fitted twice more, each time after fixing one thing. This part walks through what changed, what moved, and — just as important — how much of the movement we are entitled to believe.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">7.1</span>The experiment log</h3>
+  <p>Every serious modelling effort keeps a log like this one. The rule is simple: <strong>one change per attempt, every attempt recorded — including the ones that disappoint.</strong> Same 510 stocks, same ten years, same 61 features, same LightGBM settings throughout; only the named change differs.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th></th><th>Fit 1 · 7 Oct</th><th>Fit 2 · 7 Oct (night)</th><th>Fit 3 · 8 Oct</th></tr></thead>
+    <tbody>
+      <tr><td>What changed</td><td>baseline (after the point-in-time fix, §3.3)</td><td>real GICS sectors for the <code>*_sector_z</code> features</td><td>fitted on each day's <strong>return rank</strong>, not the raw return</td></tr>
+      <tr><td>In-sample IC</td><td class="num">0.116</td><td class="num">0.117</td><td class="num">0.220</td></tr>
+      <tr><td>Out-of-sample IC (purged k-fold)</td><td class="num">0.0227</td><td class="num">0.0250</td><td class="num"><strong>0.0360</strong></td></tr>
+      <tr><td>Realised t (gate needs ≥ 3)</td><td class="num">2.16</td><td class="num">2.32</td><td class="num"><strong>3.23</strong></td></tr>
+      <tr><td>Walk-forward IC · t (past only)</td><td class="num">—</td><td class="num">—</td><td class="num">0.0325 · 2.70</td></tr>
+      <tr><td>Implied IR (breadth gate needs 0.5)</td><td class="num">0.150</td><td class="num">0.164</td><td class="num">0.237</td></tr>
+      <tr><td>Price features' share of importance</td><td class="num">28%</td><td class="num">32%</td><td class="num">12%</td></tr>
+      <tr><td>Simulated gross return (biased)</td><td class="num">34.2%/yr</td><td class="num">37.0%/yr</td><td class="num">26.7%/yr</td></tr>
+      <tr><td><code>ic_significance</code> · <code>breadth</code> · <code>cost_survival</code></td><td><span class="fail">FAIL</span> · <span class="fail">FAIL</span> · <span class="pass">PASS</span></td><td><span class="fail">FAIL</span> · <span class="fail">FAIL</span> · <span class="pass">PASS</span></td><td><span class="pass">PASS</span> · <span class="fail">FAIL</span> · <span class="pass">PASS</span></td></tr>
+      <tr><td>Verdict</td><td>refused</td><td>refused</td><td><strong>refused on breadth only</strong></td></tr>
+    </tbody>
+  </table></div>
+
+  <figure>
+    <svg viewBox="0 0 900 330" role="img" aria-label="IC by test period for three fits and the walk-forward">
+<line class="ln" x1="80" y1="219.7" x2="870" y2="219.7"/>
+<text x="72" y="223.7" text-anchor="end" font-size="10" class="soft">0.00</text>
+<line class="ln" x1="80" y1="169.1" x2="870" y2="169.1"/>
+<text x="72" y="173.1" text-anchor="end" font-size="10" class="soft">0.02</text>
+<line class="ln" x1="80" y1="118.5" x2="870" y2="118.5"/>
+<text x="72" y="122.5" text-anchor="end" font-size="10" class="soft">0.04</text>
+<line class="ln" x1="80" y1="67.9" x2="870" y2="67.9"/>
+<text x="72" y="71.9" text-anchor="end" font-size="10" class="soft">0.06</text>
+<line class="axis" x1="80" y1="219.7" x2="870" y2="219.7"/>
+<line x1="80" y1="134.9" x2="870" y2="134.9" style="stroke:var(--oxide);stroke-width:1.5" class="dash"/>
+<text x="525" y="148.9" text-anchor="middle" font-size="10" class="oxi">gate 0.0335</text>
+<rect style="fill:var(--ink-faint)" x="110" y="88.9" width="28" height="130.7"/>
+<rect class="amb" x="140" y="112.9" width="28" height="106.7"/>
+<rect class="acc" x="170" y="58.8" width="28" height="160.8"/>
+<text x="214" y="213.7" text-anchor="middle" font-size="9" class="faint">n/a</text>
+<text x="169" y="268" text-anchor="middle" font-size="10" class="soft">2016–18</text>
+<rect style="fill:var(--ink-faint)" x="268" y="168.1" width="28" height="51.6"/>
+<rect class="amb" x="298" y="155.9" width="28" height="63.7"/>
+<rect class="acc" x="328" y="124.1" width="28" height="95.6"/>
+<rect class="ver" x="358" y="43.7" width="28" height="176.0"/>
+<text x="327" y="268" text-anchor="middle" font-size="10" class="soft">2018–20</text>
+<rect style="fill:var(--ink-faint)" x="426" y="185.3" width="28" height="34.4"/>
+<rect class="amb" x="456" y="180.0" width="28" height="39.7"/>
+<rect class="acc" x="486" y="212.1" width="28" height="7.6"/>
+<rect class="ver" x="516" y="219.7" width="28" height="17.7"/>
+<text x="485" y="268" text-anchor="middle" font-size="10" class="soft">2020–22</text>
+<rect style="fill:var(--ink-faint)" x="584" y="181.7" width="28" height="37.9"/>
+<rect class="amb" x="614" y="146.3" width="28" height="73.3"/>
+<rect class="acc" x="644" y="89.9" width="28" height="129.7"/>
+<rect class="ver" x="674" y="109.7" width="28" height="110.0"/>
+<text x="643" y="268" text-anchor="middle" font-size="10" class="soft">2022–24</text>
+<rect style="fill:var(--ink-faint)" x="742" y="186.8" width="28" height="32.9"/>
+<rect class="amb" x="772" y="187.5" width="28" height="32.1"/>
+<rect class="acc" x="802" y="158.0" width="28" height="61.7"/>
+<rect class="ver" x="832" y="159.0" width="28" height="60.7"/>
+<text x="801" y="268" text-anchor="middle" font-size="10" class="soft">2024–26</text>
+<rect style="fill:var(--ink-faint)" x="90" y="279" width="12" height="10"/><text x="108" y="288" font-size="10">Fit 1 · k-fold (raw target)</text>
+<rect class="amb" x="490" y="279" width="12" height="10"/><text x="508" y="288" font-size="10">Fit 2 · k-fold (+ sectors)</text>
+<rect class="acc" x="90" y="295" width="12" height="10"/><text x="108" y="304" font-size="10">Fit 3 · k-fold (+ rank target)</text>
+<rect class="ver" x="490" y="295" width="12" height="10"/><text x="508" y="304" font-size="10">Fit 3 · walk-forward (past only)</text>
+</svg>
+
+    <figcaption><strong>Figure 7.</strong> Out-of-sample IC by test period. Grey: fit 1. Amber: fit 2. Blue: fit 3 (purged k-fold). Green: fit 3's walk-forward, trained only on the past (it has no 2016–18 block, because nothing came before it). The dashed line is the significance bar on the <em>ten-year average</em>; single blocks are noisier and are not gated one by one.</figcaption>
+  </figure>
+
+  <h3><span class="sn">7.2</span>Fix 1 — sectors that are really sectors</h3>
+  <h4>What was wrong</h4>
+  <p>Five features were meant to compare each company with its own industry — "is this net margin good <em>for a bank</em>?". Training supplied no sector list, so every company landed in one big group, and the "sector" z-score quietly became a <em>whole-market</em> z-score (§3.4). The model was told it was comparing grocers with grocers; it was comparing grocers with software houses.</p>
+  <div class="callout eg">
+    <span class="lbl">Classroom analogy — grading on the wrong curve</span>
+    <p>A mark of 70% is excellent in a hard engineering exam and ordinary in an easy elective. Standardising every student's mark against the <em>whole university</em> instead of against their own course hides exactly the information you wanted. That is what the five features were doing.</p>
+  </div>
+  <h4>The change</h4>
+  <p>Training and the daily run both read one GICS sector map (510 of 510 names). A company with no known sector now gets an empty value, not a pooled one. Declared limitation: it is <em>today's</em> classification, applied to the whole ten years.</p>
+  <h4>What moved — and how much</h4>
+  <ul>
+    <li>Average IC 0.0227 → 0.0250 (+10%); t 2.16 → 2.32. Still well short of the bar.</li>
+    <li>The more interesting change is the <strong>shape</strong> (Figure 7, grey → amber): 2016–18 fell from 0.052 to 0.042 while 2018–24 rose. Part of the earlier "strong start" seems to have come from the market-wide version of these features — a signal that did not travel to later years. The fixed features are steadier.</li>
+    <li><strong>How sure can we be?</strong> Both fits use the same stocks and days, so most of their noise is shared and the <em>difference</em> is far less noisy than either standard error (≈0.011) suggests. But we did not measure how much less, so the honest summary is: <em>consistent with a small real gain, not proof of one.</em></li>
+  </ul>
+
+  <h3><span class="sn">7.3</span>Fix 2 — teach the model the question you will ask it</h3>
+  <h4>What was wrong</h4>
+  <p>The model was fitted to predict each stock's <strong>raw</strong> 21-day return, then used only to <strong>order</strong> stocks. Those are different jobs. A raw monthly return is mostly the market's swing — the part every stock shares — and squared error is dominated by the biggest numbers in the data.</p>
+  <div class="callout eg">
+    <span class="lbl">Real-life example — March 2020</span>
+    <p>In March 2020 almost every S&amp;P 500 stock fell 20–40% in a month. Fitted on raw returns, the trees work hardest on rows like these, trying to predict the <em>crash</em> — something a ranking cannot use, because on the day you rank, every stock is about to crash together. Fitted on ranks, March 2020 looks like any other month: some names fell less than others, and <em>that</em> is the lesson.</p>
+  </div>
+  <h4>The change</h4>
+  <p>On each date, the 500 forward returns are replaced by their rank, then mapped to a normal score:</p>
+  <div class="formula">
+    ẑ<sub>i,t</sub> = Φ<sup>−1</sup>( (rank<sub>i,t</sub> − ½) / n<sub>t</sub> )
+    <small>With 497 names the best stock that month gets about +3.1, the median 0, the worst about −3.1 — every month, whatever the market did. Adding 8% to every stock (a good market month) changes nothing. Evaluation still uses the <em>raw</em> return: the target changes what the trees learn, never how they are graded.</small>
+  </div>
+  <p>Why a normal score rather than a plain 0–1 percentile? Because the daily card used to multiply the model's score by each stock's volatility (§7.6). A percentile is always positive, so that multiplication would have ranked mostly by volatility. A centred score keeps "above median" and "below median" apart.</p>
+  <h4>What moved — and why it is believable this time</h4>
+  <ul>
+    <li><strong>Out-of-sample IC 0.0250 → 0.0360 (+44%); t 2.32 → 3.23.</strong> The significance gate passed for the first time.</li>
+    <li>The <strong>importances</strong> changed in the way the theory predicts. Under raw returns, <code>vol_20d</code> was the single most-used feature and price features held 28–32% of all importance. Under ranks, price features fall to 12% and volatility leaves the top eight; growth and cash-flow features (<code>f_operating_income_chg_1</code>, <code>f_revenue_rolling_chg_4</code>, <code>f_operating_cash_flow_chg_1</code>) rise. Volatile stocks have the largest raw returns in <em>both</em> directions, so a squared-error model leaned on volatility to predict the <em>size</em> of moves — not their order. Remove the size, and the model turns to what distinguishes one company from another.</li>
+    <li>In-sample IC jumped 0.117 → 0.220. That is not good news by itself — it mostly means the rank target is easier to fit. It does mean the gap between in-sample and out-of-sample is now wider, which matters for §8.3 (regularisation).</li>
+  </ul>
+
+  <h3><span class="sn">7.4</span>The walk-forward: did the model learn from the future?</h3>
+  <p>Fit 3 was also the first to be measured by a true <strong>walk-forward</strong>: each two-year block is predicted by a model trained only on the years before it (§5.2 explained why the purged k-fold is not that). The two estimates are close — <strong>0.0325 against 0.0360</strong>. Training only on the past costs about a tenth of the signal, not most of it. The worry raised in §6.2, that the k-fold's good early numbers came from a model that had seen later markets, is largely answered: it was not the main story.</p>
+  <p>But the walk-forward's t is <strong>2.70</strong>. Gated on that, fit 3 would fail. Two honest measurements, one on each side of the bar: this is precisely why "which protocol gates?" is a decision to make <em>before</em> looking, not after.</p>
+
+  <h3><span class="sn">7.5</span>The block that would not cooperate: 2020–22</h3>
+  <p>Look again at Figure 7. In 2020–22 the k-fold IC is 0.003 and the walk-forward −0.007: <strong>no signal at all</strong>, under both protocols, in the best fit. That period held a pandemic crash, a stay-at-home boom in speculative growth stocks, a meme-stock episode and, in 2022, the sharpest rate rise in forty years. Factors that had worked — profitability, low volatility, value — took turns failing.</p>
+  <p>The project declared this risk up front: <em>"Not regime-conditioned: one model is fitted across all market states; a result from one regime is not evidence for another."</em> This is that sentence, measured. A model that averages 0.036 but goes blind for two years in five is a different proposition from one that earns 0.036 steadily — and the average alone cannot tell them apart.</p>
+
+  <h3><span class="sn">7.6</span>A fourth finding: grading one ranking, serving another</h3>
+  <p>When a gate passes for the first time, it is worth asking: <em>passes for what, exactly?</em> The gates and the backtest ordered stocks by the model's score ẑ. The daily card ordered them by ẑ × volatility × √21 — a rule written for a model fitted on volatility-scaled returns, which this model never was. A calm stock with a high score could be overtaken by a volatile stock with a lower one. The PASS described a ranking the card would never have shown.</p>
+  <div class="callout eg">
+    <span class="lbl">Analogy — the translated essay</span>
+    <p>A student's essay is marked in English and earns an A. The school then publishes a machine translation under the same grade. The translation may be fine — but nobody marked it.</p>
+  </div>
+  <p>The fix (8 Oct): the card now orders by ẑ — the ranking the gates measured — and shows ẑ × σ × √21 beside it as information only. General lesson: <strong>evaluate the exact quantity you serve.</strong> Any transformation between the evaluated output and the served output is a place where a validated model becomes an unvalidated one.</p>
+
+  <h3><span class="sn">7.7</span>How much should we believe the PASS?</h3>
+  <p>Three fits on the same ten years are three draws. A crude but standard correction (Bonferroni) multiplies each p-value by the number of attempts:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Measurement</th><th>t</th><th>p (two-sided)</th><th>× 3 attempts</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td>Fit 3, purged k-fold</td><td class="num">3.23</td><td class="num">0.0012</td><td class="num">0.0037</td><td>Survives the correction comfortably</td></tr>
+      <tr><td>Fit 3, walk-forward</td><td class="num">2.70</td><td class="num">0.0069</td><td class="num">0.021</td><td>Significant at 5%, not at the project's t ≥ 3 bar</td></tr>
+      <tr><td>Fit 2, purged k-fold</td><td class="num">2.32</td><td class="num">0.020</td><td class="num">0.061</td><td>Would not survive</td></tr>
+    </tbody>
+  </table></div>
+  <p>Read this table with care: the t ≥ 3 bar of Harvey, Liu &amp; Zhu (2016) already allows for the whole profession's searching, so correcting again for our own three tries is conservative. The fair summary is: <strong>there is a ranking signal here, probably real, modest in size, and unreliable in some market regimes.</strong> That is a typical — and respectable — place for an equity signal to be.</p>
+
+  <h3><span class="sn">7.8</span>Why it is still refused: breadth decides now</h3>
+  <p>With significance passed, the only blocking gate is breadth, and §6.6 showed why it is so hard to pass: with the raw stock-to-stock correlation (ρ = 0.275), 497 names count as only 3.6 independent bets. The arithmetic below shows how completely the verdict now depends on <em>which</em> correlation the gate uses:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Correlation used (ρ)</th><th>Independent names</th><th>Breadth / yr</th><th>Implied IR at IC 0.036</th><th>Gate (0.5)</th></tr></thead>
+    <tbody>
+      <tr><td>0.275 — raw, today's gate</td><td class="num">3.6</td><td class="num">43</td><td class="num">0.24</td><td class="fail">FAIL</td></tr>
+      <tr><td>0.10 — illustrative residual</td><td class="num">9.8</td><td class="num">118</td><td class="num">0.39</td><td class="fail">FAIL</td></tr>
+      <tr><td><strong>0.060 — break-even</strong></td><td class="num">16.1</td><td class="num">193</td><td class="num">0.50</td><td>—</td></tr>
+      <tr><td>0.05 — illustrative residual</td><td class="num">19.3</td><td class="num">231</td><td class="num">0.55</td><td class="pass">PASS</td></tr>
+    </tbody>
+  </table></div>
+  <p>So the model passes if the <em>residual</em> correlation — what is left after removing market and sector moves — is below about 0.06, and fails above it. That number has not been measured yet: the code's own residual estimate removes a market factor built from these same 510 stocks, which forces the answer to ≈ −1/(n−1). Measuring it properly, against SPY and the sector ETFs, is now the single most decision-relevant measurement in the project (§8.1).</p>
+
+  <div class="callout key">
+    <span class="lbl">What the case study teaches</span>
+    <ol>
+      <li><strong>Fix the data before the model.</strong> Two of the three biggest problems found this week (stale fundamentals, fake sectors) were inputs, not algorithms.</li>
+      <li><strong>Match the target to the decision.</strong> The single largest gain came from asking the model the question it would be used for — not from more data, more trees or a cleverer algorithm.</li>
+      <li><strong>Measure two ways.</strong> The walk-forward did not overturn the k-fold, but it did show the PASS is narrow.</li>
+      <li><strong>Grade what you serve.</strong> A gate is only as good as the match between what it measured and what goes out the door.</li>
+      <li><strong>Keep the count.</strong> Three attempts, written down. The fourth will be judged knowing that.</li>
+    </ol>
+  </div>
+
+  <div class="quiz">
+    <strong>Check yourself</strong>
+    <ol>
+      <li>Fit 3's simulated return <em>fell</em> (37% → 27%) while its IC <em>rose</em>. How can both be true?</li>
+      <li>Why did volatility features lose importance when the target became a rank?</li>
+      <li>A colleague proposes trying five more feature sets and keeping the best. What would you ask for first?</li>
+    </ol>
+    <details><summary>Answers</summary><p>(1) IC measures the ordering of all ~500 names; the simulation holds only the top 10, in a survivorship-biased universe where the most volatile past winners are over-represented. The raw-return model leaned on those names; the rank model leans less on them — a better ranking, a less lucky top 10. (2) Volatile stocks have the biggest raw moves in both directions, so a squared-error fit used volatility to predict the size of moves. A rank has no size. (3) That the five be written down now, that all five be reported whatever their results, and that the decision rule (which measurement, what bar) be fixed before the first one runs.</p></details>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 8 -->
+<section class="part" id="p8">
+  <div class="parthead">
+    <span class="partnum">PART 8</span>
+    <div>
+      <h2>How to improve it further — without fooling yourself</h2>
+      <p>Updated after case study II. In order: fix the measurement, then the problem setup, then the model. Tuning a model on a broken ruler only produces a better-looking broken result.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="lbl">The trap to avoid first</span>
+    <p>Every change you try and then keep because the IC went up is one more coin-flip in the contest of §5.3. Ten tweaks tested on the same five folds can manufacture t = 3 out of nothing. Write down what you will try <strong>before</strong> you try it, count every attempt, and report the count (Bailey &amp; López de Prado, 2014). <strong>Three attempts have now been spent on 2016–2026</strong> (§7.7).</p>
+  </div>
+
+  <h3><span class="sn">8.0</span>What the first round already did</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Suggestion (first edition of this lecture)</th><th>Status</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td>True walk-forward beside the k-fold</td><td class="pass">DONE</td><td>0.0325 vs 0.0360 — the k-fold was not mainly "learning the future" (§7.4)</td></tr>
+      <tr><td>Supply the sector map</td><td class="pass">DONE</td><td>IC +10%, steadier across blocks (§7.2)</td></tr>
+      <tr><td>Cross-sectional (rank) target</td><td class="pass">DONE</td><td>IC +44%, first significance PASS (§7.3)</td></tr>
+      <tr><td>Serve the ranking that was graded</td><td class="pass">DONE</td><td>found on the way (§7.6)</td></tr>
+      <tr><td>Purge in trading days</td><td>half done</td><td>walk-forward yes; k-fold still calendar days (<code>DX-161</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">8.1</span>Next: fix the remaining measurements</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Change</th><th>Why</th><th>How you would know it helped</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><strong>Measure the residual correlation against outside series</strong> — regress each stock on SPY and its sector ETF, then average the pairwise correlation of what is left</td><td>The breadth verdict now turns on this one number (§7.8): pass below ~0.06, fail above</td><td>It is a measurement, not a model change — it costs no attempt</td></tr>
+      <tr><td>2</td><td><strong>Decide which protocol gates — before the next fit</strong></td><td>The k-fold passes (3.23), the walk-forward does not (2.70). Choosing after seeing would be choosing the answer</td><td>A written ruling, then every later fit is judged the same way</td></tr>
+      <tr><td>3</td><td><strong>A live paper record</strong>: log the card's picks every day and score them as their 21 days complete</td><td>All ten years of history have now been looked at three times. Only the future is still untouched data</td><td>After 6–12 months, a genuinely out-of-sample IC. Each daily run already saves its nomination (<code>recommendation.json</code>); what is missing is the scorer that grades it 21 days later</td></tr>
+      <tr><td>4</td><td>Model <strong>spread and slippage</strong> (5–10 bp per side for large caps)</td><td>Fit 3 trades 1,272 times — about 5 of 10 names replaced each month</td><td><code>cost_survival</code> becomes a real test</td></tr>
+      <tr><td>5</td><td>Purge the k-fold in trading days</td><td>Same unit as the horizon (<code>DX-161</code>)</td><td>No change at 21 days; protects a future 63-day model</td></tr>
+      <tr><td>6</td><td><strong>Point-in-time index membership</strong></td><td>The only real cure for survivorship bias</td><td>Needs a data source the current plan lacks</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">8.2</span>Next: understand 2020–22 before changing the model</h3>
+  <ul>
+    <li><strong>Per-feature IC by block.</strong> For each of the 61 features, compute its own rank IC in each two-year block. The features whose sign flipped in 2020–22 are the ones the model trusted and the market did not reward. This is diagnosis, not an attempt.</li>
+    <li><strong>Only then, if justified, add state variables as inputs</strong> — for example the market's own trailing volatility or the cross-sectional dispersion of returns — so one model can learn that a feature matters more in calm markets than in turbulent ones. That would revisit the project's "declared limitation" on regimes (F12 <code>D3</code>), so it is a decision, not a tweak.</li>
+  </ul>
+
+  <h3><span class="sn">8.3</span>Then: the problem setup and the model</h3>
+  <ul>
+    <li><strong>Regularise against the wider gap.</strong> In-sample IC 0.220 against 0.036 out of sample means the trees now memorise more. Tune a few settings with <em>nested</em> validation (an inner split inside each training fold): fewer leaves (7–15), much larger <code>min_child_samples</code> (200–1,000, so each leaf spans many dates), stronger L2, and early stopping on the inner IC. Counted as one attempt.</li>
+    <li><strong>A ranking objective.</strong> LightGBM's <code>lambdarank</code> (Burges, 2010), grouping rows by date, optimises the ordering directly. Expect a modest change; the rank target already captured most of the gain.</li>
+    <li><strong>Standardise level features per date</strong> (<code>f_eps</code>, <code>f_fcf</code>, <code>f_size_log_assets</code>) and <strong>make missingness explicit</strong> ("reports R&amp;D: yes/no" — <code>f_rd_to_revenue</code> is still near the top of the importances while 75% empty).</li>
+    <li><strong>Average several seeds or the five fold models</strong> — cheap variance reduction.</li>
+    <li><strong>Prune with out-of-sample evidence</strong> — permutation importance on the test folds, not gain on the training fit.</li>
+    <li><strong>Explain each pick</strong> with SHAP values (Lundberg &amp; Lee, 2017), as the explainability seat requires.</li>
+  </ul>
+
+  <h3><span class="sn">8.4</span>Then: the portfolio around it</h3>
+  <ul>
+    <li><strong>Rank buffers</strong> — replace a held stock only when it falls out of, say, the top 30.</li>
+    <li><strong>A fair benchmark rule.</strong> Compare against a simple "quality + low volatility" ranking on the same protocol. If the model cannot beat the rule, the rule ranks the card.</li>
+    <li><strong>Remember the transfer coefficient</strong> — long-only, ten names loses part of the signal: IR ≈ TC × IC × √BR (Clarke, de Silva &amp; Thorley, 2002).</li>
+  </ul>
+
+  <div class="callout key">
+    <span class="lbl">A realistic order of work from here</span>
+    <ol>
+      <li><strong>Measurements that cost no attempt:</strong> residual correlation for breadth; per-feature IC by block; start the live paper record.</li>
+      <li><strong>Two written rulings:</strong> which protocol gates significance; how breadth is measured.</li>
+      <li><strong>One pre-registered attempt:</strong> nested regularisation tuning (with level standardisation and the missingness flag bundled in, declared in advance).</li>
+      <li><strong>Then stop tuning on history.</strong> Let the paper record speak for six months before the next change.</li>
+    </ol>
+  </div>
+
+  <div class="quiz">
+    <strong>Check yourself</strong>
+    <ol>
+      <li>You try 12 hyperparameter settings and keep the best, which shows t = 3.1. Is the gate honestly passed?</li>
+      <li>Why might <em>fewer</em> leaves and <em>bigger</em> leaves improve out-of-sample IC?</li>
+      <li>Why is a live paper record more valuable now than a fourth backtest?</li>
+    </ol>
+    <details><summary>Answers</summary><p>(1) Not on its face: the best of 12 noisy attempts is biased upward. Count the 12, and confirm on an untouched period. (2) With tiny signal and lots of noise, small or narrow leaves memorise noise (a few bad weeks); larger leaves force each rule to hold across many dates. (3) Every year of history has already influenced three decisions; the future has influenced none. It is the only clean test left.</p></details>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 9 -->
+<section class="part" id="p9">
+  <div class="parthead">
+    <span class="partnum">PART 9</span>
+    <div>
+      <h2>Glossary and references</h2>
+    </div>
+  </div>
+
+  <div class="tablewrap"><table>
+    <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Cross-section</td><td>All stocks on one date, compared with each other.</td></tr>
+      <tr><td>Label</td><td>The value the model learns to predict — here the 21-day open-to-open return.</td></tr>
+      <tr><td>IC (information coefficient)</td><td>Per-date rank correlation between scores and later returns, averaged over dates.</td></tr>
+      <tr><td>In-sample / out-of-sample</td><td>Scored on the data the model was fitted on / on data it never saw.</td></tr>
+      <tr><td>Purge / embargo</td><td>Gaps removed from training around each test block so overlapping labels cannot leak.</td></tr>
+      <tr><td>Walk-forward</td><td>Train on the past only, test on the next period, roll forward.</td></tr>
+      <tr><td>Rank-Gauss target</td><td>Each day's returns replaced by their rank, mapped to a normal score — the market's shared move removed.</td></tr>
+      <tr><td>Bonferroni correction</td><td>Multiplying a p-value by the number of attempts, to allow for having tried several.</td></tr>
+      <tr><td>Newey–West SE</td><td>A standard error that widens for autocorrelated (streaky) observations.</td></tr>
+      <tr><td>MDE</td><td>Minimum detectable effect — the smallest true IC a test could reliably detect.</td></tr>
+      <tr><td>IR (information ratio)</td><td>Excess return over a benchmark ÷ the volatility of that excess.</td></tr>
+      <tr><td>Breadth (BR)</td><td>Independent bets per year; n<sub>eff</sub> × rebalances per year.</td></tr>
+      <tr><td>Point-in-time</td><td>Using only what was published by the date in question.</td></tr>
+      <tr><td>Survivorship bias</td><td>Overstated results from studying only what survived to today.</td></tr>
+      <tr><td>Gradient boosting</td><td>Adding small trees one at a time, each fitted to the remaining errors.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">9.1</span>References</h3>
+  <p style="font-size:var(--fs-sm);color:var(--ink-soft)">Venue noted for each: <span class="tag">T1</span> top-tier finance / econometrics journal · <span class="tag">ML</span> top ML conference · <span class="tag">book</span> standard text · <span class="tag">prac</span> practitioner journal.</p>
+  <ol class="refs">
+    <li>Ang, A., Hodrick, R. J., Xing, Y. &amp; Zhang, X. (2006). The cross-section of volatility and expected returns. <em>Journal of Finance</em>, 61(1), 259–299. <span class="tag">T1</span></li>
+    <li>Bailey, D. H. &amp; López de Prado, M. (2014). The deflated Sharpe ratio: correcting for selection bias, backtest overfitting and non-normality. <em>Journal of Portfolio Management</em>, 40(5), 94–107. <span class="tag">prac</span></li>
+    <li>Banz, R. W. (1981). The relationship between return and market value of common stocks. <em>Journal of Financial Economics</em>, 9(1), 3–18. <span class="tag">T1</span></li>
+    <li>Brown, S. J., Goetzmann, W., Ibbotson, R. G. &amp; Ross, S. A. (1992). Survivorship bias in performance studies. <em>Review of Financial Studies</em>, 5(4), 553–580. <span class="tag">T1</span></li>
+    <li>Burges, C. J. C. (2010). From RankNet to LambdaRank to LambdaMART: an overview. Microsoft Research Technical Report MSR-TR-2010-82. <span class="tag">tech report</span></li>
+    <li>Chan, L. K. C., Lakonishok, J. &amp; Sougiannis, T. (2001). The stock market valuation of research and development expenditures. <em>Journal of Finance</em>, 56(6), 2431–2456. <span class="tag">T1</span></li>
+    <li>Clarke, R., de Silva, H. &amp; Thorley, S. (2002). Portfolio constraints and the fundamental law of active management. <em>Financial Analysts Journal</em>, 58(5), 48–66. <span class="tag">prac</span></li>
+    <li>Fama, E. F. &amp; French, K. R. (1992). The cross-section of expected stock returns. <em>Journal of Finance</em>, 47(2), 427–465. <span class="tag">T1</span></li>
+    <li>Frazzini, A. &amp; Pedersen, L. H. (2014). Betting against beta. <em>Journal of Financial Economics</em>, 111(1), 1–25. <span class="tag">T1</span></li>
+    <li>Friedman, J. H. (2001). Greedy function approximation: a gradient boosting machine. <em>Annals of Statistics</em>, 29(5), 1189–1232. <span class="tag">T1 stats</span></li>
+    <li>Grinold, R. C. (1989). The fundamental law of active management. <em>Journal of Portfolio Management</em>, 15(3), 30–37. <span class="tag">prac</span></li>
+    <li>Grinold, R. C. &amp; Kahn, R. N. (2000). <em>Active Portfolio Management</em> (2nd ed.). McGraw-Hill. <span class="tag">book</span></li>
+    <li>Grinsztajn, L., Oyallon, E. &amp; Varoquaux, G. (2022). Why do tree-based models still outperform deep learning on typical tabular data? <em>NeurIPS Datasets and Benchmarks Track</em>. <span class="tag">ML</span></li>
+    <li>Gu, S., Kelly, B. &amp; Xiu, D. (2020). Empirical asset pricing via machine learning. <em>Review of Financial Studies</em>, 33(5), 2223–2273. <span class="tag">T1</span></li>
+    <li>Harvey, C. R., Liu, Y. &amp; Zhu, H. (2016). … and the cross-section of expected returns. <em>Review of Financial Studies</em>, 29(1), 5–68. <span class="tag">T1</span></li>
+    <li>Jegadeesh, N. &amp; Titman, S. (1993). Returns to buying winners and selling losers: implications for stock market efficiency. <em>Journal of Finance</em>, 48(1), 65–91. <span class="tag">T1</span></li>
+    <li>Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q. &amp; Liu, T.-Y. (2017). LightGBM: a highly efficient gradient boosting decision tree. <em>NeurIPS 30</em>. <span class="tag">ML</span></li>
+    <li>López de Prado, M. (2018). <em>Advances in Financial Machine Learning</em>. Wiley. (Ch. 7: purged k-fold cross-validation and embargo.) <span class="tag">book</span></li>
+    <li>Lundberg, S. M. &amp; Lee, S.-I. (2017). A unified approach to interpreting model predictions. <em>NeurIPS 30</em>. <span class="tag">ML</span></li>
+    <li>McLean, R. D. &amp; Pontiff, J. (2016). Does academic research destroy stock return predictability? <em>Journal of Finance</em>, 71(1), 5–32. <span class="tag">T1</span></li>
+    <li>Newey, W. K. &amp; West, K. D. (1987). A simple, positive semi-definite, heteroskedasticity and autocorrelation consistent covariance matrix. <em>Econometrica</em>, 55(3), 703–708. <span class="tag">T1</span></li>
+    <li>Novy-Marx, R. (2013). The other side of value: the gross profitability premium. <em>Journal of Financial Economics</em>, 108(1), 1–28. <span class="tag">T1</span></li>
+    <li>Piotroski, J. D. (2000). Value investing: the use of historical financial statement information to separate winners from losers. <em>Journal of Accounting Research</em>, 38 (Supplement), 1–41. <span class="tag">T1 acct</span></li>
+    <li>Sloan, R. G. (1996). Do stock prices fully reflect information in accruals and cash flows about future earnings? <em>The Accounting Review</em>, 71(3), 289–315. <span class="tag">T1 acct</span></li>
+  </ol>
+
+  <h3><span class="sn">9.2</span>Where this lives in the code</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Topic</th><th>File</th></tr></thead>
+    <tbody>
+      <tr><td>Training entry point &amp; stages</td><td><code>src/models/train/__main__.py</code>, <code>src/models/train/run.py</code></td></tr>
+      <tr><td>LightGBM settings</td><td><code>src/models/zoo/gbdt.py</code></td></tr>
+      <tr><td>Features</td><td><code>src/feature_engineer/contracts/sets/</code>, <code>src/feature_engineer/fundamental/</code></td></tr>
+      <tr><td>Point-in-time replay (DX-159)</td><td><code>src/data_engine/service.py::get_fundamentals_history</code>, <code>src/feature_engineer/fundamental/build.py::replay</code></td></tr>
+      <tr><td>Folds, purge, embargo; the walk-forward</td><td><code>src/quant/backtest/protocol.py</code> (<code>make_folds</code>, <code>make_walk_forward_folds</code>)</td></tr>
+      <tr><td>Within-day rank target</td><td><code>src/feature_engineer/contracts/labels.py::cross_sectional_gauss</code>, <code>src/models/train/run.py::fit_target</code></td></tr>
+      <tr><td>How the card orders a model's picks</td><td><code>src/models/infer/rank.py::rank_by_model</code></td></tr>
+      <tr><td>IC, Newey–West, breadth</td><td><code>src/quant/metrics/ic.py</code>, <code>src/quant/metrics/breadth.py</code></td></tr>
+      <tr><td>Gates</td><td><code>src/quant/gates/metric_gate.py</code></td></tr>
+      <tr><td>Portfolio simulation</td><td><code>src/quant/backtest/portfolio.py</code></td></tr>
+      <tr><td>Review &amp; promotion</td><td><code>src/models/promote.py</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Study material, not a specification. Where this lecture and a spec disagree, the spec wins and this lecture is stale. Part 6's numbers are from the first fit of 2026-10-07 (artifact <code>sha256:c30170a7…</code>, backtest <code>bt:84f3b66ee6272aaf</code>); Part 7 adds fit 2 (<code>sha256:26d118d2…</code>, <code>bt:b1fffff79d4aec2c</code>) and fit 3 (<code>sha256:fde8fb5e…</code>, <code>bt:7b60dc69e914d025</code>). Feature importances are read from each artifact's fitted booster.</p>
+  </div>
+</footer>
+</body>
+</html>

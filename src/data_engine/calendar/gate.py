@@ -47,8 +47,14 @@ from datetime import date
 #: blanket one is not explicit, it just looks like it.
 ADJUSTMENT_HANDLES = ("split", "reverse_split")
 
+#: ★★ DE-76 / QD-15 (Victor, 2026-10-07: *"PIT store"*) — handled ONLY for a caller
+#: that derives fundamentals per filing date (DE-75, FE-40). ⚠ Opt-in, never
+#: blanket: a caller that reads once and joins across dates would show the
+#: amended figure from the amendment on and nothing true for the gap before it.
+PIT_FUNDAMENTALS_HANDLES = ("restatement_amended",)
 
-def adjustment_handling(findings, *, adj_as_of) -> dict:
+
+def adjustment_handling(findings, *, adj_as_of, fundamentals_pit: bool = False) -> dict:
     """`{(ticker, class, date): why}` for the BLOCKs the adjustment **covers**.
 
     ★ QD-15's only defined handling: the panel is derived at the run's
@@ -67,17 +73,24 @@ def adjustment_handling(findings, *, adj_as_of) -> dict:
     from src.data_engine.calendar.classes import BY_NAME
     from src.data_engine.contracts import BLOCK
 
-    return {
-        (f.ticker, f.event_class, f.event_date):
-            f"panel derived at the run's adj_as_of {adj_as_of} (DE-28, QD-15)"
-        for f in findings
-        if BY_NAME[f.event_class].severity == BLOCK
-        and f.event_class in ADJUSTMENT_HANDLES
-    }
+    handled = {}
+    for f in findings:
+        if BY_NAME[f.event_class].severity != BLOCK:
+            continue
+        key = (f.ticker, f.event_class, f.event_date)
+        if f.event_class in ADJUSTMENT_HANDLES:
+            handled[key] = f"panel derived at the run's adj_as_of {adj_as_of} (DE-28, QD-15)"
+        elif fundamentals_pit and f.event_class in PIT_FUNDAMENTALS_HANDLES:
+            # ★ DE-76 — the replay shows the original before the amendment's
+            #   filing date and the amended figure from it: no look-ahead, no gap.
+            handled[key] = ("fundamentals point-in-time per filing date: as filed "
+                            "before the amendment, amended after (DE-75, DE-76, QD-15)")
+    return handled
 
 
 def check_window(*, store, universe, start: date, end: date, as_of: date,
-                 adj_as_of, run_id: str, max_age_days: int = 1):
+                 adj_as_of, run_id: str, max_age_days: int = 1,
+                 fundamentals_pit: bool = False):
     """`calendar_check` over `[start, end]`, with the adjustment handling recorded.
 
     ★ **The handling is derived from the STORE**, so it covers every BLOCK the
@@ -88,7 +101,7 @@ def check_window(*, store, universe, start: date, end: date, as_of: date,
     from src.data_engine.calendar.store import CachedEventFeed
 
     handled = adjustment_handling(_blocks_in_window(store, start, end, as_of),
-                                  adj_as_of=adj_as_of)
+                                  adj_as_of=adj_as_of, fundamentals_pit=fundamentals_pit)
     return calendar_check(
         tickers=universe, start=start, end=end, as_of=as_of,
         adj_as_of=adj_as_of, feed=CachedEventFeed(store, max_age_days=max_age_days),

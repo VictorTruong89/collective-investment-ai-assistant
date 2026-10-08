@@ -170,3 +170,21 @@ def test_widening_the_universe_does_not_widen_what_may_be_bought():
 
     watchlist = load_universe()
     assert len(watchlist) > 0, "the watchlist survives as its own list"
+
+
+# --------------------------------------------------------------------------- #
+# ★★ MT-60 / AC-4.42 (DX-165) — the card ranks what the gates measured
+# --------------------------------------------------------------------------- #
+
+def test_ac_4_42_the_order_follows_the_score_not_the_volatility_scaled_value():
+    """A calm name with a larger score beats a volatile one with a smaller score.
+    ⚠ Before 2026-10-08 the order was ẑ·σ̂·√h, so B (ẑ 1.0, σ 0.05 → 0.229) beat
+    A (ẑ 2.0, σ 0.01 → 0.092) — the gates had measured the ẑ order."""
+    panel = _panel(names=("A", "B"), scores=(2.0, 1.0))
+    panel["vol_20d"] = [0.01, 0.05]
+    ranked = rank_by_model(panel, as_of=AS_OF, horizon_days=21,
+                           estimator=_Estimator(), feature_names=("feat",))
+    assert [c["ticker"] for c in ranked] == ["A", "B"]
+    assert [c["ranked_quantity"] for c in ranked] == [c["z"] for c in ranked]
+    assert ranked[1]["sigma_scaled"] == pytest.approx(1.0 * 0.05 * 21 ** 0.5)
+    assert ranked[1]["sigma_scaled"] > ranked[0]["sigma_scaled"], "reported, not ordering"

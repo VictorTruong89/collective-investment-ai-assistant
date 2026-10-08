@@ -38,7 +38,7 @@ def _file(records=(), version=SCHEMA_V2):
 # ── the schema ───────────────────────────────────────────────────────────────
 
 def test_v2_is_v1_plus_three_columns_and_v1_is_untouched():
-    assert RECORD_FIELDS_V2 == (*RECORD_FIELDS_V1, "value", "unit", "period")
+    assert (*RECORD_FIELDS_V1, "value", "unit", "period") == RECORD_FIELDS_V2
     assert SCHEMAS[SCHEMA_V1].record_fields == RECORD_FIELDS_V1
     assert SCHEMAS[SCHEMA_V1].fingerprint != SCHEMAS[SCHEMA_V2].fingerprint
 
@@ -170,8 +170,8 @@ def test_dx_150c_an_OMITTED_source_is_a_logged_omission_never_a_silent_gap():
     """✏ `DX-150` ⓒ (Victor, 2026-10-04): Samsung does not file in the US and its deck cannot be
     quoted verbatim, so E-15's file skips it — ★ as an `Omission` carrying the reason (`RA-98`),
     with the source list itself unchanged."""
-    from tools.ingest_sector_file import CONFIG_ROOT, load_source_list, poller
     from src.fundamental.sector.ingest import ingest
+    from tools.ingest_sector_file import CONFIG_ROOT, load_source_list, poller
 
     source_list, _excluded = load_source_list(CONFIG_ROOT / "memory_v1.yaml")
     file = ingest(source_list, as_of=date(2025, 6, 26), file_version=1,

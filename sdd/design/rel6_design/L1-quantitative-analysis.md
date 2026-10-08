@@ -1232,7 +1232,7 @@ decision boundary rather than propagating into it.
 
 | ID | Rule |
 |---|---|
-| **QA-58** | ★ **Volatility normalisation is a property of the loss, not of the decision.** Models are fitted on `Z = R/(σ̂√h)`; any output used to **order or nominate** is de-normalised to return units (`× σ̂√h`) before ranking. Which quantity is being ranked is declared in the HorizonSet (CT-3.1) — never left to the implementation |
+| **QA-58** | ★ **Volatility normalisation is a property of the loss, not of the decision.** Models are fitted on `Z = R/(σ̂√h)`; any output used to **order or nominate** is de-normalised to return units (`× σ̂√h`) before ranking. Which quantity is being ranked is declared in the HorizonSet (CT-3.1) — never left to the implementation ✏ *2026-10-08 (`DX-165`, Victor):* the premise — a model fitted on `Z = R/(σ̂√h)` — does not hold for D-04's selection model (fitted on R or its within-day rank, MT-59), so a model orders by `ẑ` and reports `ẑ·σ̂·√h` beside it (D-04 **MT-60**). The denormalisation stands for any future model that IS fitted on Z |
 | **QA-59** | **QA-45 becomes the check, not the fix.** IC is reported conditional on volatility decile to confirm the tilt has leaked in neither direction. A ranking that is *deliberately* risk-adjusted is a legitimate design — it is just not this one, and it would need its own mandate justification against M-2 |
 
 ### QA-58 is tilt-*correcting*, not tilt-neutral — stronger than first stated

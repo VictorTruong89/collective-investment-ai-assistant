@@ -101,6 +101,31 @@ class DataEngine:
             rows = rows[rows["period_type"] == period_type].reset_index(drop=True)
         return rows
 
+    def get_fundamentals_history(self, ticker: str, as_of=None, *,
+                                 since: date | None = None) -> list:
+        """DE-75 / AC-7.93 — `[(filing_date, CT-7.2 rows as of it)]`, one per filing.
+
+        ★★ For a consumer spanning many dates (training, backtest). Each element is
+        exactly `get_fundamentals(ticker, as_of=filing_date)`; one ledger read.
+        `since` drops snapshots a panel starting then can never join: everything
+        before the last filing on or before `since` (that one is kept).
+        ⚠ *DX-159:* read ONCE at today, a 10-K's comparatives re-date every period
+        to its latest re-filing, and a ten-year panel runs ~1 year stale.
+        """
+        as_of = require_as_of(as_of, "get_fundamentals_history")
+        ticker = ticker.upper()
+        ledger_df = self._facts.read(ticker)
+        if not len(ledger_df):
+            return []
+        source = self._universe.source_of(ticker)
+        filed = sorted({pd.Timestamp(d).date() for d in ledger_df["filing_date"]
+                        if pd.Timestamp(d).date() <= as_of})
+        if since is not None:
+            before = [d for d in filed if d <= since]
+            if before:
+                filed = [d for d in filed if d >= before[-1]]
+        return [(d, assemble_rows(ledger_df, d, source=source)) for d in filed]
+
     def provenance(self, ticker: str, as_of: date, *, adj_as_of: date | None = None,
                    fx_rate=None) -> Provenance:
         """CT-7.5 — and DE-23's `pit_guarantee` is set from the ROUTE, not guessed.

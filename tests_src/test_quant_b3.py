@@ -325,7 +325,8 @@ def test_ac_f12_22_every_located_formula_is_pinned_to_its_code():
         "cv.purge_embargo.derived.v1", "effective_n.overlap_corrected.v1",
         "mde.rank_ic.v1", "rank_ic.spearman.v1",
         "volatility.realised_open_to_open_std.v1",
-        "se.newey_west_bartlett.v1"})      # ✏ 2026-10-06 — F12 D9
+        "se.newey_west_bartlett.v1",       # ✏ 2026-10-06 — F12 D9
+        "cv.walk_forward.expanding.v1"})   # ✏ 2026-10-08 — F12 D11
     assert frozenset(UNLOCATED_FORMULAS) == expected
 
 

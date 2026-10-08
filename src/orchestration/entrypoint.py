@@ -608,26 +608,20 @@ def _fundamentals_for(universe, as_of: date):
 
 
 def _sectors_for(engine, universe, as_of: date) -> dict:
-    """`{TICKER: sector}` from D-07's Class-B profile, for the `*_sector_z` five.
+    """`{TICKER: sector}` for the `*_sector_z` five — ★ D-07's ONE sector map.
 
-    ⚠ A name with no captured profile is simply absent — `sector_z` then nulls
-    that cell rather than assigning it to a bucket it was never observed in.
+    ★★ OR-56 / DE-77 (DX-160): the same map training reads, so a model is never
+    scored on a different classification from the one it was fitted on (INV-4).
+    ⚠ Until 2026-10-07 this read FMP `profile` from the observation ledger —
+    empty on this machine — so the daily panel had no sectors at all.
+    ⚠ A name absent from the map is absent here; `sector_z` nulls it (FE-41).
+    `engine` and `as_of` are kept for the caller's signature; the map is static.
     """
-    from src.feature_engineer.fundamental.build import SECTOR_Z
+    from src.data_engine.ingest.edgar_facts import load_sector_map
 
-    del SECTOR_Z
-    out = {}
-    for ticker in universe:
-        try:
-            observation = engine.get_observation(ticker, "profile", as_of=as_of,
-                                                 consumer="thesis")
-        except Exception:                      # noqa: BLE001
-            continue
-        payload = (observation or {}).get("payload") or {}
-        sector = payload.get("sector")
-        if sector:
-            out[ticker] = sector
-    return out
+    del engine, as_of
+    sectors = load_sector_map()
+    return {t: sectors[t.upper()] for t in universe if t.upper() in sectors}
 
 
 def _symbol_resolver(as_of: date):

@@ -4,6 +4,8 @@
 > ✅ Approved as drafted; `Q1` → `D6`, `Q2` → `D7`; `D8` (commission $0) added the same day.
 > ✏ **Amended 2026-10-06 (Victor):** `D9` (the IC gate decides on the REALISED standard error — `AB-12`) and `D10`
 > (the breadth gate becomes an implied-information-ratio test on the universe) → `AC-F12.31`, `AC-F12.32`.
+> ✏ **Amended 2026-10-08 (Victor):** `D11` — a true expanding-window walk-forward beside the purged k-fold (`DX-162`)
+> → `AC-F12.33`.
 > **Source discussion:** `sdd/design/rel1_design/L3-build-sequence.md` §2.1s (Victor, 2026-10-05): row 9
 > re-scoped to **govern & close** — graduate the D-03 core that is already built, wire `src/quant/**`
 > into `ownership.yaml`, and record what is out of rel-1 as declared limitations. No new capability.
@@ -127,13 +129,20 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   correlation × rebalances per year) and its implied IR are **reported beside it, never gated**. An unmeasured `BR` or IC ⇒
   `NOT_EVALUATED`. ⚠ **Provisional** — refine after the fresh training's results. → unit. ✅ 2026-10-06
 
+- **AC-F12.33** *(new — `D11`, `DX-162`)* — **Given** the sorted trading dates and the protocol, **when** walk-forward
+  folds are made, **then** the dates are cut into the same `n_folds` contiguous test blocks as the purged k-fold; block 0
+  is never tested (it has no past); each block `k ≥ 1` trains **only on dates strictly before it**, ending at least
+  `purge_days` **trading days** (positions in the date list, not calendar days) before its first test date; no training
+  date follows any test date. The walk-forward IC is **reported beside** the purged k-fold IC, with its own realised SE
+  and per-fold ICs — **never gated** until Victor rules which protocol gates. → unit. ✅ 2026-10-08
+
 **Declared limitation**
 
 - **AC-F12.30** *(new — `D3`)* — **Given** any `Nomination` or `BacktestResult`, **when** it is serialised,
   **then** it carries the fixed sentence (`D7`) *"Not regime-conditioned: one model is fitted across all
   market states; a result from one regime is not evidence for another."* → data contract. (`PG-10`) ✅ 2026-10-05
 
-**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous.
+**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous. ✏ 2026-10-08: + `.33` → **30 / 33 green**, 3 vacuous.
 
 ## 7. Decisions
 
@@ -176,6 +185,13 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   as the gated population (Victor's first ruling — the IC is not measured on the held book, so IC × √BR(held) mixes two
   populations; it stays as a reported diagnostic); ⓑ keep `BR ≥ 3` (decoration, QA-17); ⓒ drop the gate. **Provisional**:
   refine after the first fresh training run.
+- **`D11` — a true walk-forward is measured beside the purged k-fold** *(Victor, 2026-10-08)* → `AC-F12.33`. ⚠ Found
+  writing lecture L8 (`DX-162`): the console's *"walk-forward"* was **purged k-fold** — block 0 (2016–18) was tested by a
+  model trained on 2018–26. Labels cannot leak across the purge, but a model that learned later regimes was grading an
+  earlier one, which confounds the fold decay (0.052 → 0.013) with look-back knowledge. Expanding window answers *"what
+  would the fund have known then?"* exactly. Purge in **trading** days here (the k-fold's calendar-day purge is `DX-161`,
+  still open). Rejected: ⓐ replace the k-fold (it uses every block, and its numbers are the record so far); ⓑ gate on the
+  walk-forward now (fewer test dates — 4 of 5 blocks — so a wider SE; which protocol gates is a ruling, not a default).
 - **`D5` — `AC-F12.k`, not bare `AC-12.k`** — D-12 Decision's upstream criteria are `AC-12.x`
   (constitution §1.1, `DX-44`).
 
@@ -219,5 +235,6 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
 | AC-F12.30 | `tests_src/test_quant_b3.py::test_ac_f12_30_both_outputs_state_the_regime_limitation` | `src/quant/contracts/nomination.py` · `contracts/backtest.py` |
 | AC-F12.31 | `tests_src/test_quant_gates_d9_d10.py` (Newey-West known answers · the August case FAILs · no realised SE ⇒ NOT_EVALUATED) | `src/quant/metrics/ic.py` · `gates/metric_gate.py` |
 | AC-F12.32 | `tests_src/test_quant_gates_d9_d10.py` (IR = IC·√BR · boundary · can fail at 1m · held book reported, never gated) | `src/quant/gates/metric_gate.py` · `metrics/breadth.py` |
+| AC-F12.33 | `tests_src/test_quant_walk_forward.py` (past only · block 0 untested · purge in trading days · same blocks as k-fold) | `src/quant/backtest/protocol.py` |
 
 ✅ 2026-10-05: the 17 pre-existing tests now carry their `AC-F12.k` id in the docstring; 9 criteria were built test-first the same day. Suite **2,572 pass / 1 red (`J-07`)**.

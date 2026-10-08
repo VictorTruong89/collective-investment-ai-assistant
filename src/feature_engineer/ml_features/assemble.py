@@ -152,7 +152,8 @@ def _attach_fundamentals(out, price_panel, names, fundamentals):
     from src.feature_engineer.errors import MissingFeatureError
     from src.feature_engineer.fundamental.build import build as build_fundamentals
 
-    if not fundamentals or not fundamentals.get("rows_by_ticker"):
+    if not fundamentals or not (fundamentals.get("rows_by_ticker")
+                                or fundamentals.get("history_by_ticker")):
         # ⚠ `MissingFeatureError` formats the NAMES, so it is handed the list —
         #   a string would be sorted character by character.
         raise MissingFeatureError(names)
@@ -163,7 +164,9 @@ def _attach_fundamentals(out, price_panel, names, fundamentals):
     #   null-block refusal above exists to catch, arriving one level down.
     block = build_fundamentals(
         price_panel,
-        rows_by_ticker=fundamentals["rows_by_ticker"],
+        rows_by_ticker=fundamentals.get("rows_by_ticker"),
+        history_by_ticker=fundamentals.get("history_by_ticker"),     # ★ FE-40
+        workers=fundamentals.get("workers", 1),
         sectors=fundamentals.get("sectors"),
         market_caps=fundamentals.get("market_caps"))
     for name in names:

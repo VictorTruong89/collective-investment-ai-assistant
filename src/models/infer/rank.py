@@ -24,10 +24,10 @@ the defect the specs cite repeatedly: `model_bundle.py:80`'s
 `[c for c in feature_names if c in df.columns]` is *one word away from correct*,
 and that word is the whole of it.
 
-★ **The output is `ranked_quantity`, not the raw score** (QA-58, QA-119). D-03
-publishes the **denormalised** quantity `ẑ · σ̂ · √h`; publishing only the
-normalised score would let a consumer rank on it, which is the low-vol tilt QA-58
-exists to remove.
+★ **`ranked_quantity` is the quantity ranked — the model's score `ẑ`** (MT-60,
+✏ 2026-10-08, `DX-165`). `ẑ · σ̂ · √h` travels beside it as `sigma_scaled`,
+reported and never ordering. ⚠ Until then the order WAS `ẑ · σ̂ · √h` (QA-58's
+denormalisation), which presumes a model fitted on `R/(σ̂√h)` — this one is not.
 """
 
 from __future__ import annotations
@@ -97,8 +97,13 @@ def rank_by_model(panel: pd.DataFrame, *, as_of, horizon_days: int, estimator,
     scored = day.copy()
     scored["_score"] = np.asarray(estimator.predict(day[features]), dtype="float64")
 
-    # ★ QA-58 — denormalise. `σ̂` is D-02's, never recomputed here (FE-4).
-    sigma = _volatility(scored, vol_column)
+    # ★★ MT-60 (DX-165) — ORDER by the model's own score ẑ: the ordering D-03's
+    #   IC, simulation and gates measured. `ẑ·σ̂·√h` is still computed and
+    #   REPORTED (`sigma_scaled`), never used to order. ⚠ QA-58's denormalisation
+    #   presumes a model fitted on R/(σ̂√h); this one is fitted on R or its
+    #   within-day rank (MT-59), so multiplying by σ̂ again ADDS a volatility tilt.
+    #   Until 2026-10-08 the card ordered by `ẑ·σ̂·√h`.
+    sigma = _volatility(scored, vol_column)      # `σ̂` is D-02's (FE-4)
     scale = math.sqrt(horizon_days)
     rows = []
     for (_index, row), sd in zip(scored.iterrows(), sigma):
@@ -106,7 +111,8 @@ def rank_by_model(panel: pd.DataFrame, *, as_of, horizon_days: int, estimator,
         if pd.isna(score) or pd.isna(sd):
             continue                        # ⚠ FE-27 — unrankable, not median
         rows.append({"ticker": row["ticker"], "z": float(score),
-                     "ranked_quantity": float(score) * float(sd) * scale})
+                     "ranked_quantity": float(score),
+                     "sigma_scaled": float(score) * float(sd) * scale})
 
     # PD-20 — ties break on ticker, so the same panel yields the same ranking.
     rows.sort(key=lambda c: (-c["ranked_quantity"], c["ticker"]))

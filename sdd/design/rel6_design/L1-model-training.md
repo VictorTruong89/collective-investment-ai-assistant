@@ -298,6 +298,14 @@ where every fold gave it non-zero.**
 | **MT-14** | **A partial failure reports its count and is treated as suspect.** A winner chosen from a thinned field is biased even when the winner is real |
 | **MT-15** | ★ **Every producing code path must be reachable and must be executed by a test.** D-18(c) is the rule's origin: a branch that cannot run is not a fallback, it is **dead code impersonating a feature** |
 | **MT-16** | **A broad `except` that logs and continues is a P5 violation wearing a `try` block.** Exception handling may narrow scope; it may never downgrade severity |
+| **MT-54** | ★★ **A calendar HALT stops the training run — it is never caught and replaced by a stand-in report.** D-07's `UnhandledBlockError` (DE-32) ends the run with `EXIT_FAILED`, naming every blocking ticker and event; no panel is built. A store that was never swept needs no stand-in: D-07's check already returns a real report with every class `UNCHECKED`, and the run says *how* to sweep. ⚠ *Added 2026-10-07 (`DX-158`, Victor: fix now):* `_calendar_report` caught **every** exception as *"calendar check unavailable"* and substituted `TRAIN-CALENDAR-UNCHECKED` — so five `restatement_amended` BLOCKs (ADM ×3, AES ×2) became `PROCEED_WITH_FLAGS` and the smoke run carried on. MT-16's defect exactly |
+| **MT-55** | ★ **The training run supplies D-07's sector map (DE-77) to the panel and prints its coverage.** Without it the five `*_sector_z` features were market-wide z-scores (`DX-160`); with it they are within `(date, GICS sector)`. ⚠ The map is today's classification — the run says so beside the coverage line |
+| **MT-56** | ★ **A training run's default `as_of` is the NEW YORK calendar date, never the UTC date.** ⚠ *Added 2026-10-08 (`DX-163`a, Victor):* a run started 23:27 EDT dated itself 2026-10-08 (UTC), one day past every data source's coverage — so the calendar store looked a day short and every class read `UNCHECKED`. The market's date is the one the data is dated in |
+| **MT-57** | ★★ **A training run whose calendar check CHECKED no class at all is REFUSED** (`EXIT_FAILED`, naming why each class was unchecked) **unless `--allow-unchecked-calendar` is passed** — and then the summary says so. ⚠ *Added 2026-10-08 (`DX-163`b, Victor):* `PROCEED · 0/18 classes CHECKED` let a fit run with no calendar guarantee and only a stderr note — the reading the code's own comment warned about (*"PROCEED alone reads as checked and clear"*). A partly checked window still proceeds, its counts printed (AB-14) |
+| **MT-58** | ★★ **The training run measures BOTH out-of-sample protocols and names each for what it is:** the purged k-fold (D-03 `make_folds` — trains on both sides of a test block; it feeds the gates and the simulation, as before) and the expanding-window **walk-forward** (F12 `D11` — trains on the past only; reported beside, never gated until Victor rules). Both ICs, realised SEs and per-fold ICs reach `evaluation.json` (`walk_forward`). ⚠ *Added 2026-10-08 (`DX-162`, Victor):* the console called the k-fold "walk-forward" |
+| **MT-59** | ★★ **The selection model is FITTED on the within-day target (FE-42, `xs_gauss`) by default; `--target raw` reproduces the old fit.** The artifact's `label_def_id` names the target it was fitted on. ⚠ **Evaluation never changes with the target:** rank IC, both out-of-sample protocols, the simulation and the gates read the RAW 21-day return. ★ Why (lecture L8 §4.3): fitting raw returns spends the trees on the market's month-to-month swing, which every stock shares and a ranking cannot use. ⚠ *Added 2026-10-08 (Victor):* this is **attempt #3** on the 2016–2026 data — the count is recorded because each kept change is a draw in the multiple-testing sense (L8 §7) |
+| **MT-60** | ★★ **A model ranks the card by its own score `ẑ` — the ordering D-03's IC, simulation and gates measured.** `ranked_quantity` IS that order key; `ẑ · σ̂ · √h` is still computed and **reported** (`sigma_scaled`), never used to order. ★ QA-58's denormalisation presumes a model fitted on `Z = R/(σ̂√h)`; this model is fitted on the raw return or its within-day rank (MT-59), neither volatility-normalised, so multiplying by σ̂ again adds a volatility tilt rather than removing one. ⚠ *Added 2026-10-08 (`DX-165`, Victor: option b):* the card ordered by `ẑ·σ̂·√h` while every gate measured the `ẑ` ordering — the first IC PASS was for a ranking production would not have served. (The momentum RULE keeps its own `z(mom_21)·vol_21·√21`, which is its definition) |
+| **MT-53** | ★ **The training run shows it is alive** — elapsed time and the current stage every 15 s to stderr, each stage's duration and the total (the shared `src/shared/progress.Heartbeat`, as D-07's ingest uses: DE-74). ⚠ *Added 2026-10-07 (Victor):* the fundamentals and price fetches over ~500 names run long in silence |
 | **MT-52** | ★★ **A training run never promotes on its own — it HOLDS for the fund manager's review** *(Victor, 2026-10-06)*. Training writes the artifact, its `evaluation.json` (every gate with its statistic) and a `pending_review` marker; **`promotion.json` is written only by `python -m src.models.promote <artifact_id> --approve`**, an explicit human act that shows the gate report first and still refuses unless every required gate PASSes (MT-17 — no override). ⚠ Before this, a passing training run promoted itself and the next daily run scored with it |
 | **MT-17** | Production is reachable **only** through a `PromotionRecord` carrying: `artifact_id`, contract version, horizon set version, the **D-03 `BacktestResult` id**, every gate outcome, the protocol id, and who promoted it when |
 | **MT-18** | **A gate result of `NOT_EVALUATED` is not a pass** (D-03 QA-17). Promotion requires explicit `PASS` on every required gate |
@@ -565,6 +573,25 @@ BOUNDARY & ZOO
 □ AC-4.34  ★★ A training run whose gates all PASS writes the artifact and a pending_review
            marker and NO promotion.json; `src.models.promote --approve` promotes it only
            if every required gate PASSed (MT-52, MT-17)
+□ AC-4.35  ★ The training run prints elapsed time and its current stage on a timer, each
+           stage's duration and its total — including when it stops early (MT-53)
+□ AC-4.36  ★★ An unhandled calendar BLOCK ends the training run with EXIT_FAILED, naming
+           every blocking ticker and event, before any panel is built; a never-swept store
+           runs on D-07's real all-UNCHECKED report — no stand-in report exists (MT-54)
+□ AC-4.37 ★ The training panel is built with D-07's sector map, and the run prints how
+           many names it covers (MT-55)
+□ AC-4.38 ★ The default training as_of is the America/New_York date — 23:30 EDT is still
+           that day, not the next (MT-56)
+□ AC-4.39 ★★ A training run with 0 calendar classes CHECKED stops with EXIT_FAILED before any
+           panel, unless --allow-unchecked-calendar is passed (MT-57)
+□ AC-4.40 ★★ A training run reports the purged k-fold AND the expanding-window walk-forward
+           IC, each labelled by its scheme; evaluation.json carries the walk-forward; only
+           the k-fold feeds the gates (MT-58, F12 D11)
+□ AC-4.41 ★★ By default the fit's target is xs_gauss and the artifact's label_def_id says so;
+           --target raw restores the raw return; IC and simulation read the raw return
+           under either target (MT-59, FE-42)
+□ AC-4.42 ★★ rank_by_model orders by the model score ẑ (ties on ticker); ranked_quantity equals
+           ẑ; sigma_scaled = ẑ·σ̂·√h is reported beside it and never changes the order (MT-60)
 ```
 
 ---

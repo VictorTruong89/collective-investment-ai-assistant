@@ -145,3 +145,19 @@ def load_cik_map(path: str = "config/sp500_tickers.yaml") -> dict:
         loaded = yaml.safe_load(handle) or {}
     raw = loaded.get("cik_map") or {}
     return {str(k).upper(): str(v).zfill(10) for k, v in raw.items()}
+
+
+def load_sector_map(path: str = "config/sp500_tickers.yaml") -> dict:
+    """DE-77 — `{TICKER: GICS sector}`, the ONE sector source (training and daily).
+
+    ⚠ **Today's classification** (the file's `date_retrieved`) applied to every
+    date in a window — the 2018 GICS reshuffle is not reflected. A declared
+    limitation, like the universe being today's index. ⚠ A name with no sector
+    is absent, never defaulted: `sector_z` then nulls it (FE-41, DX-160).
+    """
+    import yaml
+
+    with open(path, encoding="utf-8") as handle:
+        loaded = yaml.safe_load(handle) or {}
+    raw = loaded.get("sector_map") or {}
+    return {str(k).upper(): str(v) for k, v in raw.items() if v}

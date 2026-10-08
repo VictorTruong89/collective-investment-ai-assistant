@@ -147,6 +147,8 @@ UNLOCATED_FORMULAS = frozenset({
     # ✏ 2026-10-06 — F12 D9: declared as `FORMULA_REALISED_SE` in metrics/ic.py
     #   (not a `FORMULA_ID =` assignment), the same shape as its neighbours above.
     "se.newey_west_bartlett.v1",
+    # ✏ 2026-10-08 — F12 D11: `FORMULA_WALK_FORWARD` in backtest/protocol.py.
+    "cv.walk_forward.expanding.v1",
 })
 _CODE_PIN = re.compile(r"^Code:\s*(\S+)\s*@\s*sha256:([0-9a-f]{16})\s*$", re.M)
 

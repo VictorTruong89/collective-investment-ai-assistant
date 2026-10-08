@@ -208,4 +208,9 @@ def sector_z(panel: pd.DataFrame, values: pd.Series, sectors: pd.Series) -> pd.S
     count = grouped.transform("count")
     out = (frame["_v"] - mean) / sd
     out[(count < 3) | ~(sd > 0)] = np.nan
+    # ★★ FE-41 (DX-160) — an UNKNOWN sector is null, never a bucket of its own.
+    #   ⚠ `dropna=False` above pooled every missing sector together: with no map,
+    #   all five *_sector_z were market-wide z-scores under sector-relative names.
+    unknown = frame["sector"].isna() | (frame["sector"].astype(str).str.strip() == "")
+    out[unknown] = np.nan
     return pd.Series(out.to_numpy(), index=panel.index, dtype="float64")

@@ -119,22 +119,94 @@ def per_filing(rows: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def build(panel: pd.DataFrame, *, rows_by_ticker: dict, sectors=None,
-          market_caps=None) -> pd.DataFrame:
+def replay(history) -> pd.DataFrame:
+    """FE-40 — `per_filing` at each filing date, keeping the row a run THEN would join.
+
+    `history` is D-07's `[(filing_date, rows as of it)]` (DE-75). ★ Each kept row
+    has `filing_date == F` (the filing at F re-dates every group it touches), so
+    the backward join over the result gives each date exactly what
+    `as_of_join(date, per_filing(rows as of date))` gives — growth, trend and
+    Piotroski computed on the figures known then, an amendment visible only from
+    its own filing (QD-15, DE-76).
+
+    ⚠ *DX-159:* one read at today for a ten-year panel put every period at its
+    LATEST re-filing; the training panel ran ~1 year stale.
+    """
+    picked = []
+    for filed, rows in history or ():
+        enriched = per_filing(rows)
+        if not len(enriched):
+            continue
+        ticker = enriched["ticker"].iloc[0]
+        at = pd.DataFrame({"ticker": [ticker], "date": [pd.Timestamp(filed)]})
+        row = items.as_of_join(at, enriched)
+        if row["filing_date"].isna().all():
+            continue
+        row.insert(0, "ticker", ticker)
+        picked.append(row)
+    if not picked:
+        return pd.DataFrame()
+    return pd.concat(picked, ignore_index=True)
+
+
+def joined_rows(panel: pd.DataFrame, *, rows_by_ticker: dict | None = None,
+                history_by_ticker: dict | None = None, workers: int = 1) -> pd.DataFrame:
+    """Per-filing features joined backward onto `panel` — one row per panel row.
+
+    ★ `history_by_ticker` (FE-40) for a panel spanning many dates; `rows_by_ticker`
+    (one read at the run's `as_of`) is correct only for that one date.
+    `workers > 1` replays tickers in parallel processes — a pure function per
+    ticker, results keyed by ticker, so the output is identical to serial.
+    """
+    if rows_by_ticker is None and history_by_ticker is None:
+        raise ValueError("joined_rows needs rows_by_ticker or history_by_ticker")
+    tickers = sorted(panel["ticker"].unique())
+    replayed = {}
+    if history_by_ticker is not None:
+        replayed = _replay_all({t: history_by_ticker.get(t) for t in tickers}, workers)
+    pieces = []
+    for ticker, sub in panel.groupby("ticker", sort=True):
+        if history_by_ticker is not None:
+            enriched = replayed[ticker]
+        else:
+            enriched = per_filing(rows_by_ticker.get(ticker))
+        joined = items.as_of_join(sub, enriched)
+        joined.index = sub.index
+        pieces.append(joined)
+    return pd.concat(pieces).reindex(panel.index)
+
+
+def _replay_all(histories: dict, workers: int) -> dict:
+    """`{ticker: replay(history)}`, in a process pool when `workers > 1`."""
+    if workers <= 1 or len(histories) <= 1:
+        return {t: replay(h) for t, h in histories.items()}
+    import multiprocessing
+    from concurrent.futures import ProcessPoolExecutor
+
+    tickers = list(histories)
+    # ⚠ `spawn`, never `fork`: the training run holds a heartbeat thread, and a
+    #   forked child of a threaded process can deadlock.
+    with ProcessPoolExecutor(max_workers=workers,
+                             mp_context=multiprocessing.get_context("spawn")) as pool:
+        frames = list(pool.map(replay, (histories[t] for t in tickers), chunksize=4))
+    return dict(zip(tickers, frames, strict=True))
+
+
+def build(panel: pd.DataFrame, *, rows_by_ticker: dict | None = None,
+          history_by_ticker: dict | None = None, sectors=None,
+          market_caps=None, workers: int = 1) -> pd.DataFrame:
     """The 45, aligned to `panel`'s `(ticker, date)` rows.
 
-    `rows_by_ticker` is `{TICKER: CT-7.2 frame}` from D-07, already PIT-filtered.
+    `rows_by_ticker` is `{TICKER: CT-7.2 frame}` from D-07, PIT-filtered at ONE
+    date — the daily run's. ★★ A panel spanning many dates passes
+    `history_by_ticker` instead (`{TICKER: get_fundamentals_history(...)}`,
+    FE-40 / DE-75): a single read joined across ten years is ~1 year stale (DX-159).
     `sectors` is `{TICKER: sector}` from D-07's Class-B profile; without it the
     five `*_sector_z` columns are null — **which is the honest answer, because a
     z-score against an unknown peer group is not a z-score.**
     """
-    pieces = []
-    for ticker, sub in panel.groupby("ticker", sort=True):
-        enriched = per_filing(rows_by_ticker.get(ticker))
-        joined = items.as_of_join(sub, enriched)
-        joined.index = sub.index
-        pieces.append(joined)
-    out = pd.concat(pieces).reindex(panel.index)
+    out = joined_rows(panel, rows_by_ticker=rows_by_ticker,
+                      history_by_ticker=history_by_ticker, workers=workers)
 
     # ★★ The priced features, after the join: `adj_open(t)` is the day's own
     #   open (FE-28) and the shares come from the as-of joined filing.

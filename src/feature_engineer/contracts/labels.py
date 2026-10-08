@@ -113,6 +113,36 @@ def build_labels(*, label_def: LabelDef, price_panel: pd.DataFrame,
     return labels[list(LABEL_COLUMNS)]
 
 
+#: FE-42 — the suffix a within-day Gaussian-rank target adds to its label id.
+XS_GAUSS = "xs_gauss"
+
+
+def cross_sectional_gauss(labels: pd.DataFrame) -> pd.DataFrame:
+    """FE-42 / AC-2.49 — each date's returns as centred normal scores by rank.
+
+    `ẑ = Φ⁻¹((r − ½) / n)`, `r` the average-tie rank among the date's `n` names.
+    ★ A TARGET, not a label for evaluation: realised IC, the simulation and the
+    gates keep the raw return (MT-59). ★ Gaussian, not a raw percentile,
+    because inference publishes `ẑ · σ̂ · √h` (QA-58) — a percentile in (0, 1)
+    is all positive and σ̂ would then rank mostly by volatility.
+    ⚠ A date with fewer than 3 names gives no target: a rank over two is ±1.
+    """
+    from statistics import NormalDist
+
+    import numpy as np
+
+    out = labels.copy()
+    grouped = out.groupby("date", sort=False)["value"]
+    rank = grouped.rank(method="average")
+    count = grouped.transform("count")
+    out = out[count >= 3].copy()
+    quantile = ((rank[count >= 3] - 0.5) / count[count >= 3]).to_numpy(dtype="float64")
+    out["value"] = np.vectorize(NormalDist().inv_cdf, otypes=[float])(quantile) \
+        if len(quantile) else quantile
+    out["label_def_id"] = out["label_def_id"].astype(str) + f".{XS_GAUSS}"
+    return out.reset_index(drop=True)
+
+
 def _anchor_column(anchor: str) -> str:
     return {OPEN: "adj_open_minor", CLOSE: "adj_close_minor",
             ARRIVAL: "adj_open_minor"}[anchor]
