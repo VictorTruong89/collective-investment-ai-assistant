@@ -329,7 +329,24 @@ def _context_for(manifest, as_of: date, *, universe_name: str = "watchlist",
         smtp_user=smtp_user, smtp_password=smtp_password,
         archive_root=_state_dir() / "deliveries",
         price_fetch=_price_fetch(client, start, as_of),
-        events=(), event_store_root=str(_state_dir() / "events"))
+        # ★★★ OR-57 / DE-78 (DX-166) — the stored splits and dividends. ⚠ Until
+        #   2026-10-08 this was `()` over RAW prices: a split read as a crash and
+        #   a REVERSE split as a surge (DD's 1:3 → ~+200 % momentum, card #1).
+        events=_price_events(frames, as_of),
+        event_store_root=str(_state_dir() / "events"))
+
+
+def _price_events(frames, as_of: date) -> list:
+    """OR-57 — D-07's `price_events` (DE-78) for the names priced today.
+
+    ★ The same event store the calendar check reads, so the split it records as
+    *handled by the panel at adj_as_of* is one the panel actually applied.
+    """
+    from src.data_engine.calendar.gate import price_events
+    from src.data_engine.calendar.store import EventStore
+
+    return price_events(EventStore(_state_dir() / "events"), tickers=tuple(frames),
+                        adj_as_of=as_of)
 
 
 def _ingested_today(ledger, ticker: str) -> bool:
@@ -747,16 +764,28 @@ def _incumbent_model():
         store = resolve_target("src.models.artifact.store:ArtifactStore")(
             _state_dir() / "models")
         artifact_id = store.promoted(role=SELECTION_ROLE, horizon_id="h1m")
+        # ★★ OR-58 — else the designated REFUSED informational ranker (MT-67).
+        informational = (None if artifact_id else
+                         store.card_informational(role=SELECTION_ROLE, horizon_id="h1m"))
     except Exception as exc:                   # noqa: BLE001 — named, not fatal
         print(f"  note: could not read the model registry: {exc}",
               file=sys.stderr)
         return None
+    status, refused_gates = "promoted", ()
+    if artifact_id is None and informational:
+        artifact_id = informational["artifact_id"]
+        status = "refused_informational"
+        refused_gates = tuple(informational.get("refused_gates") or ())
+        print(f"  ranker: REFUSED model {artifact_id[:19]}… (failed: "
+              f"{', '.join(refused_gates)}) — informational card (OR-58)", file=sys.stderr)
     if artifact_id is None:
         return None
     files = store.read(artifact_id)
     manifest = files.get("manifest.json") or {}
     return {
         "artifact_id": artifact_id,
+        "status": status,                       # ★ OR-58 / F12 D15
+        "refused_gates": refused_gates,
         "estimator": store.load_estimator(artifact_id),
         "features": files.get("features.json") or [],
         # ★★ OR-44 — **read from the manifest, never defaulted.** A model that

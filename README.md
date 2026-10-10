@@ -30,8 +30,8 @@ recommendation it makes — and measure whether any part of it actually helps.**
 |---|---|
 | **Specs** | **14** feature specs (`F1`…`F12`, with `F6a/b`, `F7a/b`), **212 acceptance criteria**, all 🟢 approved — plus design-tier rules for the 15 inherited domains |
 | **Code** | ~46,500 lines in 377 modules across 15 domains (`src/`) |
-| **Tests** | **2,672** — 2,665 pass, 6 skip, and **1 red on purpose** (`J-07`, a golden case re-established against its recording by the fund manager) |
-| **Findings** | **165** discrepancies logged (`DX-n`), each with what it cost and how it was closed |
+| **Tests** | **2,729** — 2,722 pass, 6 skip, and **1 red on purpose** (`J-07`, a golden case re-established against its recording by the fund manager) |
+| **Findings** | **168** discrepancies logged (`DX-n`), each with what it cost and how it was closed |
 | **Questions** | **25** design questions answered, with the options that were rejected (`sdd/questions.md`) |
 
 It is **spec-driven**: `sdd/specs/` is the source of truth and the code is
@@ -117,8 +117,8 @@ unchecked and training is **refused**. ★ Run step 2's `events` sweep **the sam
 (restatements included) unchecked and printed as such. `--allow-unchecked-calendar`
 overrides, and the run then says it carries no calendar guarantee. The run's date is New York's (MT-56).
 ★ The trees are fitted on each day's **return rank** (`--target xs_gauss`, the default; `--target raw` for the old
-target). Two out-of-sample measurements are printed: the **purged k-fold** (feeds the gates) and the **walk-forward**
-(trains on the past only; reported, not gated — F12 `D11`).
+target). Two out-of-sample measurements are printed: the **walk-forward** (trains on the past only — ★ it GATES significance
+and breadth, F12 `D14`) and the **purged k-fold** (reported; feeds only the simulation).
 
 The real run fetches **prices from FMP** and **fundamentals from EDGAR** for the whole S&P 500
 (add `--skip-facts` to reuse the stored fundamentals; `--refresh-events` sweeps step 2's events
@@ -127,8 +127,8 @@ portfolio simulation (held names drift, $0 commission), breadth, and the three g
 
 | gate | passes when | note |
 |---|---|---|
-| `ic_significance` | `|mean IC| ≥ 3 × realised SE` (Newey-West) | the null MDE is printed beside it (F12 `D9`) |
-| `breadth` | implied IR `|IC| · √BR ≥ 0.5` on the universe | the held book is printed, never gated; **provisional** (F12 `D10`) |
+| `ic_significance` | **walk-forward** `|mean IC| ≥ 3 × realised SE` (Newey-West) | the purged k-fold is printed beside it, not gated (F12 `D9`, `D14`) |
+| `breadth` | implied IR `|IC| · √BR ≥ 0.5`, `BR` from the residual correlation after SPY (F12 `D13`) | raw-ρ and market+sector figures and the held book are printed, never gated |
 | `cost_survival` | net return > 0 | at $0 commission this equals gross > 0 |
 
 It prints `⏱ train · … elapsed · now: <stage>` every 15 s to stderr (fundamentals, prices, calendar
@@ -138,7 +138,9 @@ each stage's duration and the total. It **never promotes on its own** (MT-52). I
 ⚠ Expect a refusal from a weak signal — that is the gates working.
 ⚠ **A calendar HALT stops the run** (MT-54) and names each event — e.g. a delisting. A restatement does not halt
 training: its fundamentals are **replayed per filing date** (FE-40), so each day sees what was filed by then — the original
-figure before an amendment, the amended one after (DE-76). The replay runs in parallel (cores − 2, at most 16). Sector-relative features use the GICS map in `config/sp500_tickers.yaml` (today's classification, applied to the whole window).
+figure before an amendment, the amended one after (DE-76). The replay runs in parallel (cores − 2, at most 16). Sector-relative features use the GICS map in `config/sp500_tickers.yaml` (today's classification, applied to the whole window). Splits and dividends from the event store are applied to every price
+panel (DE-78 — the `events` sweep in step 2 is what feeds them). Each run also prints the **residual correlation
+against SPY and the sector SPDRs** (12 extra FMP calls) beside the breadth gate — reported, not gated (F12 `D12`).
 
 ### 4 · Review and promote (D-04)
 
@@ -148,6 +150,38 @@ python -m src.models.promote <artifact_id> --approve   # promote — refused unl
 ```
 
 There is no override. A promoted model ranks the next daily card.
+
+★ **The card may instead be ranked by a REFUSED model — labelled as one** (MT-67, Victor 2026-10-09): the momentum
+rule measured walk-forward IC −0.008, the refused fit 4 +0.030 on the same dates.
+
+```bash
+python -m src.models.promote <artifact_id> --card-informational       # designate (refused models only)
+python -m src.models.promote <artifact_id> --card-informational-off   # revoke → the rule ranks again
+```
+
+The card then reads *"no verdict — ranked #1 by a refused model"* and names the failed gates; such a card can **never**
+be actionable (DN-41). A promoted model, if one ever exists, takes precedence.
+
+### 4b · The shadow trial — a refused model scored live (D-04, MT-64…66)
+
+The refused clean fit (`sha256:8200ada7…`) is never served; it is **scored on the future**, the only evidence about
+it that cannot be tuned. Start once, then record one snapshot **every 21+ trading days** (e.g. once a month, after the
+close — `record` snapshots the latest COMPLETED trading day; FMP posts a day's bar after it ends), and score whenever
+you like:
+
+```bash
+python -m src.models.shadow start sha256:8200ada7bf5f6ced48984006bc864f6908052a712a9be4c11060273bca7e5f36   # once — freezes the model + the criterion
+python -m src.models.shadow record      # ~15–20 min: facts, prices, splits/dividends, panel, both rankings
+python -m src.models.shadow score       # grades every snapshot whose 21 trading days have passed
+python -m src.models.shadow status      # snapshots, live ICs, pooled t, leakage alarm
+```
+
+★ Pre-registered criterion: live monthly ICs pooled with the model's walk-forward history; **pooled t ≥ 3** meets the
+evidence bar (≈ 3–4 years if the IC holds); from 6 snapshots a **leakage alarm** fires if live IC runs well below
+history. The card's momentum rule is recorded beside it for comparison. ⚠ Meeting the bar does **not** promote —
+step 4 does. `record` refuses a date inside the model's training window, within 21 sessions of the last snapshot, or
+with 0 calendar classes checked (run step 2's `events` sweep the same day, or `--allow-unchecked-calendar`); it never
+writes the event store.
 
 ### 5 · The daily card (D-08 → D-09)
 

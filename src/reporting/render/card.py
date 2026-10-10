@@ -107,8 +107,10 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
         #   `recommendation.json` untouched; this is what the CARD claims.
         units.append(RenderUnit(
             field="verdict",
-            value=(f"no verdict — ranked #1 by the "
-                   f"{ranked_by.get('kind') or 'ranker'}; no thesis"),
+            value=(f"no verdict — ranked #1 by "
+                   + ("a refused model" if ranked_by.get("status") == "refused_informational"
+                      else f"the {ranked_by.get('kind') or 'ranker'}")       # ★ RP-55
+                   + "; no thesis"),
             reliability=COMPUTATION, source="D-12", as_of=as_of,
             note=(f"composed {rec.verdict_final} through a placeholder gate — "
                   "not a judgement (RP-53)")))
@@ -278,6 +280,11 @@ def _ranked_by_text(ranked_by: dict) -> str:
     if ranked_by.get("kind") == "rule":
         return (f"the rule {ranked_by.get('formula_id')} "
                 f"({ranked_by.get('artifact_id', '')[:19]}…) — no trained model")
+    if ranked_by.get("status") == "refused_informational":
+        # ★★ RP-55 — PG-10: a model that has not passed its own gates says so.
+        return (f"a REFUSED model {ranked_by.get('artifact_id', '')[:19]}… (failed: "
+                f"{', '.join(ranked_by.get('refused_gates') or [])}) — informational, "
+                f"not promoted")
     return f"the model {ranked_by.get('artifact_id')}"
 
 

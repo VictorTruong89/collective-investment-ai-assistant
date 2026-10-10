@@ -88,6 +88,51 @@ def adjustment_handling(findings, *, adj_as_of, fundamentals_pit: bool = False) 
     return handled
 
 
+#: DE-78 — the store classes the price adjustment applies, and the adjuster's
+#: own `event_type` for each. ★ A reverse split IS a split (ratio below one).
+PRICE_EVENT_TYPES = {"split": "split", "reverse_split": "split", "dividend": "dividend"}
+
+
+def price_events(store, *, tickers, adj_as_of) -> list:
+    """DE-78 / AC-7.96 — the store's splits and dividends as `CorporateEvent`s.
+
+    ★★★ The ONE source of the price adjustment for every panel builder. ⚠ Until
+    2026-10-08 (`DX-166`) training and the daily run both called
+    `build_price_panel(raw, (), adj_as_of)` on RAW prices: no split was ever
+    applied, while `adjustment_handling` recorded every split as handled by
+    *"the panel derived at adj_as_of"*. With these events passed, that record is
+    true by construction — the gate and the panel read one store.
+
+    Every event of the asked names with `event_date ≤ adj_as_of` (an adjustment
+    as of a date includes every action effective by then).
+    """
+    import json
+
+    from src.data_engine.pit.models import CorporateEvent
+
+    frame = store.read()
+    if frame is None or not len(frame):
+        return []
+    wanted = {t.upper() for t in tickers}
+    out = []
+    for row in frame.to_dict("records"):
+        kind = PRICE_EVENT_TYPES.get(row.get("event_class"))
+        ticker = str(row.get("ticker", "")).upper()
+        if kind is None or ticker not in wanted:
+            continue
+        when = _as_date(row.get("event_date"))
+        if when is None or when > adj_as_of:
+            continue
+        detail = row.get("detail") or {}
+        if isinstance(detail, str):
+            detail = json.loads(detail)
+        out.append(CorporateEvent(
+            ticker=ticker, event_type=kind, event_date=when,
+            knowable_at=_as_date(row.get("knowable_at")) or when,
+            detail=detail, source=str(row.get("source", ""))))
+    return out
+
+
 def check_window(*, store, universe, start: date, end: date, as_of: date,
                  adj_as_of, run_id: str, max_age_days: int = 1,
                  fundamentals_pit: bool = False):

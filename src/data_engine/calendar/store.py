@@ -129,17 +129,41 @@ class EventStore:
         written before this field must not read as covering everything.
         """
         index = self.freshness()
-        index[event_class] = {
+        new = {
             "refreshed_at": utcnow().isoformat(),
             "covers_from": covers_from.isoformat(),
             "covers_to": covers_to.isoformat(),
             "covers_tickers": (sorted({t.upper() for t in covers_tickers})
                                if covers_tickers is not None else None),
         }
+        index[event_class] = _merge_refresh(index.get(event_class), new)
         write_json(index, self.freshness_path)
 
     def freshness(self) -> dict:
         return read_json(self.freshness_path) if self.freshness_path.is_file() else {}
+
+
+def _merge_refresh(existing: dict | None, new: dict) -> dict:
+    """DE-81 / AC-7.99 (`DX-167`) — the merged record claims only what is true for
+    EVERY name in it.
+
+    ⚠ Until 2026-10-09 the new record simply REPLACED the old: a 20-name smoke
+    refresh left `split` covering 20 names, and the next 510-name run read 490
+    unfetched ⇒ UNCHECKED.
+    """
+    if not existing or existing.get("covers_tickers") is None or new["covers_tickers"] is None:
+        return new                               # legacy/unverifiable: nothing to keep
+    old_names, new_names = set(existing["covers_tickers"]), set(new["covers_tickers"])
+    if new_names >= old_names and new["covers_from"] <= existing["covers_from"]:
+        return new                               # wider on names and start: replace
+    if new_names <= old_names:
+        return existing                          # a subset adds no new claim
+    return {                                     # new names: common window, older time
+        "refreshed_at": min(existing["refreshed_at"], new["refreshed_at"]),
+        "covers_from": max(existing["covers_from"], new["covers_from"]),
+        "covers_to": min(existing["covers_to"], new["covers_to"]),
+        "covers_tickers": sorted(old_names | new_names),
+    }
 
 
 class CachedEventFeed:

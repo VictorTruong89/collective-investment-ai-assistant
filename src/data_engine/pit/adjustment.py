@@ -142,6 +142,48 @@ def adjustment_factors(
     return factors
 
 
+def price_event_conflicts(raw: pd.DataFrame, events, adj_as_of) -> dict:
+    """DE-79 / AC-7.97 — `{ticker: reason}` where the events contradict the prices.
+
+    ★ A dividend at or above the prior close gives a factor ≤ 0 — impossible —
+    and a dividend with no prior close inside the window has no honest factor.
+    Both mean the vendor's events and its prices are in different units or
+    histories. ⚠ Named so the consumer can refuse the NAME; never repaired by a
+    guessed factor or a dropped event. *Found 2026-10-08:* KDP — FMP prices the
+    pre-merger history in post-merger units (≈ $19.91) while its 2018-07-10
+    special dividend is in pre-merger units ($103.75).
+    """
+    out = {}
+    if raw is None or not len(raw):
+        return out
+    frame = raw.copy()
+    frame["ticker"] = frame["ticker"].str.upper()
+    frame["date"] = pd.to_datetime(frame["date"])
+    by_ticker = {t: g.sort_values("date") for t, g in frame.groupby("ticker", sort=True)}
+    for event in events:
+        if event.event_type != "dividend" or event.event_date > adj_as_of:
+            continue
+        grp = by_ticker.get(event.ticker.upper())
+        if grp is None or not len(grp):
+            continue
+        cut = pd.Timestamp(event.event_date)
+        if cut <= grp["date"].iloc[0]:
+            continue                                   # adjusts no row in the window
+        before = grp[grp["date"] < cut]
+        cash = float(event.detail.get("cash_exact", event.detail["cash_minor"]))
+        if not len(before):
+            out.setdefault(event.ticker.upper(),
+                           f"dividend {cash / 100:.2f} on {event.event_date} has no prior close")
+            continue
+        ref = float(before["close_minor"].iloc[-1])
+        if cash >= ref:
+            out.setdefault(event.ticker.upper(),
+                           f"dividend {cash / 100:.2f} on {event.event_date} ≥ prior close "
+                           f"{ref / 100:.2f} — the events and the prices are in different "
+                           f"units or histories (DE-79)")
+    return out
+
+
 def build_price_panel(raw: pd.DataFrame, events, adj_as_of=UNSET) -> pd.DataFrame:
     """CT-7.1 from the raw series plus the events (DE-27, DE-45, AC-7.43/44/46).
 

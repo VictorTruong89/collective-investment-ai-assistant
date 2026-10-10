@@ -188,6 +188,7 @@ src/reporting/
 | **RP-51** | ★ **The recipient is read from the environment (`REPORT_RECIPIENT`), never hardcoded, and a missing one RAISES when delivery is requested.** ⚠ A default recipient is the failure mode that matters here — mail to the wrong address is not recoverable, and a silent fallback to the SMTP user would deliver to whoever holds the sending account |
 | **RP-53** | ★★ **While the thesis gate is the placeholder, the verdict row says NO VERDICT** — *"no verdict — ranked #1 by the rule; no thesis"* — never the nominated `BUY`. ⚠ *Added 2026-10-06 (Victor, L9 §10 C1):* D-12 nominates `BUY` for every rank-1 name and the placeholder gate always PASSes, so the card read **"Verdict: BUY"** with no analysis behind it. The composed verdict is unchanged in `recommendation.json`; the CARD states what it rests on. The placeholder's wording names today's cause (theses on demand, DX-153), never a milestone already passed |
 | **RP-54** | ★ **The card names what ranked the pick** — the D-03 rule (by formula id) or a promoted D-04 model (by artifact id), as carried on `CT-12.1` (DN-40). ⚠ *Added 2026-10-06 (Victor, L9 §10 C4):* the identity sat only in `recommendation.json` (PG-10 transparency) |
+| **RP-55** | ★★ **A card ranked by a refused model SAYS so, in the ranking line and the verdict line**: *"a REFUSED model … (failed: ic_significance, breadth) — informational, not promoted"* and *"no verdict — ranked #1 by a refused model; no thesis"*. ★ Victor, 2026-10-09: card option (b); PG-10 |
 | **RP-52** | ★ **The card is delivered on every trading day it is produced, actionable or not.** ⚠ A `NOT ACTIONABLE` day is **information** — RP-35's body states the verdict and the reason — and delivering only on action would make silence ambiguous between *nothing to do* and *the run did not happen*, which is exactly the ambiguity **DN-29**'s liveness monitor exists to remove |
 | **RP-2** | ★ **Freshness is per component, never per card.** A card's `as_of` is not one clock: the thesis may be hours or days old (F1's refresh policy), the price is live, and the book is from the last export. **Each block states its own `as_of`**, and any component past its staleness threshold (L0 §8) is **marked stale on the face of the card**, not silently trusted |
 | **RP-3** | A **computation** renders with a pointer to its arithmetic (D-02 §6.2 supplies the trail). A number the reader cannot trace is indistinguishable from a number the model invented |
@@ -521,6 +522,8 @@ DELIVERY, SURFACE, BOUNDARY
 □ AC-9.35  ★★ With a placeholder thesis gate the verdict row reads NO VERDICT —
            never BUY — and the placeholder text names today's cause (RP-53)
 □ AC-9.36  ★ The card names the rule or model that ranked the pick (RP-54, DN-40)
+□ AC-9.37  ★★ A refused-model card names it REFUSED with its failed gates, in both the ranking
+           and the verdict lines (RP-55)
 
 ---
 

@@ -29,6 +29,13 @@ AVB_GONE = Finding("AVB", "delisting", BLOCK, date(2026, 8, 17), date(2026, 8, 1
                    {"reason": "test"}, "fmp:delisted")
 
 
+def _bars(ticker):
+    """A real-shaped raw price frame (as `fetch_prices` returns) — one bar."""
+    return pd.DataFrame([{"ticker": ticker, "date": pd.Timestamp("2026-10-06"),
+                          "open_minor": 100, "high_minor": 100, "low_minor": 100,
+                          "close_minor": 100, "volume": 1, "currency": "USD", "source": "fmp"}])
+
+
 def _swept_store(root):
     store = EventStore(root / "events")
     store.upsert([AVB_GONE])
@@ -64,9 +71,8 @@ def test_ac_4_36_the_run_stops_naming_the_events_before_any_panel(monkeypatch, t
     _swept_store(tmp_path)
     monkeypatch.setattr(train, "load_sp500", lambda: ("ADM", "AVB"))
     monkeypatch.setattr(train, "_wire", lambda: (None, None, object(), None, {}))
-    bars = pd.DataFrame({"close": [1.0]}, index=pd.to_datetime(["2026-10-06"]))
     monkeypatch.setattr(train, "fetch_prices",
-                        lambda client, universe, **k: (dict.fromkeys(universe, bars), []))
+                        lambda client, universe, **k: ({t: _bars(t) for t in universe}, []))
 
     def _no_panel(**_):
         raise AssertionError("a panel was built past a HALT")
@@ -99,9 +105,8 @@ def _run_unswept(monkeypatch, tmp_path, *extra):
     monkeypatch.setenv("PIPELINE_STATE_DIR", str(tmp_path))      # an empty event store
     monkeypatch.setattr(train, "load_sp500", lambda: ("ADM", "AVB"))
     monkeypatch.setattr(train, "_wire", lambda: (None, None, object(), None, {}))
-    bars = pd.DataFrame({"close": [1.0]}, index=pd.to_datetime(["2026-10-06"]))
     monkeypatch.setattr(train, "fetch_prices",
-                        lambda client, universe, **k: (dict.fromkeys(universe, bars), []))
+                        lambda client, universe, **k: ({t: _bars(t) for t in universe}, []))
     built = []
 
     def _panel(**_):

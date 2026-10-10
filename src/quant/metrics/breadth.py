@@ -236,6 +236,124 @@ def effective_breadth(returns: pd.DataFrame, *, horizon_days: int,
     }
 
 
+#: F12 `D12` — the residual correlation against factors priced OUTSIDE the panel.
+FORMULA_EXTERNAL = "breadth.residual_correlation.external.v1"
+
+
+def _ols_residual(y: pd.Series, factors: pd.DataFrame) -> pd.Series:
+    """`y − (a + X·b)` on the rows where `y` and every factor exist; NaN elsewhere.
+
+    ⚠ NaN, never the raw value, where the regression cannot run — a raw return left
+    in a residual set would carry the market straight back into the average.
+    """
+    out = pd.Series(np.nan, index=y.index, dtype="float64")
+    frame = pd.concat([y.rename("_y"), factors], axis=1).dropna()
+    if len(frame) < MIN_DATES:
+        return out
+    x = np.column_stack([np.ones(len(frame)), frame[factors.columns].to_numpy(dtype="float64")])
+    coef, *_ = np.linalg.lstsq(x, frame["_y"].to_numpy(dtype="float64"), rcond=None)
+    out.loc[frame.index] = frame["_y"].to_numpy() - x @ coef
+    return out
+
+
+def _within_cross(residual: pd.DataFrame, sectors: dict) -> tuple:
+    """Average residual correlation of same-sector pairs, and of cross-sector pairs."""
+    if residual.shape[1] < MIN_NAMES or not sectors:
+        return None, None
+    matrix = residual.corr(min_periods=MIN_DATES).to_numpy()
+    label = np.array([sectors.get(t) for t in residual.columns], dtype=object)
+    same = (label[:, None] == label[None, :]) & (label[:, None] != None)  # noqa: E711
+    off = ~np.eye(len(label), dtype=bool)
+    within = matrix[same & off]
+    cross = matrix[~same & off]
+    within, cross = within[~np.isnan(within)], cross[~np.isnan(cross)]
+    return (float(within.mean()) if within.size else None,
+            float(cross.mean()) if cross.size else None)
+
+
+def external_residual_correlation(returns: pd.DataFrame, *, market, sector_returns=None,
+                                  sectors=None, horizon_days: int = 21) -> dict:
+    """F12 `D12` / AC-F12.34 — residual ρ after EXTERNAL market and sector factors.
+
+    `returns` is `(date × ticker)` on the same basis as the factors (the 21-day
+    forward return, sampled daily). `market` is SPY's; `sector_returns` is
+    `(date × sector)` from each GICS sector's SPDR; `sectors` maps ticker → sector.
+
+    ★ Unlike `rho_residual` (AC-F12.28) the factors are priced outside the panel,
+    so the answer is not forced to `−1/(n−1)`. ⚠ They are cap-weighted and hold
+    these names — a mega-cap's own move is partly inside its factor (stated in
+    F12 `D12`). **Reported beside the breadth gate, never gated** until ruled.
+    """
+    n = int(returns.shape[1])
+    base = {"formula_id": FORMULA_EXTERNAL, "names": n, "rho_market": None,
+            "rho_market_sector": None, "within_sector_market": None,
+            "cross_sector_market": None, "within_sector_market_sector": None,
+            "cross_sector_market_sector": None, "basis": None,
+            "independent_names": None, "breadth": None,
+            "note": "external factors (SPY + GICS sector SPDRs) — reported beside the "
+                    "breadth gate, never gated (F12 D12)", "why": ""}
+    if market is None or not len(market):
+        return {**base, "why": "no external market factor supplied — not measured, "
+                               "never substituted (QA-43)"}
+    market = pd.Series(market).reindex(returns.index).rename("market")
+
+    resid_m = pd.DataFrame({t: _ols_residual(returns[t], market.to_frame())
+                            for t in returns.columns}, index=returns.index)
+    rho_m = average_pairwise_correlation(resid_m)
+    w_m, c_m = _within_cross(resid_m, sectors or {})
+    out = {**base, "rho_market": None if rho_m is None else round(rho_m, 6),
+           "within_sector_market": None if w_m is None else round(w_m, 6),
+           "cross_sector_market": None if c_m is None else round(c_m, 6)}
+
+    rho_used, basis = rho_m, "market"
+    if sector_returns is not None and sectors:
+        sector_returns = pd.DataFrame(sector_returns).reindex(returns.index)
+        cols = {}
+        for t in returns.columns:
+            sector = sectors.get(t)
+            if sector not in sector_returns.columns:
+                continue                       # ⚠ no ETF for it: left out, not guessed
+            factors = pd.concat([market, sector_returns[sector].rename("sector")], axis=1)
+            cols[t] = _ols_residual(returns[t], factors)
+        resid_ms = pd.DataFrame(cols, index=returns.index)
+        rho_ms = average_pairwise_correlation(resid_ms)
+        w_ms, c_ms = _within_cross(resid_ms, sectors)
+        out.update(rho_market_sector=None if rho_ms is None else round(rho_ms, 6),
+                   within_sector_market_sector=None if w_ms is None else round(w_ms, 6),
+                   cross_sector_market_sector=None if c_ms is None else round(c_ms, 6))
+        if rho_ms is not None:
+            rho_used, basis = rho_ms, "market+sector"
+
+    if rho_used is None:
+        return {**out, "why": f"needs at least {MIN_NAMES} names and {MIN_DATES} dates"}
+    n_eff = independent_names(n, rho_used)
+    per_year = TRADING_DAYS_PER_YEAR / max(horizon_days, 1)
+    out = {**out, "basis": basis, "independent_names": round(n_eff, 4),
+           "breadth": round(n_eff * per_year, 4)}
+    if rho_m is not None:
+        # ★ F12 D13 — the GATED figure: market-only (the ranker is not sector-neutral).
+        n_eff_m = independent_names(n, rho_m)
+        out.update(independent_names_market=round(n_eff_m, 4),
+                   breadth_market=round(n_eff_m * per_year, 4))
+    return out
+
+
+#: F12 `D13` — how the gate's basis is named in its `why`.
+GATED_BASIS = "external market-only residual ρ (SPY; F12 D13)"
+
+
+def gated_breadth(external: dict | None) -> tuple:
+    """F12 `D13` / AC-F12.35 — `(BR, basis)` the breadth gate reads.
+
+    ★ The market-only external residual: the shared market move is not a bet,
+    but a sector tilt is — the ranker is not sector-neutral, so removing the
+    sector factor would count five tech names as five independent bets.
+    ⚠ Unmeasured ⇒ `None` (the gate is NOT_EVALUATED); never the raw ρ, never `n`.
+    """
+    br = (external or {}).get("breadth_market")
+    return (float(br) if br is not None else None), GATED_BASIS
+
+
 def from_predictions(predictions: pd.DataFrame, *, horizon_days: int,
                      sectors=None, label_column: str = "value") -> dict:
     """Measure breadth from the same frame the IC and the simulation read.

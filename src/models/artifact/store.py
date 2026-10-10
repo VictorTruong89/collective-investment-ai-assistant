@@ -212,6 +212,34 @@ class ArtifactStore:
                 best = (artifact_id, record["promoted_at"])
         return best[0] if best else None
 
+    # -- MT-67: the card's INFORMATIONAL ranker (a refused model, labelled) -- #
+
+    CARD_INFORMATIONAL = "card_informational.json"
+
+    def card_informational(self, *, role: str, horizon_id: str) -> dict | None:
+        """The designated refused ranker for `(role, horizon)`, or `None` (MT-67)."""
+        path = Path(self.root) / self.CARD_INFORMATIONAL
+        if not path.is_file():
+            return None
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if record.get("role") != role or record.get("horizon_id") != horizon_id:
+            return None
+        return record
+
+    def designate_card_informational(self, record: dict) -> Path:
+        """★ An explicit, revocable act — never `promotion.json` (MT-52, MT-67)."""
+        path = Path(self.root) / self.CARD_INFORMATIONAL
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(record, indent=1, sort_keys=True), encoding="utf-8")
+        return path
+
+    def revoke_card_informational(self) -> bool:
+        path = Path(self.root) / self.CARD_INFORMATIONAL
+        if not path.is_file():
+            return False
+        path.unlink()
+        return True
+
     def load_estimator(self, artifact_id: str):
         import pickle
 

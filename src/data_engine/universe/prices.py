@@ -95,8 +95,13 @@ def _classify(exc) -> tuple[str, str]:
     return NO_SOURCE, f"{type(exc).__name__}: {exc}"[:180]
 
 
+#: DE-80 — seconds between the first pass and the single retry pass.
+RETRY_PAUSE_SECONDS = 10.0
+
+
 def fetch_universe(source, tickers, *, start: date, end: date,
-                   fetch=None, symbol_for=None) -> tuple[dict, AssemblyReport]:
+                   fetch=None, symbol_for=None, retry_pause: float | None = None,
+                   sleep=None) -> tuple[dict, AssemblyReport]:
     """Fetch every name. ★ **Every failure is collected, then reported once.**
 
     ⚠ Raising on the first bad ticker tells you about one name per run, and a
@@ -118,24 +123,37 @@ def fetch_universe(source, tickers, *, start: date, end: date,
     """
     resolve_symbol = symbol_for or (lambda ticker: ticker)
     call = fetch or (lambda symbol: source.raw_prices(symbol, start, end))
-    frames, failures, counts, fetched_as = {}, [], {}, {}
-    for ticker in tickers:
-        symbol = resolve_symbol(ticker) or ticker
-        if symbol != ticker:
-            fetched_as[ticker] = symbol
-        try:
-            rows = call(symbol)
-        except Exception as exc:                            # noqa: BLE001
-            reason, detail = _classify(exc)
-            failures.append(TickerFailure(ticker, reason, detail))
-            continue
-        if rows is None or len(rows) == 0:
-            failures.append(TickerFailure(
-                ticker, EMPTY_WINDOW,
-                f"the source returned no rows for {start}..{end}"))
-            continue
-        frames[ticker] = rows
-        counts[ticker] = len(rows)
+    frames, counts, fetched_as = {}, {}, {}
+
+    def one_pass(names) -> list:
+        failed = []
+        for ticker in names:
+            symbol = resolve_symbol(ticker) or ticker
+            if symbol != ticker:
+                fetched_as[ticker] = symbol
+            try:
+                rows = call(symbol)
+            except Exception as exc:                        # noqa: BLE001
+                reason, detail = _classify(exc)
+                failed.append(TickerFailure(ticker, reason, detail))
+                continue
+            if rows is None or len(rows) == 0:
+                failed.append(TickerFailure(
+                    ticker, EMPTY_WINDOW,
+                    f"the source returned no rows for {start}..{end}"))
+                continue
+            frames[ticker] = rows
+            counts[ticker] = len(rows)
+        return failed
+
+    failures = one_pass(tickers)
+    if failures:
+        # ★ DE-80 (DX-168) — ONE retry pass after a pause: an empty answer at the
+        #   start of a burst is often transient. ⚠ Still named if it fails again.
+        import time as _time
+
+        (sleep or _time.sleep)(RETRY_PAUSE_SECONDS if retry_pause is None else retry_pause)
+        failures = one_pass([f.ticker for f in failures])
 
     report = AssemblyReport(requested=tuple(tickers), fetched=tuple(frames),
                             failures=tuple(failures), rows_by_ticker=counts,

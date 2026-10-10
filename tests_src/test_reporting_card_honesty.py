@@ -56,11 +56,12 @@ def test_ac_12_30_the_recommendation_carries_what_ranked_the_pick():
     from src.quant import RANK_FORMULA_ID, rule_id
 
     by_rule = recommendation(model_artifact_id=rule_id()).candidate["ranked_by"]
+    # ✏ 2026-10-09 — DN-41 / F12 D15 extend the record with the ranker's status.
     assert by_rule == {"artifact_id": rule_id(), "kind": "rule",
-                       "formula_id": RANK_FORMULA_ID}
+                       "formula_id": RANK_FORMULA_ID, "status": "rule", "refused_gates": []}
     by_model = recommendation(model_artifact_id="sha256:85b7").candidate["ranked_by"]
     assert by_model == {"artifact_id": "sha256:85b7", "kind": "model",
-                        "formula_id": None}
+                        "formula_id": None, "status": "rule", "refused_gates": []}
 
 
 def test_ac_9_36_the_card_names_the_rule_that_ranked_the_pick():

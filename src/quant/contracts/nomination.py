@@ -27,6 +27,10 @@ REGIME_LIMITATION = (
     "a result from one regime is not evidence for another.")
 
 
+#: F12 `D15` — the only kinds of ranker a nomination may name.
+RANKER_STATUSES = ("rule", "promoted", "refused_informational")
+
+
 @dataclass(frozen=True, slots=True)
 class Candidate:
     ticker: str
@@ -62,8 +66,22 @@ class Nomination:
     contract_version: str = ""
     adj_as_of: date | None = None
     calendar_check_id: str = ""
+    #: ★★ F12 `D15` / AC-F12.37 — what KIND of ranker made this nomination. A
+    #: refused model may rank the informational card (D-04 MT-67, D-08 OR-58), and
+    #: PG-10 then requires every downstream output to say so — D-12 and D-09
+    #: re-derive nothing, so the status rides here.
+    ranker_status: str = "rule"
+    refused_gates: tuple = ()
 
     def __post_init__(self) -> None:
+        if self.ranker_status not in RANKER_STATUSES:
+            raise NominationContractError(
+                f"ranker_status {self.ranker_status!r} is not one of {RANKER_STATUSES} "
+                f"(F12 D15)")
+        if self.ranker_status == "refused_informational" and not self.refused_gates:
+            raise NominationContractError(
+                "a nomination ranked by a REFUSED model must name the gates it failed "
+                "(F12 D15, PG-10)")
         for name in ("contract_version", "adj_as_of", "calendar_check_id"):
             if not getattr(self, name):
                 # QA-30 / AC-F12.26 — refused, never defaulted (P5).
@@ -128,6 +146,8 @@ class Nomination:
             "contract_version": self.contract_version,
             "adj_as_of": self.adj_as_of.isoformat(),
             "calendar_check_id": self.calendar_check_id,
+            "ranker_status": self.ranker_status,                 # ★ F12 D15
+            "refused_gates": list(self.refused_gates),
             "limitation": REGIME_LIMITATION,
             "arbitration": {"nominated_by": self.nominating_horizon,
                             "delayed_by": list(self.delayed_by),

@@ -6,6 +6,14 @@
 > (the breadth gate becomes an implied-information-ratio test on the universe) → `AC-F12.31`, `AC-F12.32`.
 > ✏ **Amended 2026-10-08 (Victor):** `D11` — a true expanding-window walk-forward beside the purged k-fold (`DX-162`)
 > → `AC-F12.33`.
+> ✏ **Amended 2026-10-08 (Victor):** `D12` — the residual correlation measured against EXTERNAL factors (SPY and the
+> GICS sector SPDRs), reported beside the breadth gate → `AC-F12.34`.
+> ✏ **Amended 2026-10-08 (Victor):** `D13` — the breadth gate's `BR` comes from the EXTERNAL **market-only** residual
+> correlation (`D12`'s `rho_market`) → `AC-F12.35`.
+> ✏ **Amended 2026-10-08 (Victor):** `D14` — the WALK-FORWARD gates significance (and supplies the IC the breadth gate
+> pairs with `BR`); the purged k-fold is reported beside → `AC-F12.36`.
+> ✏ **Amended 2026-10-09 (Victor):** `D15` — the Nomination carries its ranker's status (`rule` / `promoted` /
+> `refused_informational`) and a refused ranker's failed gates → `AC-F12.37`.
 > **Source discussion:** `sdd/design/rel1_design/L3-build-sequence.md` §2.1s (Victor, 2026-10-05): row 9
 > re-scoped to **govern & close** — graduate the D-03 core that is already built, wire `src/quant/**`
 > into `ownership.yaml`, and record what is out of rel-1 as declared limitations. No new capability.
@@ -136,13 +144,37 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   date follows any test date. The walk-forward IC is **reported beside** the purged k-fold IC, with its own realised SE
   and per-fold ICs — **never gated** until Victor rules which protocol gates. → unit. ✅ 2026-10-08
 
+- **AC-F12.34** *(new — `D12`)* — **Given** the universe's forward-return matrix and EXTERNAL factor returns on the
+  same basis (SPY; each name's GICS sector SPDR), **when** breadth is measured, **then** each name is regressed (with
+  an intercept, one β per name over the window) on the market, and separately on market + its sector ETF; the average
+  pairwise correlation of each residual set is reported (`rho_market`, `rho_market_sector`), with the within-sector and
+  cross-sector averages and the `n_eff` / breadth / implied IR it would give. On a synthetic panel whose residual
+  correlation is known, the measure **recovers it** — and unlike `rho_residual` it is **not** pinned at `−1/(n−1)`.
+  **Reported, never gated** until Victor rules how breadth is measured. → unit, with a known answer. ✅ 2026-10-08
+
+- **AC-F12.35** *(new — `D13`)* — **Given** the external measurement of `AC-F12.34`, **when** the `breadth` gate runs,
+  **then** its `BR` is `n_eff(rho_market) × 252/h` — the residual correlation after the EXTERNAL market factor only,
+  not after the sector factor and not the raw ρ — and its `why` names that basis. No external market factor ⇒ the gate
+  is `NOT_EVALUATED` (never the raw ρ, never `n`). The raw and market+sector figures stay reported beside it. → unit. ✅
+  2026-10-08
+
+- **AC-F12.36** *(new — `D14`)* — **Given** both out-of-sample measurements (`AC-F12.33`), **when** the gates run,
+  **then** `ic_significance` and `breadth` read the **walk-forward** IC (its mean and its realised Newey-West SE), and
+  the purged k-fold IC is reported beside, never gated. A walk-forward that produced no prediction ⇒ both IC-reading
+  gates `NOT_EVALUATED` — never the k-fold in its place. → unit. ✅ 2026-10-08
+
+- **AC-F12.37** *(new — `D15`)* — **Given** a Nomination, **when** it is built or serialised, **then** it carries
+  `ranker_status` ∈ {`rule`, `promoted`, `refused_informational`} and, for `refused_informational`, a non-empty
+  `refused_gates`; any other status, or a refused status with no gates, is REFUSED (`QNT.NOMINATION`). → data contract.
+  ✅ 2026-10-09
+
 **Declared limitation**
 
 - **AC-F12.30** *(new — `D3`)* — **Given** any `Nomination` or `BacktestResult`, **when** it is serialised,
   **then** it carries the fixed sentence (`D7`) *"Not regime-conditioned: one model is fitted across all
   market states; a result from one regime is not evidence for another."* → data contract. (`PG-10`) ✅ 2026-10-05
 
-**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous. ✏ 2026-10-08: + `.33` → **30 / 33 green**, 3 vacuous.
+**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous. ✏ 2026-10-08: + `.33`–`.36` → **33 / 36 green**, 3 vacuous. ✏ 2026-10-09: + `.37` → **34 / 37 green**.
 
 ## 7. Decisions
 
@@ -192,6 +224,37 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   would the fund have known then?"* exactly. Purge in **trading** days here (the k-fold's calendar-day purge is `DX-161`,
   still open). Rejected: ⓐ replace the k-fold (it uses every block, and its numbers are the record so far); ⓑ gate on the
   walk-forward now (fewer test dates — 4 of 5 blocks — so a wider SE; which protocol gates is a ruling, not a default).
+- **`D12` — measure the residual correlation against EXTERNAL factors** *(Victor, 2026-10-08)* → `AC-F12.34`. ★ Why:
+  after fit 3 (IC 0.036) the breadth gate is the only refusal, and its verdict turns on one number — pass if the
+  residual ρ is below ≈ 0.060, fail above (lecture L8 §7.8). `rho_residual` cannot answer: it removes an equal-weight
+  factor built from the same names, which forces `−1/(n−1)` (`AC-F12.28`). SPY and the sector SPDRs are priced outside
+  the calculation. ⚠ **Caveats, stated:** they are cap-weighted and HOLD these names, so a mega-cap's own move is partly
+  in its factor (small, larger in thin sectors such as Real Estate and Materials); XLC exists only from 2018-06, so a
+  Communication Services name's sector residual starts there; GICS is today's (DE-77). Rejected: ⓐ keep raw ρ (it
+  counts the market as a bet, which an information ratio — active return over benchmark — does not hold); ⓑ PCA
+  factors from the panel itself (built from the same names, the `−1/(n−1)` trap again, more subtly).
+- **`D13` — the breadth gate uses the external MARKET-ONLY residual ρ** *(Victor, 2026-10-08)* → `AC-F12.35`. Measured
+  2026-10-08 on 509 names, split-adjusted: raw ρ 0.294 (n_eff 3.4), market-only 0.057 (n_eff ≈ 17, BR ≈ 203), market +
+  sector 0.012 (n_eff 73, BR 881); break-even at IC 0.036 is 0.060. ★ Why market-only: an information ratio is on active
+  return, so the shared market move is not a bet — but the ranker is **not sector-neutral**, so five names from one
+  sector are correlated bets and removing the sector factor would count a sector tilt as diversification. Rejected:
+  ⓐ raw ρ (counts the market as a bet; at ρ 0.29 the gate needs IC ≈ 0.08 — unpassable for a realistic monthly signal);
+  ⓑ market + sector (correct only for a sector-neutral ranking — revisit if one is adopted); ⓒ fall back to raw ρ when
+  the external factor is missing (a substitution, QA-43 — `NOT_EVALUATED` instead). `IR* = 0.5` unchanged (`D10`).
+- **`D14` — the walk-forward gates significance** *(Victor, 2026-10-08)* → `AC-F12.36`. ★ Why: the gate protects real
+  money (`PG-2`), and only the walk-forward answers *"would this have worked in real time?"*; the data is
+  non-stationary (the 2020–22 block carries no signal; the signal fades across the decade), which is exactly where a
+  k-fold that trains on later regimes flatters. ★ **Ruled before the clean refit**, so its result cannot steer the
+  choice — on fit 3 the k-fold passed (t 3.23) and the walk-forward did not (t 2.70). The breadth gate takes the same IC
+  (`IR = IC · √BR` pairs the IC and the breadth of the same decisions). The simulation keeps the k-fold predictions
+  (all five blocks) and feeds only `cost_survival`. Rejected: ⓐ the k-fold (more power, but optimistic on the regime
+  question that is this model's weakness); ⓑ require both (in practice the walk-forward, plus a rule that adds no
+  information); ⓒ walk-forward with a lower t (the t ≥ 3 bar answers the profession's search, which has not changed);
+  ⓓ run both and keep the better (choosing the answer).
+- **`D15` — the nomination says what kind of ranker made it** *(Victor, 2026-10-09: card option b)* → `AC-F12.37`.
+  The card may be ranked by a REFUSED model (D-04 MT-67, D-08 OR-58); PG-10 then requires every downstream output to
+  say so, and the nomination is where the status must ride (D-12 and D-09 re-derive nothing). Rejected: ⓐ D-12 reading
+  the model store to find out (D-12 originates nothing); ⓑ a free-text note (unenforceable).
 - **`D5` — `AC-F12.k`, not bare `AC-12.k`** — D-12 Decision's upstream criteria are `AC-12.x`
   (constitution §1.1, `DX-44`).
 
@@ -236,5 +299,9 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
 | AC-F12.31 | `tests_src/test_quant_gates_d9_d10.py` (Newey-West known answers · the August case FAILs · no realised SE ⇒ NOT_EVALUATED) | `src/quant/metrics/ic.py` · `gates/metric_gate.py` |
 | AC-F12.32 | `tests_src/test_quant_gates_d9_d10.py` (IR = IC·√BR · boundary · can fail at 1m · held book reported, never gated) | `src/quant/gates/metric_gate.py` · `metrics/breadth.py` |
 | AC-F12.33 | `tests_src/test_quant_walk_forward.py` (past only · block 0 untested · purge in trading days · same blocks as k-fold) | `src/quant/backtest/protocol.py` |
+| AC-F12.34 | `tests_src/test_quant_breadth_external.py` (recovers a known residual ρ · not pinned at −1/(n−1) · within/cross split · missing factor ⇒ None) | `src/quant/metrics/breadth.py` |
+| AC-F12.35 | `tests_src/test_quant_breadth_external.py::test_ac_f12_35_*` (BR from market-only ρ · why names the basis · no market factor ⇒ NOT_EVALUATED) | `src/quant/metrics/breadth.py` · `gates/metric_gate.py` · `src/models/train/__main__.py` |
+| AC-F12.36 | `tests_src/test_models_train_walk_forward.py::test_ac_f12_36_*` (the gates read the walk-forward IC · the k-fold is reported, not gated · no walk-forward ⇒ NOT_EVALUATED) | `src/models/train/__main__.py` · `src/models/train/run.py` |
+| AC-F12.37 | `tests_src/test_card_refused_ranker.py::test_ac_f12_37_*` | `src/quant/contracts/nomination.py` |
 
 ✅ 2026-10-05: the 17 pre-existing tests now carry their `AC-F12.k` id in the docstring; 9 criteria were built test-first the same day. Suite **2,572 pass / 1 red (`J-07`)**.

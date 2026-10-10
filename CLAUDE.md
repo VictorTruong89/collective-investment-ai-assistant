@@ -39,7 +39,7 @@ which model it belongs to.
 
 **Current state (2026-10-05):** **14 specs 🟢 approved — 180/180 ACs green, plus `F12` quant core
 (2026-10-05) at 27/30 (3 vacuous)**, with 18 governed path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
-modules), and the suite stands at 2,665 pass with 1 deliberate red (`J-07`). The analysis layer has 32/35
+modules), and the suite stands at 2,722 pass with 1 deliberate red (`J-07`). The analysis layer has 32/35
 prompt blocks declared, every one run live and verified (`E-14` `J-18` `J-19` deferred by decision), and four
 MU theses produced (k=1 each; SELL → HOLD → SELL → SELL, all falsified or on course to be). ⊘ AMD thesis
 skipped; falsifier improvement waits for real runs. Quant closed as *govern & close* (`F12`); go-live prepared in `sdd/design/rel1_design/L9-go-live-checklist.md` — Victor 2026-10-05: **card only, theses on demand by his manual command; paid Anthropic API stays OFF; no budget yet** (the old 3-call daily `thesis` path was removed 2026-10-05, `DX-153` — restore patch in `sdd/archive/`). ⊘ **The golden-case programme is CLOSED**

@@ -108,6 +108,18 @@ class MultipleActionableError(DecisionError):
     code = "DEC.INV6.MULTIPLE_ACTIONABLE"
 
 
+class RefusedRankerActionableError(DecisionError):
+    """DN-41 / AC-12.31 — a ranking from a REFUSED model may not be actionable."""
+
+    code = "DEC.ACTIONABLE.REFUSED_RANKER"
+
+    def __init__(self, refused_gates) -> None:
+        super().__init__(
+            f"the nomination was ranked by a refused model "
+            f"({', '.join(refused_gates)} failed) — it may be shown as informational, "
+            f"never actionable (DN-41, PG-10)")
+
+
 class SellNotHeldError(DecisionError):
     """DEC.SELL.NOT_HELD — ★ outside the chain's precondition (DN-24).
 

@@ -80,8 +80,12 @@ def load_sp500(path: str = "config/sp500_tickers.yaml") -> tuple:
     return tuple(sorted(load_cik_map(path)))
 
 
+#: DE-80 — seconds before the single retry pass over failed names.
+PRICE_RETRY_PAUSE_SECONDS = 10.0
+
+
 def fetch_prices(client, universe, *, start: date, end: date,
-                 on_error=None) -> tuple:
+                 on_error=None, retry_pause: float | None = None, sleep=None) -> tuple:
     """Raw OHLCV for the universe. Returns `(frames, unresolved)`.
 
     ⚠ **A name that fails is NAMED, never dropped quietly** (DE-13). The whole
@@ -91,14 +95,30 @@ def fetch_prices(client, universe, *, start: date, end: date,
     """
     from src.data_engine.src.fmp import prices as fmp_prices
 
-    frames, unresolved = {}, {}
-    for ticker in universe:
-        try:
-            frames[ticker] = fmp_prices.raw_prices(client, ticker, start, end)
-        except Exception as exc:               # noqa: BLE001 — recorded, not raised
-            unresolved[ticker] = str(exc)[:160]
-            if on_error is not None:
-                on_error(ticker, exc)
+    frames = {}
+
+    def one_pass(names) -> dict:
+        failed = {}
+        for ticker in names:
+            try:
+                frames[ticker] = fmp_prices.raw_prices(client, ticker, start, end)
+            except Exception as exc:           # noqa: BLE001 — recorded, not raised
+                failed[ticker] = exc
+        return failed
+
+    failed = one_pass(universe)
+    if failed:
+        # ★ DE-80 (DX-168) — ONE retry pass after a pause; still named if it fails.
+        import time as _time
+
+        (sleep or _time.sleep)(PRICE_RETRY_PAUSE_SECONDS if retry_pause is None
+                                else retry_pause)
+        failed = one_pass(list(failed))
+    unresolved = {}
+    for ticker, exc in failed.items():
+        unresolved[ticker] = str(exc)[:160]
+        if on_error is not None:
+            on_error(ticker, exc)
     return frames, unresolved
 
 
@@ -159,7 +179,8 @@ def fundamentals_histories(engine, tickers, *, as_of: date, since: date,
 
 
 def build_training_panel(*, price_frames, engine, universe, as_of: date,
-                         adj_as_of: date, calendar_report, sectors=None):
+                         adj_as_of: date, calendar_report, events, sectors=None,
+                         single_date: bool = False):
     """The CT-2.2 panel over both contracts — ★ 59 of §5.3's 61 features."""
     import pandas as pd
 
@@ -170,7 +191,11 @@ def build_training_panel(*, price_frames, engine, universe, as_of: date,
     from src.feature_engineer.ml_features.assemble import build_panel
 
     raw = pd.concat(price_frames.values(), ignore_index=True)
-    prices = build_price_panel(raw, (), adj_as_of)
+    # ★★★ MT-61 / DE-78 (DX-166) — the stored splits and dividends, REQUIRED
+    #   (no default). ⚠ Until 2026-10-08 this passed `()` over RAW prices: every
+    #   split read as a crash (NVDA's 10:1 → labels to −89.5 %). The `events`
+    #   come from D-07's `price_events` — the same store the calendar gate reads.
+    prices = build_price_panel(raw, events, adj_as_of)
 
     # ★ One contract, so ONE `(name, version)` reaches the manifest. ⚠ Two
     #   panels merged after the fact would give the artifact two contracts to
@@ -190,6 +215,17 @@ def build_training_panel(*, price_frames, engine, universe, as_of: date,
     #   across ten years: every period sat at its latest re-filing, and the
     #   fundamental half of the panel ran ~1 year stale (median 371 d, measured).
     #   ★ `since` = the panel's first date: older snapshots can never be joined.
+    if single_date:
+        # ★ MT-65 — a panel SCORED AT ONE DATE (the shadow trial): one read at
+        #   `as_of` is exactly FE-40's correct single-date case. ⚠ Only the
+        #   `as_of` rows are valid; earlier rows carry today's fundamentals.
+        rows_by_ticker = {t: engine.get_fundamentals(t, as_of=as_of)
+                          for t in universe if t in price_frames}
+        panel = build_panel(
+            contract=combined, price_panel=prices, calendar_report=calendar_report,
+            as_of=as_of, adj_as_of=adj_as_of,
+            fundamentals={"rows_by_ticker": rows_by_ticker, "sectors": sectors})
+        return panel, combined
     since = pd.Timestamp(prices["date"].min()).date()
     workers = replay_workers()
     history_by_ticker = fundamentals_histories(
@@ -529,7 +565,8 @@ COST_GATE_UNAVAILABLE = (
 
 
 def gate_outcomes(ic_result, *, horizon_id: str, names: int,
-                  effective_breadth=None, simulation=None) -> dict:
+                  effective_breadth=None, simulation=None,
+                  breadth_basis: str = "raw ρ") -> dict:
     """D-03's gates over the walk-forward result. ★ **The required set is D-03's.**
 
     ⚠ MT-50: D-04 declaring its own list is how promotion came to demand a
@@ -545,7 +582,7 @@ def gate_outcomes(ic_result, *, horizon_id: str, names: int,
 
     outcomes = {
         "ic_significance": ic_significance_gate(ic_result, horizon_id=horizon_id),
-        "breadth": breadth_gate(effective_breadth=effective_breadth,
+        "breadth": breadth_gate(basis=breadth_basis, effective_breadth=effective_breadth,
                                 mean_ic=ic_result.mean_ic,
                                 names=names, horizon_id=horizon_id),
     }
@@ -567,6 +604,66 @@ def gate_outcomes(ic_result, *, horizon_id: str, names: int,
     return outcomes
 
 
+#: MT-62 / F12 `D12` — the GICS sector → its Select Sector SPDR. ⚠ XLC begins
+#: 2018-06-18 (Communication Services was created then); XLRE 2015-10-08.
+SECTOR_ETFS = {
+    "Information Technology": "XLK", "Financials": "XLF", "Health Care": "XLV",
+    "Consumer Discretionary": "XLY", "Consumer Staples": "XLP", "Energy": "XLE",
+    "Industrials": "XLI", "Materials": "XLB", "Utilities": "XLU",
+    "Real Estate": "XLRE", "Communication Services": "XLC",
+}
+MARKET_ETF = "SPY"
+
+
+def external_factor_returns(client, *, start: date, as_of: date, horizon_days: int,
+                            on_error=None):
+    """`(market, sectors)` — SPY and the sector SPDRs as the LABELS are built (MT-62).
+
+    ★ Raw bars adjusted with each ETF's own FMP splits and dividends, then the same
+    `open(T+h)/open(T) − 1` label — so a factor and a stock return are on one
+    basis. ⚠ An ETF that cannot be fetched is NAMED (`on_error`) and left out,
+    never substituted; SPY missing returns `market=None` (not measured).
+    """
+    import pandas as pd
+
+    from src.data_engine import build_price_panel
+    from src.data_engine.src.fmp import prices as fmp_prices
+
+    def one(symbol):
+        try:
+            raw = fmp_prices.raw_prices(client, symbol, start, as_of)
+            events = (list(fmp_prices.splits(client, symbol))
+                      + list(fmp_prices.dividends(client, symbol)))
+            panel = build_price_panel(raw, events, as_of)
+            labels, _ = build_training_labels(panel, horizon_days=horizon_days, as_of=as_of)
+        except Exception as exc:               # noqa: BLE001 — named, then left out
+            if on_error is not None:
+                on_error(symbol, exc)
+            return None
+        return labels.set_index(pd.to_datetime(labels["date"]))["value"].rename(symbol)
+
+    market = one(MARKET_ETF)
+    columns = {}
+    for sector, symbol in SECTOR_ETFS.items():
+        series = one(symbol)
+        if series is not None:
+            columns[sector] = series
+    return market, pd.DataFrame(columns)
+
+
+def gating_predictions(*, kfold, walk_forward):
+    """F12 `D14` / AC-F12.36 — the predictions the IC-reading gates are judged on.
+
+    ★ Always the WALK-FORWARD (trained on the past only) — the question the gate
+    protects real money with is *"would this have worked in real time?"*. ⚠ An
+    empty walk-forward is returned AS EMPTY: the gates then report NOT_EVALUATED,
+    and the k-fold is never substituted (QA-17). `kfold` is accepted so the
+    choice is visible at the call site, and deliberately unused.
+    """
+    del kfold
+    return walk_forward
+
+
 def measure_breadth(scored, *, horizon_days: int, sectors=None) -> dict:
     """QA-43 from the same predictions the IC and the simulation read.
 
@@ -583,7 +680,8 @@ def measure_breadth(scored, *, horizon_days: int, sectors=None) -> dict:
 def decide_promotion(artifact, *, ic_result, names: int, store,
                      backtest_result_id: str = "", promoted_by: str = "training-run",
                      effective_breadth=None, simulation=None, breadth=None,
-                     hold_for_review: bool = True, walk_forward=None) -> dict:
+                     hold_for_review: bool = True, walk_forward=None,
+                     external_breadth=None) -> dict:
     """Persist the artifact and its gate report; ★ **never promote on its own** (MT-52).
 
     ✏ *2026-10-06 (Victor: "training should hold promotion until I've reviewed it")*:
@@ -610,7 +708,8 @@ def decide_promotion(artifact, *, ic_result, names: int, store,
         ic_result, horizon_id=artifact.manifest.horizon_id, names=names,
         effective_breadth=(effective_breadth if effective_breadth is not None
                            else (breadth or {}).get("breadth")),
-        simulation=simulation)
+        simulation=simulation,
+        breadth_basis=(breadth or {}).get("breadth_basis", "raw ρ"))
     verdicts = {gate_id: (getattr(result, "verdict", None) or "NOT_EVALUATED")
                 for gate_id, result in outcomes.items()}
 
@@ -631,6 +730,8 @@ def decide_promotion(artifact, *, ic_result, names: int, store,
         "backtest_result_id": backtest_result_id,
         # ★ MT-58 / F12 D11 — the past-only protocol, reported beside; never gated.
         "walk_forward": dict(walk_forward) if walk_forward else None,
+        # ★ MT-62 / F12 D12 — residual ρ against SPY + sector SPDRs; never gated.
+        "external_breadth": dict(external_breadth) if external_breadth else None,
     }
     refused = [g for g in REQUIRED_GATES if verdicts.get(g) != PASS]
     evaluation["review"] = (
@@ -704,7 +805,8 @@ def d03_evaluate(*, universe, scored, simulation, breadth, horizon_days: int,
         effective_breadth=(breadth or {}).get("breadth"),
         held_book=(breadth or {}).get("held_book"),
         gross_return=(simulation or {}).get("gross_return"),
-        net_return=(simulation or {}).get("net_return"))
+        net_return=(simulation or {}).get("net_return"),
+        breadth_basis=(breadth or {}).get("breadth_basis", "raw ρ"))
 
 
 def training_calendar_check(*, store, universe, start: date, as_of: date,

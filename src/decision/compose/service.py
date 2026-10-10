@@ -66,6 +66,14 @@ def compose(
     if nomination.decision_anchor != manifest_anchor:
         raise AnchorMismatchError(nomination.decision_anchor, manifest_anchor)
 
+    # ★★★ DN-41 / AC-12.31 — a ranking from a REFUSED model is never actionable.
+    #   Refused here, not trusted to the caller: PG-10's guarantee cannot rest on
+    #   every caller remembering it.
+    if actionable and getattr(nomination, "ranker_status", "rule") == "refused_informational":
+        from src.decision.errors import RefusedRankerActionableError
+
+        raise RefusedRankerActionableError(nomination.refused_gates)
+
     top = nomination.top
     verdict = NOMINATED_VERDICT
     outcomes: list[GateOutcome] = []
@@ -152,7 +160,10 @@ def _ranked_by(nomination) -> dict:
     artifact = nomination.model_artifact_id
     is_rule = artifact == rule_id()
     return {"artifact_id": artifact, "kind": "rule" if is_rule else "model",
-            "formula_id": RANK_FORMULA_ID if is_rule else None}
+            "formula_id": RANK_FORMULA_ID if is_rule else None,
+            # ★ DN-41 / F12 D15 — carried byte-identical from the nomination.
+            "status": getattr(nomination, "ranker_status", "rule"),
+            "refused_gates": list(getattr(nomination, "refused_gates", ()) or ())}
 
 
 def _transport_grade(nomination, top, gate_verdicts) -> dict:

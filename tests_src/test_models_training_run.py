@@ -143,3 +143,10 @@ def test_the_walk_forward_purge_uses_the_longest_horizon():
     protocol = derive_protocol(PRODUCTION_V1, n_folds=5)
     longest = max(h.trading_days for h in PRODUCTION_V1.horizons)
     assert protocol.purge_days == longest
+
+
+@pytest.fixture(autouse=True)
+def _no_retry_pause(monkeypatch):
+    """DE-80's retry pause is real in production; these tests fail fetches on purpose."""
+    monkeypatch.setattr("src.data_engine.universe.prices.RETRY_PAUSE_SECONDS", 0.0)
+    monkeypatch.setattr("src.models.train.run.PRICE_RETRY_PAUSE_SECONDS", 0.0)

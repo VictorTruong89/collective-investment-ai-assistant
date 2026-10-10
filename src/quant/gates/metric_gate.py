@@ -132,8 +132,8 @@ IR_TARGET = 0.5
 
 def breadth_gate(*, effective_breadth: float | None, names: int,
                  horizon_id: str, mean_ic: float | None = None,
-                 ir_target: float = IR_TARGET, held_book: dict | None = None
-                 ) -> GateResult:
+                 ir_target: float = IR_TARGET, held_book: dict | None = None,
+                 basis: str = "raw ρ") -> GateResult:
     """★★ F12 `D10` / AC-F12.32 — the implied information ratio `|IC|·√BR` ≥ `IR*`.
 
     Grinold–Kahn: `IR ≈ IC · √BR`. Equivalently `BR ≥ (IR*/IC)²` — *this much skill
@@ -145,11 +145,14 @@ def breadth_gate(*, effective_breadth: float | None, names: int,
     ✏ *2026-10-06:* the gate was `BR ≥ 3`, and **it could not fail at 1m** — even at
     ρ = 1, `n_eff = 1` and 12 rebalances give `BR = 12` (QA-17: decoration).
     ⚠ An unmeasured `BR` or IC ⇒ NOT_EVALUATED, never a pass.
+
+    ✏ *2026-10-08 — F12 `D13`:* the caller supplies `BR` from the EXTERNAL
+    market-only residual ρ (`breadth.gated_breadth`); `basis` names it in `why`.
     """
     formula = "breadth.residual_correlation.v1"
     if effective_breadth is None or mean_ic is None:
-        missing = ("effective breadth was not measured — ⚠ QA-43 forbids substituting "
-                   f"n={names}" if effective_breadth is None
+        missing = (f"effective breadth was not measured ({basis}) — ⚠ QA-43 forbids "
+                   f"substituting n={names} or another ρ" if effective_breadth is None
                    else "the mean IC was not measured")
         return GateResult("breadth", horizon_id, None, ir_target, None, None,
                           formula, NOT_EVALUATED, missing)
@@ -165,7 +168,7 @@ def breadth_gate(*, effective_breadth: float | None, names: int,
         PASS if ir >= ir_target - 1e-12 else FAIL,
         f"implied IR |IC| {abs(mean_ic):.4f} × √BR {effective_breadth:.1f} = {ir:.3f} "
         f"vs IR* {ir_target:g} (needs BR ≥ {needed:.0f}; universe n={names}; "
-        f"F12 D10, provisional){held}")
+        f"BR from {basis}; F12 D10/D13){held}")
 
 
 @dataclass(frozen=True, slots=True)

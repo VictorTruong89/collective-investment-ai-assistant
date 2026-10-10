@@ -210,6 +210,9 @@ def _nominate_with_model(ctx: RunContext, manifest, incumbent, provenance):
         candidates=tuple(Candidate(c["ticker"], c["rank"], c["ranked_quantity"],
                                    c["z"]) for c in ranked),
         excluded=excluded,
+        # ★★ OR-58 / F12 D15 — a REFUSED informational ranker says so downstream.
+        ranker_status=incumbent.get("status", "promoted"),
+        refused_gates=tuple(incumbent.get("refused_gates") or ()),
         research_only=PRODUCTION_V1.arbitration.research_only,
         **provenance)
 
@@ -276,17 +279,20 @@ def _decide(job, manifest, ctx: RunContext):
     # ★★ DN-39 — actionable requires BOTH a complete risk pass and a stability
     #   figure. ⚠ Asking for it and being refused is the same defect as marking
     #   it true, so the claim is made only when both inputs are present.
-    actionable = bool(stability) and str(
+    nomination = ctx.require("rank")
+    refused = getattr(nomination, "ranker_status", "rule") == "refused_informational"
+    actionable = (not refused) and bool(stability) and str(
         getattr(alerts, "status", "")).startswith("COMPLETE")
 
     recommendation = compose(
-        nomination=ctx.require("rank"),
+        nomination=nomination,
         gate_verdicts=[ctx.require("thesis_gate")],
         alert_set=alerts, run_id=manifest.run_id, as_of=ctx.as_of,
         gate_roster_declared=("thesis",),       # DN-11 — declared, not inferred
         manifest_anchor=manifest.decision_anchor,
         actionable=actionable,
-        not_actionable_reason=None if actionable else _why_not(stability, alerts),
+        not_actionable_reason=None if actionable else _why_not(stability, alerts,
+                                                               nomination=nomination),
         top_thesis_stability=stability,
         stubs=[s.to_json_obj() for s in manifest.stubs])
     enforce_inv6([recommendation])              # DN-22 / INV-6
@@ -412,13 +418,18 @@ def make_dispatch(ctx: RunContext):
     return dispatch
 
 
-def _why_not(stability, alerts) -> str:
+def _why_not(stability, alerts, nomination=None) -> str:
     """DN-39 — ★ **name the missing input**, not a generic disclaimer.
 
     ⚠ *"Not actionable"* with no reason is the shape RA-30 and DE-35 both
     refuse: a reader cannot tell a deliberate hold from a broken pipeline.
     """
     missing = []
+    if getattr(nomination, "ranker_status", "rule") == "refused_informational":
+        # ★ DN-41 — the first reason, because it holds whatever else arrives.
+        missing.append(f"ranked by a REFUSED model (failed: "
+                       f"{', '.join(nomination.refused_gates)}) — informational only "
+                       f"(OR-58, DN-41)")
     if not stability:
         missing.append(
             "no verdict stability — the nominated name has no k>=3 probed "

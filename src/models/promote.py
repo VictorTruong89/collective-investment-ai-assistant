@@ -59,6 +59,11 @@ def main(argv=None) -> int:
     parser.add_argument("artifact_id")
     parser.add_argument("--approve", action="store_true",
                         help="promote it — refused unless every required gate PASSed")
+    parser.add_argument("--card-informational", action="store_true",
+                        help="★ MT-67 — let this REFUSED model rank the informational card, "
+                             "labelled REFUSED with its failed gates (never promotion)")
+    parser.add_argument("--card-informational-off", action="store_true",
+                        help="revoke the designation; the card falls back to the rule")
     parser.add_argument("--models", default=None,
                         help="model store (default: $PIPELINE_STATE_DIR/models, else .state/models)")
     args = parser.parse_args(argv)
@@ -75,6 +80,13 @@ def main(argv=None) -> int:
         return 1
 
     _report(args.artifact_id, files, evaluation)
+    if args.card_informational_off:
+        gone = store.revoke_card_informational()
+        print("\nThe card's informational ranker is revoked — the rule ranks the card."
+              if gone else "\nNo informational ranker was designated.")
+        return 0
+    if args.card_informational:
+        return _designate(store, args.artifact_id, files, evaluation)
     if not args.approve:
         print(f"\nNothing changed. To promote after review:\n"
               f"  python -m src.models.promote {args.artifact_id} --approve")
@@ -92,6 +104,29 @@ def main(argv=None) -> int:
         print(f"⛔ REFUSED — {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(f"\n★ PROMOTED {args.artifact_id} — the next daily run scores with it.")
+    return 0
+
+
+def _designate(store, artifact_id: str, files: dict, evaluation: dict) -> int:
+    """MT-67 — a REFUSED, evaluated model may rank the informational card."""
+    from src.quant.gates.metric_gate import PASS, REQUIRED_GATES
+
+    gates = evaluation.get("gates") or {}
+    refused = [g for g in REQUIRED_GATES if (gates.get(g) or {}).get("verdict") != PASS]
+    if not refused:
+        print(f"⛔ REFUSED — every required gate PASSed for {artifact_id}: review and "
+              f"promote it instead (`--approve`), it is not a refused model (MT-67)",
+              file=sys.stderr)
+        return 1
+    manifest = files.get("manifest.json") or {}
+    record = {"artifact_id": artifact_id, "role": manifest.get("role"),
+              "horizon_id": manifest.get("horizon_id"), "refused_gates": refused,
+              "designated_at": datetime.now(timezone.utc).isoformat(),
+              "by": "fund manager (src.models.promote --card-informational)"}
+    path = store.designate_card_informational(record)
+    print(f"\n★ {artifact_id} now ranks the INFORMATIONAL card, labelled REFUSED "
+          f"(failed: {', '.join(refused)}) — not promoted. {path}")
+    print(f"  revoke: python -m src.models.promote {artifact_id} --card-informational-off")
     return 0
 
 

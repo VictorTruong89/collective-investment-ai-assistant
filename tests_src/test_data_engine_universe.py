@@ -176,3 +176,10 @@ def test_the_real_watchlist_assembles_into_one_panel():
     assert report.short_history == ()
     assert len(set(report.rows_by_ticker.values())) == 1, \
         "a common window should give every name the same session count"
+
+
+@pytest.fixture(autouse=True)
+def _no_retry_pause(monkeypatch):
+    """DE-80's retry pause is real in production; these tests fail fetches on purpose."""
+    monkeypatch.setattr("src.data_engine.universe.prices.RETRY_PAUSE_SECONDS", 0.0)
+    monkeypatch.setattr("src.models.train.run.PRICE_RETRY_PAUSE_SECONDS", 0.0)

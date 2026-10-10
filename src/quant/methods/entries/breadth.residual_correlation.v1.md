@@ -1,7 +1,7 @@
 # `breadth.residual_correlation.v1` — effective breadth
 
-Code: src/quant/metrics/breadth.py @ sha256:8dd2d1600e5c1fac
-*(QA-25 / F12 AC-F12.22 — re-pinned 2026-10-06 after re-reading this entry against the change: the formula is unchanged; `held_book_breadth()` was added as a DIAGNOSTIC (F12 `D10`) and the gate now consumes `BR` through the implied IR `|IC|·√BR ≥ 0.5` — see the section below.)*
+Code: src/quant/metrics/breadth.py @ sha256:20ba580ee1b1620b
+*(QA-25 / F12 AC-F12.22 — ✏ re-pinned 2026-10-08 (twice) after re-reading this entry against each change: this formula is unchanged; `external_residual_correlation()` was added beside it (`breadth.residual_correlation.external.v1`, F12 `D12`), then `gated_breadth()` — ★ since F12 `D13` the breadth GATE reads `BR` from that external market-only residual, and this entry's raw-ρ `BR` is reported, not gated. Previously re-pinned 2026-10-06 after re-reading this entry against the change: the formula is unchanged; `held_book_breadth()` was added as a DIAGNOSTIC (F12 `D10`) and the gate now consumes `BR` through the implied IR `|IC|·√BR ≥ 0.5` — see the section below.)*
 
 ## ✏ 2026-10-06 — how the gate uses this number (F12 `D10`)
 

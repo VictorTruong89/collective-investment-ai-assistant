@@ -68,3 +68,27 @@ def test_ac_4_40_training_runs_both_and_persists_the_walk_forward():
     assert 'scheme="walk_forward"' in body and "purged k-fold" in body
     assert "walk_forward=" in body
     assert "walk_forward" in inspect.signature(decide_promotion).parameters
+
+
+# ── F12 D14 / AC-F12.36 — the WALK-FORWARD gates significance ────────────────
+
+def test_ac_f12_36_training_gates_on_the_walk_forward_ic():
+    from src.models.train import __main__ as train
+
+    body = inspect.getsource(train._train)
+    assert "gating_predictions(kfold=scored, walk_forward=wf_scored)" in body, "D-03 reads the walk-forward"
+    assert "ic_result=wf_result" in body, "promotion reads the walk-forward IC"
+    assert "scored=scored, simulation=simulation" not in body
+    assert "reported, never gated" in body or "reported, not gated" in body
+
+
+def test_ac_f12_36_an_empty_walk_forward_is_not_evaluated_never_the_k_fold():
+    """No walk-forward prediction ⇒ the IC-reading gates are NOT_EVALUATED (QA-17)."""
+    from src.models.train.run import gating_predictions
+
+    panel, labels, label_def = _panel_and_labels(days=640, names=30)
+    kfold = labels[["ticker", "date", "value"]].assign(score=1.0)
+    empty = kfold.iloc[0:0]
+    chosen = gating_predictions(kfold=kfold, walk_forward=empty)
+    assert chosen.empty, "the k-fold is never substituted"
+    assert gating_predictions(kfold=kfold, walk_forward=kfold.head(5)).shape[0] == 5

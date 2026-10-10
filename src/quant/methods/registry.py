@@ -149,6 +149,8 @@ UNLOCATED_FORMULAS = frozenset({
     "se.newey_west_bartlett.v1",
     # ✏ 2026-10-08 — F12 D11: `FORMULA_WALK_FORWARD` in backtest/protocol.py.
     "cv.walk_forward.expanding.v1",
+    # ✏ 2026-10-08 — F12 D12: `FORMULA_EXTERNAL` in metrics/breadth.py.
+    "breadth.residual_correlation.external.v1",
 })
 _CODE_PIN = re.compile(r"^Code:\s*(\S+)\s*@\s*sha256:([0-9a-f]{16})\s*$", re.M)
 

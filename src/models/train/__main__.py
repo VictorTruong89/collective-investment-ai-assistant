@@ -176,10 +176,33 @@ def _train(args, beat) -> int:
     covered = sum(1 for t in frames if t in sectors)
     print(f"  sectors: {covered}/{len(frames)} names (GICS, config/sp500_tickers.yaml) "
           f"⚠ today's classification applied to the whole window (DE-77)")
+    # ★★★ MT-61 / DE-78 (DX-166) — splits and dividends, from the event store
+    #   the calendar check just read; the panel AND the labels use them.
+    from src.data_engine.calendar.gate import price_events
+    from src.data_engine.calendar.store import EventStore
+
+    events = price_events(EventStore(_state("events")), tickers=tuple(frames),
+                          adj_as_of=as_of)
+    # ★ MT-63 / DE-79 — a name whose events contradict its own prices is left
+    #   out BY NAME (DE-13), never adjusted with a guessed factor.
+    import pandas as pd
+
+    from src.data_engine.pit.adjustment import price_event_conflicts
+
+    conflicts = price_event_conflicts(pd.concat(frames.values(), ignore_index=True),
+                                      events, as_of)
+    for ticker, why in sorted(conflicts.items()):
+        print(f"  ⚠ {ticker} left out: {why}", file=sys.stderr)
+        frames.pop(ticker, None)
+        inputs.unresolved[ticker] = f"price events inconsistent: {why}"
+    events = [e for e in events if e.ticker.upper() not in conflicts]
+    n_split = sum(1 for e in events if e.event_type == "split")
+    print(f"  price events: {n_split} splits · {len(events) - n_split} dividends "
+          f"applied (DE-78)")
     panel, contract = build_training_panel(
         price_frames=frames, engine=_engine_for(engine, frames, cik_map),
         universe=tuple(frames), as_of=as_of, adj_as_of=as_of,
-        calendar_report=calendar, sectors=sectors)
+        calendar_report=calendar, events=events, sectors=sectors)
     print(f"  panel: {panel.shape} · contract {contract.name}@v{contract.version}"
           f"  [{elapsed(started)}]")
 
@@ -189,7 +212,7 @@ def _train(args, beat) -> int:
 
     beat.stage("labels")
     prices = build_price_panel(pd.concat(frames.values(), ignore_index=True),
-                               (), as_of)
+                               events, as_of)              # ★ MT-61 — same events
     labels, label_def = build_training_labels(
         prices, horizon_days=args.horizon_days, as_of=as_of)
 
@@ -232,7 +255,7 @@ def _train(args, beat) -> int:
     # ★ MT-58 (DX-162) — two protocols, each named for what it is. ⚠ Until
     #   2026-10-08 the k-fold below was printed as "walk-forward".
     print("  out-of-sample · purged k-fold (trains on BOTH sides of each test block; "
-          "feeds the gates):")
+          "reported, not gated — F12 D14; feeds only the simulation):")
     beat.stage("out-of-sample IC (purged k-fold)")
     ic_result, folds, scored = walk_forward_ic(
         panel=panel, labels=labels, contract=contract, label_def=label_def,
@@ -244,10 +267,10 @@ def _train(args, beat) -> int:
         print(f"    fold {fold['index']}: ic={fold.get('ic')} "
               f"test={fold.get('test_start')}..{fold.get('test_end')}")
 
-    print("  out-of-sample · walk-forward (expanding window, trains on the PAST only; "
-          "reported, never gated — F12 D11):")
+    print("  out-of-sample · walk-forward (expanding window, trains on the PAST only) — "
+          "★ GATES significance and breadth (F12 D14):")
     beat.stage("walk-forward IC (expanding window)")
-    wf_result, wf_folds, _ = walk_forward_ic(
+    wf_result, wf_folds, wf_scored = walk_forward_ic(
         panel=panel, labels=labels, contract=contract, label_def=label_def,
         as_of=as_of, adj_as_of=as_of, horizon_days=args.horizon_days,
         scheme="walk_forward", target=args.target)
@@ -277,15 +300,54 @@ def _train(args, beat) -> int:
     for key, value in breadth.items():
         print(f"    {key}: {value}")
 
+    # ★ MT-62 / F12 D12 — the residual correlation against EXTERNAL factors
+    #   (SPY + the GICS sector SPDRs), reported beside the gate, never gating.
+    from src.models.train.run import external_factor_returns
+    from src.quant.metrics.breadth import external_residual_correlation
+
+    beat.stage("external breadth (SPY + sector SPDRs)")
+    missing = []
+    market, sector_returns = external_factor_returns(
+        client, start=inputs.start, as_of=as_of, horizon_days=args.horizon_days,
+        on_error=lambda symbol, exc: missing.append(f"{symbol} ({str(exc)[:60]})"))
+    wide = scored.pivot_table(index="date", columns="ticker", values="value",
+                              aggfunc="last")
+    wide.index = pd.to_datetime(wide.index)
+    external = external_residual_correlation(
+        wide, market=market, sector_returns=sector_returns, sectors=sectors,
+        horizon_days=args.horizon_days)
+    if external.get("breadth_market") and wf_result.mean_ic is not None:
+        # ★ F12 D13/D14 — the gated pair: market-only BR × the walk-forward IC.
+        external["implied_ir_gated"] = round(
+            abs(wf_result.mean_ic) * external["breadth_market"] ** 0.5, 4)
+    external["factors_missing"] = missing
+    print("  external residual correlation — ★ F12 D12 (its market-only BR is what the gate reads, D13):")
+    for key, value in external.items():
+        print(f"    {key}: {value}")
+
+    # ★★ F12 D13 — the breadth gate reads BR from the EXTERNAL MARKET-ONLY residual ρ.
+    #   The raw-ρ figure above stays reported (`raw_breadth`); unmeasured ⇒ NOT_EVALUATED.
+    from src.quant.metrics.breadth import gated_breadth
+
+    gated_br, gated_basis = gated_breadth(external)
+    gate_breadth = {**breadth, "raw_breadth": breadth.get("breadth"),
+                    "breadth": gated_br, "breadth_basis": gated_basis}
+    print(f"  breadth gate input: BR {gated_br} from {gated_basis} "
+          f"(raw-ρ BR {breadth.get('breadth')} reported, not gated)")
+
     # ★★ MT-19 — D-03 grades it, and its `result_id` is the evidence promotion
     #   demands. D-04 computing its own verdict is the domain marking its own
     #   homework, which `promote()` refuses by asking for an id D-04 cannot mint.
-    from src.models.train.run import d03_evaluate
+    from src.models.train.run import d03_evaluate, gating_predictions
 
     beat.stage("D-03 evaluation + gates")
     spec, backtest = d03_evaluate(
-        universe=tuple(frames), scored=scored, simulation=simulation,
-        breadth=breadth, horizon_days=args.horizon_days, as_of=as_of,
+        # ★★ F12 D14 — the IC-reading gates judge the WALK-FORWARD predictions;
+        #   the simulation (cost_survival) keeps the k-fold's five blocks.
+        universe=tuple(frames),
+        scored=gating_predictions(kfold=scored, walk_forward=wf_scored),
+        simulation=simulation,
+        breadth=gate_breadth, horizon_days=args.horizon_days, as_of=as_of,
         start=inputs.start, capital=args.capital, contract=contract,
         calendar_check_id=calendar.report_id)
     print(f"  D-03 backtest: {backtest.result_id}")
@@ -296,11 +358,12 @@ def _train(args, beat) -> int:
             print(f"    {gate.gate_id}: {gate.verdict} — {gate.why}")
 
     store = ArtifactStore(_state("models"))
-    outcome = decide_promotion(artifact, ic_result=ic_result,
+    outcome = decide_promotion(artifact, ic_result=wf_result,       # ★ F12 D14
                                names=facts["names"], store=store,
-                               simulation=simulation, breadth=breadth,
+                               simulation=simulation, breadth=gate_breadth,
                                backtest_result_id=backtest.result_id,
-                               walk_forward=walk_forward)
+                               walk_forward=walk_forward,
+                               external_breadth=external)
     print(f"  artifact: {outcome['artifact_id']}")
     print(f"  gates: {outcome['verdicts']}")
     if outcome["promoted"]:

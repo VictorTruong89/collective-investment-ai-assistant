@@ -27,7 +27,8 @@ def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
              effective_breadth: float | None = None,
              held_book: dict | None = None,
              gross_return: float | None = None,
-             net_return: float | None = None) -> BacktestResult:
+             net_return: float | None = None,
+             breadth_basis: str = "raw ρ") -> BacktestResult:
     """Run the gates, **per horizon** (QA-16), and package CT-3.2.
 
     `predictions` carries `(date, ticker, horizon_days, score, value)`.
@@ -47,7 +48,8 @@ def evaluate(spec: BacktestSpec, *, predictions: pd.DataFrame, horizons,
             # ★ F12 D10 — the IC travels with the breadth (IR = IC·√BR).
             breadth_gate(effective_breadth=effective_breadth, mean_ic=ic.mean_ic,
                          names=int(round(ic.names_per_date)),
-                         horizon_id=horizon.id, held_book=held_book),
+                         horizon_id=horizon.id, held_book=held_book,
+                         basis=breadth_basis),         # ★ F12 D13
         ]
         gate_sets.append(GateSet(horizon_id=horizon.id, gates=tuple(gates)))
 
