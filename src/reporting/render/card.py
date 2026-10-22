@@ -100,7 +100,8 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
         )
 
     ranked_by = rec.candidate.get("ranked_by") or {}
-    if any(g.produced_by_stub for g in rec.gates) and not rec.thesis_ref:
+    absent = _no_thesis(rec)
+    if (absent or any(g.produced_by_stub for g in rec.gates)) and not rec.thesis_ref:
         # ★★ RP-53 / AC-9.35 — ⚠ the card read "Verdict: BUY": D-12 nominates BUY
         #   for every rank-1 name and the placeholder gate always PASSes. Nothing
         #   analysed the name, so the card says so. The composed verdict stays in
@@ -110,7 +111,8 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
             value=(f"no verdict — ranked #1 by "
                    + ("a refused model" if ranked_by.get("status") == "refused_informational"
                       else f"the {ranked_by.get('kind') or 'ranker'}")       # ★ RP-55
-                   + "; no thesis"),
+                   # ★ RP-56 — WHY there is none: "no peer set" or "not yet written".
+                   + "; " + (absent.reason.split(":", 1)[0] if absent else "no thesis")),
             reliability=COMPUTATION, source="D-12", as_of=as_of,
             note=(f"composed {rec.verdict_final} through a placeholder gate — "
                   "not a judgement (RP-53)")))
@@ -127,8 +129,9 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
     # transport. ⚠ Read once here so the verdict unit below and the source unit
     # cannot disagree about it.
     thesis_variant = _thesis_variant(rec)
-    analyst_class = (RELAYED_JUDGEMENT if thesis_variant != "api" and rec.thesis_ref
-                     else JUDGEMENT)
+    # ★ RP-56 — a `thesis_for` thesis read the FULL bundle; only its transport differs.
+    analyst_class = (RELAYED_JUDGEMENT if thesis_variant not in ("api", THESIS_FOR_VARIANT)
+                     and rec.thesis_ref else JUDGEMENT)
 
     # ★ §8Z / RP-8 — the ANALYST's own verdict renders BESIDE the composed one,
     # never instead of it. Divergence is information, not a layout problem.
@@ -146,7 +149,9 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
     # API thesis look identical (`AP-2`, `DC-1`).
     if rec.thesis_ref:
         units.append(RenderUnit(
-            field="thesis_source", value=thesis_variant,
+            field="thesis_source",
+            value=(f"thesis_for ({thesis_variant})" if thesis_variant == THESIS_FOR_VARIANT
+                   else thesis_variant),
             # ⚠ `source` names the producing DOMAIN, never a spec id. D-09's own
             # D-09's OWN `AC-9.6` (a different AC from F9's — DX-44)
             # asserts every field starts with `D-` (`RP-6`/`DC-1`:
@@ -158,6 +163,10 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
                   "not exist here and the numbers are mostly unverifiable "
                   "against data we hold (RP-48, RA-118)"
                   if analyst_class is RELAYED_JUDGEMENT else
+                  "authored by tools/thesis_for.py over the full evidence bundle, through "
+                  "the Claude Code subscription transport (k=1) — the production API "
+                  "transport is not yet spot-checked (RP-56)"
+                  if thesis_variant == THESIS_FOR_VARIANT else
                   "authored through the Anthropic API, the default source (QR-20)"),
         ))
 
@@ -288,8 +297,22 @@ def _ranked_by_text(ranked_by: dict) -> str:
     return f"the model {ranked_by.get('artifact_id')}"
 
 
+#: RP-56 — the `thesis_source` variant a `thesis_for` thesis carries (F13 `D13`).
+THESIS_FOR_VARIANT = "claude_code"
+
+
+def _no_thesis(rec):
+    """RP-56 — the `NO_THESIS` gate outcome, if the thesis gate reported one."""
+    return next((g for g in rec.gates if g.status == "NO_THESIS"), None)
+
+
 def _falsifier_text(rec) -> str:
     """RP-15 — what would prove this wrong, rendered above the verdict."""
+    absent = _no_thesis(rec)
+    if absent and not rec.thesis_ref:
+        return (f"No falsification condition exists: {absent.reason}. This card states no "
+                f"thesis and can therefore be proven wrong by nothing — which is why it is "
+                f"not actionable.")
     stub = [g for g in rec.gates if g.produced_by_stub]
     if stub:
         return (
@@ -311,6 +334,8 @@ def _data_gaps(rec) -> tuple[str, ...]:
     for g in rec.gates:
         if g.produced_by_stub:
             gaps.append(f"gate {g.gate_id!r} is a placeholder — {g.produced_by_stub}")
+        elif g.status == "NO_THESIS":
+            gaps.append(f"thesis: {g.reason}")                       # ★ RP-56
     if rec.alerts_status != "COMPLETE":
         gaps.append(f"risk: {rec.alerts_status}")
     if rec.grade.get("k") is None:

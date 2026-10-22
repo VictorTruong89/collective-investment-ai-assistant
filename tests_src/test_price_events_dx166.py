@@ -109,3 +109,21 @@ def test_ac_8_45_the_daily_run_never_passes_an_empty_event_list():
     source = inspect.getsource(entrypoint)
     assert "events=()," not in source
     assert "price_events(" in source
+
+
+def test_ac_4_50_the_printed_count_is_the_events_inside_the_window():
+    """AC-4.50 (MT-61 ✏ 2026-10-20) — the line counts splits/dividends that adjust a bar in the
+    window, with the total beside. ⚠ It printed "1785 splits", most years before the window."""
+    from src.data_engine.pit.models import CorporateEvent
+    from src.models.train.__main__ import price_events_line
+
+    def ev(kind, day):
+        return CorporateEvent(ticker="X", event_type=kind, event_date=day,
+                              knowable_at=day, detail={}, source="test")
+
+    events = [ev("split", date(2010, 6, 1)), ev("split", date(2020, 6, 1)),
+              ev("dividend", date(2015, 1, 2)), ev("dividend", date(2016, 10, 20)),
+              ev("dividend", date(2026, 10, 1))]
+    line = price_events_line(events, start=date(2016, 10, 20), as_of=date(2026, 10, 20))
+    assert "1 splits · 1 dividends in the window" in line
+    assert "of 2 · 3 supplied" in line

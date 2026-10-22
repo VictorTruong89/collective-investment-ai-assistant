@@ -1,6 +1,8 @@
 """D-07 — EDGAR companyfacts into the fact ledger. ★ The write nothing did."""
 from datetime import date
 
+import pandas as pd
+
 from src.data_engine.ingest.edgar_facts import THESIS_TAGS, load_cik_map
 
 
@@ -40,12 +42,16 @@ def test_ac_7_68_identical_duplicates_collapse():
             self.period_start, self.period_end, self.period_type = 1, 2, "quarterly"
             self.value_minor, self.value_currency = value, "USD"
 
-    assert len(_collapse_identical([_F(100), _F(100)])) == 1
+    kept, conflicts = _collapse_identical([_F(100), _F(100)])
+    assert len(kept) == 1 and conflicts == []
 
 
-def test_ac_7_68_a_value_conflict_on_one_key_still_reaches_ct_7_3():
+def test_ac_7_68_a_value_conflict_on_one_key_keeps_neither_value():
     """★★ DE-51 — ⚠ *deduplicating by "keep the first" picks a reported figure
-    by ARRIVAL ORDER*, which is the silent choice P5 exists to prevent."""
+    by ARRIVAL ORDER*, which is the silent choice P5 exists to prevent.
+
+    ✏ DE-85 (`DX-180`, 2026-10-21): it no longer reaches CT-7.3 to refuse the whole
+    name — NEITHER value is kept, and the conflict is returned to be reported."""
     from src.data_engine.ingest.edgar_facts import _collapse_identical
 
     class _F:
@@ -54,7 +60,8 @@ def test_ac_7_68_a_value_conflict_on_one_key_still_reaches_ct_7_3():
             self.period_start, self.period_end, self.period_type = 1, 2, "quarterly"
             self.value_minor, self.value_currency = value, "USD"
 
-    assert len(_collapse_identical([_F(100), _F(101)])) == 2
+    kept, conflicts = _collapse_identical([_F(100), _F(101)])
+    assert kept == [] and conflicts == [("Revenues", "2")]
 
 
 def test_ac_7_69_no_per_share_tag_is_ingested_as_monetary():
@@ -122,3 +129,98 @@ def test_de_55_a_missing_operand_yields_no_fact_rather_than_zero():
     facts = extract_facts(payload, ticker="NVDA")
     assert [f.period_end for f in facts.facts if f.period_type == "quarterly"] \
         == [date(2025, 4, 27)]
+
+
+def test_ac_7_102_an_average_or_per_share_series_is_never_differenced():
+    """AC-7.102 / DE-84 — ★★ *found 2026-10-21 (DX-177):* MU's FY2026 10-K gave a derived
+    Q4 diluted share count of 1,000,000 — the year's AVERAGE minus nine months' AVERAGE."""
+    from src.data_engine.src.edgar.companyfacts import extract_facts
+
+    def series(unit, tag):
+        return {"facts": {"us-gaap": {tag: {"units": {unit: [
+            {"start": "2025-08-29", "end": end, "val": val, "accn": "0000723125-26-000023",
+             "filed": "2026-10-09", "form": "10-K", "fy": 2026, "fp": "FY"}
+            for end, val in (("2026-05-28", 1142000000), ("2026-09-03", 1143000000))]}}}}}
+
+    shares = extract_facts(series("shares", "WeightedAverageNumberOfDilutedSharesOutstanding"),
+                           ticker="MU")
+    assert not [f for f in shares.facts if f.period_type == "quarterly"]
+    eps = extract_facts(series("USD/shares", "EarningsPerShareDiluted"), ticker="MU")
+    assert not [f for f in eps.facts if f.period_type == "quarterly"]
+    cash = extract_facts(series("USD", "NetCashProvidedByUsedInOperatingActivities"), ticker="MU")
+    assert [f.period_end for f in cash.facts if f.period_type == "quarterly"] == [date(2026, 9, 3)]
+
+
+# --------------------------------------------------------------------------- #
+# DE-85 (DX-180) — a defect in one fact never refuses the whole name
+# --------------------------------------------------------------------------- #
+
+def _entry(end, val, *, accn="a-1", start="2025-01-01"):
+    return {"start": start, "end": end, "val": val, "accn": accn, "filed": "2025-05-01",
+            "form": "10-Q", "fy": 2025, "fp": "Q1"}
+
+
+def test_ac_7_103_an_unsupported_currency_fact_is_refused_and_counted_not_the_name():
+    """AC-7.103 — ⚠ CRH, ENB, PEP, SLB and MPWR had NO ledger: one EUR/AFN fact refused them."""
+    from src.data_engine.src.edgar.companyfacts import extract_facts
+
+    payload = {"facts": {"us-gaap": {"NetIncomeLoss": {"units": {
+        "USD": [_entry("2025-03-31", 100)], "EUR": [_entry("2025-03-31", 90)]}}}}}
+    result = extract_facts(payload, ticker="CRH")
+    assert [(f.unit, f.value_minor) for f in result.facts] == [("USD", 10000)]
+    assert any("unsupported currency" in r and "DE-85" in r for r in result.reasons)
+
+
+def test_ac_7_103_a_conflicting_duplicate_key_keeps_neither_value(tmp_path):
+    """AC-7.103 — VST: one 10-K filed 2018-Q4 capex as both $600M and $1,300M."""
+    from src.data_engine.ingest.edgar_facts import ingest_facts
+    from src.data_engine.pit.ledger import FactLedger
+
+    tag = "PaymentsToAcquireProductiveAssets"
+    payload = {"facts": {"us-gaap": {
+        tag: {"units": {"USD": [_entry("2025-03-31", 600), _entry("2025-03-31", 1300)]}},
+        "NetIncomeLoss": {"units": {"USD": [_entry("2025-03-31", 50)]}}}}}
+
+    class Client:
+        def companyfacts(self, cik):
+            return payload
+
+    ledger = FactLedger(tmp_path)
+    assert ingest_facts(Client(), ledger, ticker="VST", cik="1", tags=(tag, "NetIncomeLoss")) == 1
+    assert list(ledger.read("VST")["tag"]) == ["NetIncomeLoss"]
+
+
+# --------------------------------------------------------------------------- #
+# DE-86 (DX-179) — a share count at the wrong scale is not served
+# --------------------------------------------------------------------------- #
+
+def test_ac_7_104_a_share_fact_at_the_wrong_scale_is_refused_never_rescaled(tmp_path):
+    """AC-7.104 — GRMN filed 193,597 (thousands) beside 192,885,000."""
+    from datetime import datetime, timezone
+
+    from src.data_engine.pit.ledger import FactLedger
+    from src.data_engine.pit.models import QUARTERLY, Fact
+    from src.data_engine.pit.snapshot import assemble_rows
+
+    tag, now = "WeightedAverageNumberOfDilutedSharesOutstanding", datetime.now(timezone.utc)
+
+    def fact(end, value, accn, filed):
+        return Fact(ticker="GRMN", accession_id=accn, tag=tag,
+                    period_start=date(end.year, end.month, 1) - __import__("datetime").timedelta(days=80),
+                    period_end=end, period_type=QUARTERLY, value_minor=value, value_currency="",
+                    unit="shares", filing_date=filed, ingested_at=now)
+
+    ledger = FactLedger(tmp_path)
+    ledger.append([
+        fact(date(2024, 3, 30), 192_000_000, "a-1", date(2024, 5, 1)),
+        fact(date(2024, 6, 29), 192_500_000, "a-2", date(2024, 8, 1)),
+        fact(date(2024, 9, 28), 192_885_000, "a-3", date(2024, 11, 1)),
+        fact(date(2024, 9, 28), 193_597, "a-4", date(2025, 2, 20)),       # newer, wrong scale
+        fact(date(2024, 12, 28), 193_597, "a-4", date(2025, 2, 20)),      # only a wrong one
+    ])
+    rows = assemble_rows(ledger.read("GRMN"), date(2025, 3, 1), source="edgar")
+    col = f"{tag}_minor"
+    by_end = {r.period_end.date(): r for r in rows.itertuples()}
+    assert getattr(by_end[date(2024, 9, 28)], col) == 192_885_000        # the right one served
+    q4 = by_end.get(date(2024, 12, 28))
+    assert q4 is None or (pd.isna(getattr(q4, col)) and "DE-86" in q4.quality_flags)

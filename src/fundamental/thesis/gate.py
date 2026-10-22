@@ -181,6 +181,18 @@ def _grade_of(thesis: Thesis) -> Grade:
         stability_fraction=stability.get("agreement"),
         k=stability.get("k"),
         verdict_distribution=stability.get("distribution"),
-        scorecard=dict(thesis.scorecard) if thesis.scorecard else None,
+        scorecard=_by_dimension(thesis.scorecard) if thesis.scorecard else None,
         confidence=dict(thesis.confidence) if thesis.confidence else None,
     )
+
+
+def _by_dimension(scorecard: dict) -> dict:
+    """`DX-178` — a `thesis_for` thesis keys its scorecard by BLOCK (`J-03` …), and CT-1.4's
+    `Grade` by DIMENSION. ★ Re-keyed from each entry's own `rubric_id` (`moat_durability@v2`),
+    the entry itself copied unchanged (DN-26); a key that is already a dimension stays.
+    """
+    out = {}
+    for key, entry in scorecard.items():
+        rubric = (entry or {}).get("rubric_id") if isinstance(entry, dict) else None
+        out[rubric.split("@", 1)[0] if key.startswith("J-") and rubric else key] = entry
+    return out

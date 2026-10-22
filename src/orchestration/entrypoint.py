@@ -29,6 +29,19 @@ from datetime import date, datetime, timezone
 
 _TODAY = date.today()
 
+
+def market_date(now: datetime | None = None) -> date:
+    """OR-59 / AC-8.47 (`DX-169`) — today's date in NEW YORK, the market's calendar.
+
+    ⚠ Until 2026-10-20 the default was the UTC date: a manual run after 20:00
+    EDT dated itself tomorrow (a Friday evening read Saturday, NOT_TRADING_DAY).
+    The same rule as training's MT-56.
+    """
+    from zoneinfo import ZoneInfo
+
+    now = now or datetime.now(timezone.utc)
+    return now.astimezone(ZoneInfo("America/New_York")).date()
+
 from src.orchestration.contracts.manifest import config_hash, git_state
 from src.orchestration.jobs.graph import DAILY_INFERENCE, resolve
 from src.orchestration.jobs.runner import (
@@ -96,7 +109,7 @@ def main(argv=None) -> int:
     parser.add_argument("--plan-only", action="store_true",
                         help="★ T-2 — print the graph without executing it")
     args = parser.parse_args(argv)
-    as_of = args.as_of or datetime.now(timezone.utc).date()
+    as_of = args.as_of or market_date()                 # ★ OR-59 — New York, not UTC
 
     orc = build_orchestrator()
 
@@ -178,6 +191,8 @@ def _announce_failure(outcome, context, *, transport=None) -> None:
     assert_no_analysis(notice)
     print(f"{notice['status']} {notice['run_id']}: "
           f"{notice['failed_jobs']} {notice['error_codes']}", file=sys.stderr)
+    for job, why in notice["errors"].items():          # ★ OR-61 — the why (DX-172)
+        print(f"  ✗ {job}: {why}", file=sys.stderr)
     if not getattr(context, "deliver", False):
         return
     if not getattr(context, "recipient", ""):
@@ -333,7 +348,28 @@ def _context_for(manifest, as_of: date, *, universe_name: str = "watchlist",
         #   2026-10-08 this was `()` over RAW prices: a split read as a crash and
         #   a REVERSE split as a surge (DD's 1:3 → ~+200 % momentum, card #1).
         events=_price_events(frames, as_of),
-        event_store_root=str(_state_dir() / "events"))
+        event_store_root=str(_state_dir() / "events"),
+        # ★★ OR-62 / F13 `D13` — the nominee's thesis, READ from what thesis_for wrote.
+        thesis_root=str(_state_dir() / "thesis_for"),
+        thesis_runs_root=str(_state_dir() / "runs"),
+        thesis_config=_thesis_subjects())
+
+
+THESIS_CONFIG = "config/thesis_for.yaml"
+
+
+def _thesis_subjects() -> dict:
+    """OR-62 — `thesis_for`'s subjects; ⚠ unreadable ⇒ `{}`, so every nominee reads
+    "no peer set" rather than the run failing over a reporting input."""
+    import yaml
+
+    try:
+        with open(THESIS_CONFIG, encoding="utf-8") as fh:
+            return yaml.safe_load(fh) or {}
+    except OSError as exc:
+        print(f"  note: {THESIS_CONFIG} unreadable ({exc}) — every nominee reads "
+              f"'no peer set'", file=sys.stderr)
+        return {}
 
 
 def _price_events(frames, as_of: date) -> list:

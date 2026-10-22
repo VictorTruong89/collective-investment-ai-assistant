@@ -264,6 +264,36 @@ def annual_basis(row, *, ticker: str, as_of: date) -> AnnualBasis:
                        tax_rate=rate, inputs=inputs, tax_rule=rule)
 
 
+def _with_year_end_balance(rows: pd.DataFrame, latest, *, as_of: date):
+    """`D12` (`DX-176`) — a Q4 derived from a 10-K, with the 10-K's year-end balance sheet.
+
+    ⚠ A 10-K reports no fourth quarter: D-07 differences Q4's FLOWS from the year, and an
+    instant item has nothing to difference, so it sits only on the ANNUAL row. ★ Filled
+    only from the annual row of the SAME period end AND the SAME accession — the same
+    balance sheet, on the same date, in the same filing; never another filing's figure.
+    """
+    # ✏ `DX-177` — the diluted count too: a 10-K tags it for the YEAR only, and DE-84 no
+    #   longer derives a Q4 average by subtraction. The year's weighted average is used.
+    balance_items = (CASH_ITEMS + DEBT_ITEMS + SECURITIES_ITEMS + tuple(LEASE_SIDE.values())
+                     + (SHARES_ITEM,))
+    if "period_type" not in rows.columns or all(
+            _found(latest, item) is not None for item in CASH_ITEMS + DEBT_ITEMS + (SHARES_ITEM,)):
+        return latest
+    same = rows[(rows["period_type"] == "annual")
+                & (rows["period_end"].map(_day) == latest["q_end"])
+                & (rows["accession_id"] == latest.get("accession_id"))
+                & (rows["filing_date"].map(_day) <= as_of)]
+    if not len(same):
+        return latest
+    annual, merged = same.iloc[-1], latest.copy()
+    for item in balance_items:
+        hit = _found(annual, item)
+        if _found(merged, item) is None and hit is not None:
+            merged[f"{hit[0]}_minor"] = hit[1]
+            merged[f"{hit[0]}_currency"] = annual[f"{hit[0]}_currency"]
+    return merged
+
+
 def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
     """Net debt and diluted shares from the latest trailing quarter (`CT-F10.2`, `D8`).
 
@@ -274,7 +304,7 @@ def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
     cash flow already pays them, so the liability would count them twice.
     """
     q = trailing_quarters(rows, as_of=as_of, ticker=ticker)
-    latest = q.iloc[-1]
+    latest = _with_year_end_balance(rows, q.iloc[-1], as_of=as_of)
     missing, parts = [], {}
     for item in CASH_ITEMS + DEBT_ITEMS:
         value = _money(latest, item)

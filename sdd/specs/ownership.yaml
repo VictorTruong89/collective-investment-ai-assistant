@@ -224,6 +224,15 @@ map:
       AC-3.x collides with F3). ⚠ Stateless (QA-28) and must not import src/models or
       src/fundamental (QA-28, INV-014). src/models/** (D-04) stays ungoverned by D4.
 
+  - globs:
+      - "tools/thesis_for.py"
+      - "src/fundamental/on_demand/**"
+    spec: sdd/specs/F13_thesis_on_demand/spec.md
+    why: >
+      F13 — thesis on demand (🟢 approved and built 2026-10-20): one command chaining the existing
+      thesis steps, run ids as arguments, a resumable chain manifest. Subscription
+      transport only (AC-F13.2); refuses an industry with no peer set (AC-F13.5).
+
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
   # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 

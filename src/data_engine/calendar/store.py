@@ -136,34 +136,22 @@ class EventStore:
             "covers_tickers": (sorted({t.upper() for t in covers_tickers})
                                if covers_tickers is not None else None),
         }
-        index[event_class] = _merge_refresh(index.get(event_class), new)
+        # ★★ DE-81 (DX-167) — the newest on top, every earlier record KEPT: the
+        #   check accepts a class when ANY record covers names, window and age.
+        previous = index.get(event_class)
+        history = []
+        if previous:
+            history = [{k: v for k, v in previous.items() if k != "history"},
+                       *previous.get("history", [])][:HISTORY_LIMIT]
+        index[event_class] = {**new, "history": history}
         write_json(index, self.freshness_path)
 
     def freshness(self) -> dict:
         return read_json(self.freshness_path) if self.freshness_path.is_file() else {}
 
 
-def _merge_refresh(existing: dict | None, new: dict) -> dict:
-    """DE-81 / AC-7.99 (`DX-167`) — the merged record claims only what is true for
-    EVERY name in it.
-
-    ⚠ Until 2026-10-09 the new record simply REPLACED the old: a 20-name smoke
-    refresh left `split` covering 20 names, and the next 510-name run read 490
-    unfetched ⇒ UNCHECKED.
-    """
-    if not existing or existing.get("covers_tickers") is None or new["covers_tickers"] is None:
-        return new                               # legacy/unverifiable: nothing to keep
-    old_names, new_names = set(existing["covers_tickers"]), set(new["covers_tickers"])
-    if new_names >= old_names and new["covers_from"] <= existing["covers_from"]:
-        return new                               # wider on names and start: replace
-    if new_names <= old_names:
-        return existing                          # a subset adds no new claim
-    return {                                     # new names: common window, older time
-        "refreshed_at": min(existing["refreshed_at"], new["refreshed_at"]),
-        "covers_from": max(existing["covers_from"], new["covers_from"]),
-        "covers_to": min(existing["covers_to"], new["covers_to"]),
-        "covers_tickers": sorted(old_names | new_names),
-    }
+#: DE-81 — how many earlier refresh records a class keeps beside the newest.
+HISTORY_LIMIT = 20
 
 
 class CachedEventFeed:
@@ -193,6 +181,21 @@ class CachedEventFeed:
                 f"was never fetched has not been checked (DE-35)"
             ))
 
+        # ★★ DE-81 — ANY kept refresh record that covers names, window and age
+        #   checks the class; otherwise the NEWEST record's reason is reported.
+        records = [entry, *entry.get("history", [])]
+        reasons = [self._uncovered(event_class, r, tickers, start, end, as_of)
+                   for r in records]
+        if any(reason is None for reason in reasons):
+            if event_class == "news":
+                status = news_status(start, as_of)
+                if status != CHECKED:
+                    return ClassResult(status)
+            return ClassResult(CHECKED, self._findings(event_class, tickers, start, end, as_of))
+        return ClassResult(unchecked(reasons[0]))
+
+    def _uncovered(self, event_class, entry, tickers, start, end, as_of) -> str | None:
+        """`None` if this one refresh record covers the ask; else why not."""
         covers_from = date.fromisoformat(entry["covers_from"])
         covers_to = date.fromisoformat(entry["covers_to"])
         refreshed_at = datetime.fromisoformat(entry["refreshed_at"])
@@ -206,34 +209,22 @@ class CachedEventFeed:
         covered = entry.get("covers_tickers")
         asked = {t.upper() for t in tickers}
         if covered is None:
-            return ClassResult(unchecked(
-                f"the refresh of {event_class!r} recorded no ticker coverage, so "
-                f"it cannot be shown to cover these {len(asked)} names — "
-                f"unverifiable is not checked (DE-35)"))
+            return (f"the refresh of {event_class!r} recorded no ticker coverage, so "
+                    f"it cannot be shown to cover these {len(asked)} names — "
+                    f"unverifiable is not checked (DE-35)")
         absent = asked - set(covered)
         if absent:
-            return ClassResult(unchecked(
-                f"{len(absent)} of {len(asked)} names were never fetched for "
-                f"{event_class!r} (e.g. {sorted(absent)[:3]}); a class refreshed "
-                f"for a subset has not been checked for the rest (DE-35, DE-36)"))
-
+            return (f"{len(absent)} of {len(asked)} names were never fetched for "
+                    f"{event_class!r} (e.g. {sorted(absent)[:3]}); a class refreshed "
+                    f"for a subset has not been checked for the rest (DE-35, DE-36)")
         if covers_from > start or covers_to < min(end, as_of):
-            return ClassResult(unchecked(
-                f"store covers {covers_from}..{covers_to}, window needs "
-                f"{start}..{min(end, as_of)}"
-            ))
+            return (f"store covers {covers_from}..{covers_to}, window needs "
+                    f"{start}..{min(end, as_of)}")
         age = (utcnow() - refreshed_at).days
         if age > self.max_age_days:
-            return ClassResult(unchecked(
-                f"store last refreshed {age}d ago (max {self.max_age_days}d) — a stale "
-                f"answer served as current is worse than admitting the gap"
-            ))
-        if event_class == "news":
-            status = news_status(start, as_of)
-            if status != CHECKED:
-                return ClassResult(status)
-
-        return ClassResult(CHECKED, self._findings(event_class, tickers, start, end, as_of))
+            return (f"store last refreshed {age}d ago (max {self.max_age_days}d) — a stale "
+                    f"answer served as current is worse than admitting the gap")
+        return None
 
     def _findings(self, event_class, tickers, start, end, as_of) -> tuple[Finding, ...]:
         df = self.store.read()

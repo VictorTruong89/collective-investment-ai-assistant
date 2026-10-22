@@ -385,7 +385,6 @@ cik_map:
   PPL: 0000922224
   PRU: '0001137774'
   PSA: 0001393311
-  PSKY: '0002041610'
   PSX: '0001534701'
   PTC: 0000857005
   PWR: 0001050915
@@ -486,7 +485,6 @@ cik_map:
   VZ: '0000732712'
   WAB: 0000943452
   WAT: 0001000697
-  WBD: '0001437107'
   WDAY: 0001327811
   WDC: '0000106040'
   WEC: 0000783325
@@ -509,7 +507,7 @@ cik_map:
   ZBH: 0001136869
   ZBRA: 0000877212
   ZTS: 0001555280
-count: 510
+count: 508
 date_retrieved: '2026-06-21'
 sector_map:
   'ON': Information Technology
@@ -898,7 +896,6 @@ sector_map:
   PPL: Utilities
   PRU: Financials
   PSA: Real Estate
-  PSKY: Communication Services
   PSX: Energy
   PTC: Information Technology
   PWR: Industrials
@@ -999,7 +996,6 @@ sector_map:
   VZ: Communication Services
   WAB: Industrials
   WAT: Health Care
-  WBD: Communication Services
   WDAY: Information Technology
   WDC: Information Technology
   WEC: Utilities
@@ -1410,7 +1406,6 @@ tickers:
 - PPL
 - PRU
 - PSA
-- PSKY
 - PSX
 - PTC
 - PWR
@@ -1511,7 +1506,6 @@ tickers:
 - VZ
 - WAB
 - WAT
-- WBD
 - WDAY
 - WDC
 - WEC
@@ -1541,4 +1535,6 @@ update_note: 'Refreshed 2026-06-21: added 2026 S&P 500 additions CASY, FLEX, MRV
   2026-08-10: ARM, CNQ, ENB, POWL added so pipeline.practice_watchlist is fully covered
   (F9 AC-9.1); CIKs verified against SEC company_tickers.json. ARM and CNQ file no 10-Q,
   so F9 CT-9.2 routes them to FMP — their EDGAR 6-K interim figures are cumulative
-  year-to-date, not discrete quarters (ARM Q2 1.93x, Q3 2.76x the discrete value).'
+  year-to-date, not discrete quarters (ARM Q2 1.93x, Q3 2.76x the discrete value).
+  2026-10-20 (Victor, OR-60 / DX-171): PSKY and WBD REMOVED — delisted 2026-10-06 and
+  2026-10-07 (FMP delisted-companies); the delistings halted the first live card (DE-32).'

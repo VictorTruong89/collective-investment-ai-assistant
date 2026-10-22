@@ -1,0 +1,21 @@
+{
+ "_note": "F13 D6 \u2014 one row per periodic filing fixture. thesis_for picks the newest row filed on or before as_of. Rows are APPENDED by `thesis_for --fetch-inputs`, never edited.",
+ "filings": [
+  {
+   "ticker": "MU",
+   "form": "10-Q",
+   "accession": "0000723125-25-000021",
+   "period_end": "2025-05-29",
+   "filed": "2025-06-26",
+   "path": "tests_src/fixtures/filings/MU_FY2025Q3_10Q.txt"
+  },
+  {
+   "ticker": "MU",
+   "form": "10-K",
+   "accession": "0000723125-26-000023",
+   "period_end": "2026-09-03",
+   "filed": "2026-10-09",
+   "path": "tests_src/fixtures/filings/MU_FY2026_10K.txt"
+  }
+ ]
+}

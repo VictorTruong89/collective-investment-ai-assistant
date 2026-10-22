@@ -1,0 +1,15 @@
+{
+ "title": "SK hynix Announces 2Q26 Financial Results",
+ "url": "https://news.skhynix.com/en/q2-2026-business-results/",
+ "published_date": "2026-07-29",
+ "published_date_source": "the release's own dateline (\"Seoul, July 29, 2026\")",
+ "subject": "SK hynix Inc.",
+ "converter": "tools/convert_filing.py",
+ "source_id": "skhynix-ir",
+ "retrieved_at": "2026-10-20",
+ "chars": 11088,
+ "sha256": "sha256:904fdbb5a0eba1988386c479e0b0f1492e374206f79ceb3ddc831ec3e3ee47af",
+ "removed": [
+  "AI Summary block (the site's own generated text, not the company's)"
+ ]
+}

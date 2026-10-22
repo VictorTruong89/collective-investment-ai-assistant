@@ -106,6 +106,46 @@ def _select(ticker: str) -> None:
     FILING = REPO / FILINGS[ticker]["path"]
     ACCESSION = FILINGS[ticker]["accession"]
 
+
+def add_filing_args(ap) -> None:
+    """★ F13 `D1` — the filing as ARGUMENTS. Omitted, the `FILINGS` defaults apply unchanged
+    (AC-F13.9); given, they name a fixture from `tests_src/fixtures/filings/index.json`."""
+    ap.add_argument("--filing", default=None, metavar="FIXTURE_TXT",
+                    help="a converted filing fixture (default: the ticker's FILINGS entry)")
+    ap.add_argument("--accession", default=None)
+    ap.add_argument("--form", default=None, choices=["10-Q", "10-K"])
+    ap.add_argument("--period-end", default=None, metavar="DATE")
+    ap.add_argument("--as-of", dest="filing_as_of", default=None, metavar="DATE",
+                    help="the analysis date (default: the FILINGS entry's)")
+
+
+def apply_filing_args(args) -> bool:
+    """Register `--filing …` as the ticker's entry. Returns whether one was given.
+
+    ⚠ All five together or none — a filing with a guessed accession or period would pin a
+    bundle to the wrong document (`RA-1`).
+    """
+    given = [args.filing, args.accession, args.form, args.period_end, args.filing_as_of]
+    if not any(given):
+        return False
+    if not all(given):
+        raise SystemExit("--filing needs --accession, --form, --period-end and --as-of too")
+    path = pathlib.Path(args.filing)
+    path = (path if path.is_absolute() else REPO / path).resolve()
+    FILINGS[args.ticker] = {"path": str(path.relative_to(REPO)),
+                            "accession": args.accession,
+                            "as_of": date.fromisoformat(args.filing_as_of),
+                            "form": args.form, "period_end": args.period_end}
+    return True
+
+
+def record_filing(run_dir: pathlib.Path) -> None:
+    """★ F13 — `filing.json` beside the trace, so `rule_checks` reads THIS run's filing."""
+    run_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "filing.json").write_text(json.dumps(
+        {"fixture": FILINGS[TICKER]["path"], "accession": FILINGS[TICKER]["accession"],
+         "form": FILINGS[TICKER].get("form", "10-Q")}, indent=1), encoding="utf-8")
+
 #: ★ `claude-opus-5`, $5.00 / $25.00 per 1M tokens (input / output).
 PRICE_IN, PRICE_OUT = 5.00 / 1e6, 25.00 / 1e6
 
@@ -255,9 +295,12 @@ def build_bundle(*, whole_filing: bool = True) -> EvidenceBundle:
         text = "\n".join(lines[lo:hi])
     return EvidenceBundle(
         ticker=TICKER, as_of=FILINGS[TICKER]["as_of"],
+        # ⚠ The defaults are filing 1's pins, kept for every entry that declares none —
+        #   including AMD's, whose recordings were made under them (AC-F13.9).
         parts=(BundlePart(kind="filing",
-                          pins={"accession_id": ACCESSION, "form": "10-Q",
-                                "period_end": "2025-05-29"},
+                          pins={"accession_id": ACCESSION,
+                                "form": FILINGS[TICKER].get("form", "10-Q"),
+                                "period_end": FILINGS[TICKER].get("period_end", "2025-05-29")},
                           content=text),),
     )
 
@@ -580,8 +623,9 @@ def main(argv: list[str] | None = None) -> int:
     # ★ `DX-96` — diagnostic only: show summarized thinking (still ON, `GW-9c`).
     ap.add_argument("--thinking-display", default=None, choices=["summarized"],
                     help="DIAGNOSTIC: record summarized thinking for a runaway call")
-    ap.add_argument("--ticker", default="MU", choices=sorted(FILINGS),
-                    help="which filing (default MU = filing 1)")
+    ap.add_argument("--ticker", default="MU",
+                    help="which filing (default MU = filing 1); one outside FILINGS needs --filing")
+    add_filing_args(ap)
     # ★★ `DX-117` — run an E-block over the INDUSTRY sector file instead of the filing.
     #   The subject (the company being analysed) is declared, because the documents are
     #   the competitors' own and carry no cover page for it (`DX-119`).
@@ -611,6 +655,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"\n  ── per-document: {len(accessions) - len(failed)} of {len(accessions)} "
               f"run(s) succeeded" + (f" · ⛔ FAILED {failed}" if failed else ""))
         return 1 if failed else 0
+    custom_filing = apply_filing_args(args)
+    if args.ticker not in FILINGS:
+        print(f"  ⛔ no filing for {args.ticker} — pass --filing (F13)")
+        return 2
     _select(args.ticker)
 
     if not FILING.exists():
@@ -775,6 +823,8 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         raise
     store.close("SUCCESS")
+    if custom_filing:
+        record_filing(REPO / ".state/runs" / run_id)
 
     (extraction,) = result.results
     print(f"  ✅ {len(extraction.items)} item(s) extracted and verified")

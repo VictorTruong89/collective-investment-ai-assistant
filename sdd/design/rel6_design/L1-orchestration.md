@@ -327,6 +327,10 @@ only in the quality validator's non-negativity check.
 | **OR-56** | ★ **The daily run's `*_sector_z` inputs come from D-07's sector map (DE-77) — the same source training uses.** ⚠ *Added 2026-10-07 (`DX-160`):* `_sectors_for` read FMP `profile` from the observation ledger, which is empty on this machine, so the daily panel had no sectors; a model fitted with sectors would then be scored on null sector features — train/serve skew. One map, both paths |
 | **OR-57** | ★★★ **The daily run supplies D-07's `price_events` (DE-78) to its price panel** — `RunContext.events` is never `()`. ⚠ *Added 2026-10-08 (`DX-166`):* the entrypoint passed `events=()` over FMP's RAW series, so a split read as a crash and a **reverse** split as a surge — DD's 1:3 reverse split (2026-06-24) would have shown ~+200 % 21-day momentum and topped the rule-ranked card for a month |
 | **OR-58** | ★★ **The daily ranker, in order: the PROMOTED model; else the designated refused INFORMATIONAL model (MT-67); else the rule.** The incumbent carries its status (`promoted` / `refused_informational`) and, if refused, its failed gates; the nomination carries both (F12 `D15`). ★ Victor, 2026-10-09: card option (b) |
+| **OR-59** | ★ **The daily run's default `as_of` is the NEW YORK calendar date, never the UTC date** — the rule training already follows (MT-56). ⚠ *Added 2026-10-20 (`DX-169`):* `main` used `datetime.now(timezone.utc).date()`, so a manual run after 20:00 EDT (19:00 EST) dated itself tomorrow — a Friday evening read Saturday and was refused `NOT_TRADING_DAY`. At the 10:00 ET schedule the two agree; by hand they do not. Manifest and record timestamps stay UTC (INV-007, OR-30) — only the market date changes |
+| **OR-60** | ★★ **The daily calendar check opts in to DE-76's point-in-time handling of `restatement_amended` when the ranker's contract reads fundamentals (`f_*`).** The card scores only the `as_of` row, and its one read at `as_of` (`get_fundamentals`) already holds every amendment knowable by then — the as-filed-then-amended rule at the one date that is ranked. A delisting is NOT covered and still halts. ⚠ *Added 2026-10-20 (Victor), found on the first live card:* nine 10-K/A and 10-Q/A inside the 200-day window (CTRA, DASH, DVN, EA, HON, MO, PSKY, SATS, TSLA) halted it `DATA.CALENDAR.UNHANDLED_BLOCK` while training, reading the same store, records them handled. ⚠ The earlier rows of the 200-day panel carry today's figures, which no ranked quantity reads |
+| **OR-61** | ★ **A failed job records its error MESSAGE beside its code, and the failure notice carries it** — OR-45's *"the run did not complete, here is why"*. The message is the exception's own text, truncated to 600 characters; it names inputs (tickers, events, files), never a result, and the notice's field set stays closed (`errors`: `{job_id: message}`). ⚠ *Added 2026-10-20 (`DX-172`), found on the first live card:* it printed `DATA.CALENDAR.UNHANDLED_BLOCK` without the 11 events the exception named, the outcome kept no message, and the cause had to be reproduced offline |
+| **OR-62** | ★ **The daily `thesis_gate` READS the nominee's newest thesis written by `thesis_for` (F13 `D13`), invoked by dotted name (`src.fundamental.on_demand.lookup:thesis_for_card`, OR-2); with none it emits `NO_THESIS` with the reason (no peer set / not yet written) — the placeholder `PASS` is retired from the daily graph.** The daily run still writes no thesis (DX-153). *Added 2026-10-21 (Victor).* |
 | **OR-54** | ★ **One state root, one name: `PIPELINE_STATE_DIR`** (default `.state`), read identically by the daily run, the training run and the ingest run. ⚠ *Added 2026-10-06 (`DX-154`, Victor):* the daily run read `PIPELINE_STATE` while training and ingest read `PIPELINE_STATE_DIR`, so setting one put a model or a swept event store where the daily run never looks. The retired name is **refused when set**, never silently ignored (P5) |
 | **OR-53** | ★ **The daily run SUPPLIES D-05's declared theme taxonomy** (`CT-5.3`, `THEMES_V1`) to the `risk` job. ⚠ *Added 2026-10-06 (Victor, L9 §6 R2):* `RunContext.taxonomy` was never set, so `_risk` fell back to the B3 refusal even for a valued book — a refusal for a reason (no taxonomy) that no longer existed. Supplied as declared data, chosen by nobody at run time (OR-1) |
 | **OR-44** | ★★ **A model artifact presented to a run DECLARES the anchor it was trained on, and one that declares none BLOCKS the run.** ⚠ *Added 2026-08-25 building B6: **AC-8.32 says "a run whose model was trained on a different anchor raises" and nothing declares a training anchor.** The manifest carries `decision_anchor` (OR-35); D-03's nomination carries a hashed `model_artifact_id` (QA-121) and **no anchor**; D-04 is unbuilt. So `ORC.CADENCE.ANCHOR_MISMATCH` **could never fire** — the rule with the loudest failure mode in §5A was structurally undetectable.* ★ **Blocking on an undeclared anchor rather than assuming a match is the whole point**: *"trained on the same anchor"* and *"we do not know what it was trained on"* are opposite findings, and INV-4's drift is **a full session on every prediction and invisible in backtest**, because the backtest shares the training anchor |
@@ -480,7 +484,9 @@ for `retry`, `backoff`, `timeout`, `deadline` or `time_budget`.** The only hit i
 ## CT-8.2 — RunOutcome (JSON, append-only → D-11)
 
 `(run_id, status ∈ {SUCCESS, FAILED, INCOMPLETE, BUDGET_EXCEEDED, BLOCKED_PRECONDITION},
-jobs[{job_id, status, attempts, elapsed_s, error_code}], started_at, ended_at, artifacts[])`
+jobs[{job_id, status, attempts, elapsed_s, error_code, error_message}], started_at, ended_at, artifacts[])`
+
+`error_message` (OR-61, 2026-10-20) is the failed job's exception text, ≤ 600 characters; `null` on success.
 
 ★ **`INCOMPLETE` is a first-class terminal status, not a variant of success** (OR-16), and no
 human-facing artifact may be produced under it.
@@ -635,6 +641,12 @@ CADENCE  (§5A)  ★ QO-3 / QO-5
            never with an empty list (OR-57, DE-78)
 □ AC-8.46  ★★ With no promoted model, a designated refused model ranks the card and its
            status and failed gates reach the nomination; with neither, the rule ranks (OR-58)
+□ AC-8.47  ★ The daily run's default as_of is the America/New_York date — 21:30 EDT on a
+           Friday is still Friday, not Saturday (OR-59, DX-169)
+□ AC-8.48  ★★ With a fundamentals contract the daily calendar check records an amended filing in the
+           window as handled and passes; a delisting in the window still HALTs (OR-60, DE-76)
+□ AC-8.49  ★ A failed job's outcome and failure notice carry its error message (≤ 600 chars)
+           beside its code, and the notice still refuses analytical fields (OR-61, OR-45)
 
 BUDGET & STATE  (§8, §9)
 □ AC-8.23  Budget breach fails the run; it never truncates and emits (OR-21)

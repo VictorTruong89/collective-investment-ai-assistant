@@ -145,7 +145,7 @@ def send(message: EmailMessage, *, user: Secret, password: Secret,
 
 #: OR-45 — the only fields a failure notice may carry. ⚠ Kept equal to D-08's
 #: `FAILURE_NOTICE_FIELDS`; restated here so D-09 does not import D-08 (OR-3).
-FAILURE_NOTICE_FIELDS = ("run_id", "status", "failed_jobs", "error_codes",
+FAILURE_NOTICE_FIELDS = ("run_id", "status", "failed_jobs", "error_codes", "errors",
                          "started_at", "ended_at")
 
 
@@ -169,6 +169,7 @@ def build_failure_message(notice: dict, *, sender: str, recipient: str) -> Email
         "",
         f"Failed jobs: {', '.join(notice['failed_jobs']) or '-'}",
         f"Error codes: {', '.join(notice['error_codes']) or '-'}",
+        *(f"  {job}: {why}" for job, why in notice.get("errors", {}).items()),
         f"Started {notice['started_at']} · ended {notice['ended_at']}",
         "",
         "No card was produced (OR-16). The run record holds the detail.",

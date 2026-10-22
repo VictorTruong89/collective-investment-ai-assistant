@@ -49,6 +49,19 @@ def market_date(now: datetime | None = None) -> date:
     return now.astimezone(ZoneInfo("America/New_York")).date()
 
 
+def price_events_line(events, *, start: date, as_of: date) -> str:
+    """AC-4.50 (MT-61 ✏ 2026-10-20) — count the events that adjust a bar in the window.
+
+    An event dated on or before `start` adjusts only bars before the window. ⚠ The
+    line printed "1785 splits applied", counting every stored split ≤ `as_of`.
+    """
+    inside = [e for e in events if start < e.event_date <= as_of]
+    n_split = sum(1 for e in events if e.event_type == "split")
+    in_split = sum(1 for e in inside if e.event_type == "split")
+    return (f"  price events: {in_split} splits · {len(inside) - in_split} dividends "
+            f"in the window (of {n_split} · {len(events) - n_split} supplied) (DE-78)")
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="src.models.train",
@@ -196,9 +209,7 @@ def _train(args, beat) -> int:
         frames.pop(ticker, None)
         inputs.unresolved[ticker] = f"price events inconsistent: {why}"
     events = [e for e in events if e.ticker.upper() not in conflicts]
-    n_split = sum(1 for e in events if e.event_type == "split")
-    print(f"  price events: {n_split} splits · {len(events) - n_split} dividends "
-          f"applied (DE-78)")
+    print(price_events_line(events, start=inputs.start, as_of=as_of))
     panel, contract = build_training_panel(
         price_frames=frames, engine=_engine_for(engine, frames, cik_map),
         universe=tuple(frames), as_of=as_of, adj_as_of=as_of,

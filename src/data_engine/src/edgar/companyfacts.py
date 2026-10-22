@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timezone
 
 from src.data_engine.pit.models import ANNUAL, Fact, QUARTERLY
+from src.shared.money import SUPPORTED_CURRENCIES
 from src.data_engine.src.edgar.xbrl import classify_span, unit_currency
 from src.shared.money import Money
 
@@ -90,6 +91,10 @@ def _one(entry, ticker, tag, unit_key, currency, ingested_at, reasons) -> Fact |
         # DE-14: missing is null, never 0. A zero revenue and an unknown revenue
         # are different facts, so the unknown one is not stored as the known one.
         return reject("null value (DE-14 — not stored as zero)")
+    if currency is not None and currency not in SUPPORTED_CURRENCIES:
+        # ★★ DE-85 (`DX-180`) — the FACT is refused, not the name: one EUR fact kept CRH,
+        #   ENB, PEP and SLB out of the ledger entirely. Counted, so it is never silent.
+        return reject(f"unsupported currency {currency} (DE-85)")
 
     end = date.fromisoformat(entry["end"])
     # An instant fact (a balance-sheet item) has no `start`. Its span is a point,
@@ -150,6 +155,13 @@ def derive_quarters(entries, *, ticker, tag, unit_key, currency,
     from src.data_engine.src.edgar.xbrl import QUARTERLY
 
     if not entries:
+        return []
+    if unit_key == "shares" or "/" in unit_key:
+        # ★★ DE-84 (`DX-177`) — an AVERAGE (weighted shares) or a RATIO (per share) is not
+        #   additive: the year's minus nine months' is not Q4's, it is noise (MU FY2026:
+        #   1,000,000 against ~1.14B). A Q4 with no filed figure stays ABSENT.
+        reasons["derived: not additive (DE-84)"] = \
+            reasons.get("derived: not additive (DE-84)", 0) + 1
         return []
 
     #: Spans already reported discretely — never re-derived over the top.

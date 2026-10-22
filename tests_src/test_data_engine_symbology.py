@@ -152,6 +152,27 @@ def test_an_unmapped_ticker_is_fetched_as_named(tmp_path):
     assert fetch_symbol_for(_history(tmp_path, []), "NVDA", as_of=TODAY) == "NVDA"
 
 
+def test_ac_7_100_a_share_class_that_still_trades_is_fetched_as_named(tmp_path):
+    """AC-7.100 / DE-82 — ★★ SEC lists GOOG and GOOGL under ONE CIK. *Found on the
+    first live card (DX-170):* both were fetched as GOOGL — 138 duplicate rows per
+    pair, refused by CT-7.1. A retired ticker still follows its CIK forward."""
+    cik, opened = "0001652044", date(2026, 10, 7)
+    history = _history(tmp_path, [
+        {"cik": cik, "ticker": "GOOGL", "valid_from": opened, "valid_to": None,
+         "knowable_at": opened, "source": "test"},
+        {"cik": cik, "ticker": "GOOG", "valid_from": opened, "valid_to": None,
+         "knowable_at": opened, "source": "test"},
+        {"cik": BNY_CIK, "ticker": "BK", "valid_from": None,
+         "valid_to": date(2026, 6, 29), "knowable_at": date(2026, 6, 30), "source": "test"},
+        {"cik": BNY_CIK, "ticker": "BNY", "valid_from": date(2026, 6, 30),
+         "valid_to": None, "knowable_at": date(2026, 6, 30), "source": "test"},
+    ])
+    as_of = date(2026, 10, 20)
+    assert fetch_symbol_for(history, "GOOG", as_of=as_of) == "GOOG"
+    assert fetch_symbol_for(history, "GOOGL", as_of=as_of) == "GOOGL"
+    assert fetch_symbol_for(history, "BK", as_of=as_of) == "BNY"
+
+
 def test_there_is_no_splice_function():
     """AC-7.82 / DE-64 — ⚠⚠ stated as a test because the obvious implementation
     is to concatenate old + new.

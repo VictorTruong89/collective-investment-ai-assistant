@@ -13,6 +13,8 @@ every run instead of guarding it with state.
 
 from __future__ import annotations
 
+import sys
+
 #: The line items a thesis actually reasons over. ⚠ **Restricted deliberately:**
 #: companyfacts for a large filer runs to hundreds of concepts and MU's
 #: as-reported quarterly alone spans 536 tags — ingesting all of them buries the
@@ -99,7 +101,15 @@ def ingest_facts(client, ledger, *, ticker: str, cik: str, tags=FEATURE_TAGS) ->
     payload = client.companyfacts(cik)
     result = extract_facts(payload, ticker=ticker,
                            tags=set(tags) - NOT_MONETARY)
-    return ledger.append(_collapse_identical(result.facts))
+    kept, conflicts = _collapse_identical(result.facts)
+    refused = {r: n for r, n in result.reasons.items() if "DE-85" in r}
+    if conflicts:
+        refused[f"conflicting duplicate key — neither value kept (DE-85): {conflicts[:3]}"] = \
+            len(conflicts)
+    for why, n in refused.items():
+        # ★ DE-85 — a refused fact is NAMED, so the gap is visible (P5).
+        print(f"  note: {ticker}: {n} fact(s) refused — {why}", file=sys.stderr)
+    return ledger.append(kept)
 
 
 def _collapse_identical(facts):
@@ -113,22 +123,23 @@ def _collapse_identical(facts):
     panel* (PD-11).
 
     ★ **Only byte-identical repeats collapse.** Two rows on one key with
-    DIFFERENT values are a real conflict about a reported figure, and this lets
-    CT-7.3 raise on them — *deduplicating by "keep the first" would pick a
-    number by arrival order*, which is the silent-choice defect P5 exists for.
+    DIFFERENT values are a real conflict about a reported figure — *deduplicating
+    by "keep the first" would pick a number by arrival order*, which is the
+    silent-choice defect P5 exists for.
+
+    ✏ **DE-85 (`DX-180`, 2026-10-21): a conflicting key keeps NEITHER value** and is
+    returned as a conflict. It used to reach CT-7.3, which refused the whole name — VST
+    had no ledger at all over one 2018 capex figure filed twice.
     """
-    seen, kept = {}, []
+    seen, values = {}, {}
     for fact in facts:
         key = (fact.ticker, fact.accession_id, fact.tag, fact.period_start,
                fact.period_end, fact.period_type)
-        prior = seen.get(key)
-        if prior is None:
-            seen[key] = fact
-            kept.append(fact)
-        elif (prior.value_minor, prior.value_currency) != (
-                fact.value_minor, fact.value_currency):
-            kept.append(fact)          # ⚠ a real conflict — CT-7.3 must see it
-    return kept
+        seen.setdefault(key, fact)
+        values.setdefault(key, set()).add((fact.value_minor, fact.value_currency))
+    conflicts = [k for k, v in values.items() if len(v) > 1]
+    kept = [f for k, f in seen.items() if k not in set(conflicts)]
+    return kept, [(k[2], str(k[4])) for k in conflicts]
 
 
 def load_cik_map(path: str = "config/sp500_tickers.yaml") -> dict:

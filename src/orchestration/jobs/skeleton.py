@@ -84,7 +84,7 @@ class _Recorder:
             value = fn()
         except Exception as exc:
             self.runs.append(JobRun(job_id, FAILED, 1, time.monotonic() - started,
-                                    getattr(exc, "code", type(exc).__name__)))
+                                    getattr(exc, "code", type(exc).__name__), str(exc)))
             raise
         self.runs.append(JobRun(job_id, SUCCESS, 1, time.monotonic() - started))
         return value

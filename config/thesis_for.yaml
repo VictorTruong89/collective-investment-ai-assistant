@@ -1,0 +1,26 @@
+# ★ F13 — who `thesis_for` may write a thesis about, and where its industry evidence comes from.
+#
+# ⚠ A ticker absent here is REFUSED (AC-F13.5): its peer set is Victor's to choose first (`T2`,
+#   memory rule "no domain content until decided"). Adding one is a decision, not a config edit.
+
+subjects:
+  MU:
+    name: "Micron Technology, Inc."
+    cik: "0000723125"
+    sector_list: memory_v1          # config/sector/memory_v1.yaml — Victor, 2026-09-15
+
+# The EDGAR filers on a sector list, so `--fetch-inputs` can fetch their documents (DE-83).
+# ★ Kept HERE, not in the source list: that file is the reviewed artifact of WHERE we look
+#   (`RA-98`), and is versioned, never edited in place.
+edgar_sources:
+  sndk-edgar:
+    cik: "0002023554"
+    subject: "Sandisk Corporation"
+    slug: sndk
+
+# ⚠ D-11 — company-IR sources are saved BY HAND (not on EDGAR; a scraper would choose what to keep).
+manual_sources:
+  skhynix-ir:
+    where: "https://news.skhynix.com/ — Press Center → the quarterly 'SK hynix Announces …Q.. Financial Results' release"
+  samsung-ir:
+    where: "https://www.samsung.com/global/ir/ — IR → Financial Information → Earnings Release → the quarter's 'Earnings Presentation' PDF"

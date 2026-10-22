@@ -976,3 +976,58 @@ def test_ac_f10_23_absent_revenue_refuses_naming_it(assumptions_v2):
 def test_ac_f10_23_a_v1_result_carries_neither_field(assumptions):
     obj = json.loads(_value(FakeEngine(rows()), assumptions).to_json())
     assert "trailing_revenue" not in obj and "implied_by_duration" not in obj
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-F10.24 — after a 10-K, the balance sheet is the annual row's (D12, DX-176)
+# ═══════════════════════════════════════════════════════════════════════════
+
+def _after_a_10k(*, accession=None, with_shares=True):
+    """Four quarters whose latest is DERIVED from a 10-K (flows + shares, no balance
+    items), plus that 10-K's annual row carrying the year-end balance sheet."""
+    frame = rows({3: {"diluted_shares": 1_000}} if with_shares else None)
+    for col in [c for c in frame.columns
+                if c.split("_minor")[0].split("_currency")[0] in
+                {TAGS["cash"], TAGS["long_term_debt"], TAGS["current_debt"]}
+                | (set() if with_shares else {TAGS["diluted_shares"]})]:
+        frame[col] = pd.NA
+    s, e, f = QUARTERS[-1]
+    annual = _row(date(e.year - 1, e.month, e.day), e, f, cash=5000, long_term_debt=8000,
+                  current_debt=1000, marketable_securities_current=600, diluted_shares=1_010)
+    annual["period_type"] = "annual"
+    if accession:
+        annual["accession_id"] = accession
+    return pd.concat([frame, pd.DataFrame([annual])], ignore_index=True)
+
+
+def test_ac_f10_24_a_10k_quarter_reads_the_annual_balance_sheet():
+    from src.feature_engineer.valuation.basis import balance
+
+    net_debt, comps, shares = balance(_after_a_10k(), as_of=AS_OF, ticker="XYZ")
+    assert net_debt == usd(8000 + 1000 - 5000 - 600) and shares == 1_000
+    end = QUARTERS[-1][1]
+    for c in comps:
+        assert c["accession_id"] == f"acc-{end.isoformat()}" and c["period_end"] == end
+
+
+def test_ac_f10_24_another_filings_annual_row_is_never_used():
+    from src.feature_engineer.errors import ValuationUnavailable
+    from src.feature_engineer.valuation.basis import balance
+
+    with pytest.raises(ValuationUnavailable, match="cash"):
+        balance(_after_a_10k(accession="acc-a-later-10-K-A"), as_of=AS_OF, ticker="XYZ")
+
+
+def test_ac_f10_24_a_10k_quarter_with_no_share_count_reads_the_years():
+    """DX-177 — DE-84 leaves a 10-K's Q4 share count ABSENT; the year's is used."""
+    from src.feature_engineer.valuation.basis import balance
+
+    _nd, _comps, shares = balance(_after_a_10k(with_shares=False), as_of=AS_OF, ticker="XYZ")
+    assert shares == 1_010
+
+
+def test_ac_f10_24_the_service_values_a_10k_quarter_end_to_end(assumptions):
+    """DX-176 — through `valuation()`, which reads D-07 by period type (`FE-23`)."""
+    out = json.loads(_value(FakeEngine(_after_a_10k(with_shares=False)), assumptions).to_json())
+    assert out["net_debt"]["value"] == usd(8000 + 1000 - 5000 - 600).to_json_obj()
+    assert out["diluted_shares"] == 1_010

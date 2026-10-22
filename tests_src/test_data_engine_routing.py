@@ -354,6 +354,28 @@ def test_ac_7_22_no_key_or_contact_email_appears_in_an_error():
         EdgarClient("victor@example.com")
 
 
+def test_ac_7_101_a_filing_document_is_fetched_as_text_through_the_throttle():
+    """AC-7.101 — DE-83: one HTTP path to SEC, so the fair-access limit holds."""
+    from src.data_engine.src.edgar.client import EdgarClient
+
+    seen = []
+
+    class Recorder:
+        def get(self, url, params, headers, timeout):
+            seen.append((url, headers["User-Agent"]))
+            return (200, "<html>10-K</html>") if "ok" in url else (404, "gone")
+
+    c = EdgarClient(Secret("EDGAR_CONTACT", "victor@example.com"), Recorder(),
+                    sleep=lambda _s: None)
+    base = "https://www.sec.gov/Archives/edgar/data/723125/000072312526000023/"
+    assert c.document(base + "ok.htm") == "<html>10-K</html>"
+    assert "contact:" in seen[0][1]
+    with pytest.raises(SourceUnavailableError):
+        c.document(base + "missing.htm")
+    with pytest.raises(ValueError, match="EDGAR archive"):
+        c.document("https://example.com/ok.htm")
+
+
 def test_ac_7_23_the_cache_is_keyed_by_accession_not_by_elapsed_time():
     """AC-7.23 — CT-7.4. A filing is immutable once published; a TTL is meaningless.
 

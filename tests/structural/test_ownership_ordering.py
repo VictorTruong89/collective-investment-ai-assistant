@@ -38,6 +38,7 @@ OWNERSHIP = REPO / "sdd" / "specs" / "ownership.yaml"
 # for, and it has now fired on FIVE consecutive milestones (MS-3..MS-7).
 KNOWN_UNBUILT = {
     "src/shared/agents/**",
+    # ✏ 2026-10-20 — F13's two globs left the same day: built after approval (the guard fired).
 }
 
 

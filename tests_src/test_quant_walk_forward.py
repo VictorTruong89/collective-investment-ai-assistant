@@ -53,3 +53,26 @@ def test_ac_f12_33_a_fold_with_no_past_after_the_purge_is_dropped():
 def test_ac_f12_33_empty_dates_make_no_folds():
     assert make_walk_forward_folds((), PROTOCOL) == ()
     assert isinstance(DATES[0], date)
+
+
+# ── AC-F12.38 (F12 `D17`, `DX-161`) — the purged k-fold counts trading days ─────
+def test_ac_f12_38_the_k_fold_purge_before_the_block_is_in_trading_days():
+    """AC-F12.38 — a training date before the block is ≥ purge_days + 1 POSITIONS away.
+
+    ⚠ Until 2026-10-20 `make_folds` removed 63 CALENDAR days ≈ 43 trading days.
+    """
+    position = {d: i for i, d in enumerate(DATES)}
+    for fold in make_folds(DATES, PROTOCOL)[1:]:
+        before = [d for d in fold.train_dates if d < fold.test_dates[0]]
+        gap = position[fold.test_dates[0]] - position[before[-1]]
+        assert gap == PROTOCOL.purge_days + 1
+
+
+def test_ac_f12_38_the_k_fold_purge_and_embargo_after_the_block_are_in_trading_days():
+    """AC-F12.38 — after the block, purge + embargo are counted in positions too."""
+    position = {d: i for i, d in enumerate(DATES)}
+    for fold in make_folds(DATES, PROTOCOL)[:-1]:
+        after = [d for d in fold.train_dates if d > fold.test_dates[-1]]
+        gap = position[after[0]] - position[fold.test_dates[-1]]
+        assert gap == PROTOCOL.purge_days + PROTOCOL.embargo_days + 1
+        assert fold.purged == len(DATES) - len(fold.train_dates) - len(fold.test_dates)

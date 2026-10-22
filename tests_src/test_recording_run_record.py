@@ -146,3 +146,22 @@ def test_delivery_status_is_blank_when_nothing_was_delivered(tmp_path):
     """RC-63/64 — the index reports not-delivered as such."""
     _record(tmp_path)
     assert rebuild_index(tmp_path).iloc[0]["delivery_status"] == ""
+
+
+# --------------------------------------------------------------------------- #
+# ★ RC-69 — a thesis trace under .state/runs/ is not a run (DX-173)
+# --------------------------------------------------------------------------- #
+
+def test_ac_11_52_a_thesis_trace_beside_the_runs_is_not_a_run(tmp_path):
+    """AC-11.52 — *found on the first live card:* `read_run` read a thesis
+    trace's `trace/` FOLDER as a file and `record` failed `IsADirectoryError`."""
+    trace = tmp_path / "ab-v1-064922"
+    (trace / "trace" / "payloads").mkdir(parents=True)
+    (trace / "trace.jsonl").write_text("{}\n")
+    _record(tmp_path)
+
+    index = rebuild_index(tmp_path)
+    assert list(index["run_id"]) == [RUN]
+    assert RunArtifactStore(tmp_path).run_ids() == [RUN]
+    (tmp_path / RUN / "extra").mkdir()
+    assert "extra" not in RunArtifactStore(tmp_path).read_run(RUN)

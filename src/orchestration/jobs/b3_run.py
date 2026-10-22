@@ -147,7 +147,8 @@ def run_skeleton(
     )
 
 
-def _calendar(*, universe, as_of, adj_as_of, events, root, run_id, window):
+def _calendar(*, universe, as_of, adj_as_of, events, root, run_id, window,
+              fundamentals_pit: bool = False):
     """Populate D-07's event store from the run's events, then run the gate.
 
     ⚠ **Not a live sweep.** QD-16: 130 tickers x 8 classes is ~1,000 calls per run
@@ -195,7 +196,7 @@ def _calendar(*, universe, as_of, adj_as_of, events, root, run_id, window):
 
     return check_window(
         store=store, universe=universe, start=start, end=end, as_of=as_of,
-        adj_as_of=adj_as_of, run_id=run_id)
+        adj_as_of=adj_as_of, run_id=run_id, fundamentals_pit=fundamentals_pit)
 
 
 def nomination_provenance(contract, adj_as_of, calendar_report) -> dict:

@@ -707,3 +707,29 @@ def test_resolution_lives_at_the_edge_not_in_the_runner():
     import src.orchestration.jobs.runner as runner
 
     assert "importlib" not in inspect.getsource(runner)
+
+
+def test_ac_8_49_a_failed_job_carries_its_message():
+    """AC-8.49 / OR-61 — ★ *found on the first live card (DX-172):* the notice
+    said `DATA.CALENDAR.UNHANDLED_BLOCK` and not which 11 events — "here is why"
+    (OR-45) needs the why."""
+    from src.reporting.deliver.email import build_failure_message
+
+    orc, manifest = triggered()
+    outcome = orc.run(manifest.run_id,
+                      invoke=lambda job, m: _semantic() if job.job_id == "rank"
+                      else None, clock=_fake_clock())
+    rank = next(j for j in outcome.jobs if j.job_id == "rank")
+    assert "bad schema" in rank.error_message
+    assert rank.to_json_obj()["error_message"] == rank.error_message
+    notice = failure_notice(outcome)
+    assert "bad schema" in notice["errors"]["rank"]
+    assert_no_analysis(notice)
+    body = build_failure_message(notice, sender="a@x", recipient="b@x").get_content()
+    assert "rank: " in body and "bad schema" in body
+
+
+def test_ac_8_49_the_message_is_truncated():
+    from src.orchestration.contracts.manifest import JobRun
+
+    assert len(JobRun("j", "FAILED", 1, 0.0, "X", "m" * 5000).error_message) <= 600

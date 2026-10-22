@@ -12,7 +12,6 @@ tests on another, which is leakage wearing a fold boundary.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import timedelta
 
 FORMULA_PURGE = "cv.purge_embargo.derived.v1"
 #: F12 `D11` — the expanding-window protocol (`make_walk_forward_folds`).
@@ -81,6 +80,10 @@ def make_folds(dates, protocol: CVProtocol) -> tuple[Fold, ...]:
     A training row *after* the test block whose label window reaches back into
     it is exactly as leaky as one before — the overlap has no preferred
     direction.
+
+    ★ **Purge and embargo are in TRADING days** — positions in `dates` — as in
+    `make_walk_forward_folds` (F12 `D17`, AC-F12.38). ⚠ Until 2026-10-20 they
+    were calendar days: 63 ≈ 43 trading days (`DX-161`).
     """
     ordered = sorted(set(dates))
     if not ordered:
@@ -93,10 +96,9 @@ def make_folds(dates, protocol: CVProtocol) -> tuple[Fold, ...]:
         test = ordered[start:stop]
         if not test:
             continue
-        lower = test[0] - timedelta(days=protocol.purge_days)
-        upper = test[-1] + timedelta(days=protocol.purge_days
-                                     + protocol.embargo_days)
-        train = tuple(d for d in ordered if d < lower or d > upper)
+        last_before = start - protocol.purge_days              # positions, not days
+        first_after = stop + protocol.purge_days + protocol.embargo_days
+        train = tuple(ordered[:max(0, last_before)]) + tuple(ordered[first_after:])
         folds.append(Fold(index=index, train_dates=train, test_dates=tuple(test),
                           purged=len(ordered) - len(train) - len(test),
                           embargoed=protocol.embargo_days))
@@ -111,8 +113,8 @@ def make_walk_forward_folds(dates, protocol: CVProtocol) -> tuple[Fold, ...]:
     whose past is used up by the purge is dropped, never tested on nothing.
 
     ★ **The purge is in TRADING days** — positions in `dates` — because the
-    horizon is defined in trading days. ⚠ `make_folds` purges in calendar days
-    (63 ≈ 43 trading days): `DX-161`, still open there.
+    horizon is defined in trading days. ✏ `make_folds` does too since
+    2026-10-20 (F12 `D17`, `DX-161` closed).
 
     ⚠ *Why this exists (`DX-162`):* `make_folds` tests block 0 (2016–18) with a
     model trained on 2018–26. No label leaks across its purge, but a model that

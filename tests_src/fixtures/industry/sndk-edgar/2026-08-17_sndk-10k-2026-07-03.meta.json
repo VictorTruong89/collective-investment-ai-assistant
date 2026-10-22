@@ -1,0 +1,14 @@
+{
+ "title": "Sandisk Corporation Form 10-K for the period ended 2026-07-03",
+ "url": "https://www.sec.gov/Archives/edgar/data/2023554/000162828026057406/sndk-20260703.htm",
+ "published_date": "2026-08-17",
+ "published_date_source": "EDGAR filingDate for accession 0001628280-26-057406",
+ "accession_id": "0001628280-26-057406",
+ "subject": "Sandisk Corporation",
+ "converter": "tools/convert_filing.py",
+ "source_id": "sndk-edgar",
+ "retrieved_at": "2026-10-21",
+ "chars": 420470,
+ "sha256": "sha256:67b6522c2489d9e8ffbc4edb18aa317e40c15494b7a78255ff09e912187d43b4",
+ "removed": []
+}

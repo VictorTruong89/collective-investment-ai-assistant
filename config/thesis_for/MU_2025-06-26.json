@@ -1,0 +1,51 @@
+{
+ "_note": "F13 D5 / AC-F13.8 \u2014 the recorded runs of the fourth MU thesis (2026-10-04, SELL). Extractions in the bundle order it was authored over (tools/run_thesis_once.py DEFAULT_EXTRACTIONS).",
+ "ticker": "MU",
+ "as_of": "2025-06-26",
+ "extractions": [
+  [
+   "E-04",
+   "run-2026-09-12T221728-mu-e04"
+  ],
+  [
+   "E-06",
+   "run-2026-09-12T221836-mu-e06"
+  ],
+  [
+   "E-07",
+   "run-2026-09-12T222114-mu-e07"
+  ],
+  [
+   "E-10",
+   "run-2026-09-13T071638-mu-e10"
+  ],
+  [
+   "E-12",
+   "run-2026-09-13T071852-mu-e12"
+  ],
+  [
+   "E-01",
+   "run-2026-09-11T082002-mu-e01"
+  ],
+  [
+   "E-13",
+   "run-2026-09-16T070237-mu-e13-replay"
+  ],
+  [
+   "E-09",
+   "run-2026-09-17T071619-mu-e09"
+  ]
+ ],
+ "stage_a": {
+  "J-01": "run-2026-09-12T024848-mu-stage-a",
+  "J-02": "run-2026-09-12T024848-mu-stage-a",
+  "J-05": "run-2026-09-13T184111-mu-j05",
+  "J-06": "run-2026-09-13T184227-mu-j06",
+  "J-07": "run-2026-09-12T024848-mu-stage-a",
+  "J-03": "run-2026-09-16T130712-mu-j03",
+  "J-08": "run-2026-09-16T130840-mu-j08",
+  "J-04": "run-2026-09-17T113226-mu-j04",
+  "J-20": "run-2026-09-14T122547-mu-j20"
+ },
+ "thesis": "run-2026-10-04T031717-mu-thesis"
+}

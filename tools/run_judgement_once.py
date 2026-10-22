@@ -383,7 +383,19 @@ def load_extraction_parts(run_ids, filing_bundle, *, ticker: str, sector=None) -
     return tuple(parts)
 
 
-def main() -> int:
+def closing_status(*, answered: int, failed: int) -> str:
+    """★ F13 `D12` / `DX-174` — what the run's trace says it was.
+
+    ⚠ It closed `SUCCESS` whatever happened (`store.close()`'s default), so a Stage A whose
+    nine calls all hit a session limit read as a success. `PARTIAL` keeps the answered
+    blocks usable: each is re-validated on its own call record when it is loaded.
+    """
+    if not failed:
+        return "SUCCESS"
+    return "PARTIAL" if answered else "FAILED"
+
+
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--live", action="store_true", help="⚠ spends money")
     ap.add_argument("--dry-run", action="store_true")
@@ -420,13 +432,16 @@ def main() -> int:
                     help="D-07 fact ledger dir (e.g. .state/facts) for J-20's history part")
     ap.add_argument("--seed", default="0",
                     help="seed for the recorded rubric option order (RA-17)")
-    args = ap.parse_args()
+    from tools.run_extraction_once import add_filing_args, apply_filing_args
+    add_filing_args(ap)
+    args = ap.parse_args(argv)
     if not (args.live or args.dry_run):
         ap.print_help()
         return 2
 
-    from tools.run_extraction_once import _select
-    _select(args.ticker)
+    import tools.run_extraction_once as x
+    custom_filing = apply_filing_args(args)
+    x._select(args.ticker)
 
     if args.stage_a and not args.annual_history:
         # ⚠ `J-20` is in Stage A; without its history part it can only answer
@@ -458,7 +473,7 @@ def main() -> int:
     label = (f"STAGE A · all {len(STAGE_A_ORDER)} blocks, k=1" if args.stage_a
              else blocks[0].name)
     print(f"── {label} (judgement, blind) ──")
-    print(f"  ticker     : {args.ticker}   accession {ACCESSION}")
+    print(f"  ticker     : {args.ticker}   accession {x.ACCESSION}")
     print(f"  bundle     : {len(body):,} chars (blind)")
 
     plans = []
@@ -582,7 +597,8 @@ def main() -> int:
             #   re-raises after appending); this keeps the run going and the
             #   summary honest.
             failed.append((blk.name, f"{type(exc).__name__}: {exc}"))
-            print(f"   ⛔ {blk.name}: {type(exc).__name__}")
+            # ★ DX-175 — the reason, not only its class ("session limit · resets …").
+            print(f"   ⛔ {blk.name}: {type(exc).__name__}: {str(exc).splitlines()[0][:200]}")
             continue
         # ★★★ `DX-84` / `GW-23` — *a truncated response is a failure, not a
         # short answer.* ⚠⚠ This runner wires `anthropic_transport` STRAIGHT
@@ -642,7 +658,10 @@ def main() -> int:
                                                         "bundle_hash": blind.bundle_hash},
                                             bundle=blind)
         print(f"   ✅ {blk.name}  {tin:,} in / {tout:,} out  ${cost:.4f}{derived}")
-    store.close()
+    bad = {name for name, _ in failed}
+    store.close(closing_status(answered=len(set(answers) - bad), failed=len(bad)))  # DX-174
+    if custom_filing:
+        x.record_filing(REPO / ".state/runs" / run_id)
 
     print(f"\n  run_id={run_id}   spent ${spent:.4f}   "
           f"{len(answers)}/{len(plans)} block(s)")

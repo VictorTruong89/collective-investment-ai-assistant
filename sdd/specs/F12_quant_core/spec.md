@@ -14,6 +14,10 @@
 > pairs with `BR`); the purged k-fold is reported beside → `AC-F12.36`.
 > ✏ **Amended 2026-10-09 (Victor):** `D15` — the Nomination carries its ranker's status (`rule` / `promoted` /
 > `refused_informational`) and a refused ranker's failed gates → `AC-F12.37`.
+> ✏ **Amended 2026-10-20 (Victor's ruling of 2026-10-11):** `D16` — the gates are MEASUREMENTS, not D-04's completion
+> bar; no threshold moves (option Ⓐ; Ⓑ, lowering the thresholds, rejected). No AC: nothing in the gate code changes.
+> ✏ **Amended 2026-10-20:** `D17` — the purged k-fold purges and embargoes in TRADING days, like the walk-forward
+> (`DX-161`) → `AC-F12.38`.
 > **Source discussion:** `sdd/design/rel1_design/L3-build-sequence.md` §2.1s (Victor, 2026-10-05): row 9
 > re-scoped to **govern & close** — graduate the D-03 core that is already built, wire `src/quant/**`
 > into `ownership.yaml`, and record what is out of rel-1 as declared limitations. No new capability.
@@ -168,13 +172,18 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   `refused_gates`; any other status, or a refused status with no gates, is REFUSED (`QNT.NOMINATION`). → data contract.
   ✅ 2026-10-09
 
+- **AC-F12.38** *(new — `D17`, `DX-161`)* — **Given** the sorted trading dates and the protocol, **when** purged k-fold
+  folds are made, **then** a training date is at least `purge_days + 1` **positions** (trading days) before the test
+  block's first date, or at least `purge_days + embargo_days + 1` positions after its last — positions in the date list,
+  never calendar days; the test blocks are unchanged. → unit. ✅ 2026-10-20
+
 **Declared limitation**
 
 - **AC-F12.30** *(new — `D3`)* — **Given** any `Nomination` or `BacktestResult`, **when** it is serialised,
   **then** it carries the fixed sentence (`D7`) *"Not regime-conditioned: one model is fitted across all
   market states; a result from one regime is not evidence for another."* → data contract. (`PG-10`) ✅ 2026-10-05
 
-**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous. ✏ 2026-10-08: + `.33`–`.36` → **33 / 36 green**, 3 vacuous. ✏ 2026-10-09: + `.37` → **34 / 37 green**.
+**Tally (2026-10-05, after implementation):** 30 · ✅ **27** · ⊘ 3 vacuous (`.5` `.25` `.27`). ✏ 2026-10-06: + `.31`, `.32` ✅ built the same day → **29 / 32 green**, 3 vacuous. ✏ 2026-10-08: + `.33`–`.36` → **33 / 36 green**, 3 vacuous. ✏ 2026-10-09: + `.37` → **34 / 37 green**. ✏ 2026-10-20: + `.38` → **35 / 38 green**.
 
 ## 7. Decisions
 
@@ -255,6 +264,23 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
   The card may be ranked by a REFUSED model (D-04 MT-67, D-08 OR-58); PG-10 then requires every downstream output to
   say so, and the nomination is where the status must ride (D-12 and D-09 re-derive nothing). Rejected: ⓐ D-12 reading
   the model store to find out (D-12 originates nothing); ⓑ a free-text note (unenforceable).
+- **`D16` — the gates are measurements, not D-04's completion bar** *(Victor, 2026-10-11: option Ⓐ)*. D-04 closes as
+  **functionally complete, skill unproven**: `ic_significance`, `breadth` and `cost_survival` keep computing and
+  printing exactly as `D9`, `D10`, `D13`, `D14` define them — walk-forward t ≥ 3, IR ≥ 0.5 on the market-only residual
+  breadth — and **no threshold moves**. Passing them is no longer the condition for calling D-04 done, and no longer
+  blocks work on any other domain. What a failed gate still does is unchanged: promotion refuses (D-04 MT-17, MT-52),
+  and a refused model may rank the card only as designated and labelled (`D15`, MT-67, DN-41, RP-55) — never
+  actionable. Victor's reason, verbatim: *"this D-04 ML model may never process any skills with my limited computing
+  and news capacity, as well as the nature of predicting future stocks' ranking."* Rejected: Ⓑ lower the thresholds so
+  fit 4 passes (e.g. t ≥ 2, IR ≥ 0.3) — it would promote fit 4, drop the label, and with a thesis could make a card
+  actionable; against it `PG-2` (his own capital wins on any number someone trades on), the bar was fixed in advance so
+  a result could not move it (`D14`), and four fits on one decade are four draws.
+- **`D17` — the purged k-fold purges in trading days** *(2026-10-20, closes `DX-161`; hand-over 2026-10-11 §3.2)* →
+  `AC-F12.38`. `make_folds` removed `timedelta(days=purge_days)` — 63 calendar ≈ 43 trading days — while `purge_days`
+  is `max(trading_days)` of the HorizonSet (QA-18) and the walk-forward (`D11`) already counts positions. The embargo is
+  counted the same way, so the protocol has one unit. Safe until now only because the selection label is 21 days.
+  Rejected: converting days with a 252/365 factor (an approximation where the exact count is free). ⚠ The k-fold now
+  trains on slightly fewer dates than fits 1–4 did; their recorded numbers stand as measured.
 - **`D5` — `AC-F12.k`, not bare `AC-12.k`** — D-12 Decision's upstream criteria are `AC-12.x`
   (constitution §1.1, `DX-44`).
 
@@ -303,5 +329,6 @@ nomination (`excluded[]` included) is `recommendation.json` (`L6` AB-16, closed 
 | AC-F12.35 | `tests_src/test_quant_breadth_external.py::test_ac_f12_35_*` (BR from market-only ρ · why names the basis · no market factor ⇒ NOT_EVALUATED) | `src/quant/metrics/breadth.py` · `gates/metric_gate.py` · `src/models/train/__main__.py` |
 | AC-F12.36 | `tests_src/test_models_train_walk_forward.py::test_ac_f12_36_*` (the gates read the walk-forward IC · the k-fold is reported, not gated · no walk-forward ⇒ NOT_EVALUATED) | `src/models/train/__main__.py` · `src/models/train/run.py` |
 | AC-F12.37 | `tests_src/test_card_refused_ranker.py::test_ac_f12_37_*` | `src/quant/contracts/nomination.py` |
+| AC-F12.38 | `tests_src/test_quant_walk_forward.py::test_ac_f12_38_*` (purge before · purge + embargo after, in positions) | `src/quant/backtest/protocol.py` |
 
 ✅ 2026-10-05: the 17 pre-existing tests now carry their `AC-F12.k` id in the docstring; 9 criteria were built test-first the same day. Suite **2,572 pass / 1 red (`J-07`)**.

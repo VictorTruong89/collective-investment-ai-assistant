@@ -44,6 +44,7 @@ def compose(
     top_thesis_stability: dict | None = None,
     influenced_by: tuple[str, ...] = (),
     claim_independent_agreement: bool = False,
+    thesis_ref: dict | None = None,
 ) -> Recommendation:
     """Pure, total on declared inputs (§8's API surface).
 
@@ -134,6 +135,8 @@ def compose(
         #   `"independent"`, because a field present only on the bad case is a
         #   field readers learn to ignore.
         concurrence=concurrence_label(influenced_by),
+        # ★ DN-42 — the nominee's thesis reference, carried verbatim; nothing above reads it.
+        thesis_ref=dict(thesis_ref) if thesis_ref else None,
     )
 
 

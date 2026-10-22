@@ -86,6 +86,13 @@ class RunContext:
     #: RA-71's answer for the nominated thesis, computed by D-01 upstream.
     thesis_stale: bool = False
     falsifier_fired: bool = False
+    #: ★ OR-62 / F13 `D13` — where `thesis_for` keeps its chains and runs, and its
+    #: subjects (`config/thesis_for.yaml`). `None` keeps the placeholder gate (tests).
+    thesis_root: str | None = None
+    thesis_runs_root: str | None = None
+    thesis_config: dict | None = None
+    #: The lookup's answer for the nominee — set by `thesis_gate`, read by `decide`/`record`.
+    card_thesis: object = None
     #: Accumulated outputs, keyed by job id.
     outputs: dict = field(default_factory=dict)
 
@@ -110,7 +117,10 @@ def _calendar_check(job, manifest, ctx: RunContext):
                      adj_as_of=ctx.adj_as_of, events=ctx.events,
                      root=ctx.event_store_root, run_id=manifest.run_id,
                      window=(ctx.raw_prices["date"].min(),
-                             ctx.raw_prices["date"].max()))
+                             ctx.raw_prices["date"].max()),
+                     # ★★ OR-60 — the card ranks only the as_of row, read at as_of
+                     fundamentals_pit=any(f.name.startswith("f_")
+                                          for f in ctx.contract.features))
 
 
 def _prices(job, manifest, ctx: RunContext):
@@ -230,10 +240,27 @@ def _thesis_gate(job, manifest, ctx: RunContext):
 
     ticker = ctx.require("rank").top.ticker
     probed = ctx.probed_thesis
-    if probed is None or probed.thesis.ticker != ticker:
+    if probed is not None and probed.thesis.ticker == ticker:
+        return evaluate(GateInputs(thesis=probed.thesis, stale=ctx.thesis_stale,
+                                   falsifier_fired=ctx.falsifier_fired),
+                        as_of=ctx.as_of, ticker=ticker)
+    if ctx.thesis_root is None:
         return stub_gate_verdict(ticker, ctx.as_of)
-    return evaluate(GateInputs(thesis=probed.thesis, stale=ctx.thesis_stale,
-                               falsifier_fired=ctx.falsifier_fired),
+    # ★★ OR-62 / F13 `D13` — the newest thesis `thesis_for` wrote for the nominee.
+    #   Invoked by dotted name (OR-2); the daily run writes none (DX-153).
+    from src.fundamental.contracts.gate import NO_THESIS, GateVerdict
+    from src.orchestration.jobs.graph import resolve_target
+
+    found = resolve_target("src.fundamental.on_demand.lookup:thesis_for_card")(
+        ticker, ctx.as_of, root=ctx.thesis_root, runs_root=ctx.thesis_runs_root,
+        config=ctx.thesis_config or {})
+    ctx.card_thesis = found
+    if found.thesis is None:
+        # ⚠ NO_THESIS, never PASS (DN-10): D-01 exists now, and it was asked.
+        return GateVerdict(gate_id="thesis", ticker=ticker.upper(), as_of=ctx.as_of,
+                           status=NO_THESIS, reason=found.reason)
+    return evaluate(GateInputs(thesis=found.thesis, stale=found.stale,
+                               falsifier_fired=found.falsifier_fired),
                     as_of=ctx.as_of, ticker=ticker)
 
 
@@ -275,7 +302,9 @@ def _decide(job, manifest, ctx: RunContext):
 
     alerts = ctx.require("risk")
     probed = ctx.probed_thesis
-    stability = (probed.thesis.verdict_stability if probed else None)
+    card = ctx.card_thesis if getattr(ctx.card_thesis, "thesis", None) is not None else None
+    stability = (probed.thesis.verdict_stability if probed
+                 else card.thesis.verdict_stability if card else None)
     # ★★ DN-39 — actionable requires BOTH a complete risk pass and a stability
     #   figure. ⚠ Asking for it and being refused is the same defect as marking
     #   it true, so the claim is made only when both inputs are present.
@@ -294,6 +323,7 @@ def _decide(job, manifest, ctx: RunContext):
         not_actionable_reason=None if actionable else _why_not(stability, alerts,
                                                                nomination=nomination),
         top_thesis_stability=stability,
+        thesis_ref=card.ref if card else None,                 # ★ DN-42 — carried
         stubs=[s.to_json_obj() for s in manifest.stubs])
     enforce_inv6([recommendation])              # DN-22 / INV-6
     return recommendation
@@ -336,7 +366,8 @@ def _record(job, manifest, ctx: RunContext):
         #   to 2026-08-27 a complete run directory could not answer *"what made
         #   this pick?"*, which QA-121 requires and INV-2 rests on.
         nomination=ctx.outputs.get("rank"),
-        thesis=probed.thesis if probed else None,
+        thesis=(probed.thesis if probed
+                else getattr(ctx.card_thesis, "thesis", None)),
         renderings=_render_all(ctx.require("render")),
         as_of=ctx.as_of)
 

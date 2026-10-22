@@ -38,26 +38,36 @@ def test_the_source_list_is_the_peer_set_victor_decided_and_says_what_it_exclude
 def test_every_recorded_document_carries_its_provenance_in_a_SIDECAR(source_id):
     """`DX-102`'s rule, one domain over: a provenance header INSIDE the text would be
     quotable as if the company had written it. ★ And the hash proves the text is the one
-    whose date and URL are recorded."""
-    (meta_path,) = (INDUSTRY / source_id).glob("*.meta.json")
-    meta = json.loads(meta_path.read_text(encoding="utf-8"))
-    text = meta_path.with_suffix("").with_suffix(".txt").read_text(encoding="utf-8")
-    assert meta["sha256"] == "sha256:" + hashlib.sha256(text.encode()).hexdigest()
-    for field in ("url", "published_date", "published_date_source", "subject", "converter"):
-        assert meta[field], f"{source_id} records no {field}"
-    assert date.fromisoformat(meta["published_date"]) <= AS_OF
-    assert "PROVENANCE" not in text[:2000] and "do not edit" not in text[:2000].lower()
+    whose date and URL are recorded.
+
+    ✏ 2026-10-20 (F13) — EVERY document of a source, not "the" one: `thesis_for` adds a
+    newer document beside the old, never over it.
+    """
+    metas = sorted((INDUSTRY / source_id).glob("*.meta.json"))
+    assert metas, f"{source_id} holds no document"
+    for meta_path in metas:
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        text = meta_path.with_suffix("").with_suffix(".txt").read_text(encoding="utf-8")
+        assert meta["sha256"] == "sha256:" + hashlib.sha256(text.encode()).hexdigest()
+        for field in ("url", "published_date", "published_date_source", "subject", "converter"):
+            assert meta[field], f"{meta_path.name} records no {field}"
+        # ★ INV-1 per document: it cannot have been published after it was retrieved.
+        assert date.fromisoformat(meta["published_date"]) <= date.fromisoformat(
+            meta["retrieved_at"][:10])
+        assert "PROVENANCE" not in text[:2000] and "do not edit" not in text[:2000].lower()
+    assert any(date.fromisoformat(json.loads(m.read_text())["published_date"]) <= AS_OF
+               for m in metas), "the 2025-06-26 sector file's document is still held"
 
 
 def test_the_skhynix_document_carries_no_AI_SUMMARY_from_the_site():
     """⚠⚠ Found on the first fetch, 2026-09-15: the newsroom page ships the SITE'S OWN
     generated summary above the release. ★ It is not the company's words, and `X-01` would
     happily verify a quote taken from it — the `DX-102` failure with a different author."""
-    (doc,) = (INDUSTRY / "skhynix-ir").glob("*.txt")
+    doc = INDUSTRY / "skhynix-ir/2025-04-24_skhynix-1q25-results.txt"
     text = doc.read_text(encoding="utf-8")
     assert "AI Summary" not in text
     assert "April 24, 2025" in text and "Capex Discipline" in text     # the release itself
-    (meta,) = (INDUSTRY / "skhynix-ir").glob("*.meta.json")
+    meta = doc.with_suffix("").with_suffix(".meta.json")
     assert any("AI Summary" in r for r in json.loads(meta.read_text())["removed"])
 
 

@@ -1,0 +1,14 @@
+PROVENANCE — written by `tools/thesis_for.py --fetch-inputs` (F13 D6). Do not edit
+the body; a restated filing gets a SECOND fixture.
+
+Filer          : Micron Technology, Inc.  (CIK 0000723125)
+Form           : 10-K
+Period end     : 2026-09-03
+Filed          : 2026-10-09
+Accession      : 0000723125-26-000023
+Source URL     : https://www.sec.gov/Archives/edgar/data/723125/000072312526000023/mu-20260903.htm
+Retrieved      : 2026-10-21 via EDGAR (declared User-Agent, DE-83)
+Converted      : 2026-10-21 by tools/convert_filing.py — 366,981 chars
+
+⚠ F13 D7: if this is a 10-K, the 32 prompt blocks were verified on a 10-Q; its first
+thesis is a new observation. Verify any figure against the Source URL, not this file.

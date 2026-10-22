@@ -92,9 +92,11 @@ def poller(as_of: date, *, omit: dict[str, str] | None = None):
         found = documents_for(source.source_id, as_of=as_of)
         if not found:
             later = sorted(p.name for p in folder.glob("*.meta.json"))
+            # ⚠ The rule leads: `ingest` caps a reason at 200 chars, and with two later
+            #   documents held a trailing "— INV-1" was cut off (found 2026-10-20, F13).
             raise ValueError(
-                f"{source.source_id}: no document published on or before {as_of} "
-                f"(held, later: {later or 'none'}) — INV-1")
+                f"INV-1 — {source.source_id}: no document published on or before {as_of} "
+                f"(held, later: {later or 'none'})")
         records = []
         for meta, text in found:
             records.append(SectorRecord(

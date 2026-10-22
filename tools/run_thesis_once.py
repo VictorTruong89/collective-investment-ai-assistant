@@ -258,8 +258,11 @@ def _recorded_call(run_id: str, block_id: str, *, ticker: str):
     if f"-{ticker.lower()}-" not in run_id:
         raise ValueError(f"{run_id} is not a {ticker} run")
     records = [json.loads(ln) for ln in (root / "trace.jsonl").read_text().splitlines() if ln]
-    if [r.get("status") for r in records if r.get("type") == "__run_closed__"] != ["SUCCESS"]:
-        raise ValueError(f"{run_id} did not close SUCCESS — a failed run is not evidence")
+    closed = [r.get("status") for r in records if r.get("type") == "__run_closed__"]
+    # ★ F13 `D12` — a PARTIAL Stage A still holds answered blocks; each is checked below.
+    if closed not in (["SUCCESS"], ["PARTIAL"]):
+        raise ValueError(f"{run_id} did not close SUCCESS or PARTIAL ({closed}) — a failed "
+                         f"run is not evidence")
     calls = [r for r in records if r.get("type") == "ExternalCall"
              and r.get("step_id") == f"judge:{block_id}"]
     if len(calls) != 1:
@@ -726,9 +729,13 @@ def stage_b_absences(*, has_consensus: bool, has_duration_table: bool = False,
     return absences
 
 
-def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
+def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR, *, price_fixture=None,
+               consensus_dir=None):
     """The Stage B–D evidence, once: filing + verified extractions + annual history +
-    `fv_model` with the recorded raw price + observables + declared absences."""
+    `fv_model` with the recorded raw price + observables + declared absences.
+
+    ★ F13 — `price_fixture` / `consensus_dir` default to filing 1's (AC-F13.9).
+    """
     from src.feature_engineer.valuation.assumptions import load_published
     from src.fundamental.bundle.assemble import (
         assemble,
@@ -741,7 +748,9 @@ def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
     from tools.run_extraction_once import _select, build_bundle, sector_bundle
     from tools.run_judgement_once import add_annual_history, load_extraction_parts
 
-    _select(ticker)
+    import tools.run_extraction_once as x
+    if ticker in x.FILINGS:
+        _select(ticker)
     filing = build_bundle()
     extracted = load_extraction_parts(
         extractions, filing, ticker=ticker,
@@ -751,10 +760,11 @@ def build_base(ticker: str, extractions, sector=DEFAULT_SECTOR):
         EvidenceBundle(ticker=filing.ticker, as_of=filing.as_of,
                        parts=(*filing.parts, *extracted)),
         REPO / ".state/facts", ticker=ticker)
-    engine = RecordedEngine(ticker, ledger_dir=REPO / ".state/facts", price_fixture=PRICE_FIXTURE)
+    engine = RecordedEngine(ticker, ledger_dir=REPO / ".state/facts",
+                            price_fixture=pathlib.Path(price_fixture or PRICE_FIXTURE))
     assumptions = load_published(*ASSUMPTIONS)
     fields = observable_fields(engine, ticker, filing.as_of, None)
-    consensus = consensus_for(ticker, filing.as_of)
+    consensus = consensus_for(ticker, filing.as_of, consensus_dir)
     valued = valuation_part(ticker, filing.as_of, engine=engine, assumptions=assumptions)
     rates = None
     if '"implied_by_duration"' in valued.content:
@@ -883,13 +893,10 @@ def call_prompt(block_id: str, metric: str | None) -> str:
     return prompt
 
 
-def main(argv=None) -> int:
-    from src.fundamental.bundle.assemble import stage_output
-    from src.fundamental.thesis.author import (
-        CommitLog,
-        assert_fresh_authoring_bundle,
-        commit_falsifiers,
-    )
+def parser():
+    """The runner's arguments — ★ shared with `tools/thesis_for.py` (F13), so the chain and
+    this runner can never disagree about what an argument means."""
+    import argparse
 
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -910,21 +917,69 @@ def main(argv=None) -> int:
     ap.add_argument("--resend-from", default=None, metavar="BLOCK",
                     help="with --resume-from: carry only the commits BEFORE BLOCK (e.g. J-15); "
                          "re-send BLOCK and everything after it")
+    # ★ F13 `D1` — the recorded inputs as ARGUMENTS; omitted, filing 1's defaults apply.
+    ap.add_argument("--stage-a-run", action="append", default=[], metavar="BLOCK=RUN_ID",
+                    help="a Stage-A block's recorded run; given once, ALL nine must be given")
+    ap.add_argument("--extractions", nargs="+", default=None, metavar="RUN_ID",
+                    help="the E-block runs, in bundle order (default: DEFAULT_EXTRACTIONS)")
+    ap.add_argument("--sector", default=None, metavar="SECTOR_FILE_JSON")
+    ap.add_argument("--price-fixture", default=None, metavar="JSON")
+    ap.add_argument("--consensus-dir", default=None, metavar="DIR")
+    from tools.run_extraction_once import add_filing_args
+    add_filing_args(ap)
+    return ap
+
+
+def base_for(argv):
+    """F13 — the Stage B–D base bundle these ARGUMENTS build, with no call (AC-F13.8)."""
+    from tools.run_extraction_once import apply_filing_args
+
+    args = parser().parse_args(argv)
+    apply_filing_args(args)
+    base, *_ = build_base(args.ticker, tuple(args.extractions or DEFAULT_EXTRACTIONS),
+                          args.sector or DEFAULT_SECTOR, price_fixture=args.price_fixture,
+                          consensus_dir=args.consensus_dir)
+    return base
+
+
+def main(argv=None) -> int:
+    from src.fundamental.bundle.assemble import stage_output
+    from src.fundamental.thesis.author import (
+        CommitLog,
+        assert_fresh_authoring_bundle,
+        commit_falsifiers,
+    )
+
+    from tools.run_extraction_once import apply_filing_args
+
+    ap = parser()
     args = ap.parse_args(argv)
     if not (args.live or args.dry_run):
         ap.print_help()
         return 2
+    custom_filing = apply_filing_args(args)
+    stage_a_runs = dict(DEFAULT_STAGE_A)
+    if args.stage_a_run:
+        stage_a_runs = dict(a.split("=", 1) for a in args.stage_a_run)
+        if set(stage_a_runs) != set(DEFAULT_STAGE_A):
+            # ⚠ Never MERGED with the defaults: those are another date's answers.
+            print(f"BLOCKED: --stage-a-run must name all of {sorted(DEFAULT_STAGE_A)}; "
+                  f"got {sorted(stage_a_runs)}")
+            return 2
     if args.live and args.budget_usd is None:
         print("BLOCKED: --live requires --budget-usd (the approved cap)")
         return 2
 
     from src.fundamental.scorecard.availability import evidence_ids_in
 
-    base, rows, engine, assumptions, fields = build_base(args.ticker, DEFAULT_EXTRACTIONS)
+    base, rows, engine, assumptions, fields = build_base(
+        args.ticker, tuple(args.extractions or DEFAULT_EXTRACTIONS),
+        args.sector or DEFAULT_SECTOR, price_fixture=args.price_fixture,
+        consensus_dir=args.consensus_dir)
     assert_fresh_authoring_bundle(base)                        # RA-18
     as_of = base.as_of
     blind = base.redact()
-    stage_a = load_stage_a(DEFAULT_STAGE_A, blind=blind, history_rows=rows,
+    stage_a = load_stage_a(stage_a_runs, blind=blind, history_rows=rows,
                            ticker=args.ticker, as_of=as_of)
 
     from src.feature_engineer.valuation.service import valuation, value_on_basis
@@ -1148,6 +1203,9 @@ def main(argv=None) -> int:
     root.mkdir(parents=True, exist_ok=True)
     (root / "thesis.json").write_text(json.dumps(summary, indent=1, default=str),
                                       encoding="utf-8")
+    if custom_filing:
+        from tools.run_extraction_once import record_filing
+        record_filing(root)
     origin_tests = (REPO / ".state/runs" / str(args.resume_from) / "falsifier_tests.json")
     if falsifier_tests is None and origin_tests.exists() \
             and any(c["stage"] == "D:falsifiers" for c in carried):

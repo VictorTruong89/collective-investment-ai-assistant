@@ -164,7 +164,15 @@ def fetch_symbol_for(history, ticker: str, *, as_of: date) -> str:
     ★ Falls back to the ticker itself when unknown — a name we hold no mapping
     for is fetched as named, so an empty history is a **no-op**, not a
     behaviour change.
+
+    ★★ **DE-82 — a ticker that still trades is fetched under ITSELF.** SEC lists
+    both share classes under one CIK (GOOG/GOOGL, FOX/FOXA, NWS/NWSA), so
+    following every ticker to `current_symbol` fetched one class under the other
+    — 414 duplicate rows on the first live card (`DX-170`). Only a RETIRED
+    mapping is followed forward.
     """
+    if resolve(history, ticker, as_of=as_of) is not None:
+        return str(ticker).upper()
     cik = _latest_owner(history, ticker, as_of=as_of)
     if cik is None:
         return str(ticker).upper()

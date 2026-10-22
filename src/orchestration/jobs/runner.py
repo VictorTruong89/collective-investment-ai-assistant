@@ -42,7 +42,7 @@ TERMINAL = (SUCCESS, FAILED, INCOMPLETE, BUDGET_EXCEEDED, BLOCKED)
 #: report asserts *"here is the analysis"*, a failure notice asserts *"the run
 #: did not complete, here is why"*.
 FAILURE_NOTICE_FIELDS = ("run_id", "status", "failed_jobs", "error_codes",
-                         "started_at", "ended_at")
+                         "errors", "started_at", "ended_at")
 
 
 def plan(graph: JobGraph) -> JobGraph:
@@ -171,7 +171,7 @@ class Orchestrator:
                     retryable = False       # ★ unclassified or semantic ⇒ stop
                 if retryable:
                     continue
-                return JobRun(job.job_id, FAILED, attempt, elapsed, code)
+                return JobRun(job.job_id, FAILED, attempt, elapsed, code, str(exc))
             elapsed = clock() - start
             self.attempts.append(job_id=job.job_id, attempt=attempt,
                                  status=SUCCESS, error_code=None,
@@ -180,7 +180,7 @@ class Orchestrator:
                 self.budgets.check_job(job.job_id, elapsed)
             except Exception as exc:                      # noqa: BLE001
                 return JobRun(job.job_id, FAILED, attempt, elapsed,
-                              getattr(exc, "code", "ORC.BUDGET.EXCEEDED"))
+                              getattr(exc, "code", "ORC.BUDGET.EXCEEDED"), str(exc))
             return JobRun(job.job_id, SUCCESS, attempt, elapsed)
 
     def resume(self, run_id: str, *, invoke, clock=None) -> RunOutcome:
@@ -220,6 +220,9 @@ def failure_notice(outcome: RunOutcome) -> dict:
         "failed_jobs": [j.job_id for j in outcome.jobs if j.status == FAILED],
         "error_codes": sorted({j.error_code for j in outcome.jobs
                                if j.error_code}),
+        # ★ OR-61 — the why, per failed job (DX-172)
+        "errors": {j.job_id: getattr(j, "error_message", None) or "" for j in outcome.jobs
+                   if j.status == FAILED},
         "started_at": outcome.started_at.isoformat(),
         "ended_at": outcome.ended_at.isoformat(),
     }

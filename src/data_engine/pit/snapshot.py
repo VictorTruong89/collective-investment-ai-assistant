@@ -107,6 +107,7 @@ def assemble_rows(
     number changed, the old value is gone with nothing indicating it did.
     """
     as_of = require_as_of(as_of, "assemble_rows")
+    ledger_df, scale_refused = _refuse_share_scale(ledger_df, as_of)
     facts = facts_as_of(ledger_df, as_of)
     if not len(facts):
         return FUNDAMENTAL_PANEL.empty()
@@ -138,7 +139,9 @@ def assemble_rows(
             "pit_guarantee": (Provenance.RECONSTRUCTED if source == EDGAR
                               else Provenance.BEST_EFFORT),
             "restated": (ticker, pd.Timestamp(period_end), period_type) in restated,
-            "quality_flags": "",
+            "quality_flags": ("share_scale_refused (DE-86)"
+                              if (ticker, pd.Timestamp(period_end), period_type) in scale_refused
+                              else ""),
         }
         for _, fact in grp.iterrows():
             row[f"{fact['tag']}_minor"] = int(fact["value_minor"])
@@ -154,6 +157,33 @@ def assemble_rows(
     df["shares_outstanding"] = df["shares_outstanding"].astype("Int64")
     df["restated"] = df["restated"].astype(bool)
     return validate_fundamental_panel(df.reset_index(drop=True))
+
+
+#: DE-86 — how far from the name's own median a share count may sit before it is refused.
+SHARE_SCALE_FACTOR = 100
+
+
+def _refuse_share_scale(ledger_df: pd.DataFrame, as_of):
+    """★★ DE-86 (`DX-179`) — a `shares` fact filed at the wrong SCALE is not served.
+
+    ⚠ Measured: GRMN filed 193,597 (thousands) beside 192,885,000; MCD 720 (millions)
+    beside 965,500,000. The reference is the median of the same name's same tag over
+    the facts KNOWABLE at `as_of` — no look-ahead in the guard. Refused, never rescaled:
+    a guessed factor would be a fabricated figure. Returns the ledger without them and
+    the `(ticker, period_end, period_type)` keys they belonged to, for the flag.
+    """
+    if not len(ledger_df) or "unit" not in ledger_df.columns:
+        return ledger_df, set()
+    knowable = ledger_df["filing_date"] <= pd.Timestamp(as_of)
+    shares = knowable & (ledger_df["unit"] == "shares")
+    if not shares.any():
+        return ledger_df, set()
+    median = ledger_df[shares].groupby(["ticker", "tag"])["value_minor"].transform("median")
+    value = ledger_df.loc[shares, "value_minor"].astype("float64")
+    off = (value * SHARE_SCALE_FACTOR < median) | (value > median * SHARE_SCALE_FACTOR)
+    refused = ledger_df.loc[off[off].index]
+    keys = {(r.ticker, pd.Timestamp(r.period_end), r.period_type) for r in refused.itertuples()}
+    return ledger_df.drop(index=refused.index), keys
 
 
 def _shares(grp: pd.DataFrame, tag: str):

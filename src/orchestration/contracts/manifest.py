@@ -88,10 +88,22 @@ class JobRun:
     attempts: int
     elapsed_s: float
     error_code: str | None = None
+    #: ★ OR-61 (`DX-172`) — the exception's own text, so a failure says why.
+    error_message: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.error_message and len(self.error_message) > ERROR_MESSAGE_CHARS:
+            object.__setattr__(self, "error_message",
+                               self.error_message[:ERROR_MESSAGE_CHARS - 1] + "…")
 
     def to_json_obj(self) -> dict:
         return {"job_id": self.job_id, "status": self.status, "attempts": self.attempts,
-                "elapsed_s": round(self.elapsed_s, 6), "error_code": self.error_code}
+                "elapsed_s": round(self.elapsed_s, 6), "error_code": self.error_code,
+                "error_message": self.error_message}
+
+
+#: OR-61 — the most of an error message a JobRun keeps.
+ERROR_MESSAGE_CHARS = 600
 
 
 @dataclass(frozen=True, slots=True)

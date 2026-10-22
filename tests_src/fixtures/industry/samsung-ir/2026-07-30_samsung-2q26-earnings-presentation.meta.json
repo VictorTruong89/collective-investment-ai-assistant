@@ -1,0 +1,14 @@
+{
+ "title": "Samsung Electronics 2Q 2026 Earnings Call (presentation)",
+ "url": "https://images.samsung.com/is/content/samsung/assets/global/ir/docs/2026_2Q_conference_eng.pdf",
+ "published_date": "2026-07-30",
+ "published_date_source": "the 2Q 2026 earnings conference date, per Samsung's own notice (samsung.com/global/ir public-disclosure-view.84696: \"on July 30, 2026 … conference call starting at 10:00 a.m. KST\"); ⚠ the deck itself carries no date line (PDF created 2026-07-29 EDT)",
+ "subject": "Samsung Electronics Co., Ltd.",
+ "converter": "pdftotext (reading order — NOT -layout)",
+ "source_id": "samsung-ir",
+ "retrieved_at": "2026-10-20",
+ "chars": 15560,
+ "sha256": "sha256:0e2ccdf2fe02b278388620f505564c6c14a325af86e78451b3ba375082373bff",
+ "removed": [],
+ "rendering_note": "Re-rendered 2026-10-20, same day, before any successful recording read it: the -layout rendering set the deck's two columns side by side, so a bullet's sentence was interleaved with the other column's words and E-13's verbatim quote of it failed X-01 (run-2026-10-20T225819-mu-e13). Reading order keeps each column's sentences contiguous; table rows lose their side-by-side layout (C13: shape for citation). The 1Q25 deck keeps -layout — recordings depend on it."
+}

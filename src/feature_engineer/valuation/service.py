@@ -52,7 +52,11 @@ def _require_as_of(as_of, method: str) -> date:
 
 def _assemble(cls, ticker: str, as_of: date, basis: CashFlowBasis, *, engine,
               assumptions: Assumptions, rows: pd.DataFrame):
-    net_debt, components, shares = balance(rows, as_of=as_of, ticker=ticker)
+    # ★ `D12` (`DX-176`) — after a 10-K the year-end balance sheet is on the ANNUAL row.
+    annual = engine.get_fundamentals(ticker, as_of, period_type="annual")
+    net_debt, components, shares = balance(
+        pd.concat([rows, annual], ignore_index=True) if annual is not None and len(annual)
+        else rows, as_of=as_of, ticker=ticker)
     price, price_date = _raw_price(engine, ticker, as_of)
     trail = discount(basis.base_fcff, discount_rate=assumptions.discount_rate,
                      stage1_growth=assumptions.stage1_growth,

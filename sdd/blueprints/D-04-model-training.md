@@ -7,6 +7,13 @@
 
 | Date | Decision | Why | Rejected, and why |
 |---|---|---|---|
+| 2026-10-20 | ★★ **D-04 is complete when it works, not when its model passes** | MT-68 / F12 `D16` (Victor, 2026-10-11, option Ⓐ): *"this D-04 ML model may never process any skills with my limited computing and news capacity, as well as the nature of predicting future stocks' ranking."* The gates keep measuring, unchanged | *Lowering the thresholds so fit 4 passes* (Ⓑ) — PG-2; the bar was fixed before the result; four fits on one decade are four draws |
+| 2026-10-09 | ★★ **A refused model may rank the card — designated, labelled, revocable** | MT-67 / OR-58: the momentum rule measured walk-forward IC −0.008, fit 4 +0.030 on the same dates; `card_informational.json`, never `promotion.json` | *Keep the rule* — the worse ranking; *promote with an override* — MT-17 forbids it |
+| 2026-10-09 | ★★★ **The shadow trial — scored on the future, never served** | MT-64…66: the only evidence that cannot be tuned. Frozen artifact, pre-registered criterion, write-once snapshots ≥ 21 sessions apart, never writes the event store (`DX-167`) | *Daily snapshots* — overlapping 21-day labels add ~nothing at 21× the cost |
+| 2026-10-08 | ★★ **Fit on each day's return rank; grade on the raw return** | MT-59: raw returns spend the trees on the market's monthly swing, which a ranking cannot use. The card orders by ẑ, the ordering the gates measured (MT-60, `DX-165`) | *Percentile target* — inference needs a centred score |
+| 2026-10-08 | ★★★ **Splits and dividends are applied to the panel and the labels** | MT-61 (`DX-166`): fits 1–3 read every split as a crash; NVDA had 42 labels below −50 %, after the fix 0 | — |
+| 2026-10-07 | ★★★ **Fundamentals are replayed per filing date** | FE-40 (`DX-159`): one read at today made every training row's fundamentals ~1 year stale (13 % matched a true PIT read; after: 798/798) | — |
+| 2026-10-06 | ★★ **Training holds for review; it never promotes itself** | MT-52: before, a passing run wrote `promotion.json` and the next card used it with no human step | — |
 | 2026-08-26 *(zoo)* | ★★ **The required gate set has one owner, and it is D-03's** | **MT-50**, found by running the chain end to end. MT-19 already said the gates are D-03's — but neither spec **enumerated** them, so D-04 declared its own list with a `stability` gate D-03 never produces, and **promotion refused every artifact**. ★ **MT-18 caught it**, which is the rule working: a gate never run is indistinguishable from one that failed | *Adding `stability` to D-03* — it invents a gate to satisfy a list, which is the tail wagging the protocol |
 | 2026-08-26 *(zoo)* | ★ **One family, with its reason recorded** | **MT-36**: retirement is the **default**; the legacy tree carries **nine families, 2,736 LOC across 18 files, for one production horizon and ~250k rows**. MT-37 keeps the neural branch in D-10 until it beats the GBDTs *at 1m on D-03's protocol* — a comparison nobody has run | *Porting the nine* — it is maintenance surface presented as optionality |
 | 2026-08-26 *(zoo)* | ⚠ **Determinism is switched on explicitly** | LightGBM's defaults are **not** reproducible: without `deterministic`, `force_row_wise` and single-threading, repeated fits differ in the low bits. ★ INV-2 is a property of **the whole invocation** (D-08 OR-10), so a family that is *usually* reproducible fails it | *Trusting the seed alone* — it is necessary and not sufficient, and the failure is invisible until two artifact ids differ |
@@ -56,6 +63,39 @@ and the daily card was ranked by a two-feature formula.
 | `src/models/train/run.py` | universe → prices → facts → panel → labels → folds → fit → gates | ⚠ **AB-9**: supplies a `_Report` stub asserting `PROCEED_WITH_FLAGS`; **FE-10 requires a real calendar check** and a ten-year window over 500 names is where an unhandled action hides |
 | `src/models/train/__main__.py` | `python -m src.models.train` — ★ **separate from the daily run (P7)** | a fit is not a daily job; the daily run *consumes* an artifact and never makes one |
 | `src/models/artifact/store.py` | `.state/models/<artifact_id>/`, append-only | ★ `promotion.json` is written **only** on a pass — **its absence is the refusal** (MT-17) |
+
+# 2b. ★ As-built — the selection model, end to end *(2026-10-20)*
+
+**Status: functionally complete, skill unproven** (MT-68). Operator's page: [`src/models/README.md`](../../src/models/README.md).
+⚠ §2a and §10 below are the 2026-08 record; where they disagree with this section, this section is current.
+
+```text
+ingest events (D-07, by hand) ─► python -m src.models.train
+  EDGAR facts ─► FMP prices (+1 retry pass, DE-80) ─► calendar check (HALT stops, MT-54; 0 checked refused, MT-57)
+  ─► GICS sectors (DE-77) ─► splits/dividends applied (DE-78; conflicting names out by name, DE-79)
+  ─► 61-feature panel, fundamentals replayed per filing date (FE-40) ─► 21-day open-to-open labels
+  ─► LightGBM on xs_gauss (MT-59) ─► purged k-fold (reported) + walk-forward (gates, F12 D14)
+  ─► simulation (cost_survival) ─► breadth: residual ρ after SPY (F12 D12/D13) ─► 3 gates
+  ─► .state/models/<id>/ held for review (MT-52)
+python -m src.models.promote <id> [--approve | --card-informational]   (MT-17, MT-67)
+python -m src.orchestration.entrypoint  ─► ranker: promoted > designated refused > rule (OR-58)
+python -m src.models.shadow {start,record,score,status}               (MT-64…66, frozen on fit 4)
+```
+
+| Module | What it is |
+|---|---|
+| `src/models/train/__main__.py` | the CLI and stage order (heartbeat, MT-53); prints every gate and the artifact id |
+| `src/models/train/run.py` | prices, PIT fundamentals replay, panel, labels, both out-of-sample protocols, external breadth |
+| `src/models/promote.py` | the review / `--approve` / `--card-informational` CLI |
+| `src/models/infer/rank.py` | orders the card by ẑ (MT-60); `sigma_scaled` reported only |
+| `src/models/shadow/` | the live trial: `trial.py` (start), `record.py`, `score.py` |
+
+| Fit | Change | Walk-forward IC · t | Verdict |
+|---|---|---|---|
+| 1 `c30170a7` | baseline after the PIT fix | (k-fold 0.0227 · 2.16) | refused |
+| 2 `26d118d2` | real GICS sectors | (k-fold 0.0250 · 2.32) | refused |
+| 3 `fde8fb5e` | `xs_gauss` target | 0.0325 · 2.70 | refused (split bug present) |
+| **4 `8200ada7`** | splits/dividends applied — the clean fit | **0.0296 · 2.51** | **refused** (`ic_significance`, `breadth` IR 0.421); designated card ranker |
 
 ## ⚠⚠ Open questions carried to `L6-as-built-remaining.md`
 
@@ -135,9 +175,9 @@ that was never run is not a pass. ⚠ **No path produces a degraded artifact** �
 
 | # | What | Severity | Detail | ID |
 |---|---|---|---|---|
-| 10.1 | **No model family exists** | ⚠ **expected** | `src/models/zoo/` is empty and the estimator is injected. ★ **MT-35 requires a MethodEntry per family before promotion**, so a family cannot be added quietly — but nothing can be fitted for production until one is | MT-35 |
-| 10.2 | **Promotion is unreachable — D-03 has no `BacktestResult`** | ⚠ **medium, and structural** | `promote()` demands a D-03 evaluation id and **D-03's evaluation protocol is not built** (`src/quant/` has horizons, methods, rank, nomination — no backtest). ★ The gate is correct and currently **cannot pass**, which is the honest state: MT-19 forbids D-04 evaluating itself | MT-17, MT-19 |
-| 10.3 | **`fit` is single-fold** | ⚠ expected | No CPCV, no purging, no embargo — the protocol fields are *recorded* in the manifest and **not enforced by this code**, because the protocol is D-03's (QA-3, QA-37). ⚠ A manifest can therefore claim `purge_days: 63` that nothing applied | MT-17 |
+| 10.1 | ✅ *closed 2026-08-26 — `gbdt.lightgbm_rank.v1`* **No model family exists** | ⚠ **expected** | `src/models/zoo/` is empty and the estimator is injected. ★ **MT-35 requires a MethodEntry per family before promotion**, so a family cannot be added quietly — but nothing can be fitted for production until one is | MT-35 |
+| 10.2 | ✅ *closed — D-03's backtest and gates run inside every training run (§2b)* **Promotion is unreachable — D-03 has no `BacktestResult`** | ⚠ **medium, and structural** | `promote()` demands a D-03 evaluation id and **D-03's evaluation protocol is not built** (`src/quant/` has horizons, methods, rank, nomination — no backtest). ★ The gate is correct and currently **cannot pass**, which is the honest state: MT-19 forbids D-04 evaluating itself | MT-17, MT-19 |
+| 10.3 | ✅ *closed — purged k-fold + walk-forward, both in trading days since 2026-10-20 (F12 `D11`, `D17`)* **`fit` is single-fold** | ⚠ expected | No CPCV, no purging, no embargo — the protocol fields are *recorded* in the manifest and **not enforced by this code**, because the protocol is D-03's (QA-3, QA-37). ⚠ A manifest can therefore claim `purge_days: 63` that nothing applied | MT-17 |
 | 10.4 | **Drift's input/output tests are crude** | low | A 50 % mean shift and a one-sd move. ⚠ **ADMITTED GUESSES** — MT-22 says the thresholds are D-03's, and D-03 has not set them, so these are placeholders that **report** rather than judge | MT-22 |
 | 10.5 | **`select_best` is not wired into `fit`** | low | MT-13/MT-14's guards exist and are tested; **no optimisation loop calls them yet**, because tuning is D-03's protocol | MT-14 |
 
@@ -149,7 +189,7 @@ that was never run is not a pass. ⚠ **No path produces a degraded artifact** �
 | 2 | ★ **Break it and confirm red** | **(a)** In `src/models/governance/parity.py`, delete the `nan_only` computation. `test_mt7_present_but_entirely_nan_halts_the_run` must fail — ★★ **that is D-17**, and the columns exist so nothing else notices. **(b)** In `check_parity`, change contract equality to `<=` (subset). `test_mt6_parity_is_version_equality_not_subset_or_intersection` must fail — **subset is exactly what filtering does**. **(c)** In `src/models/train/fit.py`, delete `_assert_fitted_not_defaulted`. `test_mt13_a_non_finite_optimisation_result_raises` must fail — ⚠ **that is D-18(b)**: `-inf` adopted as a result while the phase reports PASS |
 | 3 | The worked example (§4) reproduces | `test_mt48_available_at_is_materialised_not_computed` — 21 sessions is more than 21 calendar days |
 | 4 | Pointers resolve | `python tools/sdd_audit.py` |
-| 5 | ★ **Checked against external truth?** | ⚠ **No, and it cannot be yet.** Every test fits a stand-in estimator on a synthetic panel. **Nothing has been fitted on the real universe**, because the panel builder needs D-07 prices for the full universe and promotion needs D-03's evaluation. ★ What *is* externally checked is the **label arithmetic** — `available_at` lands on real trading dates |
+| 5 | ★ **Checked against external truth?** | ✏ *2026-10-20: four real fits on 510 names × 10 years (§2b), and a live shadow trial — the only external check that cannot be tuned.* ⚠ *(2026-08 text:)* **No, and it cannot be yet.** Every test fits a stand-in estimator on a synthetic panel. **Nothing has been fitted on the real universe**, because the panel builder needs D-07 prices for the full universe and promotion needs D-03's evaluation. ★ What *is* externally checked is the **label arithmetic** — `available_at` lands on real trading dates |
 
 # 12. Cross-references
 

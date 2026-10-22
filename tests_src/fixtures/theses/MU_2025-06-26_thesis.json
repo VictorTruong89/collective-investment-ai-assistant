@@ -1,0 +1,189 @@
+{
+ "_note": "F13 D13 tests \u2014 the fourth MU thesis (run-2026-10-04T031717-mu-thesis, SELL), its thesis object only.",
+ "run_id": "run-2026-10-04T031717-mu-thesis",
+ "ticker": "MU",
+ "as_of": "2025-06-26",
+ "base_bundle_hash": "sha256:ed40721feec11e692af3a446da91b68305c72c761664f6b457203d4d58ecb9cb",
+ "thesis": {
+  "ticker": "MU",
+  "thesis_version": 1,
+  "as_of": "2025-06-26",
+  "bundle_hash": "sha256:ed40721feec11e692af3a446da91b68305c72c761664f6b457203d4d58ecb9cb",
+  "run_id": "run-2026-10-04T031717-mu-thesis",
+  "verdict": "SELL",
+  "sector_files": [],
+  "conviction": "Medium-High",
+  "verdict_stability": null,
+  "falsifiers": [
+   {
+    "ordinal": 1,
+    "condition": "Cash after capital expenditure reaches the scale the price needs: NetCashProvidedByUsedInOperatingActivities exceeds PaymentsToAcquirePropertyPlantAndEquipment by at least $3.0bn in each of six consecutive reported quarters.",
+    "observable": "NetCashProvidedByUsedInOperatingActivities",
+    "source": "D-07",
+    "deadline": "2027-07-01",
+    "materiality": "Six quarters at $3.0bn each annualises to roughly $12bn of FCFF against trailing revenue of $33.8bn \u2014 about 35% of revenue, within reach of the 40.1% the seven-year requirement implies, from a base of $1.35bn. If that holds through the guided ~$14bn capex programme, the claim that this record cannot support the price's FCFF margin is simply wrong, and the 0/21 base rate would be being broken in front of me rather than merely tested.",
+    "about_business": true,
+    "checkable": true
+   },
+   {
+    "ordinal": 2,
+    "condition": "Cash after capital expenditure stays positive through the fab ramp: NetCashProvidedByUsedInOperatingActivities exceeds PaymentsToAcquirePropertyPlantAndEquipment in each of eight consecutive reported quarters.",
+    "observable": "PaymentsToAcquirePropertyPlantAndEquipment",
+    "source": "D-07",
+    "deadline": "2028-02-01",
+    "materiality": "Two unbroken years of positive cash after capex, spanning the period in which Idaho first output is projected and the capex programme peaks, would contradict the persistence evidence the case rests on \u2014 a series that crosses zero seven times in thirteen years and a class base rate of 0/6 for runs of seven years or more. Without persistence the seven- and ten-year explicit stages are unavailable, not just unlikely; with it they become arguable.",
+    "about_business": true,
+    "checkable": true
+   },
+   {
+    "ordinal": 3,
+    "condition": "Gross margin exceeds 50% \u2014 GrossProfit at or above CostOfGoodsAndServicesSold \u2014 in three consecutive reported quarters.",
+    "observable": "GrossProfit",
+    "source": "D-07",
+    "deadline": "2027-01-15",
+    "materiality": "38% is the highest gross margin in the four periods the filing discloses, against 17% for the nine months a year earlier, and the company attributes the move to average selling prices. Three consecutive quarters above 50% would mean the margin is being set by product mix on a largely fixed cost base rather than by the price cycle \u2014 the mechanism the undisclosed HBM economics would have to supply \u2014 and it is the direct route to an FCFF margin in the 40%-plus band. It would overturn the cyclical-price reading of the current level.",
+    "about_business": true,
+    "checkable": true
+   },
+   {
+    "ordinal": 4,
+    "condition": "Revenue and operating income step up together to a new scale: RevenueFromContractWithCustomerExcludingAssessedTax at or above $14.0bn and OperatingIncomeLoss at or above $5.0bn in two consecutive reported quarters.",
+    "observable": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "source": "D-07",
+    "deadline": "2027-07-01",
+    "materiality": "Against Q3 FY2025 revenue of $9,301M and operating income of $2,169M, this is roughly 50% revenue growth carried at a 36% operating margin \u2014 a volume-and-mix expansion rather than the price recovery from a loss-making base that the thirteen-year record shows. Held over two quarters it places the business on a trajectory consistent with the 28.3% ten-year compounding the price embeds, which 0/3 windows in the class and 0/2886 published observations have reached, and the base-rate objection would no longer be the right objection.",
+    "about_business": true,
+    "checkable": true
+   }
+  ],
+  "falsifier_commit_hash": "sha256:d6c5712b212a08f5d4d9d007eb69408fe7a2a2475e4e5d4b56e388e2229db861",
+  "stage_a_hash": "sha256:cde6c9021d02ee223143214a775f0135a3461debe75eb8e95eb4f4d49377a220",
+  "bear_case": {
+   "text": "FACT 1 [D-02 basis]: TTM FCFF is $1.349bn (base_fcff minor 134944285145) on trailing_revenue $33.813bn. FACT 2 [Statements of Operations]: nine-month \"Net income (loss) | $5,338\". INFERENCE 3 (1,2): the accounts report a 20% net margin while the cash the firm actually frees is a low-single-digit share of revenue. FACT 4 [annual history]: FY2024 fcff \u2212354,404,839 USD on revenue 25,111,000,000; FY2023 \u22126,325,000,000. FACT 5 [Income Taxes note]: incentives \"reduced our tax provision by ... $623 million ... for the ... first nine months of 2025\"; \"we expect our effective tax rate for 2026 to be in the high-teens percentage range\". INFERENCE 6 (1\u20135): at $126.00 the price is not paying for this record; it is paying for FCFF at 40.1%\u201365.3% of revenue (J-09), a level 0/21 member-years reach. One caveat against me, unsized: D-02 known_limits charges capex gross while ca.capex shows \"Proceeds from government incentives | 1,294 | 267\".",
+   "falsification_condition": "If, by 2027-07-01, four consecutive quarterly filings show NetCashProvidedByUsedInOperatingActivities exceeding PaymentsToAcquirePropertyPlantAndEquipment in every one of them, with GrossProfit margin at or above 38% in each and no quarter in which the filing attributes a sequential decline to average selling prices, then FCFF is positive and growing through a period that includes new-fab ramp spending \u2014 and the claim that this record cannot support a seven-year positive-FCFF run at a rising margin is wrong.",
+   "prompt_version": "J-11@v1",
+   "run_id": "run-2026-10-03T002642-mu-thesis:judge:C:J-11"
+  },
+  "scorecard": {
+   "J-03": {
+    "rubric_id": "moat_durability@v2",
+    "score": 2
+   },
+   "J-04": {
+    "rubric_id": "earnings_quality@v3",
+    "score": 4
+   },
+   "J-05": {
+    "rubric_id": "balance_sheet_resilience@v3",
+    "score": 3
+   },
+   "J-06": {
+    "rubric_id": "capital_allocation@v3",
+    "score": 4
+   }
+  },
+  "confidence": {
+   "value": 1.0,
+   "basis": "evidence_coverage",
+   "cap": "none",
+   "calibration": {
+    "n": 0,
+    "status": "not_yet_calibrated"
+   },
+   "coverage": {
+    "aggregate": 1.0,
+    "by_dimension": [
+     {
+      "dimension": "moat_durability",
+      "coverage": 1.0,
+      "required": [
+       "cx.capacity",
+       "seg.op_income",
+       "seg.revenue"
+      ],
+      "matched": [
+       "cx.capacity",
+       "seg.op_income",
+       "seg.revenue"
+      ],
+      "missing": []
+     },
+     {
+      "dimension": "earnings_quality",
+      "coverage": 1.0,
+      "required": [
+       "searched:ap.change",
+       "searched:ng.adjustment",
+       "seg.op_income"
+      ],
+      "matched": [
+       "searched:ap.change",
+       "searched:ng.adjustment",
+       "seg.op_income"
+      ],
+      "missing": []
+     },
+     {
+      "dimension": "balance_sheet_resilience",
+      "coverage": 1.0,
+      "required": [
+       "dm.covenant",
+       "dm.ladder",
+       "sc.diluted"
+      ],
+      "matched": [
+       "dm.covenant",
+       "dm.ladder",
+       "sc.diluted"
+      ],
+      "missing": []
+     },
+     {
+      "dimension": "capital_allocation",
+      "coverage": 1.0,
+      "required": [
+       "ca.capex",
+       "cp.statement",
+       "sc.diluted",
+       "sc.sbc_expense"
+      ],
+      "matched": [
+       "ca.capex",
+       "cp.statement",
+       "sc.diluted",
+       "sc.sbc_expense"
+      ],
+      "missing": []
+     }
+    ]
+   },
+   "verdict_as_authored": "SELL",
+   "verdict_capped_by": null,
+   "conviction_as_authored": "Medium-High",
+   "conviction_capped_by": null,
+   "governing_inputs_absent": [],
+   "limitations_stated": [
+    "J-10: no base rate for \u2014 FCFF then grows 2.5% in perpetuity at a 9% discount rate (D-02 point cell, terminal PV $11.506bn of $17.952bn equity value).",
+    "J-10: no base rate for \u2014 J-07's \"mid\" cycle read \u2014 the up-cycle has further to run rather than having peaked.",
+    "J-10: no base rate for \u2014 FY2025 capital expenditure lands at \"approximately $14 billion\" net of government incentives."
+   ],
+   "note": "Investment judgement never rests on complete evidence; this thesis states what was missing rather than declining to hold a view. The floors may only make a verdict more conservative (P3, INV-012/013)."
+  },
+  "claims": [],
+  "data_gaps": [
+   "HBM revenue, HBM average selling price and HBM gross margin, separately from CNBU. [not_disclosed]",
+   "Capital expenditure stated net of government incentives, per quarter, as an EDGAR-tagged fact. [not_disclosed]",
+   "Forward consensus (next-period EPS and revenue) as published on or before 2025-06-26. [unknowable]",
+   "Period-aligned peer and industry financials (Samsung, SK hynix, Kioxia, Sandisk, YMTC, CXMT): cost per bit, gross margin, capex. [exists_not_fetched]",
+   "Quantified competitor capacity additions with dated production starts, including rows for YMTC and CXMT. [exists_not_fetched]",
+   "Fab utilisation against its own history, and inventory days for Micron and the channel. [not_disclosed]",
+   "The actual net leverage ratio at 2025-05-29 and the Term Loan Agreement's adjusted EBITDA definition. [not_disclosed]",
+   "The reason for, and quantified line-by-line effect of, the disclosed prior-period reclassifications. [not_disclosed]",
+   "The in-service schedule and incremental annual depreciation for the $3.40bn of equipment not placed into service and $4,937M of construction in progress. [not_disclosed]",
+   "A completed FY2025 fiscal-year FCFF line at the guided ~$14bn net capex level, and cash taxes paid. [unknowable]",
+   "An earnings or filing calendar with dates after 2025-06-26. [exists_not_fetched]"
+  ],
+  "assumptions": []
+ },
+ "failed": null
+}

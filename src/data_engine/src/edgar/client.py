@@ -23,6 +23,8 @@ from src.shared.secrets import Secret
 
 SUBMISSIONS_URL = "https://data.sec.gov/submissions/CIK{cik:0>10}.json"
 COMPANYFACTS_URL = "https://data.sec.gov/api/xbrl/companyfacts/CIK{cik:0>10}.json"
+#: DE-83 — the only place `document()` may read from.
+ARCHIVES_URL = "https://www.sec.gov/Archives/edgar/"
 
 #: SEC's published fair-access limit, checked 2026-08-23 (CN-2).
 RATE_LIMIT_PER_SEC = 10
@@ -58,6 +60,23 @@ class EdgarClient:
     def companyfacts(self, cik: str) -> dict:
         """XBRL companyfacts — every tag, every period, every filing that reported it."""
         return self._get(COMPANYFACTS_URL.format(cik=str(cik).lstrip("0")))
+
+    def document(self, url: str) -> str:
+        """DE-83 — one filing document as TEXT, through the same throttle and User-Agent.
+
+        ⚠ Archive URLs only: anything else is not a filing, and this client is not a
+        general fetcher.
+        """
+        if not url.startswith(ARCHIVES_URL):
+            raise ValueError(f"{url} is not in the EDGAR archive ({ARCHIVES_URL}) — DE-83")
+        self._throttle()
+        status, body = self._transport.get(
+            url, {}, {"User-Agent": self.user_agent, "Accept-Encoding": "gzip, deflate"},
+            self._timeout,
+        )
+        if status == 200:
+            return body
+        raise SourceUnavailableError(_endpoint_of(url), f"HTTP {status}")
 
     def _get(self, url: str) -> dict:
         self._throttle()

@@ -9,6 +9,8 @@
 > capitalisation, published as `dcf_two_stage@v2`; `AC-F10.22`. `v1` is unchanged.
 > ✏ **Amended 2026-10-02 (Victor): `D11`** — each duration row also states the FCFF the price requires in its
 > final explicit year and that figure as a share of trailing revenue (*at flat revenue*); `AC-F10.23`.
+> ✏ **Amended 2026-10-21 (Victor, "go DX-176"): `D12`** — after a 10-K, the balance items of the latest quarter are
+> read from the annual row of the SAME period end and the SAME filing; `AC-F10.24`.
 > **Source discussion:** `sdd/design/rel1_brainstorm.md` Decisions log 2026-09-13 · `sdd/questions.md`
 > `QR-25` · `L3` §2.1e *What remains* · design tier `sdd/design/rel6_design/L1-feature-engineering.md`
 > §1.3, §6.2, §8.1, §10 · `L0-system-vision.md` §4.2 D-01 valuation split, **VS-1…VS-5**
@@ -286,6 +288,13 @@ returned as a value.
   `P5`) ✏ *added 2026-09-13: the first `D5` build put the averaging in D-01 and `RA-45`'s structural
   guard refused it (L3 `DX-105`).*
 
+- **AC-F10.24** *(★ a 10-K's balance sheet — `D12`)* — **Given** a latest quarterly row DERIVED from a 10-K (flows,
+  no balance items) and an annual row with the same `period_end` and `accession_id` carrying cash, debt and
+  securities, **when** net debt is computed, **then** it uses the annual row's values, each component citing
+  that accession and date, and the diluted share count when the quarter has none; **and given** an annual row from a DIFFERENT accession, or none, **then** it raises
+  `ValuationUnavailable` naming the items — never a stale quarter's figure. → *unit* + *integration* (MU's
+  FY2026 10-K). ✏ *added 2026-10-21 (`DX-176`).*
+
 - **AC-F10.21** *(★ a result declares what it cannot compute — `D9`)* — **Given** any valuation,
   **when** its trail is read, **then** `known_limits` names every figure `D6`/`D8` cannot compute from
   D-07's facts — today: government-incentive proceeds are not credited against capex — each with its
@@ -447,6 +456,21 @@ answer in a second unit. ✗ Rejected — ⓐ accepting the cap (a curable gap l
 ⓒ solving for margin at an assumed revenue growth (the growth is a judgement the system would supply,
 which `D7` avoided). ⚠ It is an FCFF share of revenue, **not** an operating margin; the label says so.
 
+**`D12` — After a 10-K, the latest quarter's balance sheet is the annual row's (`DX-176`).** *(Victor, 2026-10-21.)*
+A 10-K reports no fourth quarter: D-07 DERIVES Q4's flows as the year minus nine months, and a derived row
+has no balance items — the year-end balance sheet (cash, debt, securities, leases) is an INSTANT on the
+ANNUAL row. `CT-F10.2` reads net debt "from the latest trailing quarter", so every 10-K-anchored valuation
+refused (`ValuationUnavailable … missing ['cash', 'long_term_debt', 'current_debt']`), found on the first
+live `thesis_for` (F13 `D7`). ★ **Adopted:** an instant item absent on the latest quarterly row is read from
+the annual row with the SAME `period_end` AND the SAME `accession_id` — the same balance sheet on the same
+date in the same filing, so nothing is substituted; the component still cites that accession and date. ✏ **The diluted share count too (`DX-177`, same day):** a 10-K
+tags it only for the YEAR, and DE-84 now refuses to derive a Q4 average by subtraction (it produced 1,000,000 for
+MU); so the year's weighted-average diluted count from that same annual row is used — MU FY2026 1,143M against
+Q3's 1,145M — and is the one balance input that is a year's average rather than a point.
+✗ Rejected — ⓐ the previous quarter's balance sheet (a stale figure, three months before the price it is set
+against); ⓑ any annual row with that end date (a later amendment could supply a different filing's figure);
+ⓒ deriving Q4 balance items in D-07 (an instant is not a flow; there is nothing to difference).
+
 ## 8. Open questions (must resolve before/at implementation)
 
 - ~~**Q1**~~ → `D4`. ~~**Q3**~~ → `D5`. ~~**Q4**~~ → `D7`. ~~**Q5**~~ → `D6`. *(Kept below, struck, for the
@@ -500,9 +524,11 @@ which `D7` avoided). ⚠ It is an FCFF share of revenue, **not** an operating ma
 
 | AC-F10.22 | `tests/unit/test_valuation_f10.py::test_ac_f10_22_*` (8 tests, 10 cases; 5 of 5 mutations caught) | `src/feature_engineer/valuation/implied.py::implied_by_duration`, `src/feature_engineer/valuation/assumptions.py` (`duration_table`), `src/feature_engineer/valuation/service.py::_assemble` (`market_capitalisation`), `config/valuation/dcf_two_stage_v2.yaml` |
 
+| AC-F10.24 | `tests/unit/test_valuation_f10.py::test_ac_f10_24_*` (4: the annual balance sheet · another filing's row refused · the year's share count · end to end through `valuation()`) | `src/feature_engineer/valuation/basis.py::_with_year_end_balance`, `src/feature_engineer/valuation/service.py::_assemble` |
+
 | AC-F10.23 | `tests/unit/test_valuation_f10.py::test_ac_f10_23_*` (4 tests; 4 of 4 mutations caught) | `src/feature_engineer/valuation/implied.py::implied_by_duration`, `src/feature_engineer/valuation/types.py::DurationRow`, `src/feature_engineer/valuation/service.py::_assemble` (`trailing_revenue`) |
 
-✅ **23 of 23 ACs** have passing tests (AC-F10.23 added 2026-10-02 with `D11`; AC-F10.22 2026-10-01 with `D10`). Previously: **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
+✅ **24 of 24 ACs** have passing tests (AC-F10.24 added 2026-10-21 with `D12`; AC-F10.23 added 2026-10-02 with `D11`; AC-F10.22 2026-10-01 with `D10`). Previously: **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
 weak tests were strengthened (a contiguity test that tripped the COUNT check first, and a refusal test
 that passed through the second guard instead of the first). Also required by `D-03`'s `AC-3.14`: three
 MethodEntries under `src/feature_engineer/methods/entries/` — the FCFF formula, the DCF mechanics and

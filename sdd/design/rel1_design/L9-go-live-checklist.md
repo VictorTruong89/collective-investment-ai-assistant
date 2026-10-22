@@ -97,6 +97,20 @@ only one with a clock on it: every day without a snapshot is a day of news histo
 > `IR* = 0.5`**, measured on the held book. ⚠ The breadth design is **provisional: refine it after the fresh training and
 > backtest**, once there are results to analyse. Recorded only — neither is built yet.
 
+> ★★ **State on 2026-10-20 — D-04 CLOSED as *functionally complete, skill unproven*** (Victor, 2026-10-11: option Ⓐ —
+> F12 `D16`, MT-68). §5.1–5.5 below are the 2026-10-05/06 record and are kept as written; this box is today.
+>
+> | | state |
+> |---|---|
+> | pipeline | sweep → train (fit + both out-of-sample protocols + simulation + breadth + gates) → hold for review → promote or designate → rank the card → shadow trial. Operator's page: `src/models/README.md` |
+> | gates | built and unchanged (F12 `D9`, `D10`, `D13`, `D14`). ★ **Measurements, not D-04's completion bar**; no threshold moves (Ⓑ rejected) |
+> | fits | four on 2016–2026; **fit 4** `sha256:8200ada7…` (splits applied) walk-forward IC 0.0296, t 2.51 — **refused** (`ic_significance`, `breadth`); `cost_survival` passes. No further fits unless Victor asks — then one pre-registered attempt (#5) |
+> | card | ranked by fit 4, **designated** refused informational ranker (MT-67, 2026-10-10); never actionable (DN-41). ✅ **first live run 2026-10-20** (`…-c04583`, 508 names, #1 MRNA, not actionable) after `DX-170`…`DX-173` were fixed. Each run needs a same-day `ingest events --universe sp500 --years 1` |
+> | shadow trial | started 2026-10-09, frozen on fit 4; one snapshot (2026-10-08). Next `record` + first `score` on or after **2026-11-06** |
+> | promotion | none. `--approve` stays available; it still cannot override a failed gate (MT-17, MT-52) |
+> | defects closed 2026-10-20 | `DX-161` (k-fold purge in trading days, F12 `D17`), `DX-169` (daily run dates itself in New York, OR-59), the split-count print (AC-4.50); from the first live card `DX-170` (DE-82) · `DX-171` (OR-60; PSKY/WBD removed) · `DX-172` (OR-61) · `DX-173` (RC-69) |
+> | retrain cadence | manual, by Victor's command (unchanged) |
+
 ### 5.1 Where it stands
 
 | | state |
@@ -494,6 +508,16 @@ arm is *near-free today and impossible to backfill*.
 >
 > ✅ **Victor (2026-10-06): T1 — keep the MANUAL chain** (no one-command thesis builder). A thesis for another ticker or
 > date is the hand-run sequence in §13.2.
+>
+> ✏ **SUPERSEDED 2026-10-20 (Victor, after 2026-10-11): T1 → build the one-command `thesis_for TICKER --as-of DATE`**,
+> chaining the steps below with run ids as arguments, MU first — spec `sdd/specs/F13_thesis_on_demand/spec.md` (🟢 approved and ✅ built 2026-10-20, 12/12 ACs).
+>
+> ★ **State on 2026-10-20 — `thesis_for` BUILT.** `python tools/thesis_for.py MU --as-of DATE [--dry-run | --fetch-inputs]`.
+> The $0 replay of 2025-06-26 carried and re-verified every step of the fourth MU thesis (base `sha256:ed40721f…`).
+> For 2026-10-20 `--fetch-inputs` supplied MU's FY2026 **10-K** (the first 10-K anchor, F13 `D7`), Sandisk's FY2026 10-K,
+> MU facts, price and consensus. ⬜ **Victor:** save the newest SK hynix and Samsung releases by hand (`D11`; steps in
+> `tools/thesis_for.py --help`), then run the chain (~30 subscription calls). §13.2's hand-run sequence is now history.
+> Theses stay on his manual command; the paid API stays off. The card wording stays "REFUSED".
 
 ### 13.1 Verdict: not in the daily run, by decision — and "theses on demand" is today a Micron-only, single-date command
 

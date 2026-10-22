@@ -97,6 +97,8 @@ class RunArtifactStore:
             return {}
         out: dict = {}
         for path in sorted(target.iterdir()):
+            if not path.is_file():
+                continue                       # ★ RC-69 — a folder is not a file of the run
             if path.suffix == ".json":
                 out[path.name] = json.loads(path.read_text(encoding="utf-8"))
             else:
@@ -105,10 +107,15 @@ class RunArtifactStore:
 
     def run_ids(self) -> list:
         """Every run, oldest first. ⚠ `run_id` begins with an ISO timestamp, so
-        lexical order **is** chronological — see `CT-8.1`."""
+        lexical order **is** chronological — see `CT-8.1`.
+
+        ★ RC-69 (`DX-173`) — only a directory holding a CT-11.7 file is a run.
+        The thesis runners' traces share this root and are not runs.
+        """
         if not self.root.is_dir():
             return []
-        return sorted(p.name for p in self.root.iterdir() if p.is_dir())
+        return sorted(p.name for p in self.root.iterdir() if p.is_dir()
+                      and ((p / MANIFEST).is_file() or (p / OUTCOME).is_file()))
 
 
 def _fold(recommendation, nomination):

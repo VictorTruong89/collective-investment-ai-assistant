@@ -1,0 +1,200 @@
+{
+"endpoint": "historical-price-eod/non-split-adjusted",
+"params": {
+"symbol": "MU",
+"from": "2026-09-22",
+"to": "2026-10-20"
+},
+"fetched_on": "2026-10-21",
+"response": [
+{
+"symbol": "MU",
+"date": "2026-10-20",
+"adjOpen": 884.13,
+"adjHigh": 918.89,
+"adjLow": 881.52,
+"adjClose": 896.07,
+"volume": 19165658
+},
+{
+"symbol": "MU",
+"date": "2026-10-19",
+"adjOpen": 913.55,
+"adjHigh": 926.81,
+"adjLow": 900.57,
+"adjClose": 904.9,
+"volume": 25740500
+},
+{
+"symbol": "MU",
+"date": "2026-10-16",
+"adjOpen": 905.49,
+"adjHigh": 907.5,
+"adjLow": 875,
+"adjClose": 878.84,
+"volume": 30514615
+},
+{
+"symbol": "MU",
+"date": "2026-10-15",
+"adjOpen": 871.58,
+"adjHigh": 931.65,
+"adjLow": 858,
+"adjClose": 931.24,
+"volume": 39095127
+},
+{
+"symbol": "MU",
+"date": "2026-10-14",
+"adjOpen": 934.56,
+"adjHigh": 949.42,
+"adjLow": 913.56,
+"adjClose": 914.13,
+"volume": 27843711
+},
+{
+"symbol": "MU",
+"date": "2026-10-13",
+"adjOpen": 934.07,
+"adjHigh": 953.6,
+"adjLow": 929.03,
+"adjClose": 953.19,
+"volume": 29227200
+},
+{
+"symbol": "MU",
+"date": "2026-10-12",
+"adjOpen": 1002.45,
+"adjHigh": 1002.67,
+"adjLow": 978.5,
+"adjClose": 989.04,
+"volume": 23983800
+},
+{
+"symbol": "MU",
+"date": "2026-10-09",
+"adjOpen": 1054.17,
+"adjHigh": 1054.17,
+"adjLow": 1017,
+"adjClose": 1029,
+"volume": 19918900
+},
+{
+"symbol": "MU",
+"date": "2026-10-08",
+"adjOpen": 1077.5,
+"adjHigh": 1088.5,
+"adjLow": 1032.1,
+"adjClose": 1035.84,
+"volume": 29910721
+},
+{
+"symbol": "MU",
+"date": "2026-10-07",
+"adjOpen": 1017.37,
+"adjHigh": 1089.22,
+"adjLow": 1011.42,
+"adjClose": 1088,
+"volume": 30859503
+},
+{
+"symbol": "MU",
+"date": "2026-10-06",
+"adjOpen": 1064.48,
+"adjHigh": 1074.31,
+"adjLow": 1045.26,
+"adjClose": 1045.56,
+"volume": 21781240
+},
+{
+"symbol": "MU",
+"date": "2026-10-05",
+"adjOpen": 1069.68,
+"adjHigh": 1074.88,
+"adjLow": 1055.56,
+"adjClose": 1063.96,
+"volume": 18261700
+},
+{
+"symbol": "MU",
+"date": "2026-10-02",
+"adjOpen": 1107.35,
+"adjHigh": 1108,
+"adjLow": 1072.01,
+"adjClose": 1074.89,
+"volume": 27337514
+},
+{
+"symbol": "MU",
+"date": "2026-10-01",
+"adjOpen": 1054.08,
+"adjHigh": 1098.9,
+"adjLow": 1022.9,
+"adjClose": 1097.39,
+"volume": 45735434
+},
+{
+"symbol": "MU",
+"date": "2026-09-30",
+"adjOpen": 1076.76,
+"adjHigh": 1083.5,
+"adjLow": 1062.36,
+"adjClose": 1065.11,
+"volume": 31103201
+},
+{
+"symbol": "MU",
+"date": "2026-09-29",
+"adjOpen": 1076.69,
+"adjHigh": 1082.66,
+"adjLow": 1057.7,
+"adjClose": 1065.08,
+"volume": 19723107
+},
+{
+"symbol": "MU",
+"date": "2026-09-28",
+"adjOpen": 1075.98,
+"adjHigh": 1084.81,
+"adjLow": 1032,
+"adjClose": 1053.98,
+"volume": 22227200
+},
+{
+"symbol": "MU",
+"date": "2026-09-25",
+"adjOpen": 1095.83,
+"adjHigh": 1108.72,
+"adjLow": 1073,
+"adjClose": 1082.28,
+"volume": 20947931
+},
+{
+"symbol": "MU",
+"date": "2026-09-24",
+"adjOpen": 1049.75,
+"adjHigh": 1081.04,
+"adjLow": 1044,
+"adjClose": 1080.53,
+"volume": 22069916
+},
+{
+"symbol": "MU",
+"date": "2026-09-23",
+"adjOpen": 1100.07,
+"adjHigh": 1105.5,
+"adjLow": 1064.25,
+"adjClose": 1071.88,
+"volume": 21572800
+},
+{
+"symbol": "MU",
+"date": "2026-09-22",
+"adjOpen": 1032.85,
+"adjHigh": 1097.25,
+"adjLow": 1030.02,
+"adjClose": 1096.16,
+"volume": 29189700
+}
+]
+}

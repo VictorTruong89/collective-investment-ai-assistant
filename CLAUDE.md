@@ -37,12 +37,18 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state (2026-10-05):** **14 specs 🟢 approved — 180/180 ACs green, plus `F12` quant core
-(2026-10-05) at 27/30 (3 vacuous)**, with 18 governed path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
-modules), and the suite stands at 2,722 pass with 1 deliberate red (`J-07`). The analysis layer has 32/35
+**Current state (2026-10-20):** **15 specs 🟢 approved — 199/199 ACs green, plus `F12` quant core
+at 35/38 (3 vacuous)**, with 19 governed path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
+modules), and the suite stands at 2,785 pass with 1 deliberate red (`J-07`). ★ **D-04 is CLOSED as *functionally
+complete, skill unproven*** (Victor, 2026-10-11 — F12 `D16`, MT-68): the gates stay measurements, no threshold moves;
+fit 4 (`sha256:8200ada7…`, walk-forward t 2.51) is refused and **designated** to rank the card, labelled (MT-67); the
+shadow trial runs frozen on it (next `record`/`score` on or after 2026-11-06); no more fits on 2016–2026 unless Victor
+asks. Operator's page: `src/models/README.md`. ✅ **The card ran live with the model on 2026-10-20** (`…-c04583`: 508 names, #1 MRNA, not actionable) after four defects found by that run were fixed (`DX-170`…`DX-173`); PSKY and WBD left the universe (delisted). **D-01 in progress — `F13` 🟢 built 2026-10-20 (18/18; ✏ 2026-10-21 `D13`: the daily card READS the nominee's thesis, or says "no thesis — no peer set"):**
+`python tools/thesis_for.py TICKER --as-of DATE [--dry-run|--fetch-inputs]` chains extraction → Stage A → B–D → checks, run ids as
+arguments, resumable (`.state/thesis_for/`); MU only. The $0 replay of 2025-06-26 passed; ⬜ MU as of 2026-10-20 waits on Victor's hand-saved SK hynix / Samsung documents. The analysis layer has 32/35
 prompt blocks declared, every one run live and verified (`E-14` `J-18` `J-19` deferred by decision), and four
 MU theses produced (k=1 each; SELL → HOLD → SELL → SELL, all falsified or on course to be). ⊘ AMD thesis
-skipped; falsifier improvement waits for real runs. Quant closed as *govern & close* (`F12`); go-live prepared in `sdd/design/rel1_design/L9-go-live-checklist.md` — Victor 2026-10-05: **card only, theses on demand by his manual command; paid Anthropic API stays OFF; no budget yet** (the old 3-call daily `thesis` path was removed 2026-10-05, `DX-153` — restore patch in `sdd/archive/`). ⊘ **The golden-case programme is CLOSED**
+skipped; falsifier improvement waits for real runs. Go-live prepared in `sdd/design/rel1_design/L9-go-live-checklist.md` — Victor 2026-10-05: **card only, theses on demand by his manual command; paid Anthropic API stays OFF; no budget yet** (the old 3-call daily `thesis` path was removed 2026-10-05, `DX-153` — restore patch in `sdd/archive/`). ⊘ **The golden-case programme is CLOSED**
 (`L8` §9, 2026-10-01): 53 live cases kept and maintained, **no new golden cases**. Judgement quality is
 measured by falsifiers and rule checks. **Live progress is `sdd/design/rel1_design/L3-build-sequence.md`
 §2.1**; the golden-case programme is `L8-golden-case-retrospective.md`.
