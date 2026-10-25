@@ -10,9 +10,16 @@ while RC-58 postpones valuation.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+from datetime import date, timedelta
+
 from src.recording.book.lots import cost_changes, round_trips
+from src.risk.contracts.alerts import COMPLETE
+from src.risk.contracts.alerts import unchecked as unchecked_status
 from src.risk.flags.behavioural import (
+    KINDS,
     REGISTERED_SHORT_HOLD_DAYS,
+    SHORT_HOLD,
     HoldingPeriods,
     premature_exit_flag,
     pyramiding_flag,
@@ -88,3 +95,103 @@ def behavioural_flags(orders, *, as_of) -> tuple:
     return (m3_pyramiding(orders, as_of=as_of)
             + m3_premature_exits(orders, as_of=as_of)
             + m4_registered_short_holds(orders, as_of=as_of))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# RK-40 / CT-5.4 — the flag pass, complete on its own (Victor 2026-10-21, ⓐ)
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: RP-57 / Victor 2026-10-21 — the card lists in full the flags of the last 30 days
+#: of history; every older one is still counted (RK-18).
+RECENT_WINDOW_DAYS = 30
+
+FLAG_PASS_SOURCE = "trade history only — not part of the exposure pass (RK-40)"
+
+
+@dataclass(frozen=True, slots=True)
+class FlagPass:
+    """CT-5.4. ★ Its status is ITS OWN — never `alerts_status` (RK-40, RK-30)."""
+
+    status: str
+    as_of: date
+    history_through: date | None
+    accounts: tuple[str, ...]
+    flags: tuple
+    counts: dict
+    short_hold_trailing_frequency: float | None
+    recent: tuple[str, ...]
+
+    def to_json_obj(self) -> dict:
+        return {"status": self.status, "source": FLAG_PASS_SOURCE,
+                "as_of": self.as_of.isoformat(),
+                "history_through": (self.history_through.isoformat()
+                                    if self.history_through else None),
+                "accounts": list(self.accounts), "counts": dict(self.counts),
+                "short_hold_trailing_frequency": self.short_hold_trailing_frequency,
+                "recent_window_days": RECENT_WINDOW_DAYS, "recent": list(self.recent),
+                "flags": [f.to_json_obj() for f in self.flags]}
+
+
+def _event_date(flag) -> date:
+    """A round trip happened when it CLOSED; a buy when it was made (CT-5.4)."""
+    closed = flag.detail.get("closed_on")
+    return date.fromisoformat(closed) if closed else flag.as_of
+
+
+def summarise(flags, *, history_through: date) -> dict:
+    """AC-5.26 — every kind counted, and `recent` = the flags whose event falls in the
+    `RECENT_WINDOW_DAYS` ending `history_through`. ★ The counts are over ALL flags,
+    so the card's shorter list is a view, never a filter (RK-18)."""
+    counts = {kind: 0 for kind in KINDS}
+    for f in flags:
+        counts[f.kind] += 1
+    start = history_through - timedelta(days=RECENT_WINDOW_DAYS)
+    recent = [f.flag_id for f in flags if start < _event_date(f) <= history_through]
+    freq = next((f.detail.get("trailing_frequency") for f in flags
+                 if f.kind == SHORT_HOLD), None)
+    return {"counts": counts, "recent": recent, "short_hold_trailing_frequency": freq}
+
+
+def flag_pass(*, as_of: date, root: str | None = None) -> FlagPass:
+    """RK-40 — the M-3/M-4 flags from D-11's exports, with no price and no book.
+
+    ⚠ All or nothing (AC-5.24): an account that cannot be read withholds every flag,
+    because a trailing count over part of the book understates the very pattern
+    M-4 looks for. The refusal is a STATUS, never an exception — the card must say it.
+    """
+    from src.recording.book.load import discover_accounts, export_path, resolve_export_dir
+    from src.recording.errors import RecordingError
+    from src.recording.orders.group import group_orders
+    from src.recording.reconcile.ingest import parse_export
+
+    def unchecked(why: str) -> FlagPass:
+        return FlagPass(status=unchecked_status(why), as_of=as_of, history_through=None,
+                        accounts=(), flags=(), counts={},
+                        short_hold_trailing_frequency=None, recent=())
+
+    root = resolve_export_dir(root)
+    try:
+        accounts = discover_accounts(root)
+    except RecordingError as exc:
+        return unchecked(str(exc))
+    orders, refused, latest = [], [], None
+    for account_id, _type in accounts:
+        try:
+            activities = parse_export(export_path(root, account_id), account_id=account_id)
+        except (RecordingError, OSError) as exc:
+            refused.append(f"{account_id}: {exc}")
+            continue
+        orders += list(group_orders(activities))
+        dates = [a.trade_date for a in activities if a.trade_date]
+        if dates:
+            latest = max(latest or dates[0], max(dates))
+    if refused:
+        return unchecked("; ".join(refused) + " — one unreadable account withholds every "
+                         "flag (RK-40, RK-5)")
+    flags = behavioural_flags(orders, as_of=as_of)
+    s = summarise(flags, history_through=latest or as_of)
+    return FlagPass(status=COMPLETE, as_of=as_of, history_through=latest,
+                    accounts=tuple(a for a, _ in accounts), flags=flags,
+                    counts=s["counts"],
+                    short_hold_trailing_frequency=s["short_hold_trailing_frequency"],
+                    recent=tuple(s["recent"]))

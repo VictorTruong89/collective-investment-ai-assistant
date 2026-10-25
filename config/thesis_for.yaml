@@ -8,6 +8,15 @@ subjects:
     name: "Micron Technology, Inc."
     cik: "0000723125"
     sector_list: memory_v1          # config/sector/memory_v1.yaml — Victor, 2026-09-15
+  # ✏ F13 `D15` — Victor, 2026-10-22. Nominated #3 and #1 on the 2026-10-20 card.
+  SNDK:
+    name: "Sandisk Corporation"
+    cik: "0002023554"
+    sector_list: memory_v2          # its own source (sndk-edgar) is left out (AC-F13.21)
+  MRNA:
+    name: "Moderna, Inc."
+    cik: "0001682852"
+    sector_list: vaccines_v1
 
 # The EDGAR filers on a sector list, so `--fetch-inputs` can fetch their documents (DE-83).
 # ★ Kept HERE, not in the source list: that file is the reviewed artifact of WHERE we look
@@ -17,6 +26,18 @@ edgar_sources:
     cik: "0002023554"
     subject: "Sandisk Corporation"
     slug: sndk
+  mu-edgar:                         # memory_v2 (D15)
+    cik: "0000723125"
+    subject: "Micron Technology, Inc."
+    slug: mu
+  pfe-edgar:                        # vaccines_v1 (D15)
+    cik: "0000078003"
+    subject: "Pfizer Inc."
+    slug: pfe
+  nvax-edgar:
+    cik: "0001000694"
+    subject: "Novavax, Inc."
+    slug: nvax
 
 # ⚠ D-11 — company-IR sources are saved BY HAND (not on EDGAR; a scraper would choose what to keep).
 manual_sources:

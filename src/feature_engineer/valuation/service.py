@@ -56,7 +56,9 @@ def _assemble(cls, ticker: str, as_of: date, basis: CashFlowBasis, *, engine,
     annual = engine.get_fundamentals(ticker, as_of, period_type="annual")
     net_debt, components, shares = balance(
         pd.concat([rows, annual], ignore_index=True) if annual is not None and len(annual)
-        else rows, as_of=as_of, ticker=ticker)
+        else rows, as_of=as_of, ticker=ticker,
+        # ✏ `DX-189` — the ledger view, read only if a row's label is a later filing.
+        facts=lambda: engine.get_facts(ticker, as_of))
     price, price_date = _raw_price(engine, ticker, as_of)
     trail = discount(basis.base_fcff, discount_rate=assumptions.discount_rate,
                      stage1_growth=assumptions.stage1_growth,

@@ -45,6 +45,7 @@ def compose(
     influenced_by: tuple[str, ...] = (),
     claim_independent_agreement: bool = False,
     thesis_ref: dict | None = None,
+    behavioural_flags: dict | None = None,
 ) -> Recommendation:
     """Pure, total on declared inputs (§8's API surface).
 
@@ -137,6 +138,9 @@ def compose(
         concurrence=concurrence_label(influenced_by),
         # ★ DN-42 — the nominee's thesis reference, carried verbatim; nothing above reads it.
         thesis_ref=dict(thesis_ref) if thesis_ref else None,
+        # ★ DN-43 — the flag pass, carried; never an input to the verdict, to
+        #   `alerts_status` or to `actionable` (RK-40: labelled, never blended).
+        behavioural_flags=dict(behavioural_flags) if behavioural_flags else None,
     )
 
 

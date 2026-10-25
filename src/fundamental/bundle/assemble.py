@@ -14,6 +14,7 @@ otherwise happily record.
 from __future__ import annotations
 
 import json
+import re
 from datetime import date
 from decimal import Decimal
 
@@ -169,6 +170,29 @@ def sector_file(file) -> BundlePart:
         lines.append("")
         lines.extend(f"OMITTED  {o.source_id}: {o.reason}" for o in file.omissions)
     return BundlePart("sector_file", file.pin(), "\n".join(lines))
+
+
+#: One rendered record's head, as `sector_file` writes it above: date · kind · subject · … · [source].
+_RECORD_HEAD = re.compile(r"^\d{4}-\d{2}-\d{2}  [a-z_]+  (?P<subject>.+?)  .*?\[[a-z0-9-]+\] ", re.M)
+
+
+def record_subject(part: BundlePart, start: int, end: int) -> str | None:
+    """✏ RA-155 — the declared `subject` of the ONE sector record holding `[start, end)`.
+
+    None when the span crosses a record boundary or lies in no record (the OMITTED block).
+    ★ Read back from the renderer's own head line, so it is provenance (`DX-102`), not prose.
+    """
+    heads = list(_RECORD_HEAD.finditer(part.content))
+    # ⚠ The LAST blank-line OMITTED block, after the last head — a document's own text may
+    #   hold the word; the renderer's block is always the file's tail.
+    tail = part.content.rfind("\n\nOMITTED  ")
+    tail = tail if heads and tail > heads[-1].start() else -1
+    for i, head in enumerate(heads):
+        stop = heads[i + 1].start() - 1 if i + 1 < len(heads) else (
+            tail if tail >= 0 else len(part.content))
+        if head.start() <= start and end <= stop:
+            return head.group("subject")
+    return None
 
 
 def extractions(verified_pass, *, prompt_versions: dict, run_id: str) -> tuple[BundlePart, ...]:

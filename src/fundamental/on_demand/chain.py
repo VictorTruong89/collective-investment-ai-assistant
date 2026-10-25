@@ -190,7 +190,8 @@ def run_chain(*, subject, resolution, manifest, runners, given: GivenRuns, dry_r
     for b in order:
         if ext_done(b):
             continue
-        argv = ["--live", "--block", b, *filing,
+        # ★ `D14` — evidence first, so the seven filing extractions share one cached bundle.
+        argv = ["--live", "--cache-evidence", "--block", b, *filing,
                 *(["--sector", str(sector_path)] if b in SECTOR_BLOCKS else []),
                 *BLOCK_OPTIONS.get(b, ())]
         manifest.record("extract", b, status="pending")
@@ -217,7 +218,7 @@ def run_chain(*, subject, resolution, manifest, runners, given: GivenRuns, dry_r
             for b in blocks:
                 manifest.record("stage_a", b, status="pending")
             try:
-                run = runners.stage_a(["--live", *batch, *filing, *reads,
+                run = runners.stage_a(["--live", "--cache-evidence", *batch, *filing, *reads,
                                        "--annual-history", facts_dir])
             except Exception as exc:                      # noqa: BLE001
                 why = describe_stop(f"{type(exc).__name__}: {exc}")

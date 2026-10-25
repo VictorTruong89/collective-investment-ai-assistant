@@ -295,6 +295,13 @@ returned as a value.
   `ValuationUnavailable` naming the items — never a stale quarter's figure. → *unit* + *integration* (MU's
   FY2026 10-K). ✏ *added 2026-10-21 (`DX-176`).*
 
+- **AC-F10.25** *(★ the filing is judged per FACT — `D12` ✏)* — **Given** an annual row whose `accession_id` is a
+  LATER filing (the row takes the newest filing that tagged any fact for that date), **when** net debt is computed,
+  **then** each balance item is read from it only if the NEWEST knowable ledger fact for that item's tag and date is
+  the latest quarter's own filing (a proxy that tagged only `NetIncomeLoss` leaves the 10-K's balance sheet usable);
+  **and given** a later filing that re-tagged the item (a 10-K/A), **then** it still raises `ValuationUnavailable`
+  naming it. → *unit* + *integration* (SNDK's FY2026 10-K and its 2026-10-06 filing). ✏ *added 2026-10-23 (`DX-189`).*
+
 - **AC-F10.21** *(★ a result declares what it cannot compute — `D9`)* — **Given** any valuation,
   **when** its trail is read, **then** `known_limits` names every figure `D6`/`D8` cannot compute from
   D-07's facts — today: government-incentive proceeds are not credited against capex — each with its
@@ -463,7 +470,7 @@ ANNUAL row. `CT-F10.2` reads net debt "from the latest trailing quarter", so eve
 refused (`ValuationUnavailable … missing ['cash', 'long_term_debt', 'current_debt']`), found on the first
 live `thesis_for` (F13 `D7`). ★ **Adopted:** an instant item absent on the latest quarterly row is read from
 the annual row with the SAME `period_end` AND the SAME `accession_id` — the same balance sheet on the same
-date in the same filing, so nothing is substituted; the component still cites that accession and date. ✏ **The diluted share count too (`DX-177`, same day):** a 10-K
+date in the same filing, so nothing is substituted; the component still cites that accession and date. ✏ **Judged per FACT (`DX-189`, Victor 2026-10-23: "Check per fact"):** D-07 labels an assembled row with the newest filing that tagged ANY fact for that date, so SNDK's 2026-10-06 filing — one `NetIncomeLoss` for FY2026 — relabelled the year-end row and the 10-K's own balance sheet refused. When the label differs, each item is taken only if the newest knowable fact for its tag and date is the latest quarter's filing (D-07 `get_facts`); an amendment that re-tags it still refuses (`AC-F10.25`). The shared ledger is unchanged. ✏ **The diluted share count too (`DX-177`, same day):** a 10-K
 tags it only for the YEAR, and DE-84 now refuses to derive a Q4 average by subtraction (it produced 1,000,000 for
 MU); so the year's weighted-average diluted count from that same annual row is used — MU FY2026 1,143M against
 Q3's 1,145M — and is the one balance input that is a year's average rather than a point.
@@ -526,9 +533,10 @@ against); ⓑ any annual row with that end date (a later amendment could supply 
 
 | AC-F10.24 | `tests/unit/test_valuation_f10.py::test_ac_f10_24_*` (4: the annual balance sheet · another filing's row refused · the year's share count · end to end through `valuation()`) | `src/feature_engineer/valuation/basis.py::_with_year_end_balance`, `src/feature_engineer/valuation/service.py::_assemble` |
 
+| AC-F10.25 | `tests/unit/test_valuation_f10.py::test_ac_f10_25_*` | `src/feature_engineer/valuation/basis.py::_with_year_end_balance` · `service.py::_assemble` (`get_facts`, lazily) |
 | AC-F10.23 | `tests/unit/test_valuation_f10.py::test_ac_f10_23_*` (4 tests; 4 of 4 mutations caught) | `src/feature_engineer/valuation/implied.py::implied_by_duration`, `src/feature_engineer/valuation/types.py::DurationRow`, `src/feature_engineer/valuation/service.py::_assemble` (`trailing_revenue`) |
 
-✅ **24 of 24 ACs** have passing tests (AC-F10.24 added 2026-10-21 with `D12`; AC-F10.23 added 2026-10-02 with `D11`; AC-F10.22 2026-10-01 with `D10`). Previously: **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
+✅ **25 of 25 ACs** have passing tests (AC-F10.25 added 2026-10-23, `DX-189`; AC-F10.24 added 2026-10-21 with `D12`; AC-F10.23 added 2026-10-02 with `D11`; AC-F10.22 2026-10-01 with `D10`). Previously: **21 of 21 ACs** have passing tests (AC-F10.19 added with `J-20`, `DX-105`; AC-F10.20 with `D8`). Earlier count: **18 of 18 ACs have passing tests, 2026-09-13** — 60 unit + 3 real-data integration tests; **16 of 16 mutations caught** after two
 weak tests were strengthened (a contiguity test that tripped the COUNT check first, and a refusal test
 that passed through the second guard instead of the first). Also required by `D-03`'s `AC-3.14`: three
 MethodEntries under `src/feature_engineer/methods/entries/` — the FCFF formula, the DCF mechanics and

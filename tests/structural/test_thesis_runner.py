@@ -526,6 +526,34 @@ def test_dx_127_every_call_sends_the_SAME_cache_prefix_and_only_the_rest_varies(
     assert "TASK TYPE: JUDGEMENT" in seen[0][1]
 
 
+def test_ac_0_28_every_subscription_call_shares_ONE_schema_family(monkeypatch, tmp_path):
+    """AC-0.28 (GW-31, `DX-181`) — on `claude_code` a per-call schema is a different tool,
+    and tools precede the cached prefix, so all 13 calls must be handed the SAME family,
+    and each call's own strict tool must be in it."""
+    import json
+
+    import tools.anthropic_transport as transport_mod
+    import tools.llm_transport as llm
+
+    r, _issued = _wire_fake_run(monkeypatch, tmp_path)
+    fake = transport_mod.anthropic_transport
+    seen = []
+
+    def capture(*, family=None, **kw):
+        seen.append((kw["tool"], family))
+        return fake(**kw)
+
+    monkeypatch.delenv("CIA_LLM_TRANSPORT", raising=False)
+    monkeypatch.setattr(llm, "dev_transport", capture)
+    assert r.main(["--live", "--budget-usd", "100"]) == 0
+    assert len(seen) == 13
+    families = {json.dumps(f, sort_keys=True) for _t, f in seen}
+    assert len(families) == 1, "the schema family must not vary between calls"
+    for tool, family in seen:
+        assert family[tool["name"]] == tool
+    assert len(seen[0][1]) == 9                                          # J-09…J-17
+
+
 def test_dx_127_no_cache_reproduces_the_single_block_payload(monkeypatch, tmp_path):
     """⚠ The escape hatch matters: `--no-cache` sends exactly what the first thesis sent
     (instructions first, one block), so a regression can be bisected against it."""
@@ -564,3 +592,57 @@ def test_j15_v2_live_writes_its_structured_tests_beside_the_thesis(monkeypatch, 
     ordinals = [k for k in tests if not k.startswith("_")]
     assert len(ordinals) == len(summary["thesis"]["falsifiers"]) >= 2
     assert all(validate_test(tests[k], observables=("Revenues",)) == [] for k in ordinals)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AC-F13.19 (`DX-183`) — the planner's ceiling is a ceiling
+# ═══════════════════════════════════════════════════════════════════════════
+
+#: MEASURED — `run-2026-10-22T004557-mu-thesis`, the `claude_code` trace payloads:
+#: `(block, tokens_in, tokens_out, num_turns, notional_usd)`. Every one wrote the whole
+#: prompt to the cache (no reuse, `DX-181`); J-15/J-17 took a schema-repair turn (`DX-182`).
+MEASURED_MU_2026_10_20 = (
+    ("J-13", 234_508, 16_818, 2, 2.76552),
+    ("J-14", 286_054, 23_674, 2, 3.45238),
+    ("J-15", 605_298, 16_067, 3, 3.612026),
+    ("J-16", 300_021, 3_272, 2, 3.082),
+    ("J-17", 607_052, 14_938, 3, 3.573335),
+)
+
+
+@pytest.mark.parametrize("block,tokens_in,_out,turns,notional", MEASURED_MU_2026_10_20)
+def test_ac_f13_19_the_ceiling_covers_every_measured_call(block, tokens_in, _out, turns,
+                                                          notional):
+    """AC-F13.19 — priced from the PROMPT size (a repair turn re-reads the same prompt, so
+    a 3-turn call's measured input is twice it), the ceiling is ≥ what the call cost."""
+    import tools.run_thesis_once as r
+
+    prompt_tokens = tokens_in // (2 if turns == 3 else 1)
+    cap = r.output_settings(block)[0]
+    assert r.call_ceiling(prompt_tokens, cap, transport="claude_code") >= notional
+
+
+def test_ac_f13_19_the_claude_code_write_rate_is_the_measured_one():
+    """AC-F13.19 — the CLI caches for an hour, at 2× the input rate: J-16 wrote 300,019
+    tokens and output 3,272 for a notional $3.0820 — 2.0× fits it to the cent; 1.25× is $1.12
+    short."""
+    import tools.run_thesis_once as r
+
+    assert r.CACHE_WRITE_RATES["claude_code"] == 2.0
+    j16 = 300_019 * 2.0 * r.PRICE_IN + 3_272 * r.PRICE_OUT
+    assert j16 == pytest.approx(3.082, abs=0.005)
+
+
+def test_ac_f13_19_expected_writes_the_prefix_once_and_reads_it_after():
+    """AC-F13.19 — with GW-30/31 the shared prefix is written by the first call only."""
+    import tools.run_thesis_once as r
+
+    calls = [(100_000, 10_000)] * 3                  # (prompt tokens, output cap)
+    expected, ceiling = r.plan_cost(calls, prefix_tokens=90_000, projected_out=1_000,
+                                    transport="claude_code")
+    w, rd = r.CACHE_WRITE_RATES["claude_code"], r.CACHE_READ_RATE
+    first = 100_000 * w * r.PRICE_IN
+    later = (90_000 * rd + 10_000 * w) * r.PRICE_IN
+    assert expected == pytest.approx(first + 2 * later + 3 * 1_000 * r.PRICE_OUT)
+    assert ceiling == pytest.approx(3 * r.call_ceiling(100_000, 10_000, transport="claude_code"))
+    assert ceiling > expected

@@ -194,8 +194,10 @@ def _fetch_sector_filing(source_id, spec, as_of, *, repo, edgar, convert, today,
 
 def _fetch_consensus(ticker, as_of, *, repo, fmp, fetch, report) -> None:
     folder = repo / CONSENSUS_DIR / as_of.isoformat()
-    if folder.exists():
-        raise FixtureExists(f"{folder} already exists — a consensus set is written once (D10)")
+    # ★ A set is ONE ticker's: another ticker's set on the same date sits beside it (DX-186).
+    if (folder / f"{ticker}.meta.json").exists() or any(folder.glob(f"{ticker}_*.json")):
+        raise FixtureExists(f"{folder} already holds {ticker}'s set — a consensus set is "
+                            f"written once (D10)")
     back_to = (as_of - timedelta(days=CONSENSUS_BACK_DAYS)).isoformat()
     data = fetch(ticker, back_to, fmp)
     for name in ("grades", "price_target_news", "earnings"):

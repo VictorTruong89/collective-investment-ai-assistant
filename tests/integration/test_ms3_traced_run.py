@@ -1,6 +1,6 @@
 """`MS-3`'s done-when: a full run is traced, and the trace replays. `AC-2.3`.
 
-★★ **This is a REAL run of the REAL graph.** `DAILY_INFERENCE` — all 11 jobs (13 until 2026-10-05), in
+★★ **This is a REAL run of the REAL graph.** `DAILY_INFERENCE` — all 12 jobs (13 until 2026-10-05, 11 until 2026-10-21), in
 dependency order — driven by the inherited `Orchestrator`, with its real cadence,
 preconditions, budget, retry and checkpoint machinery. Nothing about D-08 is
 simulated.
@@ -80,7 +80,7 @@ def test_ms3_a_full_run_of_the_real_graph_is_traced(traced_run):
     traced_ids = [s["job_id"] for s in steps]
     expected = [j.job_id for j in DAILY_INFERENCE.order()]
     assert traced_ids == expected, "every job, in dependency order"
-    assert len(traced_ids) == 11    # ✏ 2026-10-05: observe + thesis removed
+    assert len(traced_ids) == 12    # ✏ 2026-10-21: + flags (OR-63); 2026-10-05: observe + thesis removed
     assert all(s["run_id"] == manifest.run_id for s in steps)
 
 

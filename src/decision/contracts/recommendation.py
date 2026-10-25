@@ -64,6 +64,8 @@ class Recommendation:
     actionable: bool
     not_actionable_reason: str | None = None
     thesis_ref: dict | None = None
+    #: ★ DN-43 — D-05's FlagPass (CT-5.4), carried verbatim; nothing in D-12 reads it.
+    behavioural_flags: dict | None = None
     deferral: dict | None = None
     stubs: tuple[dict, ...] = field(default_factory=tuple)
     #: ★ `PG-7.3` / `F6a` `AC-6a.10` — `"independent"` | `"cross-configured"`.
@@ -92,6 +94,7 @@ class Recommendation:
             "attribution": {"binding": list(self.attribution.binding),
                             "binding_level": self.attribution.binding_level},
             "thesis_ref": self.thesis_ref,
+            "behavioural_flags": self.behavioural_flags,
             "alerts": [dict(a) for a in self.alerts],
             "alerts_status": self.alerts_status,
             # ★ DN-25 — the flag is ON the block, so a reader of the stored JSON

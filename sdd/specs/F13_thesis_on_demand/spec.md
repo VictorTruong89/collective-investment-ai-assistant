@@ -1,6 +1,6 @@
 # F13 — Thesis on demand (`thesis_for TICKER --as-of DATE`)
 
-> **Spec-ID:** F13 · **Status:** 🟢 **approved 2026-10-20** (Victor: *"approve F13 as recommended"*; `Q1`–`Q4` → `D5`–`D8`) · ✅ **18/18 ACs green 2026-10-21** · **Drafted:** 2026-10-20
+> **Spec-ID:** F13 · **Status:** 🟢 **approved 2026-10-20** (Victor: *"approve F13 as recommended"*; `Q1`–`Q4` → `D5`–`D8`) · ✅ **22/22 ACs green 2026-10-22** (✏ AC-F13.19 added 2026-10-21, `DX-183`; AC-F13.20 2026-10-22, `D14`; AC-F13.21–22 2026-10-22, `D15`) · **Drafted:** 2026-10-20
 > **Source discussion:** `_TEMP_handover_2026-10-11.md` §4.1 · `sdd/design/rel1_design/L9-go-live-checklist.md` §13.2
 > (`T1`…`T4`) · Victor, 2026-10-11: *D-01 next, linked to D-04's nomination* · Victor, 2026-10-20: *"step-1 is the full
 > one-command thesis_for TICKER --as-of DATE … take run IDs as arguments. start with MU."*
@@ -33,6 +33,7 @@ verified live (32/35 blocks). F13 is the plumbing between them.
   falsifier check and rule checks — each step a recorded run, its id written to a **chain manifest**.
 - Resume: a re-run continues from the first step not completed; a completed step is never re-sent.
 - **MU first.** The subject's industry must have a sector source list (today only `memory_v1`).
+  ✏ *2026-10-22 (`D15`):* **SNDK** on `memory_v2` and **MRNA** on `vaccines_v1` join MU.
 
 **Non-goals (this spec):**
 - ⊘ **The nomination as default ticker** (hand-over §4.1 step 2). ✏ Step 3 — the thesis replacing the card's
@@ -77,7 +78,7 @@ behaves exactly as before (characterization tests first, constitution §5 item 3
 |---|---|---|
 | anchor filing | the newest row of `tests_src/fixtures/filings/index.json` for the ticker, form 10-Q or 10-K, filed ≤ `as_of`, and not older than 120 days | `--fetch-inputs` (EDGAR → `convert_filing` → fixture + `.meta.txt` + index row) |
 | sector documents | every source on the industry's list has a document published ≤ `as_of` and not older than 120 days | EDGAR sources: `--fetch-inputs`. Company-IR sources: **by hand** (`D11`) |
-| sector file | `.state/sector/<list>_<as_of>.json` | free chain step (`ingest_sector_file.py --as-of`) |
+| sector file | `.state/sector/<list>_<as_of>.json` — ✏ `<list>_<as_of>_<TICKER>.json` when the subject's own source was left out (`AC-F13.21`) | free chain step (`ingest_sector_file.py --as-of`) |
 | consensus | the earliest fixture set fetched on or after `as_of` (`tests_src/fixtures/consensus/` or `…/consensus/<date>/`) | `--fetch-inputs` (FMP, into `consensus/<as_of>/`) |
 | raw price | a `tests_src/fixtures/prices/<T>_raw_eod_*.json` whose window holds `as_of` and a session within 5 days before it | `--fetch-inputs` (FMP `non-split-adjusted`) |
 | facts | `.state/facts/<T>.parquet` holds the anchor filing's accession | `--fetch-inputs` (EDGAR companyfacts, this ticker only) |
@@ -147,6 +148,25 @@ error?}` — and `thesis_run_id` once step 4 is done.
   ranked #1 by … ; no thesis — no peer set"* (or *"— not yet written"*), its falsifier block and data gaps say why, and no
   composed HOLD is shown as if someone had judged it; **given** a found thesis, **then** the card shows the thesis's own
   verdict beside the composed one (RP-8), its falsifiers, and its source as `thesis_for` over the full bundle. → unit.
+- **AC-F13.19** — ✏ *2026-10-21 (`DX-183`).* **Given** a Stages B–D plan, **when** its cost is printed before sending,
+  **then** the ceiling prices every call as **two turns that both miss the cache** (the CLI's schema-repair turn,
+  `DX-182`), each at the live transport's cache-write rate (`claude_code` 2.0× — its 1-hour cache, measured
+  2026-10-21; API 1.25×) and its output cap; and the expected figure assumes the shared prefix is written once and
+  read after (GW-30/31). ★ Known answer: over the measured calls of `run-2026-10-22T004557-mu-thesis`, the ceiling
+  from each call's measured input is ≥ its notional cost, where the old formula's was not. → unit.
+- **AC-F13.20** — ✏ *2026-10-22 (`D14`).* **Given** `--cache-evidence` (which `thesis_for` passes to every extraction and
+  Stage-A step it sends), **when** a call is sent, **then** its evidence is the request's `cache_prefix` — the same bytes
+  the call sent before, moved ahead of the instructions, byte-identical for every call over one bundle — and each call
+  hands the transport ONE schema family for its runner (every E-block of `D8`; every Stage-A block of the run), keyed by
+  block (GW-31). **Given** no flag, every runner sends exactly what it sent before (AC-F13.9). → unit + structural.
+- **AC-F13.21** — ✏ *2026-10-22 (`D15`).* **Given** a subject whose own CIK is an EDGAR source on its industry's list,
+  **when** inputs are resolved and the sector file is built, **then** that source is left out of both — not counted
+  missing, not fetched — and the sector file records it as an `Omission` saying it is the subject itself (`RA-98`: the
+  absence is declared); that subject's sector file is `<list>_<as_of>_<TICKER>.json`. **Given** a subject not on its
+  list, nothing changes (MU on `memory_v1` keeps `memory_v1_<as_of>.json`, AC-F13.9). → unit.
+- **AC-F13.22** — ✏ *2026-10-22 (`D15`).* **Given** a sector-file extraction (`E-13`) for a subject declared in
+  `config/thesis_for.yaml`, **when** it runs, **then** the subject it declares (`DX-119`) is that config's name; a
+  ticker declared nowhere is refused, never inferred. → unit.
 
 ## 7. Decisions
 
@@ -186,6 +206,24 @@ error?}` — and `thesis_run_id` once step 4 is done.
   paid-API path stays off and theses stay on Victor's command); keeping the PASS stub (it says "not built", which is no
   longer true).
 
+- **`D14` — evidence first in the extraction and Stage-A calls too** *(Victor, 2026-10-22: "as recommended")*. `DX-127`
+  moved B–D's evidence ahead of the instructions so it could be cached; the same move for the 7 filing extractions (one
+  bundle, `255a6a46…` on 2026-10-20) and the 9 Stage-A calls (one blind bundle, `a3c36d65…`) is what takes a thesis from
+  ≈ $51 to ≈ $31 notional (L3, 2026-10-21). ★ The model reads the same text: evidence, then instructions (and, in Stage
+  A, the rubric between them stays with the instructions). Opt-in by flag, so every recorded replay and golden case is
+  untouched. ✗ Rejected: changing the runners' default (it would silently change what every old command sends).
+
+- **`D15` — two more subjects: SNDK on `memory_v2`, MRNA on `vaccines_v1`** *(Victor, 2026-10-22: "go with SNDK on
+  memory_v1, then [MRNA] as recommended"; then "memory_v2, skip subject" and "MRNA, EDGAR peers only")*. The two were
+  nominated #3 and #1 on the 2026-10-20 card. `memory_v1` is Micron's list: it holds Sandisk and not Micron, so a
+  Sandisk thesis on it would read its own 10-K as industry evidence. `memory_v2` = Micron · SK hynix · Samsung ·
+  Sandisk, and a thesis leaves out its own subject's source by CIK (`AC-F13.21`); MU stays on `memory_v1`, so its
+  replays are unchanged. `vaccines_v1` = Pfizer · Novavax, both on EDGAR. BioNTech, GSK and Sanofi report their quarters
+  on 6-K, which `--fetch-inputs` does not fetch, so they wait for a version bump. ⚠ `E-13` reads *competitor capacity
+  announcements*; in vaccines that is mostly not what a peer's filing reports, so a thin `E-13` there is expected, not a
+  defect. ✗ Rejected: `memory_v1` as it is (the subject as its own peer, no Micron); one list per subject (an industry's
+  list would fork with every new subject).
+
 ## 8. Open questions — Victor (✅ all answered 2026-10-20 → `D5`–`D8`; kept as asked)
 
 - **`Q1` — the first live date.** *(a)* **MU as of today** — the latest periodic filing (MU's FY2026 10-K, if filed
@@ -215,7 +253,7 @@ error?}` — and `thesis_run_id` once step 4 is done.
 | AC-F13.8 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_8_*` (the bundle check skips without `.state/`) | `chain.py::thesis_inputs` · `config/thesis_for/MU_2025-06-26.json` · `tools/run_thesis_once.py::base_for` |
 | AC-F13.9 ✅ | `tests_src/test_thesis_for_characterization.py::test_ac_f13_9_*` (written first) · `tests_src/test_thesis_for.py::test_ac_f13_9_*` | `tools/run_extraction_once.py` (`add_filing_args`) · `run_judgement_once.py` · `run_thesis_once.py` (`parser`) |
 | AC-F13.10 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_10_*` | `chain.py` · `tools/thesis_for.py::ToolRunners.checks` |
-| AC-F13.11 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_11_*` | `on_demand/fetch.py` · `EdgarClient.document` (DE-83) |
+| AC-F13.11 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_11_*` · `tests_src/test_thesis_for_subjects.py::test_ac_f13_11_*` (`DX-186`) | `on_demand/fetch.py` · `EdgarClient.document` (DE-83) |
 | AC-F13.12 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_12_*` | `on_demand/inputs.py` (`STALE_DAYS`) |
 | AC-F13.13 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_13_*` | `tools/run_judgement_once.py::closing_status` · `tools/run_thesis_once.py::_recorded_call` |
 | AC-F13.15 ✅ | `tests_src/test_thesis_on_card.py::test_ac_f13_15_*` | `src/fundamental/on_demand/lookup.py::thesis_for_card` |
@@ -223,6 +261,10 @@ error?}` — and `thesis_run_id` once step 4 is done.
 | AC-F13.17 ✅ | `tests_src/test_thesis_on_card.py::test_ac_f13_17_*` | `src/decision/compose/service.py::compose` (`thesis_ref`, DN-42) |
 | AC-F13.18 ✅ | `tests_src/test_thesis_on_card.py::test_ac_f13_18_*` | `src/reporting/render/card.py` (RP-56) |
 | AC-F13.14 ✅ | `tests_src/test_thesis_for.py::test_ac_f13_14_*` | `on_demand/chain.py::describe_stop` · `tools/thesis_for.py::ToolRunners.stage_a_block_error` |
+| AC-F13.20 ✅ | `tests/structural/test_evidence_first.py::test_ac_f13_20_*` | `tools/llm_transport.py::split_evidence` · `evidence_first` · `tools/run_extraction_once.py` · `tools/run_judgement_once.py` (`--cache-evidence`) · `on_demand/chain.py` |
+| AC-F13.19 ✅ | `tests/structural/test_thesis_runner.py::test_ac_f13_19_*` | `tools/run_thesis_once.py::call_ceiling` · `plan_cost` |
+| AC-F13.21 ✅ | `tests_src/test_thesis_for_subjects.py::test_ac_f13_21_*` | `on_demand/subjects.py::own_sources` · `tools/thesis_for.py` (`_context`, `ToolRunners`) · `config/sector/memory_v2.yaml` |
+| AC-F13.22 ✅ | `tests_src/test_thesis_for_subjects.py::test_ac_f13_22_*` | `tools/run_extraction_once.py::subject_name` (read by `run_judgement_once` · `reverify_recording`) · `config/thesis_for.yaml` |
 
 **As built (2026-10-20).** The $0 replay ran: `thesis_for MU --as-of 2025-06-26 --runs config/thesis_for/MU_2025-06-26.json`
 carried all 8 extractions, 9 Stage-A blocks and the fourth thesis, re-verified them (base bundle `sha256:ed40721f…`), and

@@ -1,0 +1,14 @@
+PROVENANCE — written by `tools/thesis_for.py --fetch-inputs` (F13 D6). Do not edit
+the body; a restated filing gets a SECOND fixture.
+
+Filer          : Moderna, Inc.  (CIK 0001682852)
+Form           : 10-Q
+Period end     : 2026-06-30
+Filed          : 2026-07-31
+Accession      : 0001682852-26-000150
+Source URL     : https://www.sec.gov/Archives/edgar/data/1682852/000168285226000150/mrna-20260630.htm
+Retrieved      : 2026-10-23 via EDGAR (declared User-Agent, DE-83)
+Converted      : 2026-10-23 by tools/convert_filing.py — 122,797 chars
+
+⚠ F13 D7: if this is a 10-K, the 32 prompt blocks were verified on a 10-Q; its first
+thesis is a new observation. Verify any figure against the Source URL, not this file.

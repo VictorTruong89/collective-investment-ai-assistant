@@ -1,0 +1,14 @@
+{
+ "title": "Micron Technology, Inc. Form 10-K for the period ended 2026-09-03",
+ "url": "https://www.sec.gov/Archives/edgar/data/723125/000072312526000023/mu-20260903.htm",
+ "published_date": "2026-10-09",
+ "published_date_source": "EDGAR filingDate for accession 0000723125-26-000023",
+ "accession_id": "0000723125-26-000023",
+ "subject": "Micron Technology, Inc.",
+ "converter": "tools/convert_filing.py",
+ "source_id": "mu-edgar",
+ "retrieved_at": "2026-10-23",
+ "chars": 366981,
+ "sha256": "sha256:aa6e8216c9e4fcf6e07c5c79cf2b5d7ced3d9ef22facc575d0932fccfb110c72",
+ "removed": []
+}

@@ -60,7 +60,11 @@ from src.fundamental.on_demand.chain import (  # noqa: E402
 )
 from src.fundamental.on_demand.inputs import resolve_inputs  # noqa: E402
 from src.fundamental.on_demand.manifest import ChainManifest  # noqa: E402
-from src.fundamental.on_demand.subjects import NoPeerSetError, load_subject  # noqa: E402
+from src.fundamental.on_demand.subjects import (  # noqa: E402
+    NoPeerSetError,
+    load_subject,
+    own_sources,
+)
 
 CONFIG = "config/thesis_for.yaml"
 
@@ -75,8 +79,9 @@ class ToolRunners:
     """The existing runners, called in-process with their own CLI arguments (`D1`)."""
 
     def __init__(self, repo: pathlib.Path, *, sector_list: str = "memory_v1",
-                 ticker: str = "MU") -> None:
+                 ticker: str = "MU", omit: dict[str, str] | None = None) -> None:
         self.repo, self.sector_list, self.ticker = repo, sector_list, ticker
+        self.omit = dict(omit or {})                   # AC-F13.21 — the subject's own source
         self.runs = repo / ".state/runs"
 
     # ── run discovery: a runner names its run from the clock, so the chain diffs ──
@@ -87,15 +92,21 @@ class ToolRunners:
                      if f"-{self.ticker.lower()}-" in n)
         return rc, (new[-1] if new else None)
 
+    def _sector_path(self, as_of: date) -> pathlib.Path:
+        # ★ AC-F13.21 — a file that left the subject out is that subject's, so it is named for it.
+        suffix = f"_{self.ticker}" if self.omit else ""
+        return self.repo / f".state/sector/{self.sector_list}_{as_of.isoformat()}{suffix}.json"
+
     def sector_file(self, as_of: date):
-        path = self.repo / f".state/sector/{self.sector_list}_{as_of.isoformat()}.json"
+        path = self._sector_path(as_of)
         return path if path.exists() else None
 
     def build_sector(self, as_of: date):
         import tools.ingest_sector_file as ingest
 
         with _argv(["ingest_sector_file.py", "--list", self.sector_list,
-                    "--as-of", as_of.isoformat()]):
+                    "--as-of", as_of.isoformat(), "--out", str(self._sector_path(as_of)),
+                    *[a for sid, why in self.omit.items() for a in ("--omit", f"{sid}={why}")]]):
             if ingest.main() != 0:
                 raise RuntimeError("ingest_sector_file failed")
         path = self.sector_file(as_of)
@@ -222,10 +233,25 @@ def _argv(argv):
         sys.argv = saved
 
 
+def _sources(repo: pathlib.Path, subject) -> list[dict]:
+    return _yaml(repo / f"config/sector/{subject.sector_list}.yaml")["sources"]
+
+
+def _omitted(repo: pathlib.Path, config: dict, subject) -> dict[str, str]:
+    """AC-F13.21 — the listed sources that are the subject itself, with the reason."""
+    return own_sources(subject, _sources(repo, subject), config.get("edgar_sources") or {})
+
+
+def runners_for(repo: pathlib.Path, config: dict, subject) -> "ToolRunners":
+    return ToolRunners(repo, sector_list=subject.sector_list, ticker=subject.ticker,
+                       omit=_omitted(repo, config, subject))
+
+
 def _context(repo: pathlib.Path, ticker: str, as_of: date):
     config = _yaml(repo / CONFIG)
     subject = load_subject(ticker, config)
-    sources = _yaml(repo / f"config/sector/{subject.sector_list}.yaml")["sources"]
+    omit = _omitted(repo, config, subject)
+    sources = [s for s in _sources(repo, subject) if s["source_id"] not in omit]  # AC-F13.21
 
     def facts_accessions(t):
         from src.data_engine.pit.ledger import FactLedger
@@ -243,10 +269,10 @@ def _context(repo: pathlib.Path, ticker: str, as_of: date):
 
 def replay_argv(repo: pathlib.Path, ticker: str, as_of: date) -> list[str]:
     """AC-F13.8 — the step-4 arguments the chain builds from the recorded runs file."""
-    _config, subject, resolution = _context(repo, ticker, as_of)
+    config, subject, resolution = _context(repo, ticker, as_of)
     given = GivenRuns.from_json(json.loads(
         (repo / f"config/thesis_for/{ticker}_{as_of.isoformat()}.json").read_text()))
-    sector = ToolRunners(repo, sector_list=subject.sector_list, ticker=ticker).sector_file(as_of)
+    sector = runners_for(repo, config, subject).sector_file(as_of)
     return ["--dry-run", *thesis_inputs(resolution, stage_runs=dict(given.stage_a),
                                         ext_runs=[r for _, r in given.extractions],
                                         sector_path=sector)]
@@ -333,8 +359,7 @@ def main(argv=None) -> int:
     manifest = ChainManifest.open(REPO / ".state/thesis_for", subject.ticker, args.as_of,
                                   transport="anthropic_api" if is_paid() else "claude_code")
     return run_chain(subject=subject, resolution=resolution, manifest=manifest,
-                     runners=ToolRunners(REPO, sector_list=subject.sector_list,
-                                         ticker=subject.ticker),
+                     runners=runners_for(REPO, config, subject),
                      given=given, dry_run=dry_run, paid=is_paid(),
                      check_as_of=args.check_as_of or market_date, repo=REPO)
 

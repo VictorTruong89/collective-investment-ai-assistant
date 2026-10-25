@@ -1,0 +1,200 @@
+{
+"endpoint": "historical-price-eod/non-split-adjusted",
+"params": {
+"symbol": "MRNA",
+"from": "2026-09-22",
+"to": "2026-10-20"
+},
+"fetched_on": "2026-10-23",
+"response": [
+{
+"symbol": "MRNA",
+"date": "2026-10-20",
+"adjOpen": 226.03,
+"adjHigh": 243.98,
+"adjLow": 216.65,
+"adjClose": 242.08,
+"volume": 16858900
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-19",
+"adjOpen": 217.27,
+"adjHigh": 236.77,
+"adjLow": 216,
+"adjClose": 226.89,
+"volume": 18788924
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-16",
+"adjOpen": 235,
+"adjHigh": 237.96,
+"adjLow": 208.92,
+"adjClose": 218.01,
+"volume": 21403317
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-15",
+"adjOpen": 225.48,
+"adjHigh": 242.29,
+"adjLow": 217.02,
+"adjClose": 236.5,
+"volume": 17313520
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-14",
+"adjOpen": 217.49,
+"adjHigh": 227.09,
+"adjLow": 211.24,
+"adjClose": 226.3,
+"volume": 16625400
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-13",
+"adjOpen": 207.63,
+"adjHigh": 218.48,
+"adjLow": 204.7,
+"adjClose": 216.25,
+"volume": 13389300
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-12",
+"adjOpen": 224.5,
+"adjHigh": 227.46,
+"adjLow": 210.91,
+"adjClose": 213.74,
+"volume": 12873900
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-09",
+"adjOpen": 199,
+"adjHigh": 225,
+"adjLow": 197.17,
+"adjClose": 225,
+"volume": 28947300
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-08",
+"adjOpen": 196.42,
+"adjHigh": 199.92,
+"adjLow": 192.71,
+"adjClose": 197,
+"volume": 37400000
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-07",
+"adjOpen": 183.65,
+"adjHigh": 197.69,
+"adjLow": 182.5,
+"adjClose": 196.48,
+"volume": 14640200
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-06",
+"adjOpen": 202.09,
+"adjHigh": 212.22,
+"adjLow": 186.64,
+"adjClose": 187.46,
+"volume": 18794807
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-05",
+"adjOpen": 191.41,
+"adjHigh": 205.77,
+"adjLow": 185.9,
+"adjClose": 203.21,
+"volume": 19313307
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-02",
+"adjOpen": 190.26,
+"adjHigh": 193.72,
+"adjLow": 183.28,
+"adjClose": 190.01,
+"volume": 10289500
+},
+{
+"symbol": "MRNA",
+"date": "2026-10-01",
+"adjOpen": 186.61,
+"adjHigh": 201,
+"adjLow": 186.01,
+"adjClose": 188.94,
+"volume": 15437001
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-30",
+"adjOpen": 186.55,
+"adjHigh": 196.83,
+"adjLow": 184.58,
+"adjClose": 192.57,
+"volume": 20649500
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-29",
+"adjOpen": 197.78,
+"adjHigh": 208.9,
+"adjLow": 190,
+"adjClose": 203.46,
+"volume": 13277922
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-28",
+"adjOpen": 195.16,
+"adjHigh": 199.83,
+"adjLow": 189.1,
+"adjClose": 197.28,
+"volume": 13359640
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-25",
+"adjOpen": 195.35,
+"adjHigh": 202.67,
+"adjLow": 192.51,
+"adjClose": 198.88,
+"volume": 13945000
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-24",
+"adjOpen": 180.6,
+"adjHigh": 195.71,
+"adjLow": 180.39,
+"adjClose": 194.82,
+"volume": 16605500
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-23",
+"adjOpen": 183.41,
+"adjHigh": 192.31,
+"adjLow": 181.3,
+"adjClose": 182.11,
+"volume": 17727824
+},
+{
+"symbol": "MRNA",
+"date": "2026-09-22",
+"adjOpen": 168.5,
+"adjHigh": 187.2,
+"adjLow": 168.3,
+"adjClose": 182.56,
+"volume": 24033900
+}
+]
+}

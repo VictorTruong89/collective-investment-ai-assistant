@@ -54,7 +54,7 @@ def test_the_judgement_path_EMITS_v2_or_later():
     from src.fundamental.prompts.e_blocks import EMITS_RUBRIC
 
     assert EMITS_RUBRIC == {"J-03": "moat_durability@v2", "J-04": "earnings_quality@v3",
-                            "J-05": "balance_sheet_resilience@v3",
+                            "J-05": "balance_sheet_resilience@v4",   # ✏ DX-188
                             "J-06": "capital_allocation@v3"}
 
 

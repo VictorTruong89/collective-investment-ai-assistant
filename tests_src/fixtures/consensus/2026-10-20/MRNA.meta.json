@@ -1,0 +1,14 @@
+{
+ "ticker": "MRNA",
+ "fetched_at": "2026-10-23T01:04:26+00:00",
+ "source": "FMP /stable/ \u2014 grades, earnings, price-target-news (paged)",
+ "rows": {
+  "grades": 212,
+  "earnings": 33,
+  "price_target_news": 96
+ },
+ "price_target_pages": 1,
+ "paged_back_to": "2024-10-20",
+ "pit_class": "A (event-stamped); the as-of boundary is applied when the bundle is built",
+ "written_by": "tools/thesis_for.py --fetch-inputs (F13 D10)"
+}

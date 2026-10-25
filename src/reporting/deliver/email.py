@@ -101,6 +101,7 @@ def build_message(card, renderings: dict, *, sender: str, recipient: str) -> Ema
         body += [f"⚠ NOT ACTIONABLE — {card.not_actionable_reason}", ""]
     body += [
         f"Risk status: {card.alerts_status}",
+        *card.flag_lines,                     # ★ RP-57 — its own lines
         "",
         "The artifact of record is the attached HTML. The markdown attachment is",
         "the diffable, permanent copy (RP-33). This body is a notification only.",

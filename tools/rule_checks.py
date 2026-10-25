@@ -78,7 +78,9 @@ _NOT_THE_FILING = re.compile(
     r"D-02|frozen|declared absent|not_found|status found|computed|J-\d\d|E-\d\d|bundle|"
     r"commit|basis|implied|band|price|rubric|^[a-z]{2}\.[a-z_]+|"
     # ✏ 2026-10-03 — the computed sections `F11` and the consensus part add to the bundle
-    r"margin reach|fcff runs|cagr reach|reference.class|published|consensus|ratings", re.I)
+    r"margin reach|fcff runs|cagr reach|reference.class|published|consensus|ratings|"
+    # ✏ 2026-10-23 — the same F11 section, named by the model as "base rates" (SNDK J-11, J-16)
+    r"base.rates?", re.I)
 #: A quote may be abridged; each piece must be verbatim.
 _ABRIDGED = re.compile(r"\.\.\.|…")
 _MIN_PIECE = 10

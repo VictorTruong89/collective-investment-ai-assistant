@@ -61,6 +61,8 @@ class DisciplineCard:
     not_actionable_reason: str | None
     degraded: bool = False
     stubs: tuple[dict, ...] = ()
+    #: ★ RP-57 — D-05's flag pass, as lines, under its own label (RK-40).
+    flag_lines: tuple[str, ...] = ()
 
     def field(self, name: str) -> RenderUnit:
         for f in self.fields:
@@ -81,6 +83,7 @@ class DisciplineCard:
             "actionable": self.actionable,
             "not_actionable_reason": self.not_actionable_reason,
             "degraded": self.degraded, "stubs": [dict(s) for s in self.stubs],
+            "flag_lines": list(self.flag_lines),
         }
 
 
@@ -204,6 +207,7 @@ def build_card(recommendation, *, as_of: date) -> DisciplineCard:
         actionable=rec.actionable,
         not_actionable_reason=rec.not_actionable_reason,
         stubs=rec.stubs,
+        flag_lines=_flag_lines(getattr(rec, "behavioural_flags", None)),
     )
 
 
@@ -341,3 +345,46 @@ def _data_gaps(rec) -> tuple[str, ...]:
     if rec.grade.get("k") is None:
         gaps.append("no k-run verdict stability (RA-20) — no model was run")
     return tuple(gaps)
+
+
+#: RP-57 — the detail keys a flag line shows, in this order, when present.
+_FLAG_DETAIL = ("held_days", "avg_cost_before", "avg_cost_after", "added_value")
+
+
+def _flag_lines(fp: dict | None) -> tuple[str, ...]:
+    """RP-57 / AC-9.38 — the flag pass under its OWN label, beside the risk status.
+
+    ★ D-09 selects nothing: the counts and the `recent` list are D-05's (RK-40,
+    RP-43). Every kind is counted; only `recent` is listed; the rest is said in words.
+    """
+    if fp is None:
+        return ("Behavioural flags: not run in this graph",)
+    if fp["status"] != "COMPLETE":
+        return (f"Behavioural flags: {fp['status']}",)
+    lines = [f"Behavioural flags (D-05) — {fp['source']} · trade history through "
+             f"{fp['history_through']} · accounts {', '.join(fp['accounts'])}"]
+    for kind, n in sorted(fp["counts"].items()):
+        extra = (f" (trailing frequency {fp['short_hold_trailing_frequency']} of round trips)"
+                 if kind == "registered_short_hold" and n else "")
+        lines.append(f"{kind}: {n}{extra}")
+    by_id = {f["flag_id"]: f for f in fp["flags"]}
+    lines.append(f"Last {fp['recent_window_days']} days of history, in full:"
+                 if fp["recent"] else
+                 f"No flag in the last {fp['recent_window_days']} days of history.")
+    for flag_id in fp["recent"]:
+        f = by_id[flag_id]
+        when = f["detail"].get("closed_on") or f["as_of"]
+        detail = " ".join(f"{k}={_flag_value(f['detail'][k])}"
+                          for k in _FLAG_DETAIL if k in f["detail"])
+        lines.append(f"{f['kind']} {f['ticker']} {f['account']} {when}"
+                     + (f" · {detail}" if detail else ""))
+    older = len(fp["flags"]) - len(fp["recent"])
+    if older:
+        lines.append(f"{older} older flag(s) counted, not listed (RK-18: none is dropped)")
+    return tuple(lines)
+
+
+
+def _flag_value(value) -> str:
+    """A cost to the cent; ⚠ `570.8100000000001` is float noise, not precision."""
+    return f"{value:.2f}" if isinstance(value, float) else str(value)

@@ -1,0 +1,14 @@
+{
+ "title": "Novavax, Inc. Form 10-Q for the period ended 2026-06-30",
+ "url": "https://www.sec.gov/Archives/edgar/data/1000694/000100069426000018/nvax-20260630.htm",
+ "published_date": "2026-08-06",
+ "published_date_source": "EDGAR filingDate for accession 0001000694-26-000018",
+ "accession_id": "0001000694-26-000018",
+ "subject": "Novavax, Inc.",
+ "converter": "tools/convert_filing.py",
+ "source_id": "nvax-edgar",
+ "retrieved_at": "2026-10-23",
+ "chars": 156366,
+ "sha256": "sha256:02cc9b928340c3cc7107deb4004ff2eae819c46a5ee8e9a35ba1fbc58fbd4d41",
+ "removed": []
+}

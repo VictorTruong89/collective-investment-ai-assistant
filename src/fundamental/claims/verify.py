@@ -34,7 +34,9 @@ from decimal import Decimal, InvalidOperation
 
 from src.fundamental.claims.models import ASSUMPTION, FACT, INFERENCE, Claim, ClaimSet
 from src.fundamental.claims.classification import (
+    assert_attributed,
     assert_declared_value,
+    is_attribution,
     is_classification,
 )
 from src.fundamental.errors import (
@@ -107,6 +109,8 @@ def x01_verify_extraction(bundle, items) -> VerificationReport:
         #   by its declared closed set. ⚠ ① is never relaxed.
         if is_classification(item.evidence_id):
             assert_declared_value(item.evidence_id, item.value)
+        elif is_attribution(item.evidence_id):            # ✏ RA-155 — the record's subject
+            assert_attributed(bundle, item)
         else:
             _assert_value_in_quote(item)                  # ② RA-6, RA-132
         checked += 1

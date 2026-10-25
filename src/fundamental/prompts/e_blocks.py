@@ -597,7 +597,9 @@ EMITS_RUBRIC = {
     #   so a company with no non-GAAP measures is scoreable, not refused.
     "J-04": "earnings_quality@v3",
     # ✏ `DX-101` (2026-09-13) — `@v3`: undisclosed covenant headroom is not "absent".
-    "J-05": "balance_sheet_resilience@v3",
+    # ✏ `DX-188` (2026-10-22) — `@v4`: the maturity ladder as SEARCHED, so a company
+    #   with no debt is scoreable, not refused.
+    "J-05": "balance_sheet_resilience@v4",
     # ✏ `DX-101` (2026-09-13) — `@v3`: a window with no buybacks is stated, not assumed.
     "J-06": "capital_allocation@v3",
 }

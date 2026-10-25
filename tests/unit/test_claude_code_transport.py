@@ -45,8 +45,16 @@ class FakeRunner:
 
     def __call__(self, argv, *, input=None, env=None, cwd=None, timeout=None,
                  capture_output=True, text=True):
+        # ★ The system-prompt file lives in the call's temporary directory, so it is
+        #   read here, while it still exists (GW-30).
+        system = None
+        if "--system-prompt-file" in argv:
+            with open(argv[argv.index("--system-prompt-file") + 1], encoding="utf-8") as fh:
+                system = fh.read()
+        elif "--system-prompt" in argv:
+            system = argv[argv.index("--system-prompt") + 1]
         self.calls.append({"argv": list(argv), "input": input, "env": dict(env or {}),
-                           "cwd": cwd})
+                           "cwd": cwd, "system": system})
         out = self.auth if argv[1:3] == ["auth", "status"] else self.result
         return subprocess.CompletedProcess(argv, self.returncode, stdout=out, stderr="")
 
@@ -182,14 +190,94 @@ def test_ac_0_25_effort_and_max_tokens_reach_the_cli():
     assert argv[argv.index("--setting-sources") + 1] == ""
 
 
-def test_ac_0_25_cache_prefix_and_payload_are_sent_on_stdin_in_order():
+def test_ac_0_25_the_payload_is_sent_on_stdin():
     """AC-0.25 — the prompt goes on stdin (bundles run to ~250k chars, too big
-    for argv), stable prefix first, as the API transport orders them."""
+    for argv)."""
+    runner = FakeRunner()
+    cc.make_claude_code_transport(runner=runner, binary="claude")(dict(REQUEST))
+    assert runner.prompt_calls[0]["input"] == "PROMPT"
+    assert runner.prompt_calls[0]["system"] == cc.SYSTEM_PROMPT
+
+
+# ── AC-0.27 / AC-0.28 ───────────────────────────────────────────────────────
+
+def test_ac_0_27_cache_prefix_is_the_system_prompt_and_stdin_the_rest():
+    """AC-0.27 (GW-30, DX-181) — concatenated into stdin the prefix was never a
+    cache hit; as the system prompt it is. Order is kept: evidence, then the rest.
+    ⚠ Through a FILE: a 230k-token prefix is far over one argv string's limit."""
     runner = FakeRunner()
     cc.make_claude_code_transport(runner=runner, binary="claude")(
         {**REQUEST, "cache_prefix": "EVIDENCE", "payload": "INSTRUCTIONS"})
+    call = runner.prompt_calls[0]
+    assert call["system"] == f"{cc.SYSTEM_PROMPT}\n\nEVIDENCE"
+    assert "--system-prompt" not in call["argv"]
+    assert call["input"] == "INSTRUCTIONS"
+
+
+SCHEMA_A = {"type": "object", "properties": {"a": {"type": "integer"}}, "required": ["a"]}
+SCHEMA_B = {"type": "object", "properties": {"b": {"type": "string"}}, "required": ["b"]}
+FAMILY = {"answer_a": SCHEMA_A, "answer_b": SCHEMA_B}
+
+
+def _family_transport(structured, name="answer_a"):
+    runner = FakeRunner(result=_result(structured_output=structured))
+    transport = cc.make_claude_code_transport(
+        json_schema=FAMILY[name], schema_family=FAMILY, schema_name=name,
+        runner=runner, binary="claude")
+    return runner, transport
+
+
+def test_ac_0_28_every_call_of_a_family_sends_the_same_keyed_schema():
+    """AC-0.28 (GW-31, DX-181) — a per-call schema is a different TOOL, and tools
+    precede the system prompt, so it broke the shared prefix on every call."""
+    sent = []
+    for name, answer in (("answer_a", {"a": 7}), ("answer_b", {"b": "x"})):
+        runner, transport = _family_transport({name: answer}, name)
+        transport(dict(REQUEST))
+        argv = runner.prompt_calls[0]["argv"]
+        sent.append(argv[argv.index("--json-schema") + 1])
+    assert sent[0] == sent[1]
+    keyed = json.loads(sent[0])
+    assert keyed["properties"] == FAMILY
+    assert keyed["minProperties"] == keyed["maxProperties"] == 1
+    assert keyed["additionalProperties"] is False
+
+
+def test_ac_0_28_the_call_names_its_key_and_gets_only_that_value():
+    """AC-0.28 (GW-31) — the answer is the asked key's value, as without a family."""
+    runner, transport = _family_transport({"answer_a": {"a": 7}})
+    out = transport(dict(REQUEST))
+    assert json.loads(out["text"]) == {"a": 7}
     sent = runner.prompt_calls[0]["input"]
-    assert sent.index("EVIDENCE") < sent.index("INSTRUCTIONS")
+    assert sent.startswith("PROMPT") and "answer_a" in sent.splitlines()[-1]
+
+
+@pytest.mark.parametrize("structured", [
+    {"answer_b": {"b": "x"}},                          # another block's answer
+    {"answer_a": {"a": 7}, "answer_b": {"b": "x"}},    # two answers
+    {},                                                # none
+    {"a": 7},                                          # unwrapped
+    None,                                              # no structured output at all
+])
+def test_ac_0_28_a_missing_wrong_or_extra_key_raises(structured):
+    """AC-0.28 (GW-31, P5) — never another block's answer passed off as this one's."""
+    _, transport = _family_transport(structured)
+    with pytest.raises(TransportError, match="answer_a") as exc:
+        transport(dict(REQUEST))
+    assert exc.value.retryable is False
+
+
+def test_ac_0_28_a_family_must_hold_the_calls_own_schema():
+    """AC-0.28 — a family that does not carry this call's schema under its name is a
+    wiring error, refused before anything is sent."""
+    with pytest.raises(ValueError, match="answer_c"):
+        cc.make_claude_code_transport(json_schema=SCHEMA_A, schema_family=FAMILY,
+                                      schema_name="answer_c", runner=FakeRunner(),
+                                      binary="claude")
+    with pytest.raises(ValueError, match="answer_b"):
+        cc.make_claude_code_transport(json_schema=SCHEMA_A, schema_family=FAMILY,
+                                      schema_name="answer_b", runner=FakeRunner(),
+                                      binary="claude")
 
 
 def test_ac_0_25_cli_runs_outside_the_repo():

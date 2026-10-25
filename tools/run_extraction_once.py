@@ -45,6 +45,19 @@ from src.fundamental.prompts.registry import PromptRegistry  # noqa: E402
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 
+
+def extraction_family() -> dict:
+    """F13 `D14` / AC-F13.20 — `{block: tool}` for every E-block a thesis reads (`D8`).
+
+    ★ The SAME family in every extraction process, so seven runs over one filing send one
+    tools segment and the filing they share stays cached (GW-31). Keyed by block: every
+    extraction tool is named `record_extractions`.
+    """
+    from src.fundamental.on_demand.chain import E_BLOCKS
+    from tools.anthropic_transport import extraction_tool
+
+    return {b: extraction_tool(BLOCKS[b][1]) for b in E_BLOCKS}
+
 #: ⚠⚠ `L7` §5 — MU is FILING 1 and it is load-bearing. It stays the DEFAULT and
 #: its constants keep their names, so nothing that imports `FILING` changes
 #: behaviour. A second filing is selected explicitly with `--filing`, never by
@@ -86,6 +99,21 @@ DOCUMENT_SETS = {
 #: industry bundle carries the competitors' documents, not the subject's). ⚠ Declared, never
 #: inferred: guessing the subject is how `E-13` came to name Micron as its own competitor.
 SUBJECT_NAMES = {"MU": "Micron Technology, Inc.", "AMD": "Advanced Micro Devices, Inc."}
+
+
+def subject_name(ticker: str) -> str:
+    """AC-F13.22 — the declared subject: `SUBJECT_NAMES`, else `config/thesis_for.yaml`'s
+    `subjects` (F13 `D15`). ⚠ A ticker declared in neither is refused, never guessed."""
+    if ticker in SUBJECT_NAMES:
+        return SUBJECT_NAMES[ticker]
+    import yaml
+
+    config = yaml.safe_load((REPO / "config/thesis_for.yaml").read_text(encoding="utf-8"))
+    entry = (config.get("subjects") or {}).get(ticker)
+    if not entry:
+        raise SystemExit(f"{ticker} is declared neither in SUBJECT_NAMES nor in "
+                         f"config/thesis_for.yaml — the subject is never inferred (DX-119)")
+    return entry["name"]
 
 TICKER = "MU"
 FILING = REPO / FILINGS[TICKER]["path"]
@@ -643,6 +671,9 @@ def main(argv: list[str] | None = None) -> int:
                          "a golden case grades: the slice omits the evidence a "
                          "PERIOD START is derived from, so discrete and "
                          "cumulative figures collapse onto one MP-18 identity")
+    ap.add_argument("--cache-evidence", action="store_true",
+                    help="★ F13 D14 — send the bundle FIRST, as the cached prefix, with one "
+                         "schema family for every D8 block (thesis_for passes it)")
     args = ap.parse_args(argv)
     if (args.document or args.per_document) and not args.document_set:
         print("  ⛔ --document / --per-document need --document-set")
@@ -681,7 +712,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.block == "E-01" and args.prompt_version == "v2":
         factory = e01_v2
     registry.register(factory())
-    subject = SUBJECT_NAMES[args.ticker] if args.sector else None
+    subject = subject_name(args.ticker) if args.sector else None
     if args.document_set and (args.sector or args.segment_note_only):
         print("  ⛔ --document-set is its own bundle; it does not combine with --sector or "
               "--segment-note-only")
@@ -778,7 +809,9 @@ def main(argv: list[str] | None = None) -> int:
 
     transport = traced_transport(
         dev_transport(tool=extraction_tool(item_ids),
-                            thinking_display=args.thinking_display), store,
+                      thinking_display=args.thinking_display,
+                      **({"family": extraction_family(), "family_key": args.block}
+                         if args.cache_evidence else {})), store,
         step_id=f"extract:{args.block}", cost_of=_cost_of,
         # ⚠⚠ Without this the trace records `prompt_version: None` — so a
         # recording cannot say WHICH prompt produced it, and a golden case
@@ -791,6 +824,10 @@ def main(argv: list[str] | None = None) -> int:
         envelope_hash=envelope_hash("extraction"),
         # ★ `DX-95` — WHICH bundle this call read (`RA-2`).
         bundle_hash=bundle.bundle_hash)
+    if args.cache_evidence:
+        # ★ F13 `D14` — ABOVE the trace, so the recording says what was sent.
+        from tools.llm_transport import evidence_first
+        transport = evidence_first(transport)
     gateway = Gateway(Config(GATEWAY_VALUES, sources=("tools/run_extraction_once.py",)),
                       transport=transport)
     seam = AnalysisGateway(gateway, registry)

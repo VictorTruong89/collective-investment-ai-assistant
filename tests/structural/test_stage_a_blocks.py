@@ -28,7 +28,7 @@ STAGE_A = ("J-01", "J-02", "J-03", "J-04", "J-05", "J-06", "J-07", "J-08")
 def _registry() -> RubricRegistry:
     """★ Every published version — the SAME list the judgement runner reads
     (`DX-99`), so the test cannot resolve a rubric the runner does not."""
-    from src.fundamental.scorecard.rubrics.b43_v3 import PUBLISHED_RUBRICS
+    from src.fundamental.scorecard.rubrics.b43_v4 import PUBLISHED_RUBRICS   # ✏ DX-188
 
     return RubricRegistry(PUBLISHED_RUBRICS)
 

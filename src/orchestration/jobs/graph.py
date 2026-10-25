@@ -151,7 +151,7 @@ def assert_timer_has_no_policy(timer_line: str) -> None:
 #: ★ `daily_inference@v3` — the production graph. Declared here so `plan()`
 #: returns it without executing anything (T-2).
 DAILY_INFERENCE = JobGraph(
-    job_graph_id="daily_inference@v8",   # v8: observe + thesis removed (2026-10-05)
+    job_graph_id="daily_inference@v9",   # v9: the `flags` job (OR-63, 2026-10-21)
     jobs=(
         Job("calendar_check", "src.data_engine.service:DataEngine.calendar_check_report", budget_s=60),
         Job("prices", "src.data_engine.service:DataEngine.get_prices",
@@ -176,10 +176,14 @@ DAILY_INFERENCE = JobGraph(
         #   seam; `resolve(job)` turns it into the callable.
         Job("book", "src.recording.book.load:load_books",
             depends_on=("prices",), budget_s=120, optional=True),
+        # ★ OR-63 / RK-40 — D-05's behavioural-flag pass, complete on its own from the
+        #   trade history (no price, no book), so it runs while R1 keeps `risk` UNCHECKED.
+        Job("flags", "src.risk.flags.from_book:flag_pass",
+            depends_on=("calendar_check",), budget_s=60, optional=True),
         Job("risk", "src.risk.alerts.daily:daily_book_pass",
-            depends_on=("prices", "book"), budget_s=120, optional=True),
+            depends_on=("prices", "book", "flags"), budget_s=120, optional=True),
         Job("decide", "src.decision.compose.service:compose",
-            depends_on=("rank", "thesis_gate", "risk"), budget_s=60),
+            depends_on=("rank", "thesis_gate", "risk", "flags"), budget_s=60),
         Job("render", "src.reporting.render.card:build_card",
             depends_on=("decide",), budget_s=60),
         # ★★ CT-11.7 — the record every run leaves behind. ⚠ **Before

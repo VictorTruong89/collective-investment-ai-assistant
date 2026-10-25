@@ -79,6 +79,10 @@ def render_html(card) -> str:
                   f'({e(s["rule"])})</li>' for s in card.stubs) +
         "\n    </ul>"
     ) if card.stubs else ""
+    # ★ RP-57 — the flag pass, under its own heading.
+    flags = ("\n    <h3>Behavioural flags</h3>\n    <ul>\n" +
+             "\n".join(f"      <li>{e(ln)}</li>" for ln in card.flag_lines) +
+             "\n    </ul>") if card.flag_lines else ""
     banner = (
         f'\n    <p class="banner">⚠ NOT ACTIONABLE — {e(card.not_actionable_reason or "")}</p>'
         if not card.actionable else ""
@@ -106,7 +110,7 @@ def render_html(card) -> str:
     <h2>Risk</h2>
     <ul>
       <li>status: {e(card.alerts_status)}</li>
-    </ul>{stubs}
+    </ul>{flags}{stubs}
     <p class="foot">Reliability classes are marked by glyph and label, never by
     colour alone. This file is self-contained and fetches nothing.</p>
 </div></body></html>

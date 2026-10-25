@@ -239,6 +239,11 @@ class RecordedEngine:
         return (rows[rows["period_type"] == period_type].reset_index(drop=True)
                 if period_type else rows)
 
+    def get_facts(self, ticker, as_of=None):  # noqa: ARG002 — D-07's signature
+        """✏ `DX-189` — the newest knowable fact per tag and date (F10 `AC-F10.25`)."""
+        from src.data_engine.pit.snapshot import facts_as_of
+        return facts_as_of(self._ledger, as_of)
+
     def get_prices(self, ticker, start, end, adj_as_of=object()):  # noqa: ARG002 — D-07's signature
         if adj_as_of is not None:
             raise ValueError("RecordedEngine serves the RAW series only (adj_as_of=None, DE-45)")
@@ -447,8 +452,43 @@ def thesis_tool(block_id: str, *, observables=(), j15_version: str = "v2") -> di
             "description": f"Answer {block_id}, grounded per S-3.", "input_schema": schema}
 
 
-#: `DX-127` — cache pricing relative to the input rate: a write costs 1.25×, a read 0.1×.
-CACHE_WRITE_RATE, CACHE_READ_RATE = 1.25, 0.10
+#: `DX-127` — cache pricing relative to the input rate: a read costs 0.1×; a write 1.25× on
+#: the API (5-minute cache) and ✏ **2.0× on `claude_code`**, whose cache lives an hour —
+#: MEASURED 2026-10-21 (`DX-183`): J-16's 300,019 written tokens fit its notional at 2.0×.
+CACHE_WRITE_RATES = {"claude_code": 2.0, "anthropic_api": 1.25}
+CACHE_READ_RATE = 0.10
+
+#: AC-F13.19 — the CLI checks the answer against its schema and has the model repair a
+#: violation in a SECOND turn (`DX-182`); measured, that turn re-read or even re-wrote the
+#: whole prompt. A ceiling therefore assumes two turns, both missing the cache.
+CEILING_TURNS = 2
+
+
+def call_ceiling(prompt_tokens: int, output_cap: int, *, transport: str) -> float:
+    """AC-F13.19 — the most one call can cost: `CEILING_TURNS` turns, each writing the
+    whole prompt to the cache and writing its output cap. ⚠ It assumes no cache hit at all,
+    because the 2026-10-20 run had none and its old ceiling, which assumed them, was
+    passed ($24.60 against ≤ $17.90)."""
+    return CEILING_TURNS * (prompt_tokens * CACHE_WRITE_RATES[transport] * PRICE_IN
+                            + output_cap * PRICE_OUT)
+
+
+def plan_cost(calls, *, prefix_tokens: int, projected_out: int,
+              transport: str) -> tuple[float, float]:
+    """AC-F13.19 — `(expected, ceiling)` for `calls = [(prompt tokens, output cap), …]`.
+
+    Expected: one turn per call; the shared prefix (GW-30/31) is written by the first call
+    and read by every later one, and the rest of each prompt is written. Ceiling: the sum
+    of `call_ceiling`.
+    """
+    write = CACHE_WRITE_RATES[transport]
+    expected = ceiling = 0.0
+    for i, (prompt_tokens, cap) in enumerate(calls):
+        cached = prefix_tokens if i else 0
+        expected += ((prompt_tokens - cached) * write + cached * CACHE_READ_RATE) * PRICE_IN
+        expected += projected_out * PRICE_OUT
+        ceiling += call_ceiling(prompt_tokens, cap, transport=transport)
+    return expected, ceiling
 
 #: ⚠ MEASURED 2026-09-15: J-09…J-13 produced 4k–19k output tokens, mean ≈ 11k. The first
 #: projection (7,500) under-stated every later call's input AND its cost (`DX-115`).
@@ -594,7 +634,7 @@ def emitted_rubrics():
     """The four dimensions at the versions the Stage-A blocks emit (`EMITS_RUBRIC`)."""
     from src.fundamental.prompts.e_blocks import EMITS_RUBRIC
     from src.fundamental.scorecard.registry import RubricRegistry
-    from src.fundamental.scorecard.rubrics.b43_v3 import PUBLISHED_RUBRICS
+    from src.fundamental.scorecard.rubrics.b43_v4 import PUBLISHED_RUBRICS
 
     reg = RubricRegistry(PUBLISHED_RUBRICS)
     return tuple(reg.get(*(lambda d, v: (d, int(v)))(*EMITS_RUBRIC[b].split("@v")))
@@ -1033,7 +1073,6 @@ def main(argv=None) -> int:
     # ★ Unknown later outputs are projected from the MEASURED output size, not from Stage A.
     projected = int(PROJECTED_OUT_TOKENS * CHARS_PER_TOKEN)
     base_chars = sum(len(p.content) for p in base.parts)
-    ceiling = expected = 0.0
     estimates, keys = [], list(parts_by_key)
     for stage, block_id, metric in plan:
         key = f"{stage}:{block_id}" + (f":{metric}" if metric else "")
@@ -1045,15 +1084,15 @@ def main(argv=None) -> int:
         unknown = sum(1 for k in seen if k not in parts_by_key) * projected
         est_in = int((len(call_prompt(block_id, metric)) + base_chars + known + unknown)
                      / CHARS_PER_TOKEN)
-        # ★ `DX-127` — the base evidence is written to the cache once and read thereafter.
-        cached_in = 0 if args.no_cache else int(base_chars / CHARS_PER_TOKEN)
-        rate = CACHE_WRITE_RATE if not estimates else CACHE_READ_RATE
-        billed = (est_in - cached_in) + cached_in * rate
-        ceiling += billed * PRICE_IN + output_settings(block_id)[0] * PRICE_OUT
-        expected += billed * PRICE_IN + PROJECTED_OUT_TOKENS * PRICE_OUT
-        estimates.append(est_in)
+        estimates.append((est_in, output_settings(block_id)[0]))
         keys.append("D:falsifiers" if block_id == "J-15" else key)
         print(f"   {key:<28} sees {len(seen):>2} commit(s)  ≈{est_in:,} in")
+    # ★ `DX-127` / GW-30 — the base evidence is written to the cache once and read thereafter.
+    from tools.llm_transport import is_paid
+    live = "anthropic_api" if is_paid() else "claude_code"
+    expected, ceiling = plan_cost(
+        estimates, prefix_tokens=0 if args.no_cache else int(base_chars / CHARS_PER_TOKEN),
+        projected_out=PROJECTED_OUT_TOKENS, transport=live)
     print(f"  estimate   : ≈${expected:.2f} expected ({PROJECTED_OUT_TOKENS // 1000}k out/call, "
           f"{'cache OFF' if args.no_cache else 'cached prefix'}) · ≤${ceiling:.2f} ceiling "
           f"({len(estimates)} call(s) to send; caps {MAX_OUT}, J-13 "
@@ -1090,6 +1129,12 @@ def main(argv=None) -> int:
     spent, failed = 0.0, None
     falsifier_tests: dict | None = None     # ★ J-15 v2 — set when J-15 runs in THIS run
     committed = list(parts_by_key)
+    # ★★ GW-31 (`DX-181`) — every block's strict tool, one family for the whole run: on the
+    #   subscription a per-call schema is a different tool, and tools precede the cached
+    #   prefix, so without this not one call reused the evidence another had written.
+    family = {tool["name"]: tool for tool in
+              (strict_tool(thesis_tool(b, observables=fields))
+               for b in dict.fromkeys(block_id for _s, block_id, _m in plan))}
     for stage, block_id, metric in plan:
         key = f"{stage}:{block_id}" + (f":{metric}" if metric else "")
         if _commit_key(block_id, key) in parts_by_key:
@@ -1103,8 +1148,8 @@ def main(argv=None) -> int:
         prefix, payload = call_payload(base, parts_by_key, seen, block_id, metric,
                                        cached=not args.no_cache)
         max_out, effort = output_settings(block_id)
-        ceiling_cost = (int((len(payload) + len(prefix)) / CHARS_PER_TOKEN) * PRICE_IN
-                        + max_out * PRICE_OUT) * paid
+        ceiling_cost = call_ceiling(int((len(payload) + len(prefix)) / CHARS_PER_TOKEN),
+                                    max_out, transport="anthropic_api") * paid
         if spent + ceiling_cost > args.budget_usd:
             failed = (key, f"NOT SENT — its ceiling (${ceiling_cost:.2f}) would pass the "
                            f"${args.budget_usd:.2f} cap after ${spent:.2f} spent")
@@ -1112,7 +1157,7 @@ def main(argv=None) -> int:
         blk = BLOCKS[block_id][0]()
         tool = thesis_tool(block_id, observables=fields)
         transport = traced_transport(
-            dev_transport(tool=strict_tool(tool), max_output=max_out), store,
+            dev_transport(tool=strict_tool(tool), max_output=max_out, family=family), store,
             step_id=f"judge:{key}", kind="llm",
             cost_of=lambda _m, t: (t.get("input", 0) * PRICE_IN
                                    + t.get("output", 0) * PRICE_OUT) * paid,

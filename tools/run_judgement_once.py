@@ -42,9 +42,9 @@ from src.fundamental.prompts.e_blocks import (  # noqa: E402
 from src.fundamental.prompts.envelope import compose_prompt  # noqa: E402
 from tools.run_extraction_once import (  # noqa: E402
     ACCESSION,
-    SUBJECT_NAMES,
     build_bundle,
     sector_bundle,
+    subject_name,
 )
 
 MODEL = "claude-opus-5"
@@ -65,7 +65,7 @@ def _rubric_for(block_id: str):
     resolvable so a baseline recorded against it can still be read (`RA-52`).
     """
     from src.fundamental.scorecard.registry import RubricRegistry
-    from src.fundamental.scorecard.rubrics.b43_v3 import PUBLISHED_RUBRICS
+    from src.fundamental.scorecard.rubrics.b43_v4 import PUBLISHED_RUBRICS
 
     # ★ `DX-99` — one list of every published version, shared with the tests.
     reg = RubricRegistry(PUBLISHED_RUBRICS)
@@ -235,8 +235,14 @@ def build_payload(prompt: str, the_offer, body: str) -> str:
     evidence, so *"Select ONE rubric level"* finally has something to select
     from. ⚠ Only the offered levels' criteria, never their scores (`RA-31`).
     """
+    return f"{instructions(prompt, the_offer)}\n\n---\n\n{body}"
+
+
+def instructions(prompt: str, the_offer) -> str:
+    """The prompt and its rubric — what follows the evidence under F13 `D14`
+    (`--cache-evidence`), where the bundle is the cached prefix instead."""
     rubric = f"\n\n{the_offer.render()}" if the_offer else ""
-    return f"{prompt}{rubric}\n\n---\n\n{body}"
+    return f"{prompt}{rubric}"
 
 
 def add_annual_history(bundle, ledger_dir, *, ticker: str):
@@ -377,7 +383,7 @@ def load_extraction_parts(run_ids, filing_bundle, *, ticker: str, sector=None) -
             results, source,
             # ★ `DX-119` — over the industry bundle the subject is DECLARED: the analysed
             #   company has no cover page there.
-            subject=SUBJECT_NAMES[ticker.upper()] if source is not filing_bundle else None)
+            subject=subject_name(ticker.upper()) if source is not filing_bundle else None)
         parts.extend(extractions(ExtractionPass(results=tuple(results), report=report),
                                  prompt_versions=versions, run_id=run_id))
     return tuple(parts)
@@ -432,6 +438,9 @@ def main(argv=None) -> int:
                     help="D-07 fact ledger dir (e.g. .state/facts) for J-20's history part")
     ap.add_argument("--seed", default="0",
                     help="seed for the recorded rubric option order (RA-17)")
+    ap.add_argument("--cache-evidence", action="store_true",
+                    help="★ F13 D14 — send the blind bundle FIRST, as the cached prefix, with "
+                         "one schema family for the run (thesis_for passes it)")
     from tools.run_extraction_once import add_filing_args, apply_filing_args
     add_filing_args(ap)
     args = ap.parse_args(argv)
@@ -519,11 +528,13 @@ def main(argv=None) -> int:
         #   in fresh authoring, and Stage A IS fresh authoring. Every earlier Stage-A
         #   recording went out without it; that split is DECLARED in the golden test.
         prompt = compose_prompt(blk, stage_a=(blk.view == "blind"), fresh=True)
-        payload = build_payload(prompt, the_offer, body)
+        # ★ F13 `D14` — evidence first: the bundle goes as the cached prefix (GW-30).
+        payload = (instructions(prompt, the_offer) if args.cache_evidence
+                   else build_payload(prompt, the_offer, body))
         # ⚠ MEASURED 2026-09-10: `//4` predicted 52,912 tokens and the call
         # billed **70,371** — a 33% underestimate. ★ Filing prose tokenises
         # nearer 3 chars/token than 4, so estimates for THIS corpus use 3.
-        est_in = len(payload) // 3
+        est_in = (len(payload) + (len(body) if args.cache_evidence else 0)) // 3
         plans.append((blk, the_offer, payload, est_in, gate_error))
         gate = (gate_label if gate_error
                 else f"  levels={levels} shown as {the_offer.permutation}" if the_offer
@@ -555,6 +566,11 @@ def main(argv=None) -> int:
     paid = price_factor()                  # ★ GW-27 — 0.0 on the subscription
 
     spent, answers, failed = 0.0, {}, []
+    # ★ F13 `D14` / GW-31 — one schema family for every block this run sends, keyed by
+    #   block, so a per-block tool no longer breaks the cached bundle after it.
+    family = ({blk.name: judgement_tool(blk, criteria=the_offer.criteria if the_offer else ())
+               for blk, the_offer, _p, _e, gate_error in plans if not gate_error}
+              if args.cache_evidence else None)
     for blk, the_offer, payload, _est, gate_error in plans:
         criteria = the_offer.criteria if the_offer else ()
         if gate_error:
@@ -565,8 +581,8 @@ def main(argv=None) -> int:
             print(f"   ⛔ {blk.name}: NOT SENT — {gate_error.splitlines()[0]}")
             continue
         transport = traced_transport(
-            dev_transport(tool=judgement_tool(blk, criteria=criteria),
-                                max_output=MAX_OUT),
+            dev_transport(tool=judgement_tool(blk, criteria=criteria), max_output=MAX_OUT,
+                          **({"family": family, "family_key": blk.name} if family else {})),
             store, step_id=f"judge:{blk.name}", kind="llm",
             # ⚠⚠ `cost_of(model_id, TOKENS)` receives the NORMALISED `{input,
             # output}` dict, not the raw response (`DX-65`) — an absent cost
@@ -583,7 +599,8 @@ def main(argv=None) -> int:
             #   differs by which extraction runs were loaded.
             bundle_hash=blind.bundle_hash)
         try:
-            request = {"model": MODEL, "max_tokens": MAX_OUT, "payload": payload}
+            request = {"model": MODEL, "max_tokens": MAX_OUT, "payload": payload,
+                       **({"cache_prefix": body} if args.cache_evidence else {})}
             if the_offer:
                 # ★ `RA-17` — the order SHOWN, recorded in the call's own trace
                 #   payload (the transport ignores keys it does not read).

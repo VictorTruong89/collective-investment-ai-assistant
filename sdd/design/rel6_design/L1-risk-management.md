@@ -12,6 +12,7 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.6.0 | 2026-10-21 | Victor (L9 §6.5 R3, ruling ⓐ) | ★★ **RK-40 amends RK-30 — the behavioural-flag pass is COMPLETE ON ITS OWN.** Victor 2026-10-21: *option ⓐ*. With R1 accepted the full pass never completes, so under RK-30 alone the flags the mandate asked for (M-3, M-4) would **never** render. RK-33 already makes flags independent of exposure, and they read only the trade history — so a flags-only pass is a complete measurement **of what it measures**, published as its own **CT-5.4 FlagPass** beside an `UNCHECKED` exposure. ★ RK-30's concern is met by labelling, never by blending: `alerts_status` stays the full pass's, DN-39 still needs the full pass, and the card shows the two under separate headings. **AC-5.24…5.27.** ★ Card display (Victor 2026-10-21): every kind counted; the flags inside the history's last 30 days listed in full; older ones counted, not listed — D-05 makes that selection, D-09 renders it. |
 | 0.5.0 | 2026-08-25 | Victor | ⚠⚠ **B5 readiness — three defects, and two open questions this milestone cannot be built around.** ★★ **RK-37 (closes QK-2)**: `L1-feature-engineering` §6.4 says **D-02 publishes theme mappings** while **RK-6** makes the taxonomy a declared artifact — and for D-02 to label a theme it must know the taxonomy, which **FE-21 forbids**. **D-02 publishes sector; D-05 resolves theme** from its own **CT-5.3**, so no import edge appears in either direction. ★★ **RK-38**: **AC-5.19 says `drawdown()` needs "D-11's book alone"** but `CT-11.4` is **one account on one day**, while `peak`/`duration_days` need history and **RK-27 forbids D-05 persisting a tracker**. The series *is* the accumulation of CT-11.4; the peak is derived, and ⚠ an incomplete series is **unmeasured, never zero**. ★★ **RK-39 (closes QK-4)**: the premature-exit flag reports a **distribution**, not a threshold — *and the only artifact carrying an intended horizon is the thesis, which **RK-28 forbids D-05 to import***. AC-5.6a/5.13a/5.19a added. |
 | 0.4.0 | 2026-08-22 | Victor | ★★ **New §4A — the runtime workflow, which did not exist.** §5–§9 gave the *measures* and §11 listed methods in no order; **nothing said what runs when**, and an implementation audit found four unanswered questions. **Five workflows (WF-R1…WF-R5), the daily ladder with the rule forcing each position, RK-29…RK-36.** ★★ **RK-29: never compute on an unreconciled book** — the tempting fallback (use the last good book) produces a correct-looking report *about yesterday* with nothing on the artifact saying so. ★★ **RK-30: alerts emit only from a complete pass**, because in a domain whose value is that silence means *"nothing found"*, a partial alert set is an all-clear on everything absent. ★ **RK-34 states that there is NO gate step** — INV-026 means one would be wrong, and saying so is cheaper than having someone add it. |
 | 0.3.0 | 2026-08-18 | Victor | ⚠ **QK-5 stale — closed by D-12.** And the answer was already implied by this spec: **INV-026 gives D-05 zero blocking authority, so it could never have owned the gate.** |
@@ -237,6 +238,7 @@ pass/fail that anything waits on.
 | **RK-31** | ★ **WF-R2 uses the SAME code path as WF-R1, on a hypothetical book.** ⚠ A candidate evaluated by different code is a different measurement, and the two would drift exactly where it matters — the comparison between "the book now" and "the book with this position". *(This is INV-4's train/inference parity argument, applied to risk.)* |
 | **RK-32** | **Stress (WF-R3) is a separate cadence and is never on the daily critical path.** Scenario replay is expensive, is **labelled and never predictive** (§9), and a daily decision does not wait on it |
 | **RK-33** | **Exposure and flags are independent.** Flags read the book; exposure aggregates it. Neither is an input to the other |
+| **RK-40** | ★★ *(2026-10-21, Victor — L9 §6.5 option ⓐ; amends RK-30)* **The behavioural-flag pass (step 4) is complete on its own, and publishes its flags as a `FlagPass` (CT-5.4) whether or not the full pass completes.** It reads the trade history only (RK-33), so its completeness is its own: `COMPLETE` when **every** discovered account's export was read (one unreadable account withholds all — M-4's trailing count over part of the book would understate the pattern, RK-5's argument), else `UNCHECKED: <why>` with no flags. ★ **Never blended**: the flag pass does not change `alerts_status`, DN-39 still requires the full pass, and the two render under separate labels. The pass states `history_through` — the newest activity date read — so a stale export reads as stale, never as *no recent short holds*. RK-18 holds: every flag is counted; the card lists in full those whose event falls within the 30 days ending `history_through` and counts the rest |
 | **RK-34** | ★ **There is no gate step, and its absence is deliberate** (INV-026). ⚠ A reader who assumes a "risk pipeline" ends in a pass/fail will look for one; **stating that it does not exist is cheaper than having someone add it** |
 
 ## 4A.3 WF-R2 — candidate risk, and what D-05 is allowed to see
@@ -449,6 +451,25 @@ explicitly calls out is the one with no definition behind it* (§5.1).
 | `included` / `excluded` | ★ **the judgement, isolated and named.** *Is `ENB` in the AI theme because it powers datacentres?* is a question a reader must be able to see answered, not infer from an aggregate |
 | a position matching none | **`unclassified`**, counted in a visible residual (RK-7) — never dropped |
 
+## CT-5.4 — ★ FlagPass (JSON) — RK-40
+
+```json
+{
+  "status": "COMPLETE",                       // or "UNCHECKED: <why>" — then flags is []
+  "source": "trade history only — not part of the exposure pass (RK-40)",
+  "as_of": "2026-10-21", "history_through": "2026-10-02",
+  "accounts": ["RESP_1", "RRSP_1", "TFSA_1", "TFSA_2"],
+  "counts": {"pyramiding": 21, "premature_exit": 32, "registered_short_hold": 81},
+  "short_hold_trailing_frequency": 0.5664,    // RK-17; null when there are none
+  "recent_window_days": 30,
+  "recent": ["<flag_id>", "…"],               // event within the window ending history_through
+  "flags": [ /* every CT-5.2 Flag — never filtered (RK-18) */ ]
+}
+```
+
+★ `counts` sums to `len(flags)` — a count that disagrees with the list is a filter (RK-18). An event date is the
+flag's `detail.closed_on` when it has one (a round trip), else its `as_of` (the buy).
+
 ## CT-5.2 — Flag (JSON, append-only)
 
 `(flag_id, kind ∈ {pyramiding, premature_exit, registered_short_hold}, ticker, account, as_of,
@@ -544,6 +565,18 @@ FACTORS FOR D-06  (§8)
 BOUNDARY
 □ AC-5.22  A request to veto, refuse or downgrade raises (INV-026, RK-27)
 □ AC-5.23  src/risk imports no LLM gateway, no D-01, and not D-08
+
+FLAG PASS  (RK-40, 2026-10-21)
+□ AC-5.24  ★ The flag pass reads the trade history alone and is COMPLETE when every
+           discovered account was read; any unreadable account (or none) makes it
+           UNCHECKED: <why> with no flags (RK-40, RK-5)
+□ AC-5.25  ★★ The flag pass never changes alerts_status and never makes a card
+           actionable: an UNCHECKED full pass stays UNCHECKED beside a COMPLETE
+           flag pass (RK-40, RK-30, DN-39)
+□ AC-5.26  ★ counts sums to len(flags), every flag kind is counted, and `recent` is
+           exactly the flags whose event falls in the 30 days ending history_through
+           (RK-40, RK-18)
+□ AC-5.27  The pass states history_through, the newest activity date read (RK-40)
 ```
 
 ---

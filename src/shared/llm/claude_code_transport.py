@@ -90,9 +90,19 @@ def _child_env(max_tokens: int) -> dict[str, str]:
     return env
 
 
+def keyed_schema(family: Mapping[str, dict]) -> dict:
+    """GW-31 — one schema for every call of a run: each tool's schema under its own
+    key, exactly one key filled. ★ The same bytes on every call, so the tools segment
+    no longer breaks the cached prefix that follows it."""
+    return {"type": "object", "properties": dict(family),
+            "minProperties": 1, "maxProperties": 1, "additionalProperties": False}
+
+
 def make_claude_code_transport(
     *,
     json_schema: dict | None = None,
+    schema_family: Mapping[str, dict] | None = None,
+    schema_name: str | None = None,
     max_output: int = MODEL_MAX_OUTPUT,
     runner: Callable | None = None,
     binary: str | None = None,
@@ -101,9 +111,15 @@ def make_claude_code_transport(
     """Return the callable `Gateway(transport=...)` / `traced_transport` expect.
 
     `json_schema` is the output schema (the API path's strict tool
-    `input_schema`). `runner` is injected for tests; it defaults to
-    `subprocess.run`.
+    `input_schema`). With `schema_family` (GW-31) the CLI is sent the family's
+    keyed schema instead and this call fills `schema_name`, whose schema must be
+    `json_schema`. `runner` is injected for tests; it defaults to `subprocess.run`.
     """
+    if schema_family is not None and schema_family.get(schema_name) != json_schema:
+        raise ValueError(
+            f"schema family does not hold this call's schema under {schema_name!r} "
+            f"(GW-31) — refusing to send a schema the answer is not checked against")
+    sent_schema = keyed_schema(schema_family) if schema_family is not None else json_schema
     run = runner or subprocess.run
     exe = binary or os.environ.get(BIN_ENV) or "claude"
     state = {"auth_ok": False}
@@ -141,22 +157,32 @@ def make_claude_code_transport(
                 "anthropic_api for a cheap-tier call.")
         max_tokens = min(int(request.get("max_tokens") or max_output), max_output)
         prompt = _flatten(request["payload"])
-        if request.get("cache_prefix"):
-            prompt = f"{request['cache_prefix']}\n\n{prompt}"
+        if schema_family is not None:
+            prompt += (f"\n\nAnswer through the StructuredOutput tool, filling ONLY "
+                       f"the key `{schema_name}`.")
 
         argv = [exe, "-p", "--output-format", "json",
                 "--model", str(request["model"]),
                 "--tools", "", "--no-session-persistence",
-                "--setting-sources", "", "--strict-mcp-config",
-                "--system-prompt", SYSTEM_PROMPT]
+                "--setting-sources", "", "--strict-mcp-config"]
         if request.get("effort"):
             argv += ["--effort", str(request["effort"])]
-        if json_schema is not None:
-            argv += ["--json-schema", json.dumps(json_schema)]
+        if sent_schema is not None:
+            argv += ["--json-schema", json.dumps(sent_schema)]
 
         # ★ An empty directory outside the repo: the CLI must not load this
         #   repo's CLAUDE.md, hooks or memory into a pipeline call.
         with tempfile.TemporaryDirectory(prefix="cia-claude-code-") as cwd:
+            if request.get("cache_prefix"):
+                # ★★ GW-30 (`DX-181`) — the prefix is the SYSTEM PROMPT, where the CLI
+                #   puts a cache breakpoint. In the one stdin message it was re-written
+                #   in full on every call. A file, because ~230k tokens exceed argv.
+                system_file = os.path.join(cwd, "system-prompt.txt")
+                with open(system_file, "w", encoding="utf-8") as fh:
+                    fh.write(f"{SYSTEM_PROMPT}\n\n{request['cache_prefix']}")
+                argv += ["--system-prompt-file", system_file]
+            else:
+                argv += ["--system-prompt", SYSTEM_PROMPT]
             if not state["auth_ok"]:
                 _check_auth(cwd)
             proc = _invoke(argv, stdin=prompt, env=_child_env(max_tokens), cwd=cwd)
@@ -194,7 +220,16 @@ def make_claude_code_transport(
             raise TransportError(f"Claude Code exited {proc.returncode}: {message[:200]}")
 
         structured = data.get("structured_output")
-        text = (json.dumps(structured) if json_schema is not None and structured is not None
+        if schema_family is not None:
+            # ★ GW-31 — this call's key and nothing else; another block's answer is
+            #   never passed off as this one's (P5).
+            if not isinstance(structured, dict) or list(structured) != [schema_name]:
+                keys = sorted(structured) if isinstance(structured, dict) else structured
+                raise TransportError(
+                    f"Claude Code answered keys {keys!r}, not exactly {schema_name!r} "
+                    f"(GW-31)", retryable=False)
+            structured = structured[schema_name]
+        text = (json.dumps(structured) if sent_schema is not None and structured is not None
                 else message)
         return {**common, "text": text, "stop_reason": data.get("stop_reason")}
 

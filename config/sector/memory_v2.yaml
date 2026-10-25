@@ -1,0 +1,52 @@
+# ★★ The MEMORY industry source list, v2 — `RA-98`, `CT-1.7`. Version it; never edit in place.
+#
+# ⚠⚠ THIS FILE IS THE ARTIFACT THAT GETS REVIEWED, not the sector file it produces.
+#   *"Selection of evidence is itself a conclusion"* — so WHERE we look is fixed here, in
+#   advance, and the ingest visits every entry and logs an `Omission` for any that yields
+#   nothing. A source added because its content was liked is the defect `RA-98` names.
+#
+# ★ v1's peer set (Victor Truong, 2026-09-15: Samsung · SK hynix · Sandisk, "due to relative
+#   size and similar product lines") PLUS Micron — Victor, 2026-10-22 (F13 `D15`), so the list
+#   serves any memory subject, not only Micron. ★ A thesis leaves out its OWN subject's source
+#   (matched by CIK, logged as an `Omission`, AC-F13.21): Sandisk on this list reads Micron ·
+#   SK hynix · Samsung.
+#   ⚠ `memory_v1.yaml` is unchanged and MU stays on it, so MU's recorded theses replay as before.
+
+source_list_version: "memory.v2"
+industry: "memory_semiconductors"
+
+sources:
+  - source_id: mu-edgar
+    name: "Micron Technology, Inc. — SEC filings (EDGAR CIK 0000723125)"
+    kind: edgar_filer
+    cadence: quarterly
+  - source_id: sndk-edgar
+    name: "Sandisk Corporation — SEC filings (EDGAR CIK 0002023554)"
+    kind: edgar_filer
+    cadence: quarterly
+  - source_id: skhynix-ir
+    name: "SK hynix Inc. — quarterly earnings releases (news.skhynix.com)"
+    kind: company_ir
+    cadence: quarterly
+  - source_id: samsung-ir
+    name: "Samsung Electronics Co., Ltd. — quarterly earnings presentations (samsung.com/global/ir)"
+    kind: company_ir
+    cadence: quarterly
+
+# ⚠ EXCLUDED, with the reason — carried from v1 unchanged.
+#   ★ Adding any of these is a source_list_version BUMP, never an edit (`RA-98`).
+excluded:
+  - subject: "Kioxia Holdings"
+    reason: >-
+      Victor Truong, 2026-09-15. It co-owns the Flash Ventures fabs (K1, Y7, K2) that Sandisk
+      already reports, so counting both would double-count the same announced capacity.
+      Sandisk is the declared reporter for joint-venture capacity.
+  - subject: "YMTC, CXMT"
+    reason: >-
+      Victor Truong, 2026-09-15 — outside the peer criterion (relative size and similar
+      product lines). ⚠ Their capacity is real; excluding them means announced industry
+      supply in this file is a LOWER BOUND, and a reader must not read it as complete.
+  - subject: "TrendForce, Yole, SEMI, WSTS and other trade trackers"
+    reason: >-
+      Paid subscriptions this project does not hold; an industry aggregate cannot be
+      sourced without one. Excluded so the absence is declared rather than discovered.

@@ -83,6 +83,9 @@ class RunContext:
     #: ★ D-11's reason when no book could be valued. Carried, never composed
     #: here — OR-1 keeps adapters free of judgement.
     book_unavailable_reason: str = ""
+    #: ★ OR-63 — where D-11's exports are read for the flag pass; `None` = D-11's own
+    #: default (`resolve_export_dir`). Supplied, never chosen here (OR-1).
+    broker_root: str | None = None
     #: RA-71's answer for the nominated thesis, computed by D-01 upstream.
     thesis_stale: bool = False
     falsifier_fired: bool = False
@@ -277,6 +280,25 @@ def _book(job, manifest, ctx: RunContext):
                         fetch=ctx.price_fetch)
 
 
+def _flags(job, manifest, ctx: RunContext):
+    """D-05 — the behavioural-flag pass (OR-63, RK-40), invoked by dotted name.
+
+    ⚠ P5: a failure inside D-05 becomes `UNCHECKED: <why>` — it is never an empty
+    COMPLETE pass, which would read as *no flags found*.
+    """
+    from src.orchestration.jobs.graph import resolve
+    from src.risk.flags.from_book import FlagPass
+    from src.risk import unchecked
+
+    try:
+        return resolve(job)(as_of=ctx.as_of, root=ctx.broker_root)
+    except Exception as exc:                                        # noqa: BLE001
+        return FlagPass(status=unchecked(f"the flag pass failed: {type(exc).__name__}: "
+                                         f"{str(exc)[:300]}"),
+                        as_of=ctx.as_of, history_through=None, accounts=(), flags=(),
+                        counts={}, short_hold_trailing_frequency=None, recent=())
+
+
 def _risk(job, manifest, ctx: RunContext):
     """D-05 — the **full WF-R1 ladder** when a reconciled book exists.
 
@@ -291,8 +313,10 @@ def _risk(job, manifest, ctx: RunContext):
     books, why = ctx.outputs.get("book", ((), ctx.book_unavailable_reason))
     if not books or ctx.taxonomy is None:
         return daily_pass(as_of=ctx.as_of, book=None, why=why)
+    flag_pass = ctx.outputs.get("flags")
+    flags = flag_pass.flags if getattr(flag_pass, "status", "") == "COMPLETE" else ()
     _risk_report, alerts = daily_book_pass(
-        as_of=ctx.as_of, books=books, taxonomy=ctx.taxonomy, history=books)
+        as_of=ctx.as_of, books=books, taxonomy=ctx.taxonomy, history=books, flags=flags)
     return alerts
 
 
@@ -324,6 +348,8 @@ def _decide(job, manifest, ctx: RunContext):
                                                                nomination=nomination),
         top_thesis_stability=stability,
         thesis_ref=card.ref if card else None,                 # ★ DN-42 — carried
+        behavioural_flags=(ctx.outputs["flags"].to_json_obj()  # ★ DN-43 — carried
+                           if ctx.outputs.get("flags") is not None else None),
         stubs=[s.to_json_obj() for s in manifest.stubs])
     enforce_inv6([recommendation])              # DN-22 / INV-6
     return recommendation
@@ -427,7 +453,7 @@ ADAPTERS = {
     "calendar_check": _calendar_check, "prices": _prices, "features": _features,
     "rank": _rank,
     "thesis_gate": _thesis_gate,
-    "book": _book, "risk": _risk,
+    "book": _book, "flags": _flags, "risk": _risk,
     "decide": _decide, "render": _render,
     "record": _record, "deliver": _deliver,
 }

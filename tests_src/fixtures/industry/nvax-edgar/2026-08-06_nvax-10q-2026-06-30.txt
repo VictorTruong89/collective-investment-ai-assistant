@@ -1,0 +1,1400 @@
+
+
+nvax-20260630
+
+UNITED STATES SECURITIES AND EXCHANGE COMMISSION
+Washington, D.C. 20549
+Form 10-Q
+☒ QUARTERLY REPORT PURSUANT TO SECTION 13 OR 15(d) OF THE SECURITIES EXCHANGE ACT OF 1934
+For the quarterly period ended June 30, 2026
+OR
+☐ TRANSITION REPORT PURSUANT TO SECTION 13 OR 15(d) OF THE SECURITIES EXCHANGE ACT OF 1934
+For the transition period from to .
+Commission File No. 000-26770
+NOVAVAX, INC.
+(Exact name of registrant as specified in its charter)
+
+Delaware | 22-2816046
+(State or other jurisdiction of incorporation or organization) | (I.R.S. Employer Identification No.)
+
+21 Firstfield Road, | Gaithersburg, | MD | 20878
+(Address of principal executive offices) | (Zip code)
+
+(240) 268-2000
+(Registrant's telephone number, including area code)
+
+N/A
+(Former Name, Former Address and Former Fiscal Year, if Changed Since Last Report)
+Securities registered pursuant to Section 12(b) of the Act:
+
+Title of each class | Trading Symbol(s) | Name of each exchange on which registered
+Common Stock, Par Value $0.01 per share | NVAX | The Nasdaq Global Select Market
+
+Indicate by check mark whether the Registrant: (1) has filed all reports required to be filed by Section 13 or 15(d) of the Securities Exchange Act of 1934 during the preceding 12 months (or for such shorter period that the Registrant was required to file such reports), and (2) has been subject to such filing requirements for the past 90 days. Yes x No o
+Indicate by check mark whether the registrant has submitted electronically every Interactive Data File required to be submitted pursuant to Rule 405 of Regulation S-T (§232.405 of this chapter) during the preceding 12 months (or for such shorter period that the registrant was required to submit such files). Yes x No o
+Indicate by check mark whether the registrant is a large accelerated filer, an accelerated filer, a non-accelerated filer, a smaller reporting company, or an emerging growth company. See the definitions of “large accelerated filer,” “accelerated filer,” “smaller reporting company,” and “emerging growth company” in Rule 12b-2 of the Exchange Act.
+
+Large accelerated filer | x | Accelerated Filer | o
+
+Non-accelerated filer | o | Smaller reporting company | o
+
+Emerging growth company | o
+
+If an emerging growth company, indicate by check mark if the registrant has elected not to use the extended transition period for complying with any new or revised financial accounting standards provided pursuant to Section 13(a) of the Exchange Act. o
+Indicate by check mark whether the Registrant is a shell company (as defined in Rule 12b-2 of the Exchange Act). Yes ☐ No x
+The number of shares outstanding of the Registrant's Common Stock, $0.01 par value, was 164,945,726 as of July 31, 2026.
+
+NOVAVAX, INC.
+TABLE OF CONTENTS
+
+Page No.
+PART I. FINANCIAL INFORMATION
+1
+
+Item 1.
+Consolidated Financial Statements
+1
+
+Unaudited Consolidated Statements of Operations and Unaudited Consolidated Statements of Comprehensive Income (Loss) for the three and six months ended June 30, 2026 and 2025
+2
+
+Consolidated Balance Sheets as of June 30, 2026 (unaudited) and December 31, 2025
+3
+
+Unaudited Consolidated Statements of Changes in Stockholders’ Deficit for the three and six months ended June 30, 2026 and 2025
+4
+
+Unaudited Consolidated Statements of Cash Flows for the six months ended June 30, 2026 and 2025
+5
+
+Notes to the Consolidated Financial Statements (unaudited)
+6
+
+Item 2.
+Management’s Discussion and Analysis of Financial Condition and Results of Operations
+24
+
+Item 3.
+Quantitative and Qualitative Disclosures about Market Risk
+41
+
+Item 4.
+Controls and Procedures
+42
+
+PART II. OTHER INFORMATION
+42
+
+Item 1.
+Legal Proceedings
+42
+
+Item 1A.
+Risk Factors
+42
+
+Item 5
+Other Information
+42
+
+Item 6.
+Exhibits
+44
+
+SIGNATURES
+45
+
+i
+
+PART I. FINANCIAL INFORMATION
+
+Item 1. Financial Statements
+1
+
+NOVAVAX, INC.
+CONSOLIDATED STATEMENTS OF OPERATIONS
+(in thousands, except per share information)
+(unaudited)
+
+For the Three Months Ended June 30, | For the Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Revenue:
+Product sales | $18,854 | $10,724 | $61,054 | $632,402
+Licensing, royalties, and other | 37,844 | 228,516 | 135,158 | 273,493
+Total revenue | 56,698 | 239,240 | 196,212 | 905,895
+
+Expenses:
+Cost of sales | 14,246 | 15,325 | 44,941 | 29,439
+Research and development | 70,693 | 79,233 | 166,165 | 168,170
+Selling, general, and administrative | 26,665 | 43,612 | 55,442 | 91,702
+
+Total expenses | 111,604 | 138,170 | 266,548 | 289,311
+Income (loss) from operations
+(54,906) | 101,070 | (70,336) | 616,584
+Other income (expense):
+
+Interest expense | (5,689) | (5,518) | (10,590) | (11,241)
+Other income, net
+8,919 | 11,902 | 20,744 | 21,957
+Income (loss) before income tax expense
+(51,676) | 107,454 | (60,182) | 627,300
+Income tax expense | 1,711 | 946 | 2,696 | 2,146
+Net income (loss)
+$(53,387) | $106,508 | $(62,878) | $625,154
+
+Net income (loss) per share:
+
+Basic | $(0.32) | $0.66 | $(0.38) | $3.87
+Diluted | $(0.32) | $0.62 | $(0.38) | $3.55
+Weighted average number of common shares outstanding:
+
+Basic | 164,574 | 162,019 | 163,929 | 161,536
+Diluted | 164,574 | 177,215 | 163,929 | 177,410
+
+CONSOLIDATED STATEMENTS OF COMPREHENSIVE INCOME (LOSS)
+(in thousands)
+(unaudited)
+
+For the Three Months Ended June 30, | For the Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Net income (loss) | $(53,387) | $106,508 | $(62,878) | $625,154
+Other comprehensive income (loss):
+Net unrealized gain (loss) on available-for-sale marketable securities | (617) | (139) | (2,064) | 450
+Foreign currency translation adjustment | (1,757) | (1,927) | (7,394) | 21,651
+Other comprehensive income (loss)
+(2,374) | (2,066) | (9,458) | 22,101
+Comprehensive income (loss) | $(55,761) | $104,442 | $(72,336) | $647,255
+
+The accompanying notes are an integral part of these financial statements.
+2
+
+NOVAVAX, INC.
+CONSOLIDATED BALANCE SHEETS
+(in thousands, except share and per share information)
+
+June 30, 2026 | December 31, 2025
+(unaudited)
+ASSETS
+Current assets:
+Cash and cash equivalents | $191,458 | $240,634
+Marketable securities | 527,882 | 494,450
+Restricted cash | — | 10,876
+Accounts receivable | 18,739 | 106,446
+Inventory | 10,006 | 11,545
+Prepaid expenses and other current assets | 23,013 | 26,815
+Assets held for sale | — | 87,510
+Total current assets | 771,098 | 978,276
+Property and equipment, net | 38,133 | 44,800
+Right-of-use asset, net
+19,842 | 22,897
+
+Goodwill | 112,542 | 113,462
+Other non-current assets | 13,960 | 17,077
+Total assets | $955,575 | $1,176,512
+LIABILITIES AND STOCKHOLDERS’ DEFICIT
+
+Current liabilities:
+Accounts payable | $22,936 | $24,578
+Accrued expenses | 81,424 | 107,165
+Deferred revenue | 86,577 | 140,053
+Current portion of finance lease liabilities | 4,110 | 2,507
+Other current liabilities | 135,527 | 137,778
+Liabilities held for sale | — | 47,869
+Total current liabilities | 330,574 | 459,950
+Deferred revenue | 356,755 | 358,943
+Long-term debt | 291,490 | 244,213
+Non-current finance lease liabilities | 1,719 | 2,091
+Other non-current liabilities | 165,744 | 239,068
+Total liabilities | 1,146,282 | 1,304,265
+
+Commitments and contingencies (Note 15)
+
+Preferred stock, $0.01 par value, 2,000,000 shares authorized at June 30, 2026 and December 31, 2025; no shares issued and outstanding at June 30, 2026 and December 31, 2025
+— | —
+
+Stockholders' deficit:
+
+Common stock, $0.01 par value, 600,000,000 shares authorized at June 30, 2026 and December 31, 2025; 168,165,416 shares issued and 164,815,529 shares outstanding at June 30, 2026 and 164,969,773 shares issued and 162,575,937 shares outstanding at December 31, 2025
+1,682 | 1,650
+Additional paid-in capital | 4,558,457 | 4,539,756
+Accumulated deficit | (4,631,026) | (4,568,148)
+Treasury stock, cost basis, 3,349,887 shares at June 30, 2026 and 2,393,836 shares at December 31, 2025
+(112,372) | (103,021)
+Accumulated other comprehensive income (loss) | (7,448) | 2,010
+Total stockholders’ deficit | (190,707) | (127,753)
+Total liabilities and stockholders’ deficit
+$955,575 | $1,176,512
+
+The accompanying notes are an integral part of these financial statements.
+3
+
+NOVAVAX, INC.
+CONSOLIDATED STATEMENTS OF CHANGES IN STOCKHOLDERS' DEFICIT
+Three and Six Months Ended June 30, 2026 and 2025
+(in thousands, except share information)
+(unaudited)
+
+Common Stock | Additional Paid-in Capital | Accumulated Deficit | Treasury Stock | Accumulated Other
+Comprehensive
+Income (Loss)
+Total Stockholders' Deficit
+Shares | Amount
+Balance at March 31, 2026 | 167,765,721 | $1,678 | $4,548,592 | $(4,577,639) | $(112,319) | $(5,074) | $(144,762)
+Stock-based compensation | — | — | 8,089 | — | — | — | 8,089
+Stock issued under incentive programs | 399,695 | 4 | 1,776 | — | (53) | — | 1,727
+
+Unrealized loss on available-for-sale marketable securities
+— | — | — | — | — | (617) | (617)
+Foreign currency translation adjustment | — | — | — | — | — | (1,757) | (1,757)
+Net loss
+— | — | — | (53,387) | — | — | (53,387)
+Balance at June 30, 2026 | 168,165,416 | $1,682 | $4,558,457 | $(4,631,026) | $(112,372) | $(7,448) | $(190,707)
+
+Balance at March 31, 2025 | 164,206,386 | $1,642 | $4,512,849 | $(4,489,804) | $(101,938) | $1,608 | $(75,643)
+Stock-based compensation | — | — | 9,214 | — | — | — | 9,214
+Stock issued under incentive programs | 268,951 | 3 | 130 | — | (521) | — | (388)
+
+Unrealized loss on available-for-sale marketable securities | — | — | — | — | — | (139) | (139)
+Foreign currency translation adjustment | — | — | — | — | — | (1,927) | (1,927)
+Net income | — | — | — | 106,508 | — | — | 106,508
+Balance at June 30, 2025 | 164,475,337 | $1,645 | $4,522,193 | $(4,383,296) | $(102,459) | $(458) | $37,625
+
+Common Stock | Additional Paid-in Capital | Accumulated Deficit | Treasury Stock | Accumulated Other Comprehensive Income (Loss) | Total Stockholders' Equity (Deficit)
+Shares | Amount
+Balance at December 31, 2025 | 164,969,773 | $1,650 | $4,539,756 | $(4,568,148) | $(103,021) | $2,010 | $(127,753)
+Stock-based compensation | — | — | 15,813 | — | — | — | 15,813
+Stock issued under incentive programs | 3,195,643 | 32 | 2,888 | — | (9,351) | — | (6,431)
+
+Unrealized loss on available-for-sale marketable securities | — | — | — | — | — | (2,064) | (2,064)
+Foreign currency translation adjustment | — | — | — | — | — | (7,394) | (7,394)
+Net loss | — | — | — | (62,878) | — | — | (62,878)
+Balance at June 30, 2026 | 168,165,416 | $1,682 | $4,558,457 | $(4,631,026) | $(112,372) | $(7,448) | $(190,707)
+
+Balance at December 31, 2024 | 161,942,677 | $1,619 | $4,501,403 | $(5,008,450) | $(95,854) | $(22,559) | $(623,841)
+Stock-based compensation | — | — | 19,499 | — | — | — | 19,499
+Stock issued under incentive programs | 2,532,660 | 26 | 1,291 | — | (6,605) | — | (5,288)
+
+Unrealized gain on available-for-sale marketable securities
+— | — | — | — | — | 450 | 450
+Foreign currency translation adjustment | — | — | — | — | — | 21,651 | 21,651
+Net income | — | — | — | 625,154 | — | — | 625,154
+Balance at June 30, 2025 | 164,475,337 | $1,645 | $4,522,193 | $(4,383,296) | $(102,459) | $(458) | $37,625
+
+The accompanying notes are an integral part of these financial statements.
+
+4
+
+NOVAVAX, INC.
+CONSOLIDATED STATEMENTS OF CASH FLOWS
+(in thousands)
+(unaudited)
+Six Months Ended June 30,
+2026 | 2025
+Operating Activities:
+Net income (loss) | $(62,878) | $625,154
+Reconciliation of net income (loss) to net cash used in operating activities:
+
+Depreciation and amortization | 6,118 | 15,903
+
+Non-cash stock-based compensation | 15,813 | 19,499
+Provision for excess and obsolete inventory | 1,597 | 1,379
+
+Other items, net | (7,618) | 5,031
+Changes in operating assets and liabilities:
+Inventory | (544) | (1,635)
+Accounts receivable, prepaid expenses, and other assets | 95,116 | (94,947)
+Accounts payable, accrued expenses, and other liabilities | (97,170) | (274,488)
+Deferred revenue | (55,664) | (608,860)
+Net cash used in operating activities | (105,230) | (312,964)
+
+Investing Activities:
+Capital expenditures, including internal-use software | (1,858) | (2,122)
+Proceeds from assets held for sale | 39,750 | —
+Purchases of marketable securities | (295,820) | (114,724)
+Proceeds from maturities of marketable securities | 264,464 | 154,625
+
+Net cash provided by investing activities | 6,536 | 37,779
+
+Financing Activities:
+Proceeds from credit facility, net of issuance costs | 46,411 | —
+
+Net proceeds from the exercise of stock-based awards, net of tax withholding | (6,431) | (5,288)
+Finance lease payments | (1,104) | (2,813)
+
+Net cash provided by (used in) financing activities | 38,876 | (8,101)
+Effect of exchange rate on cash, cash equivalents, and restricted cash | (194) | 6,976
+Net decrease in cash, cash equivalents, and restricted cash | (60,012) | (276,310)
+Cash, cash equivalents, and restricted cash at beginning of period | 256,052 | 545,292
+Cash, cash equivalents, and restricted cash at end of period | $196,040 | $268,982
+
+Supplemental disclosure of non-cash activities:
+
+Right-of-use assets from new lease agreements | $2,335 | $—
+Capital expenditures included in accounts payable and accrued expenses | $— | $81
+
+Supplemental disclosure of cash flow information:
+Cash interest payments, net of amounts capitalized | $9,299 | $9,806
+Cash paid for income taxes, net of refunds received | $2,832 | $4,922
+
+The accompanying notes are an integral part of these financial statements.
+5
+
+NOVAVAX, INC.
+NOTES TO THE CONSOLIDATED FINANCIAL STATEMENTS
+June 30, 2026
+(unaudited)
+
+Note 1 – Organization and Business
+Novavax, Inc. (“Novavax,” and together with its wholly owned subsidiaries, the “Company”) tackles some of the world’s most pressing health challenges with its scientific expertise in vaccines and its proven technology platform, including its Matrix-M® adjuvant and protein-based nanoparticles.
+
+The Company’s corporate growth strategy is designed to deliver value via three key strategic pillars: partnering its technology, capital-efficient R&D innovation, and a lean and efficient operating model supporting its efforts. This includes maximizing the impact of its cutting-edge technology through existing partnerships for commercial marketed products (Nuvaxovid™, R21/Matrix-M™), and by forging new partnerships for its Matrix technology and research and development (R&D) assets.
+
+All references to “NuvaxovidTM” or “COVID-19 Vaccine” refer to the Company’s Nuvaxovid™ COVID-19 vaccine.
+
+Currently, the Company significantly depends on its supply agreement with Serum Institute of India Pvt. Ltd. (“SII”) and its subsidiary, Serum Life Sciences Limited (“SLS” and together with SII, “Serum”), for co-formulation, filling, and finishing of its COVID-19 Vaccine.
+
+Note 2 – Summary of Significant Accounting Policies
+Basis of Presentation
+The accompanying unaudited consolidated financial statements have been prepared in accordance with generally accepted accounting principles in the United States of America (“U.S. GAAP”) for interim financial information and the instructions to Form 10-Q and Article 10 of Regulation S-X. The accompanying unaudited consolidated financial statements include all adjustments (consisting of normal recurring adjustments) that the Company considers necessary for a fair presentation of the financial position, operating results, comprehensive income (loss), changes in stockholders’ deficit, and cash flows for the periods presented. Although the Company believes that the disclosures in these unaudited consolidated financial statements are adequate to make the information presented not misleading, certain information and footnote information normally included in consolidated financial statements prepared in accordance with U.S. GAAP have been condensed or omitted as permitted under the rules and regulations of the United States Securities and Exchange Commission (“SEC”).
+The accompanying unaudited consolidated financial statements include the accounts of Novavax, Inc. and its wholly owned subsidiaries. All intercompany accounts and transactions have been eliminated in consolidation. The aggregate foreign currency transaction gains and losses resulting from the conversion of the transaction currency to functional currency were a $1.9 million and $4.7 million gain, and a $6.1 million gain and $1.9 million loss for the three and six months ended June 30, 2026 and 2025, respectively, which are reflected in Other income, net.
+The accompanying unaudited consolidated financial statements should be read in conjunction with the financial statements and notes thereto included in the Company's Annual Report on Form 10-K for the year ended December 31, 2025. Results for this or any interim period are not necessarily indicative of results for any future interim period or for the entire year. The Company operates in one business segment.
+Liquidity and Going Concern
+The accompanying unaudited consolidated financial statements have been prepared assuming that the Company will continue as a going concern within one year after the date that the financial statements are issued and contemplates the realization of assets and satisfaction of liabilities in the ordinary course of business. The accompanying unaudited consolidated financial statements do not include any adjustments relating to the recoverability and classification of recorded asset amounts or the amounts and classification of liabilities that might result from the outcome of the uncertainty described below.
+As of June 30, 2026, the Company had total cash and cash equivalents, restricted cash, and marketable securities of $723.9 million, comprised of $191.5 million in cash and cash equivalents, $4.6 million in restricted cash, and $527.9 million in marketable securities, and working capital of $440.5 million. During the six months ended June 30, 2026, the Company recognized a net loss of $62.9 million and had net cash flows used in operating activities of $105.2 million.
+6
+
+In accordance with Accounting Standards Codification (“ASC”) Topic 205-40, Presentation of Financial Statements - Going Concern, the Company evaluated its ability to continue as a going concern within one year after the date that the accompanying unaudited consolidated financial statements are issued. Based on the Company’s current cash, cash equivalents, restricted cash, and marketable securities balances and the Company's current cash flow forecast for the one-year going concern look forward period, the Company has concluded that it expects to have sufficient capital available to fund its operations for the one-year period from the date that these financial statements are issued.
+Use of Estimates
+The preparation of the accompanying unaudited consolidated financial statements in conformity with U.S. GAAP requires management to make estimates and assumptions that affect the reported amounts of assets and liabilities and disclosure of contingent assets and liabilities at the date of the accompanying unaudited consolidated financial statements and the reported amounts of revenue and expenses during the reporting period. Actual results could differ materially from those estimates.
+Recent Accounting Pronouncements
+Not Yet Adopted
+In October 2023, the Financial Accounting Standards Board (“FASB”) issued Accounting Standards Update (“ASU”) 2023-06, Disclosure Improvements (“ASU 2023-06”), to clarify or improve disclosure and presentation requirements of a variety of topics and align the requirements in the FASB ASC with the SEC's regulations. The effective date for each amendment in the ASU is the effective date that the SEC removes the disclosure requirement from its regulations. The Company is currently evaluating ASU 2023-06; however, as the ASU codifies SEC regulations, the Company does not anticipate that its implementation will have a material effect on the Company's consolidated financial statements and disclosures.
+In November 2024, the FASB issued ASU 2024-03, Income Statement-Reporting Comprehensive Income-Expense Disaggregation Disclosures (Subtopic 220-40) (“ASU 2024-03”). The ASU includes enhanced disclosure requirements, which mandate transparency in financial statements by requiring detailed disclosures of specific expenses like inventory purchases, employee compensation, depreciation, and intangible asset amortization. In January 2025, the FASB issued ASU 2025-01, Income Statement—Reporting Comprehensive Income—Expense Disaggregation Disclosures (Subtopic 220-40) An Amendment of the FASB ASC, Clarifying the Effective Date, which clarifies that public business entities are required to adopt the ASU 2024-03 guidance in annual reporting periods beginning after December 15, 2026, and interim reporting periods within annual reporting periods beginning after December 15, 2027. Early adoption is permitted. The Company is currently evaluating the impact of adopting this pronouncement on the Company’s consolidated financial statements and disclosures.
+
+In September 2025, the FASB issued ASU 2025-06, Targeted Improvements to the Accounting for Internal-Use Software (“ASU 2025-06”). This standard is intended to improve the operability and application of guidance related to capitalized software development costs and becomes effective January 1, 2028. The Company is assessing the potential impact this ASU may have on the Company’s consolidated financial statements and disclosures upon adoption.
+In December 2025, the FASB issued ASU 2025-11, Interim Reporting: Narrow-Scope Improvements (“ASU 2025-11”). The ASU is intended to improve the navigability of the guidance in ASC 270, Interim Reporting, and clarify when it applies. The amendments in ASU 2025-11 clarify interim disclosure requirements and the applicability of Topic 270. The ASU also includes a disclosure principle that requires entities to disclose events since the end of the last annual reporting period that have a material impact on the entity. The ASU is required to be adopted for interim periods within annual reporting periods beginning after December 15, 2027. Early adoption is permitted. The Company is currently evaluating the impact of adoption on the financial disclosures.
+Adopted
+In September 2025, the FASB issued ASU 2025-07, Derivatives Scope Refinements and Scope Clarification for Share-Based Noncash Consideration from a Customer in a Revenue Contract (“ASU 2025-07”). The guidance in ASU 2025-07 expands the scope exceptions within ASC Topic 815, Derivatives and Hedging, to include certain non exchange-traded contracts with underlyings that are based on operations or activities specific to one of the parties to the contract, including research and development funding arrangements. The standard is effective for annual fiscal years beginning after December 15, 2026 and interim periods within fiscal years beginning after December 15, 2026, with early adoption permitted. Entities should apply the amendments either prospectively for contracts entered into on or after the date of adoption or on a modified retrospective basis through a cumulative-effect adjustment to the opening balance of retained earnings for contracts that exist as
+7
+
+of the beginning of the annual reporting period of adoption. The Company adopted ASU 2025-07 prospectively during the interim period ended March 31, 2026. The adoption did not have a significant impact on the Company’s consolidated financial statements and disclosures.
+
+Note 3 – Marketable Securities
+Marketable securities classified as available-for-sale comprised of (in thousands):
+
+June 30, 2026 | December 31, 2025
+Amortized Cost | Gross Unrealized Gains | Gross Unrealized Losses | Fair Value | Amortized Cost | Gross Unrealized Gains | Gross Unrealized Losses | Fair Value
+Treasury securities | $218,410 | $— | $(673) | $217,737 | $219,694 | $605 | $— | $220,299
+Corporate debt securities | 268,075 | — | (441) | 267,634 | 260,023 | 131 | — | 260,154
+Agency securities | 42,727 | — | (216) | 42,511 | 13,999 | — | (2) | 13,997
+Total marketable securities | $529,212 | $— | $(1,330) | $527,882 | $493,716 | $736 | $(2) | $494,450
+
+As of June 30, 2026, marketable securities were comprised of $217.7 million of treasury securities, of which $77.1 million mature in 2026, $91.2 million mature in 2027, and $49.4 million mature in 2028; $267.6 million of corporate debt securities, of which $145.6 million mature in 2026 and $122.1 million mature in 2027; and $42.5 million of agency securities, of which $32.5 million mature in 2026 and $10.0 million that mature in 2027. As of December 31, 2025, marketable securities were comprised of $220.3 million of treasury securities, of which $162.4 million mature in 2026 and $57.9 million mature in 2027; $260.2 million of corporate debt securities, of which $250.9 million mature in 2026 and $9.3 million mature in 2027; and $14.0 million in agency securities that mature in 2027. Marketable securities are classified as Current assets in the Company’s Consolidated balance sheet as of June 30, 2026 and December 31, 2025.
+During the three and six months ended June 30, 2026, the Company recognized interest income of $6.9 million and $14.0 million, respectively, from its marketable securities. During the three and six months ended June 30, 2025, the Company recognized interest income of $7.0 million and $15.1 million, respectively, from its marketable securities. This income is included within Other income, net on the consolidated statements of operations. Based on the Company’s policy under the expected credit loss model, including an assessment of the investment portfolio as of June 30, 2026 and December 31, 2025, the Company concluded that any unrealized losses for its marketable securities were not attributable to credit and therefore an allowance for credit losses has not been recorded. As of June 30, 2026, the Company does not have the intent to sell its marketable securities with an unrealized loss position, and it is more likely than not that the Company will not be required to sell these investments before their anticipated recovery of amortized cost bases, which may be at maturity. As of June 30, 2026 and December 31, 2025, the Company held no securities that were in an unrealized loss position for more than 12 months.
+
+8
+
+Note 4– Fair Value Measurements
+The following table represents the Company’s fair value hierarchy for its financial assets and liabilities (in thousands):
+
+Fair Value at June 30, 2026 | Fair Value at December 31, 2025
+Assets | Level 1 | Level 2 | Level 3 | Level 1 | Level 2 | Level 3
+Money market funds(1)
+$94,774 | $— | $— | $128,152 | $— | $—
+Government-backed securities(1)
+— | 75,000 | — | — | 90,000 | —
+Treasury securities
+— | 217,737 | — | — | 220,299 | —
+Corporate debt securities(2)
+— | 277,151 | — | — | 260,154 | —
+Agency securities | — | 42,511 | $— | — | 13,997 | —
+Total cash equivalents and marketable securities
+$94,774 | $612,399 | $— | $128,152 | $584,450 | $—
+Liabilities
+5.00% Convertible notes due 2027(3)
+$— | $31,139 | $— | $— | $28,313 | $—
+4.625% Convertible notes due 2031(3)
+— | 277,040 | — | — | 221,967 | —
+Total convertible notes payable | $— | $308,179 | $— | $— | $250,280 | $—
+
+(1)Classified as cash and cash equivalents as of June 30, 2026 and December 31, 2025, respectively, on the consolidated balance sheets.
+(2)Includes $9.5 million classified as Cash and cash equivalents as of June 30, 2026, on the consolidated balance sheets.
+(3)Classified as Long-term debt as of June 30, 2026 and December 31, 2025, respectively, on the consolidated balance sheets.
+Fixed-income investments categorized as Level 2 are valued at the custodian bank by a third-party pricing vendor’s valuation models that use verifiable observable market data, such as interest rates and yield curves observable at commonly quoted intervals and credit spreads, bids provided by brokers or dealers, or quoted prices of securities with similar characteristics. Pricing of the Company’s convertible notes has been estimated using observable inputs, including the price of the Company’s common stock, implied volatility, interest rates, and credit spreads.
+During the six months ended June 30, 2026 and 2025, the Company did not have any transfers between levels.
+During the six months ended June 30, 2026, the Company entered into a Credit, Security, and Guaranty Agreement (the “Credit Agreement”) with MidCap Financial Trust, which provides for a senior secured term loan facility of up to $330.0 million, of which $50.0 million was funded at closing (see Note 11). Since the term loan was issued at market terms and bears interest at a variable rate based on the one-month Secured Overnight Financing Rate plus 5.00%, its funded amount of $50.0 million approximates its fair value as of June 30, 2026.
+The amount in the Company’s consolidated balance sheets for accounts payable and accrued expenses approximates its fair value due to its short-term nature.
+
+Note 5 – Revenue
+The Company's accounts receivable included $14.7 million and $95.6 million related to amounts that were billed to customers and $4.1 million and $10.8 million related to amounts which had not yet been billed to customers as of June 30, 2026 and December 31, 2025, respectively. There was no allowance for credit losses recorded during the six months ended June 30,
+9
+
+2026 or 2025. To estimate the allowance for credit losses, the Company evaluates the credit risk related to its customers based on historical loss experience, economic conditions, the aging of receivables, and customer-specific risks.
+During the six months ended June 30, 2026 and 2025, changes in the Company’s deferred revenue balance were as follows (in thousands):
+
+Balance, Beginning of Period | Additions | Deductions | Balance, End of Period
+Deferred revenue(1):
+
+Six Months Ended June 30, 2026 | 498,996 | 30,518 | (86,182) | 443,332
+Six Months Ended June 30, 2025 | 1,121,886 | — | (608,860) | 513,026
+
+(1) Deductions from Deferred revenue generally relate to the recognition of revenue once performance obligations on a contract with a customer are met. During the six months ended June 30, 2026, deductions include $66.1 million related to revenue recognized for R&D transition services that support further regulatory approval and development of the COVID-19 Vaccine (“Sanofi Transition Services”) and supply sales with Sanofi; $10.3 million of Licensing, royalties, and other revenue from other partners; and $9.8 million of Nuvaxovid™ sales. During the six months ended June 30, 2025, deductions include $555.7 million related to the Canada Advanced Purchase Agreement (“APA”) termination.
+
+As of June 30, 2026, the aggregate amount of the transaction price allocated to performance obligations that were unsatisfied (or partially unsatisfied), excluding amounts related to sales-based royalties and constrained variable consideration, was $0.6 billion, of which $0.4 billion is included in Deferred revenue. Failure to meet regulatory milestones, obtain timely supportive recommendations from governmental advisory committees, or achieve product volume or delivery timing obligations may require the Company to refund portions of upfront and other payments or result in reduced future payments, which could adversely impact the Company’s ability to realize revenue from its unsatisfied performance obligations. The timing and the Company’s ability to fulfill performance obligations related to APAs will depend on the timing of product manufacturing, receipt of marketing authorizations for its updated COVID-19 Vaccine, delivery of doses based on customer demand, and the ability of the customer to request the Company’s updated vaccine under certain of the Company’s APAs. In the first quarter of 2025, the Company received written notice of a $23.0 million claim related to certain performance obligations under an APA agreement with a customer. The Company believes it has fulfilled the requirements related to this matter and is evaluating the merits of the claim. The timing to fulfill performance obligations related to the Sanofi Collaboration and License Agreement (“Sanofi CLA”) will depend on the timing of Sanofi Transition Services and services related to the technology transfer of the existing manufacturing process for the COVID-19 Vaccine Products and Matrix-M® adjuvant (the “Sanofi Technology Transfer”) and delivery of doses and other materials based on Sanofi demand.
+Under an APA with Gavi, the Vaccine Alliance (“Gavi”), entered into in May 2021 (the “Gavi APA”), and a Termination and Settlement Agreement with Gavi, entered into in February 2024, (the “Gavi Settlement Agreement”) terminating the Gavi APA, the Company is responsible for deferred payments, in equal annual amounts of $80 million payable each calendar year through a deferred payment term ending December 31, 2028. The deferred payments are due in variable quarterly installments and total $400 million during the deferred payment term. Such deferred payments may be reduced through Gavi’s use of an annual vaccine credit equivalent to the unpaid balance of such deferred payments each year, which may be applied to qualifying sales of any of the Company’s vaccines for supply to certain low-income and lower-middle income countries. The Company has the right to price the vaccines offered to such low-income and lower-middle income countries in its discretion, and, when utilized by Gavi, the Company will credit the actual price per vaccine paid against the applicable credit. The Company intends to price vaccines offered via the tender process, consistent with its shared goal with Gavi to provide equitable access to those countries. Also, pursuant to the Gavi Settlement Agreement, the Company granted Gavi an additional credit of up to $225 million that may be applied against qualifying sales of any of the Company’s vaccines for supply to such low-income and lower-middle income countries that exceed the $80 million deferred payment amount in any calendar year during the deferred payment term. In total, the Gavi settlement agreement is comprised of $700 million of potential consideration, consisting of the $75 million initial settlement payment, deferred payments of up to $400 million that may be reduced through annual vaccine credits, and the additional credit of up to $225 million that may be applied for certain qualifying sales.
+As of June 30, 2026, the remaining amounts included on the Company’s consolidated balance sheet were $225.0 million in non-current Deferred revenue for the additional credit that may be applied against future qualifying sales, $80.0 million in Other current liabilities, and $145.0 million in Other non-current liabilities. In addition, the Company and Gavi entered into a security agreement pursuant to which Novavax granted Gavi a security interest in accounts receivable from SII
+10
+
+under the SII R21 Agreement (see Note 6), which will continue for the deferred payment term of the Gavi Settlement Agreement.
+Product Sales
+During the three and six months ended June 30, 2026 and 2025, the categories of Product sales were as follows (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Product sales
+
+Nuvaxovid™ sales(1)
+$— | $(2,093) | $9,558 | $605,931
+Supply sales(2)
+18,854 | 12,817 | 51,496 | 26,471
+Total Product sales
+$18,854 | $10,724 | $61,054 | $632,402
+
+(1)NuvaxovidTM sales are sales of the Company’s COVID-19 Vaccine associated with APAs with governments and commercial markets, where the Company is the commercial lead for sales and distribution, made through pharmaceutical wholesale distributors.
+(2)Supply sales include commercial sales of COVID-19 Vaccine, adjuvant sales, and other material sales to the Company’s partners.
+The Company has an APA with the Commonwealth of Australia (“Australia”) for the purchase of doses of COVID-19 Vaccine (the “Australia APA”). In December 2024, the Company entered into an amendment to the Australia APA pursuant to which, among other things, the Company acknowledged the cancellation by Australia of the delivery of certain doses of the Company’s COVID-19 Vaccine scheduled for delivery between the fourth quarter of 2023 and the fourth quarter of 2025 and the Company agreed to credit approximately $31 million of the advanced payment paid by Australia to the Company against outstanding invoices and invoices for the future delivery of approximately three million doses of COVID-19 Vaccine without requiring additional cash payments. In addition, the amendment provides for certain remedies for Australia, including return of unused credit, cancellation of doses, or termination of the Australia APA, in the event the Company is unable to gain regulatory approval of a variant COVID-19 Vaccine or supply doses per the terms of the agreement. In the event that the Company does not, on or before the relevant contractual deadlines, receive regulatory approval for, and deliver, the seasonally updated COVID-19 Vaccine, up to $92.5 million of deferred revenue may become refundable. As of June 30, 2026, $48.4 million was classified as current Deferred revenue and $85.4 million was classified as non-current Deferred revenue with respect to the Australia APA on the consolidated balance sheet, which will be recognized in product revenue as doses are delivered to Australia. Under the terms of the Australia APA, regulatory approval, which the Company believes can be achieved through multiple regulatory pathways, is required on or before certain deadlines. The Company believes such requirements can be satisfied by either (i) TGA approval of Nuvaxovid, or (ii) by TGA approval of a special access importation into the Australian market. The Company has been pursuing a special access importation approval from the TGA to help ensure our supply is available for Australia. The Company is awaiting a final decision on the outcome of its application for special importation. In light of these developments, if the Company is unable to receive regulatory approval by either means, the Company may seek alternatives to continued performance under the agreement.
+Licensing, Royalties, and Other
+Licensing, royalties, and other includes licensing payments, transition services revenue, and technology transfer revenue from the Sanofi CLA; royalty and milestone payments; and sales-based royalties.
+Licensing, royalties, and other by license partner for the three and six months ended June 30, 2026 and 2025 were as follows (in thousands):
+11
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Licensing, royalties, and other
+
+Sanofi | $35,768 | $199,412 | $84,666 | $239,733
+Pfizer | — | — | 30,000 | —
+Takeda | 215 | 27,212 | 950 | 27,212
+Serum | 1,823 | 1,892 | 9,189 | 6,548
+Other partners(1)
+38 | — | 10,353 | —
+Total licensing, royalties, and other revenue | $37,844 | $228,516 | $135,158 | $273,493
+
+(1)Other partners revenue includes royalties and license fees associated with agreements with other partners such as SK bioscience, Co., Ltd.
+Sanofi licensing, royalties, and other revenue were comprised of the following (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Sanofi licensing, royalties, and other revenue
+
+Licensing:
+Milestones | $— | $175,000 | $— | 175,000
+Royalties | 676 | — | 4,195 | —
+Transition services and technology transfer:
+
+Upfront fee amortization(1)
+8,728 | 12,268 | 20,834 | 32,180
+Milestones amortization(1)
+3,762 | 5,665 | 9,313 | 14,808
+Cost reimbursements
+22,602 | 6,479 | 50,324 | 17,745
+Total Sanofi licensing, royalties, and other revenue
+$35,768 | $199,412 | $84,666 | $239,733
+
+(1)Upfront fee amortization and Milestones amortization represent revenue recognized during the period related to a portion of the $500 million upfront payment and the $50 million milestone for database lock of an existing Phase 2/3 clinical trial in 2024 that were deferred upon achievement and are recognized in revenue over time.
+
+Takeda licensing, royalties, and other revenue were comprised of the following (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Takeda licensing, royalties, and other revenue
+Licensing:
+Upfront fee(1)
+$— | $18,500 | $— | $18,500
+Milestones | — | 3,434 | — | 3,434
+Royalties | (50) | 5,000 | 611 | 5,000
+Support services | 265 | 278 | 339 | 278
+Tota Total Takeda licensing, royalties, and other revenue
+$215 | $27,212 | $950 | $27,212
+
+(1)Upfront fee includes $14.5 million of nonrefundable upfront payments associated with the Amended Takeda CLA as defined below and $4.0 million of previously unrecognized consideration from the Original Takeda CLA.
+
+12
+
+Note 6 – Collaboration, License, and Supply Agreements
+As of June 30, 2026, the Company’s material collaborations, license, and supply agreements were as follows:
+Sanofi
+In May 2024, Novavax entered into the Sanofi CLA, to co-commercialize the Company’s COVID-19 Vaccine, including future updated versions that address seasonal COVID-19 variants. Under the terms of the agreement, the Company continued to commercialize its COVID-19 Vaccine through the end of the 2024-2025 vaccination season. Beginning in 2025 and continuing during the term of the Sanofi CLA, the Company and Sanofi have commercialized the COVID-19 Vaccine worldwide in accordance with a commercialization plan agreed by the parties, under which Novavax continues to supply certain of its existing APA customers and strategic partners, including Takeda and SII. Upon completion of the existing APAs, the Company and Sanofi will jointly agree on commercialization activities of each party in each jurisdiction. Sanofi has the right to develop novel influenza-COVID-19 combination vaccines utilizing the Company’s COVID-19 Vaccine and Sanofi’s seasonal influenza vaccine, combination products containing the Company’s COVID-19 Vaccine and one or more non-influenza vaccines, and multiple new vaccines utilizing the Company’s Matrix-M® adjuvant. The Company is also responsible for performing services related to Sanofi Technology Transfer. Until the successful completion of such transfer, the Company will supply Sanofi with both COVID-19 Vaccine products and Matrix-M® adjuvant intermediary components for Sanofi’s use and is eligible for reimbursement of such costs from Sanofi. In addition, the Company is responsible for Sanofi Transition Services and, in certain cases, is eligible for reimbursement of such costs from Sanofi.
+Pursuant to the Sanofi CLA, the Company is eligible to receive development, technology transfer, launch, and sales milestone payments for COVID-19 Vaccine products, COVID-19-Influenza Products (“CIC Products”), and Adjuvant products. The Company is also eligible to receive royalty payments on Sanofi’s sales of such licensed products.
+The Company is eligible to receive milestone payments totaling up to $350 million in the aggregate with respect to the COVID-19 Vaccine products, of which $75 million due upon completion of the technology transfer of the Company’s manufacturing process for the COVID-19 Vaccine products to Sanofi remains outstanding, and royalty payments in the high teens to low twenties percent on Sanofi’s sales of such licensed products. During the three and six month period ended June 30, 2026, the Company recognized $0.7 million and $4.2 million of royalties on Sanofi sales of COVID-19 Vaccine products, respectively.
+The Company is eligible to receive milestone payments totaling up to $350 million in the aggregate with respect to the CIC Products and this total amount is outstanding. The Company is eligible to receive a $125 million milestone payment upon initiation of a Sanofi CIC Product Phase 3 trial and a $225 million CIC Product-related launch milestone. The Company is eligible to receive royalty payments in the high teens to low twenties percent on Sanofi’s sales of such licensed products.
+The Company is also eligible to receive development, launch, and sales milestone payments of up to $200 million for each of the first four Adjuvant Products and $210 million for each Adjuvant Product thereafter, and mid-single digit sales royalties for 20 years on Sanofi’s sales of all such licensed products. In addition, a portion of the technology transfer costs and R&D costs incurred by the Company will be reimbursed by Sanofi in accordance with agreed upon plans and budgets.
+The Sanofi Transition Services and Sanofi Technology Transfer are recognized in revenue over time using an input method to measure progress by utilizing costs incurred to-date relative to total expected costs. Revenue recognized related to Sanofi Transition Services and Sanofi Technology Transfer for the three and six month period ended June 30, 2026 was $35.1 million and $80.5 million, respectively. Revenue recognized related to Sanofi Transition Services and Sanofi Technology Transfer for the three and six month period ended June 30, 2025 was $24.4 million and $64.7 million, respectively. The Company’s consolidated balance sheet as of June 30, 2026 includes an unbilled revenue balance of $0.9 million related to Sanofi Transition Services and Sanofi Technology Transfer. The Company recognized a cumulative catch-up adjustment related to changes in estimates, which resulted in an increase to revenue of $10.8 million and $15.4 million for the three and six month periods ended June 30, 2026, respectively. These changes in estimates resulted from changes in total expected costs and changes to estimates of variable consideration from expected cost reimbursements.
+The Company recognized an asset for $35.0 million of direct costs incurred to obtain the Sanofi CLA. These costs are amortized to expense over the expected period of the benefit in a manner that is consistent with the transfer of the related goods and services in the Sanofi CLA. The Company recognized $0.9 million and $1.8 million of amortization expense related to the asset in Selling, general, and administrative expense for the three and six months ended June 30, 2026 and June 30, 2025, respectively. As of June 30, 2026, $0.5 million of these costs remain to be amortized.
+13
+
+Pfizer
+In January 2026, the Company entered into a License and Option Agreement with Pfizer Inc. (“Pfizer”) (“Pfizer License Agreement”) for use of the Company’s Matrix-M® adjuvant. Under the terms of the agreement, Pfizer obtained a non-exclusive license for Matrix-M® adjuvant for use with Pfizer's products in up to two disease areas (the “Fields”). The agreement provides for an upfront payment of $30 million. The Company is eligible to receive up to an additional $500 million in milestone payments under the Pfizer License Agreement comprised of: (i) up to $70 million in development milestones for each of the Fields; and (ii) up to $180 million in sales milestones for each of the Fields. In addition to the potential milestone payments, the Company is eligible to receive tiered high mid-single digit percentage royalties on quarterly net sales on a product-by-product country-by-country basis. The term of such royalties would extend from the first commercial sale of such product until the later of (i) twenty years or (ii) the product is no longer covered by a valid patent right.
+The Company has determined that the Pfizer License Agreement represents a contract under ASC 606 - Revenue from Contracts with Customers (“ASC 606”) with a single performance obligation: the delivery of a license for Matrix-M® adjuvant for use with Pfizer's products in up to two disease areas. This performance obligation is considered functional intellectual property and distinct from other promises under the contract as Pfizer can benefit from the license on its own or together with other readily available resources. In addition, the Company will recognize revenue on optional purchases of Matrix-M® adjuvant upon delivery to Pfizer.
+The Company determined the initial transaction price at inception of the Pfizer License Agreement to be the $30 million upfront payment, which was recognized upon the delivery of the license in the first quarter of 2026. The Company excluded the development milestones from the transaction price as they were determined to be inherently uncertain of achievement and are highly susceptible to factors outside of the Company’s control. Sales-based royalties and sales-based milestones will be recognized in revenue in the period that sales are made or sales milestones are achieved pursuant to the sales-based royalty exception under ASC 606. The Company will re-evaluate the transaction price in each reporting period as uncertain events are resolved or other changes in circumstances occur.
+Takeda
+In April 2025, the Company entered into a collaboration and exclusive license agreement, as amended (“Amended Takeda CLA”), with Takeda Pharmaceutical Company Limited (“Takeda”) which amended and superseded its collaboration and exclusive license agreement with Takeda, dated February 24, 2021 (“Original Takeda CLA”). The Original Takeda CLA, which granted Takeda an exclusive license to develop, manufacture, and commercialize the COVID-19 Vaccine in Japan, has been amended so that Takeda may develop and commercialize a strain for the COVID-19 Vaccine that is different from the strain that the Company selects for the year, provided such Takeda selected strain must be procured from the Company. Under the Amended Takeda CLA, Takeda will continue to purchase the Company’s Matrix-M® adjuvant to manufacture doses of finished COVID-19 Vaccine with updated adjuvant forecast and other supply terms. The Company will also perform annual support services for Takeda’s regulatory and commercialization activities (“Takeda Support Services”).
+In connection with the Amended Takeda CLA, on April 29, 2025, the Company entered into a release agreement with Takeda under which the Company released Takeda and Takeda released the Company from all claims that were asserted or could have been asserted by either party against the other party that related to the Original Takeda CLA and the activities thereunder.
+On an annual basis, the Company will receive $2.0 million to compensate it for services provided by the Company under the Amended Takeda CLA. If Takeda receives marketing approval of the COVID-19 Vaccine in that year or such approval is not necessary for such year, the Company will receive an additional $8.0 million annual milestone payment, of which $5.0 million is creditable against royalties owed by Takeda in its fiscal year 2025 or thereafter. The Company is eligible to receive a tiered royalty as a percentage of Takeda’s, its affiliates’, and sublicensees’ total net sales in the mid to high-teen percentages (subject to certain capped royalty reductions), commencing on April 1, 2024 and will continue until the later of (a) twenty years after April 29, 2025, (b) all the Company’s know-how licensed under the Amended Takeda CLA has become publicly available through no fault of Takeda, and (c) the expiration of the last valid claim in the intellectual property rights licensed by the Company to Takeda under the Amended Takeda CLA covering COVID-19 Vaccine in Japan. The transaction price excludes annual milestone payments and annual support payments that are not due in the event that the Amended Takeda CLA is terminated by Takeda after the 18-month notice period. Sales-based royalties and annual milestones relate to the license delivered to Takeda for which the Company will recognize revenue in the period that sales are made or annual milestones are achieved pursuant to the sales-based royalty exception under ASC 606. The Company will re-evaluate the transaction price in each reporting period as uncertain events are resolved or other changes in circumstances occur.
+14
+
+Serum
+The Company previously granted SII exclusive and non-exclusive licenses for the development, co-formulation, filling and finishing, registration, and commercialization of its COVID-19 Vaccine and its CIC vaccine candidate. SII agreed to purchase the Company's Matrix-M® adjuvant and the Company granted SII a non-exclusive license to manufacture the antigen drug substance component of the Company’s COVID-19 Vaccine in SII’s licensed territory solely for use in the manufacture of COVID-19 Vaccine. The Company and SII equally split the revenue from SII’s sale of COVID-19 Vaccine in its licensed territory, net of agreed costs. In May 2024, the Company and SLS entered into a supply agreement (the “SLS Supply Agreement”) under which SLS agreed to supply the Company with antigen drug substance and finished COVID-19 Vaccine doses. The SLS Supply Agreement includes the general terms and conditions of supply orders between the Company and SLS. The Company and SLS execute firm purchase orders, which include specific quantities to be delivered under the SLS Supply Agreement. The Company agreed to supply SLS with all Matrix-M® adjuvant needed to manufacture finished COVID-19 Vaccine doses. In August 2022, the Company and SII entered into an influenza license agreement under which the Company granted SII licenses to develop, manufacture, and commercialize certain vaccine products including influenza vaccine products and influenza and CIC and is obligated for the purchase up to approximately $34 million of certain raw materials under related agreements with SII. In June 2025, the Company announced results of the initial cohort of its clinical study for its influenza and CIC vaccine candidates with the intent of partnering these programs. In March 2020, the Company entered into an agreement with SII that granted SII a non-exclusive license for the use of Matrix-M® adjuvant supplied by the Company to develop, manufacture, and commercialize R21/Matrix-M™ (“SII R21 Agreement”), a malaria vaccine created by the Jenner Institute, University of Oxford (“R21/Matrix-M™”). In December 2023, R21/Matrix-M™ received prequalification by the World Health Organization (“WHO”). Under the SII R21 Agreement, SII purchases the Company's Matrix-M® adjuvant for use in development activities at cost and for commercial purposes at a tiered commercial supply price and pays a royalty in the single-to low- double-digit range based on vaccine sales for a period of 15 years after the first commercial sale of the vaccine in each country.
+
+Note 7 – Earnings per Share
+Basic and diluted net income (loss) per share were calculated as follows (in thousands, except per share data):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Numerator:
+Net income (loss), basic | $(53,387) | $106,508 | $(62,878) | $625,154
+Interest on convertible notes | — | 2,634 | — | 5,268
+Net income (loss), dilutive | (53,387) | 109,142 | (62,878) | 630,422
+Denominator:
+Weighted average number of common shares outstanding, basic | 164,574 | 162,019 | 163,929 | 161,536
+Effect of dilutive securities | — | 15,196 | — | 15,874
+Weighted average number of common shares outstanding, dilutive | 164,574 | 177,215 | 163,929 | 177,410
+Net income (loss) per share:
+Basic | $(0.32) | $0.66 | $(0.38) | $3.87
+Diluted | $(0.32) | $0.62 | $(0.38) | $3.55
+
+Anti-dilutive securities excluded from calculations of diluted net income per share | 29,698 | 8,065 | 29,281 | 7,210
+
+15
+
+Note 8 – Cash, Cash Equivalents, and Restricted Cash
+The following table provides a reconciliation of cash, cash equivalents, and restricted cash reported in the consolidated balance sheets that sum to the total of such amounts shown in the consolidated statements of cash flows (in thousands):
+
+June 30, 2026 | December 31, 2025
+Cash and cash equivalents | $191,458 | $240,634
+Restricted cash, current | — | 10,876
+Restricted cash, non-current(1)
+4,582 | 4,542
+Cash, cash equivalents, and restricted cash | $196,040 | $256,052
+
+(1)Classified as Other non-current assets as of June 30, 2026 and December 31, 2025.
+
+Note 9 – Inventory
+Inventory consisted of the following (in thousands):
+
+June 30, 2026 | December 31, 2025
+Raw materials | $2,602 | $2,612
+Semi-finished goods | 7,404 | 7,591
+Finished goods | — | 1,342
+Total inventory | $10,006 | $11,545
+
+Inventory write-downs as a result of excess, obsolescence, expiry, or other reasons, and losses on firm purchase commitments, offset by recoveries of such commitments, are recorded as a component of cost of sales in the Company’s consolidated statements of operations. During the three and six months ended June 30, 2026, the Company recorded inventory write-downs of $1.6 million. During the three months ended June 30, 2026, the Company recognized no losses on firm purchase commitments. During the six months ended June 30, 2026, the Company recognized $4.2 million of losses on firm purchase commitments. During the three and six months ended June 30, 2025, the Company recorded $1.1 million and $1.4 million, respectively, of inventory write-downs and recognized no losses on firm purchase commitments.
+
+Note 10 – Goodwill
+The Company has one reporting unit, which had a negative carrying value as of June 30, 2026 and December 31, 2025. No goodwill impairment was identified for the period ended June 30, 2026. The change in the carrying amounts of goodwill for the six months ended June 30, 2026 was as follows (in thousands):
+
+Amount
+Balance at December 31, 2025 | $113,462
+Currency translation adjustments | (920)
+Balance at June 30, 2026 | $112,542
+
+16
+
+Note 11 – Long-Term Debt
+Total Long-term debt consisted of the following (in thousands):
+
+June 30, 2026 | December 31, 2025
+5.00% Convertible Senior Notes due 2027
+$26,485 | $26,485
+4.625% Convertible Senior Notes due 2031
+225,000 | 225,000
+Credit Agreement due 2031
+50,000 | —
+Unamortized debt issuance costs | (10,069) | (7,272)
+Accrued Credit Agreement exit fee
+74 | —
+Total long-term debt | $291,490 | $244,213
+
+As of June 30, 2026 and December 31, 2025, the effective interest rate on the Convertible Senior Notes due 2027 and the Convertible Senior Notes due 2031 were 6.2% and 5.3%, respectively. As of June 30, 2026, the effective interest rate on the Credit Agreement was 11.0%.
+The interest expense incurred in connection with Long-term debt consisted of the following (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Coupon interest on Convertible Senior Notes | $2,933 | $2,192 | $5,866 | $4,384
+Interest on Credit Agreement
+1,093 | — | 1,515 | —
+Amortization of debt issuance costs for Convertible Senior Notes | 322 | 442 | 643 | 884
+Amortization and accretion of debt issuance and exit costs for Credit Agreement
+199 | — | 265 | —
+Total interest expense on long-term debt | $4,547 | $2,634 | $8,289 | $5,268
+
+Credit Agreement
+In February 2026, the Company entered into the Credit Agreement with MidCap Financial Trust, as administrative agent (“Agent”), and the lenders from time to time party thereto (the “Lenders”). The Credit Agreement provides for a senior secured term loan facility of up to $330.0 million, consisting of (i) a $130.0 million Term Loan Tranche 1, $50.0 million of which was funded at closing with the remainder available to be drawn, subject to customary conditions, through February 29, 2028; (ii) a $50.0 million Term Loan Tranche 2, available through June 30, 2028, subject to satisfaction of specified royalty revenue-based conditions; (iii) a $50.0 million Term Loan Tranche 3, available beginning January 1, 2027 through June 30, 2029, subject to satisfaction of specified royalty revenue-based conditions; and (iv) a $100.0 million Term Loan Tranche 4, the availability of which is subject to activation and funding approvals in the sole discretion of the Agent and participating Lenders through June 30, 2029.
+Borrowings under the Credit Agreement bear interest, payable monthly in arrears, at a rate per annum equal to the one-month Secured Overnight Financing Rate (“Term SOFR”) plus 5.00%, subject to a Term SOFR floor of 2.00%. As of June 30, 2026, the Credit Agreement interest rate was 8.6%. The term loans mature on March 1, 2031, at which time all outstanding principal and accrued interest are due and payable in full. The Credit Agreement permits voluntary prepayments at any time subject to a prepayment premium equal to 3.00% of the principal prepaid during the first year after closing, 2.00% during the second year, and 1.00% thereafter. The Credit Agreement also requires mandatory prepayments from certain casualty and asset disposition proceeds, in each case subject to customary thresholds and reinvestment provisions. Any repayment of the term loan is subject to a 2.75% exit fee payable on the maturity date or earlier date through voluntary or mandatory prepayment, which is being accrued for over the term of the Credit Agreement.
+17
+
+The Company’s obligations under the Credit Agreement are secured by a first-priority lien on substantially all of the Company’s assets, subject to certain customary exceptions and limitations, and is guaranteed by Novavax NL B.V., a wholly owned subsidiary of the Company organized under the laws of the Netherlands (“Novavax Netherlands”), on a post-closing basis, which guarantee is secured by a first-priority lien on the equity interests of Novavax AB, a wholly owned subsidiary of Novavax Netherlands organized under the laws of Sweden. The Credit Agreement contains customary affirmative and negative covenants, including covenants that, among other things, limit the Company’s ability and the ability of its subsidiaries to incur additional indebtedness or liens, make certain investments or acquisitions, make certain restricted payments, enter into affiliate transactions, and dispose of assets, in each case subject to customary exceptions and limitations. The Credit Agreement also includes a financial covenant requiring the Company and its subsidiaries to maintain unrestricted cash of at least $100.0 million at all times. In addition, if the Company borrows any term loans under Term Loan Tranche 2, Term Loan Tranche 3, or Term Loan Tranche 4, then, commencing on the fiscal quarter in which the Company’s unrestricted cash falls below $225.0 million (if any), the Company will be required to maintain minimum trailing twelve month royalty revenue for each fiscal quarter as detailed in the Credit Agreement filed herein. As of June 30, 2026, the Company was in compliance with all covenants under the Credit Agreement.
+The initial Agent, Lenders, and other issuance costs related to Credit Agreement and the funded amount at closing were recorded as a reduction to the term loan on the consolidated balance sheet. The $3.6 million of debt issuance costs incurred is being amortized and recognized as additional interest expense over the five-year contractual term of the Credit Agreement using an effective interest rate of 11.0%.
+
+Note 12 – Stockholders’ Deficit
+In August 2023, the Company entered into an At Market Issuance Sales Agreement (the “August 2023 Sales Agreement”), which allowed it to issue and sell up to $500 million in gross proceeds of shares of its common stock pursuant to a registration statement on Form S-3 (the “Shelf Registration Statement”), and terminated its then-existing At Market Issuance Sales agreement entered in June 2021. The Shelf Registration Statement expired in February 2026, terminating the August 2023 Sales Agreement. No sales were recorded under the August 2023 Sales Agreement during the six months ended June 30, 2026, prior to its expiration. No sales were recorded under the August 2023 Sales Agreement during the three and six months ended June 30, 2025.
+
+Note 13 – Stock-Based Compensation
+Equity Plans
+In January 2023, the Company established the 2023 Inducement Plan (the “2023 Inducement Plan”), which provides for the grant of share-based awards to individuals who were not previously employees, or following a bona fide period of non-employment, as an inducement material to such individuals entering into employment with the Company. The Company reserved 1.0 million shares of common stock for grants under the 2023 Inducement Plan. As of June 30, 2026, there were 0.2 million shares available for issuance under the 2023 Inducement Plan.
+The Amended and Restated 2015 Stock Incentive Plan, (as previously amended and restated, the “2015 Plan”), was approved at the Company’s annual meeting of stockholders in June 2015. Under the 2015 Plan, equity awards may be granted to officers, directors, employees, and consultants of and advisors to the Company and any present or future subsidiary.
+The 2015 Plan authorizes the issuance of up to 36.9 million shares of common stock under equity awards granted under the 2015 Plan. All such shares authorized for issuance under the 2015 Plan have been reserved. The 2015 Plan will expire on April 19, 2034. As of June 30, 2026, there were 12.1 million shares available for issuance under the 2015 Plan.
+The 2023 Inducement Plan and the 2015 Plan permit, the grant of stock options (including incentive stock options), restricted stock, stock appreciation rights (“SARs”), and restricted stock units (“RSUs”). In addition, under the 2023 Inducement Plan and the 2015 Plan, unrestricted stock, stock units, and performance awards may be granted. Stock options and SARs generally have a maximum term of ten years and may be or were granted with an exercise price that is no less than 100% of the fair market value of the Company’s common stock at the time of grant. Grants of share-based awards are generally subject to vesting over periods ranging from one to four years.
+18
+
+The Company recorded stock-based compensation expense in the consolidated statements of operations as follows (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Cost of sales | $234 | $382 | $429 | $907
+Research and development | 2,629 | 3,501 | 5,562 | 7,790
+Selling, general, and administrative | 5,226 | 5,331 | 9,822 | 10,802
+Total stock-based compensation expense | $8,089 | $9,214 | $15,813 | $19,499
+
+During the three and six months ended June 30, 2026 and 2025 there was no stock-based compensation expense capitalized into inventory.
+As of June 30, 2026, there was approximately $65 million of total unrecognized compensation expense related to unvested stock options, SARs, RSUs, and the Company’s 2013 Amended and Restated Employee Stock Purchase Plan (as previously amended and restated, the “ESPP”). This unrecognized non-cash compensation expense is expected to be recognized over a weighted-average period of approximately 1.5 years and will be allocated between cost of sales, research and development, and general and administrative expenses accordingly. This estimate does not include the impact of other possible stock-based awards that may be made during future periods.
+The aggregate intrinsic value represents the total intrinsic value (the difference between the Company’s closing stock price on the last trading day of the period and the exercise price, multiplied by the number of in-the-money stock options and SARs) that would have been received by the holders had all stock option and SAR holders exercised their stock options and SARs on June 30, 2026. This amount is subject to change based on changes to the closing price of the Company's common stock. The aggregate intrinsic value of stock options and SARs exercises and vesting of RSUs for the six months ended June 30, 2026 and 2025 was approximately $27 million and $18 million, respectively.
+Stock Options and Stock Appreciation Rights
+The following is a summary of stock options and SAR’s activity under the 2023 Inducement Plan and 2015 Plan for the six months ended June 30, 2026:
+
+2023 Inducement Plan | 2015 Plan
+Stock Options | Weighted-Average Exercise Price | Stock Options | Weighted-Average Exercise Price
+Outstanding at January 1, 2026 | 486,950 | $10.45 | 5,221,997 | $18.58
+Granted | — | — | 2,229,242 | 9.96
+Exercised | (21,383) | 9.01 | (249,772) | 6.75
+Canceled | (42,767) | 9.01 | (500,121) | 21.36
+Outstanding at June 30, 2026 | 422,800 | $10.67 | 6,701,346 | $15.95
+Shares exercisable at June 30, 2026 | 347,611 | $10.75 | 2,823,836 | $25.77
+
+19
+
+The fair value of stock options granted under the 2023 Inducement Plan and the 2015 Plan was estimated at the date of grant using the Black-Scholes option-pricing model with the following assumptions:
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Weighted average Black-Scholes fair value of stock options granted | $6.98 | $5.65 | $6.62
+$5.60
+Risk-free interest rate | 3.8% - 4.3%
+3.7% - 4.1%
+3.5%-4.3%
+3.7%-4.1%
+
+Dividend yield | —% | —% | —% | —%
+Volatility | 89.6% - 110.2%
+98.1% - 121.7%
+89.6%-110.2%
+98.1%-121.7%
+
+Expected term (in years) | 3.8 - 6.6
+3.8 - 6.5
+3.8-6.6
+3.8-6.5
+
+The total aggregate intrinsic value and weighted-average remaining contractual term of stock options and SARs outstanding under the 2023 Inducement Plan and 2015 Plan as of June 30, 2026 was $8.2 million and 7.8 years, respectively. The total aggregate intrinsic value and weighted-average remaining contractual term of stock options and SARs exercisable under the 2023 Inducement Plan and 2015 Plan as of June 30, 2026 was $4.4 million and 6.4 years, respectively.
+Restricted Stock Units
+The following is a summary of RSU activity for the six months ended June 30, 2026:
+
+2023 Inducement Plan | 2015 Plan
+Number of Shares | Per Share Weighted- Average Fair Value | Number of Shares | Per Share Weighted- Average Fair Value
+Outstanding and unvested at January 1, 2026 | 149,843 | $10.35 | 5,891,589 | $6.95
+Granted | — | — | 3,113,176 | 10.03
+Vested | (102,797) | 10.96 | (2,533,090) | 6.67
+Forfeited | (28,513) | 9.01 | (825,458) | 8.27
+Outstanding and unvested at June 30, 2026 | 18,533 | $9.05 | 5,646,217 | $8.58
+
+Employee Stock Purchase Plan
+The ESPP was approved at the Company’s Annual Meeting of Stockholders in June 2013. The ESPP currently authorizes an aggregate of 3.4 million shares of common stock to be purchased, and the aggregate number of shares will continue to increase 5% on January 1 of each year up to a maximum of 4.8 million shares. The ESPP allows employees to purchase shares of common stock of the Company at each purchase date through payroll deductions of up to a maximum of 15% of their compensation, at 85% of the lesser of the market price of the shares at the time of purchase or the market price on the beginning date of an option period (or, if later, the date during the option period when the employee was first eligible to participate). As of June 30, 2026, there were 1.4 million shares available for issuance under the ESPP.
+
+Note 14 – Income Taxes
+The Company evaluates the available positive and negative evidence to estimate whether sufficient future taxable income will be generated to permit use of the existing deferred tax assets. Significant pieces of objective evidence evaluated by the Company were the cumulative loss incurred over the three-year period ended June 30, 2026 and that the Company has historically generated pretax losses. Such objective evidence limits the ability to consider other subjective evidence, such as projections for future growth. On the basis of this evaluation, as of June 30, 2026, the Company continued to maintain a full valuation allowance against its deferred tax assets, except to the extent Net Operating Losses (“NOLs”) have been used to reduce taxable income.
+20
+
+During the three and six months ended June 30, 2026 and 2025, the Company recognized income tax expense of $1.7 million and $0.9 million, and $2.7 million and $2.1 million, respectively, which consists of federal, state, and foreign income tax and foreign withholding tax expense.
+
+Note 15 – Commitments and Contingencies
+Legal Matters
+The Company is involved in various legal proceedings arising in the normal course of business. Although the outcomes of these other legal proceedings are inherently difficult to predict, the Company does not expect the resolution of these other legal proceedings to have a material adverse effect on its financial position, results of operations, or cash flows.
+
+Note 16 – Restructuring
+During the three and six months ended June 30, 2026, the Company continued its global restructuring and cost reduction efforts that were initially announced in May 2023 (the 2023 plan combined with subsequent cost reduction plans are collectively referred to as the “Restructuring Plan”).
+During the three months ended March 31, 2026, the Company completed the assignment of its leasehold interest in 700 Quince Orchard, Gaithersburg, Maryland (“700QO”) and sale of certain related property and equipment, classified as held for sale as of December 31, 2025, and received $39.8 million of the remaining consideration from AstraZeneca. In connection with this closing, the Company was legally relieved of its primary obligation under the original lease. During the three months ended March 31, 2026, the Company derecognized the right-of-use asset and the related lease liability for 700QO, which was classified as held for sale as of December 31, 2025. No additional impairment adjustments were recorded as a result of the closing of this transaction.
+As of June 30, 2026, the Company continues to evaluate its real estate portfolio and other long-lived assets to optimize its footprint, reduce costs, and align its physical spaces with business needs as part of its ongoing effort to improve operational efficiency and enhance long-term financial performance. Changes in the planned usage of the Company’s facilities could potentially impact the recoverability of the underlying right of use assets, leasehold improvements and equipment. While no triggering events have occurred as of June 30, 2026, the Company continues to evaluate options and will perform impairment tests if such indicators arise in future periods.
+Other restructuring charges under the Restructuring Plan recorded by the Company consisted of the following (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+
+Severance and employee benefit costs | $1,969 | $4,218 | 7,065 | 4,723
+Impairment of long-lived assets | 2,108 | 348 | 2,374 | 348
+Total other restructuring charges (1)
+$4,077 | $4,566 | $9,439 | $5,071
+
+(1) Restructuring charges of $2.9 million and $1.2 million are included in Research and development and Selling, general, and administrative expenses, respectively, for the three months ended June 30, 2026, and restructuring charges of $1.6 million and $3.0 million are included in Research and development and Selling, general, and administrative expenses, respectively, for the three months ended June 30, 2025. Restructuring charges of $6.7 million and $2.7 million are included in Research and development and Selling, general, and administrative expenses, respectively, for the six months ended June 30, 2026, and restructuring charges of $1.6 million and $3.5 million are included in Research and development and Selling, general, and administrative expenses, respectively, for the six months ended June 30, 2025.
+Severance and employee benefit costs
+Employees affected by reductions in force under the Restructuring Plan are entitled to receive severance payments and certain termination benefits. The following table summarizes the activity within the accrued severance and employee benefits liability, which is included in Accrued expenses in the Company’s consolidated balance sheets as of June 30, 2026 (in thousands):
+21
+
+Amount
+
+Balance at December 31, 2025 | $670
+Severance and employee benefit costs | 7,065
+Cash payments
+(6,966)
+Balance at June 30, 2026 | $769
+
+Impairment of long-lived assets
+In connection with the Restructuring Plan, the Company performed an impairment evaluation of its applicable long-lived assets, which is subject to judgment and actual results may vary from the estimates, resulting in potential future adjustments to amounts recorded. During the three and six months ended June 30, 2026, the Company recorded impairment charges of $2.1 million and $2.4 million, respectively, related to the impairment of laboratory equipment. During the three and six months ended June 30, 2025, the Company recorded an impairment charge of $0.3 million, related to the impairment of a right of use asset for a facility lease.
+
+Note 17 – Segment Reporting
+The Company manages its business as one reportable operating segment, in-house early-stage R&D to build a pipeline of high-value assets using its proven technology along with seeking to enter into partnerships to drive value creation for its assets. The Company has determined its reportable operating segment based on the management approach, which considers the internal organization and reporting used by the Company’s chief operating decision-maker (“CODM”) to make decisions about allocating resources and assessing the Company’s performance. The Company’s CODM uses consolidated single-segment net income (loss) as reported in the Consolidated Statements of Operations to evaluate performance, forecast future period financial results, allocate resources, and set incentive targets.
+The table below summarizes the significant expense categories regularly reviewed by the CODM (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2026 | 2025
+Revenue
+$56,698 | $239,240 | $196,212 | $905,895
+Cost of sales
+14,246 | 15,325 | 44,941 | 29,439
+Research and development expenses:
+
+Direct COVID-19 Vaccine(1)
+20,073 | 13,077 | 54,328 | 28,824
+Direct CIC and influenza vaccines | 703 | 7,117 | 3,556 | 19,621
+Direct other vaccine development programs(1)
+3,129 | 842 | 5,393 | 997
+Employee and benefit expenses
+30,820 | 36,149 | 68,875 | 76,060
+Facility and other research and development expenses(2)
+15,968 | 22,048 | 34,013 | 42,668
+Selling, general, and administrative expense
+26,665 | 43,612 | 55,442 | 91,702
+Other segment income (expense)(3)
+1,519 | 5,438 | 7,458 | 8,570
+Net income (loss)
+$(53,387) | $106,508 | $(62,878) | $625,154
+
+22
+
+(1) Direct R&D expenses are comprised primarily of costs paid to third parties for clinical and product development activities. Direct COVID-19 Vaccines expenses include costs associated with the Phase 3 trial for the Company’s CIC and stand-alone influenza vaccine candidates.
+
+(2) Facility and other research and development expenses consist of indirect costs incurred in support of overall research and development activities and non-specific programs, such as overhead costs, information technology, and facility-based expenses not allocated to a specific program.
+
+(3) Other segment income (expense) includes interest expense, income tax expense, and other income, net.
+
+Total revenue by the Company’s customer’s or collaboration partner’s geographic location was as follows (in thousands):
+
+Three Months Ended June 30, | Six Months Ended June 30,
+2026 | 2025 | 2025 | 2024
+United States
+$38,437 | $198,183 | $134,530 | $237,593
+Canada
+— | — | — | 575,670
+Europe | 1,118 | 3,627 | 21,264 | 11,712
+Rest of the world
+17,143 | 37,430 | 40,418 | 80,920
+Total revenue
+$56,698 | $239,240 | $196,212 | $905,895
+
+Total long-lived assets of the Company by geographic location were as follows (in thousands):
+
+June 30, 2026 | December 31, 2025
+United States | $52,182 | $60,682
+Europe | 5,793 | 7,015
+Total long-lived assets
+$57,975 | $67,697
+
+23
+
+Item 2. Management’s Discussion and Analysis of Financial Condition and Results of Operations
+Cautionary Note Regarding Forward-Looking Statements
+
+This Quarterly Report on Form 10-Q (this “Quarterly Report”) contains forward-looking statements within the meaning of the Private Securities Litigation Reform Act of 1995. We intend such forward-looking statements to be covered by the safe harbor provisions for forward-looking statements contained in Section 27A of the Securities Act of 1933, as amended (the “Securities Act”) and Section 21E of the Securities Exchange Act of 1934, as amended (the “Exchange Act”). Any statements in the discussion below and elsewhere in this Quarterly Report about expectations, beliefs, plans, objectives, assumptions, or future events or performance of Novavax, Inc. (“Novavax,” together with its wholly owned subsidiaries, the “Company,” “we,” or “us”) are not historical facts and are forward-looking statements. Such forward-looking statements include, without limitation, statements about our capabilities, goals, expectations regarding future revenue and expense levels, and capital raising activities; our corporate growth strategy and key value drivers; our technology platform; our COVID-19 Vaccine (which includes “Nuvaxovid™”); our operating plans and prospects, including our ability to continue as a going concern through the next 12 months from the issuance of the financial statements included in this Quarterly Report on Form 10-Q; our global restructuring and cost reduction plan as defined in Note 16 to our consolidated financial statements (“Restructuring Plan”), which includes a more focused investment in our COVID-19 Vaccine; our cash flow forecast and projected revenue, including potential royalties and milestones pursuant to the Sanofi CLA (as defined below) and Pfizer License Agreement (as defined below); potential market sizes and demand for our products and product candidates; the efficacy, safety, and intended utilization of our products and product candidates; the development of our clinical-stage product candidates and our recombinant vaccine and adjuvant technologies; the development of our preclinical product candidates; our research and development investment strategy; the potential expansion of our pipeline beyond infectious diseases into other therapeutic areas; our expectations related to enrollment in our clinical trials; the conduct, timing, and potential results from clinical trials and other preclinical studies; plans for and potential timing of regulatory filings; our expectation of manufacturing capacity, timing, production, distribution, and delivery for our COVID-19 Vaccine by us and our partners; our expectations with respect to the anticipated ongoing development and commercialization or licensure of the COVID-19 Vaccine; our expectations with respect to the anticipated ongoing development of COVID-19 variant strain-containing formulations, including our COVID-19-Influenza (“CIC”) vaccine candidate and our stand-alone influenza vaccine candidate; our partnership efforts for our CIC vaccine candidate and stand-alone influenza vaccine candidate to advance towards a Biologics License Application (“BLA”) filing and commercialization; the expected timing, content, and outcomes of regulatory actions; funding under our advance purchase agreements ("APAs") and supply agreements and amendments to, termination of, discussion regarding, or legal disputes relating to any such agreement; our available cash resources and usage and the availability of financing generally; plans regarding partnering activities and business development initiatives; plans regarding APA amendments; and other matters referenced herein. Generally, forward-looking statements can be identified through the use of words or phrases such as “believe,” “may,” “could,” “will,” “would,” “possible,” “can,” “estimate,” “continue,” “ongoing,” “consider,” “anticipate,” “intend,” “seek,” “plan,” “project,” “expect,” “should,” “would,” “aim,” or “assume,” the negative of these terms, or other comparable terminology, although not all forward-looking statements contain these words.
+
+Forward-looking statements are neither historical facts nor assurances of future performance. Instead, they are based only on our current beliefs and expectations about the future of our business, future plans and strategies, projections, anticipated events and trends, the economy, and other future conditions. Forward-looking statements involve estimates, assumptions, risks, and uncertainties that could cause actual results or outcomes to differ materially from those expressed or implied in any forward-looking statements, and, therefore, you should not place considerable reliance on any such forward-looking statements. Such risks and uncertainties include, without limitation, our ability to successfully and timely obtain and maintain full U.S. FDA licensure or foreign regulatory approvals necessary to manufacture, market, distribute, or deliver our COVID-19 Vaccine; the impact of delays in obtaining regulatory approval, including regulatory decisions impacting labeling, approval or authorization, including the scope of the indicated population, product dosage, manufacturing processes, shelf life, safety, for our product candidates; challenges in conducting the postmarketing commitment (“PMC”) study, our ability to obtain adequate additional funding to maintain our current level of operations and fund the further development of our vaccine candidates; challenges related to our partnership with Sanofi, including collaboration on the PMC, and in pursuing additional partnership opportunities; challenges satisfying, alone or together with partners, various safety, efficacy, and product characterization requirements, including those related to process qualification, assay validation, and stability testing, necessary to satisfy applicable regulatory authorities; challenges or delays in conducting clinical trials or studies for our product candidates; manufacturing, distribution or export delays or challenges; our substantial dependence on Serum Institute of India Pvt. Ltd. (“SII”) and Serum Life Sciences Limited (“SLS” and together with SII, “Serum”) for co-formulation and filling our COVID-19 Vaccine and the impact of any delays or disruptions in their operations; the impact of potential legislative, regulatory, or policy changes under the current presidential administration, including any adverse impact funding for vaccine research and development, reimbursement for vaccines and their administration, vaccine mandates and recommendations, and public perception of vaccine importance; uncertainty with respect to pricing, third-party reimbursement and healthcare reform;
+24
+
+uncertainty in the regulatory pathway for our COVID -19 Vaccine; the impact of any new or changes in interpretations of existing trade measures, including tariffs, embargoes, sanctions, import restrictions, and export licensing requirements; difficulty obtaining scarce raw materials and supplies, including for our proprietary adjuvant; resource constraints, including human capital and manufacturing capacity, constraints on our ability to pursue planned regulatory pathways, alone or with partners, in multiple jurisdictions simultaneously, leading to staggering of regulatory filings, and potential regulatory actions; our ability to timely deliver doses; challenges in obtaining commercial adoption and market acceptance of our COVID-19 Vaccine or any COVID-19 variant strain containing formulation, or our CIC vaccine candidates, stand-alone influenza vaccine candidates or other candidates; challenges meeting contractual requirements under agreements with multiple commercial, governmental, and other entities including requirements to deliver doses that may require us to refund portions of upfront and other payments previously received or result in reduced future payments pursuant to such agreements; challenges related to the seasonality of vaccinations against COVID-19; challenges related to the demand for vaccinations against COVID-19 or influenza; challenges in identifying and successfully pursuing innovation expansion opportunities; our expectation as to expenses and cash needs may prove not to be correct for reasons such as changes in plans or actual events being different than our assumptions; and other risks and uncertainties identified in Part I, Item 1A “Risk Factors” of our Annual Report on Form 10-K for the year ended December 31, 2025, and this Quarterly Report on Form 10-Q, which may be detailed and modified or updated in other documents filed with the Securities and Exchange Commission (“SEC”) from time to time, and are available at www.sec.gov and at www.novavax.com. You are encouraged to read these filings as they are made.
+
+We cannot guarantee future results, events, level of activity, performance, or achievement. Any or all of our forward-looking statements in this Quarterly Report may turn out to be inaccurate or materially different from actual results. Further, any forward-looking statement speaks only as of the date when it is made, and we undertake no obligation to update or revise any forward-looking statements, whether as a result of new information, future events, or otherwise, unless required by law. New factors emerge from time to time, and it is not possible for us to predict which factors will arise. In addition, we cannot assess the impact of each factor on our business or the extent to which any factor, or combination of factors, may cause actual results to differ materially from those contained in any forward-looking statements.
+
+Overview
+Novavax tackles some of the world’s most pressing health challenges with its scientific expertise in vaccines and its proven technology platform, including its Matrix-M® adjuvant and protein-based nanoparticles. Our growth strategy focuses on maximizing the impact of our cutting-edge technology by forging strategic partnerships for our Matrix-M® adjuvant and research and development (“R&D”) assets.
+
+Our technology platform combined with our deep vaccine expertise, is the fuel for innovation and partnerships and we believe it has the potential to create significant near- and long-term value. Our proprietary Matrix-M® adjuvant, when added to vaccines, has been shown to help induce a strong and long-lasting immune response. Our recombinant protein-based nanoparticle technology has been shown to be highly immunogenic. When combined, we believe that our technology platform can induce potent, durable and broad immune responses, with the potential to be antigen-sparing. Our Matrix-M® adjuvant can increase both antibody and cell-mediated immune responses to a vaccine and it has demonstrated a favorable tolerability profile in clinical trials. Our technology platform is used in our COVID-19 Vaccine and the R21/Matrix-M™ malaria vaccine, a malaria vaccine developed by our partners, SII and the Jenner Institute, University of Oxford (“R21/Matrix-M™ malaria vaccine”).
+Additionally, we are advancing our early-stage pipeline with a focus on potentially high-value assets in areas with unmet medical need, compelling scientific rationale, and strong commercial opportunity and R&D to expand the utility of our Matrix technology platform.
+Additionally, we provide Matrix-M® adjuvant for use in various programs in preclinical and clinical stage, as well as preclinical investigations. Matrix-M® adjuvant is being explored under our Collaboration and License Agreement with Sanofi Pasteur Inc. (“Sanofi”) (“Sanofi CLA”) and our License and Option Agreement with Pfizer Inc. (“Pfizer”) (“Pfizer License Agreement”), as well as under multiple material transfer agreements with both global pharmaceutical companies and biotechs for exploration of Matrix-M® adjuvant used as a potential advancement in their pipelines, including preclinical collaborations in oncology.
+We were incorporated in 1987 under the laws of the State of Delaware. Our principal executive offices are located at 21 Firstfield Road, Gaithersburg, Maryland, 20878, and our telephone number is (240) 268-2000. Our common stock is listed on the Nasdaq Global Select Market under the symbol “NVAX.”
+25
+
+Technology Overview
+We believe our recombinant nanoparticle vaccine technology and our proprietary Matrix-M® adjuvant are well suited for the development and commercialization of vaccine candidates targeting areas both within and beyond the infectious disease space, including in hard-to-treat infectious diseases and oncology.
+
+Recombinant Protein-based Nanoparticle Vaccine Technology
+Once a target of interest has been identified, the genetic sequence encoding an antigen is selected for developing the vaccine construct. The genetic sequence may be optimized to enhance protein stability or confer resistance to degradation. This genetic construct is generally inserted into the baculovirus Spodoptera frugiperda (“Sf-/BV”) insect cell-expression system, which enables efficient, large-scale expression of the optimized protein. The Sf-/BV system produces protein-based antigens that are properly folded and modified, which can be critical for functional, protective immunity. Our testing shows this results in a highly immunogenic nanoparticle that is ready to be formulated with Matrix-M® adjuvant.
+
+Matrix-M® Adjuvant
+Our proprietary Matrix-M® adjuvant is another key differentiator within our platform. This adjuvant has enabled potent, well tolerated, and durable efficacy by stimulating the entry of antigen presenting cells (“APCs”) into the injection site and enhancing antigen presentation in local lymph nodes with an acceptable safety and tolerability profile. This in turn activates APCs, T-cell and B-cell populations, and plasma cells, which promote the production of high affinity antibodies, an immune boosting response. This potent mechanism of action enables a lower dose of antigen to achieve the desired immune response, thereby contributing to increased vaccine supply and manufacturing capacity. These immune-boosting and dose-sparing capabilities contribute to the adjuvant’s highly unique profile.
+
+We continue to evaluate partnership opportunities for use of our Matrix-M® adjuvant in other manufacturers’ pipelines. We currently have multiple partnerships and material transfer agreements in place for Matrix-M® adjuvant. In May 2024, pursuant to the Sanofi CLA, Sanofi received a non-exclusive license to develop and commercialize other vaccine products that include our Matrix-M® adjuvant. In 2025, we signed three material transfer agreements with other pharmaceutical companies to explore the use of our Matrix-M® adjuvant for the potential advancement of their pipeline candidates, with the latest material transfer agreement signed in the fourth quarter of 2025. In January 2026, we entered into the Pfizer License Agreement for use of Matrix-M® adjuvant in up to two infectious disease areas. In April 2026, we signed a new material transfer agreement (MTA) with a top 10 leading pharmaceutical company and leader in oncology to explore Matrix-M® in multiple oncology targets, as well as antibiotic resistant bacterial infections and other infectious diseases. Also in April, we signed a new MTA with an existing pharmaceutical partner for evaluation of Matrix-M® in up to nine additional identified infectious disease areas. In February 2026, Novavax expanded an existing MTA with a major global pharmaceutical company to explore an additional field and signed a new MTA with an innovative oncology company. In total, Novavax now has MTA collaborations and/or license agreements partnerships with four of the top ten global pharmaceutical companies and a number of innovative biotech companies who, collectively, have the rights to explore Matrix-M® in over 30 unique fields of experimentation across both infectious diseases and oncology.
+
+Commercial Products
+
+In May 2025, the U.S. Food and Drug Administration (“U.S. FDA”) approved the BLA for Nuvaxovid™ for active immunization to prevent COVID-19 caused by severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) in adults 65 years and older and individuals 12 through 64 years who have at least one underlying condition that puts them at high risk for severe outcomes from COVID-19 (e.g. asthma, cancer, diabetes, obesity, smoking). The BLA approval was based on pivotal Phase 3 clinical trial data that showed Nuvaxovid™ was safe and effective for the prevention of COVID-19. The BLA approval triggered a $175 million milestone payment under the Sanofi CLA.
+
+In August 2025, the U.S. FDA approved the JN.1 COVID-19 Vaccine for the prevention of COVID-19 in individuals 65 years of age and older, or 12 years through 64 years of age with at least one underlying condition that puts them at high risk for severe outcomes from COVID-19.
+
+In October and November 2025, respectively, we announced that we completed the transfer of the Nuvaxovid™ BLA and the European Medicines Agency approval to Sanofi, who remains responsible for further development and commercialization of this product.
+
+26
+
+Commercial Products and Product Pipeline
+
+The graphic represents all disclosed partnerships. In total, we now have MTA collaborations and/or license agreements providing access to explore Matrix-M® in over 30 unique fields of experimentation across both infectious diseases and oncology.
+
+Commercial Products
+Continuing during the term of the Sanofi CLA, Sanofi leads commercialization efforts for our COVID-19 Vaccine (Nuvaxovid™). Our COVID-19 Vaccine has received authorizations from the U.S. FDA, the European Commission, and several other countries for both adult and adolescent populations.
+
+Novavax Pipeline Programs
+
+We are advancing our pipeline programs with a focus on potentially high-value assets in areas with unmet medical need, compelling scientific rationale, and strong commercial opportunity. Development and advancement of our in-house pipeline leverages our core expertise and our experience in respiratory and infectious diseases and vaccines, and we intend to explore new opportunities with the potential to expand beyond infectious diseases.
+
+27
+
+Additionally, we intend to continue developing our early-stage pipeline programs using a disciplined and capital-efficient approach. Our R&D investment strategy seeks to place targeted investments on the programs with the highest potential value, both within infectious disease and beyond, with the intent of partnering these programs earlier in the development process, while maintaining the flexibility to internalize assets when strategically advantageous. In 2026, our Clostridioides difficile colitis vaccine candidate was prioritized as the potential next asset to enter the clinic as early as 2027 from our early-stage pipeline. In addition, the preliminary preclinical data generated on our varicella-zoster virus (shingles) and respiratory syncytial virus early-stage assets were positive and will inform our future antigen design and adjuvant work.
+
+We are also continuing to progress our adjuvant research to expand its utility by creating new adjuvants based on our Matrix technology.
+
+Partner Pipeline Programs
+
+In addition to our own pipeline programs, we have several ongoing partnerships.
+
+Under our Sanofi CLA, we have provided a sole license to Sanofi for the independent development of a COVID-19 and influenza combination product using our COVID-19 Vaccine in combination with two of Sanofi’s separately marketed influenza vaccines, Fluzone High-Dose and Flublok. These two combination vaccine candidates were granted Fast Track designation by the U.S. FDA in December 2024 to prevent influenza and COVID-19 infections in individuals aged 50 and older. In October 2025, Sanofi reported positive Phase 1/2 results with their combination vaccine candidates and will engage with regulatory authorities on next steps. Sanofi also has a non-exclusive license to develop and commercialize combination products containing both our COVID-19 Vaccine and one or more non-influenza vaccines, and a non-exclusive license to develop and commercialize other vaccine products selected by Sanofi that include our Matrix-M® adjuvant.
+
+In September 2025, we amended the Sanofi CLA to expand Sanofi's license to include use of Novavax's Matrix-M® adjuvant in Sanofi's pandemic influenza vaccine candidate program. Sanofi received funding from the Biomedical Advanced Research and Development Authority within the Administration for Strategic Preparedness and Response, part of the U.S. Department of Health and Human Services, for early-stage work on this vaccine candidate including the Matrix-M® adjuvant.
+
+In January 2026, we entered the Pfizer License Agreement for use of our Matrix-M® adjuvant. Under the terms of the agreement, Pfizer will obtain a non-exclusive license for Matrix-M® adjuvant for use with Pfizer's products in two infectious disease areas. The agreement provides for an upfront payment of $30 million, with the potential for up to $500 million in development and sales milestone payments. In addition to milestone payments, we are eligible to receive tiered high mid-single digit percentage royalty payments on sales of any product by Pfizer that includes Matrix-M® adjuvant.
+
+Novavax now has MTA collaborations and/or license agreements partnerships with four of the top ten global pharmaceutical companies and a number of innovative biotech companies who, collectively, have the rights to explore Matrix-M® in over 30 unique fields and indications across both infectious diseases and oncology.
+
+Coronavirus Vaccine Clinical Development
+We continue to evaluate vaccine safety, immunogenicity, and effectiveness through ongoing clinical trials and collaborative evidence-generating real-world studies.
+
+Phase 4 Postmarketing Commitments
+In May 2025, we announced that the U.S. FDA, as a part of its BLA approval of Nuvaxovid™, requested that we conduct as one of our postmarketing commitments (“PMCs”) a Phase 4 prospective, randomized, double-blinded, placebo-controlled efficacy and safety trial in individuals aged 50 through 64 without high-risk conditions for severe COVID-19. Although the BLA has since been transferred to Sanofi, we are currently conducting the PMC trial on behalf of Sanofi which will reimburse us for 70% of the PMC costs, capped at the currently agreed upon cost estimates. We updated our total expected costs and the amounts of variable consideration for research and development transition services that support further regulatory approval and development of the COVID-19 Vaccine (“Sanofi Transition Services”) for costs and reimbursements from the PMC. Revenue related to the PMC will be recognized in Licensing, royalties, and other revenue over time using an input method, consistent with Sanofi Transition Services.
+
+28
+
+In addition, in October 2025, we initiated an additional PMC study evaluating the safety and immunogenicity of Nuvaxovid™ in the population of individuals for which Nuvaxovid™ is approved in the U.S., i.e., individuals 12 through 64 years of age with at least one underlying condition that puts them at high risk for severe outcomes from COVID‑19 and in adults ≥ 65 years of age. Following the transfer of the U.S. marketing authorization, Sanofi is now responsible for the conduct of this study.
+
+COVID-Influenza Combination and Stand-alone Influenza Program
+
+Phase 3 Clinical Trial of CIC and Stand-alone Influenza Vaccine Candidates
+
+In December 2024, we initiated a Phase 3 immunogenicity and safety trial for our CIC and stand-alone influenza vaccine candidates to evaluate the immunogenicity and safety compared to our COVID-19 Vaccine and a licensed seasonal influenza vaccine comparator in adults aged 65 and older. Our Phase 3 immunogenicity and safety trial completed enrollment with an initial cohort of approximately 2,000 participants. In June 2025, we reported data from this initial cohort, which showed both vaccine candidates induced robust immune responses across all antigens tested. Both vaccine candidates were well tolerated with reactogenicity profiles that were comparable to authorized comparators. After consultation with the U.S. FDA, we determined that seeking an accelerated approval pathway for our CIC and stand-alone influenza candidates would not be feasible. While the Phase 3 immunogenicity and safety trial is not a pivotal study, the data will inform a future registrational Phase 3 program. We do not intend to make additional investments in these programs and are seeking a partner to advance both vaccine candidates.
+
+Malaria
+
+Malaria is a life-threatening disease caused by a parasite that infects mosquitoes and is subsequently transmitted to humans. According to the 2024 WHO World Malaria Report, in 2023, there were an estimated 263 million malaria cases and 597,000 malaria-related deaths worldwide. We believe malaria has the potential to be preventable through our partner-led R21/Matrix-M™ malaria vaccine, with the first doses distributed and administered across the African region in 2024 after having received authorization in 2023 in several countries and prequalification by the WHO.
+
+R21/Matrix-M™ Malaria Vaccine
+R21/Matrix-M™ malaria vaccine, formulated with our Matrix-M® adjuvant is developed by our partners, SII and the Jenner Institute, University of Oxford. We have an agreement with SII related to its manufacture of R21/Matrix-M™ malaria vaccine under which SII purchases our Matrix-M® adjuvant for use in development activities at cost and for commercial purposes at a tiered commercial supply price and pays a royalty in the single- to low-double digit range based on vaccine sales for a period of 15 years after the first commercial sale of the vaccine in each country.
+
+In July 2024, first commercial doses of R21/Matrix-M™ malaria vaccine were administered to children in Cote d’Ivoire and South Sudan. As of May 2026, over 30 million doses of R21/Matrix-M™ malaria vaccine have been distributed and are available in 25 countries.
+
+R21/Matrix-M™ Malaria Vaccine Regulatory and Licensure
+
+In December 2023, the WHO announced it prequalified the R21/Matrix-M™ malaria vaccine to prevent malaria disease in children caused by the P. falciparum parasite in endemic areas. Prequalification status enables United Nations agencies to procure the vaccine for eligible countries and enabled rollout of the vaccine in mid-2024. The WHO recommended that the R21/Matrix-M™ malaria vaccine be administered in a four-dose schedule beginning at five months of age.
+
+Business Highlights
+Second Quarter 2026 and Recent Highlights
+
+•Our Sanofi partnership continues to advance, supporting significant potential near- and long-term value creation.
+
+◦Sanofi confirmed with Novavax they intend to be among the first movers in the combination vaccine segment and that they are in advanced discussions with regulators regarding their Phase 3 CIC trial timing. Initiation of this trial in the U.S. or European Union will trigger a $125 million milestone to Novavax.
+
+◦Manufacturing technology transfer to Sanofi for Nuvaxovid™ is expected to be completed in mid-2027, which would trigger a $75 million milestone payment to Novavax.
+29
+
+◦Sanofi is expanding the commercial reach of Nuvaxovid this season through broader commercial activities in the U.S. and launches in the United Kingdom, Germany and Canada, with Novavax eligible to receive royalties in the high teens to low twenties as a percentage of Sanofi's global net sales.
+
+◦Sanofi received Fast Track designation from the U.S. FDA for its H5 pandemic influenza vaccine candidate (SP0335) utilizing Matrix-M®.
+
+•A growing body of scientific evidence supports Matrix-M®’s utility in oncology and infectious disease. Multiple scientific evaluations by partners and potential partners are underway, enabling future licensing opportunities.
+
+•We advanced our differentiated C. difficile vaccine candidate into pre-IND interactions with the U.S. FDA and initiated GMP manufacturing process, supporting potential clinical entry as early as 2027.
+
+Sales of Common Stock
+In August 2023, we entered into an At Market Issuance Sales Agreement (the “August 2023 Sales Agreement”), which allowed us to issue and sell up to $500 million in gross proceeds of shares of our common stock pursuant to a registration statement on Form S-3 (the “Shelf Registration Statement”), and terminated our then-existing At Market Issuance Sales Agreement entered in June 2021. No sales were recorded under the August 2023 Sales Agreement during the three and six months ended June 30, 2026, and 2025. The Shelf Registration Statement expired in February 2026, terminating the August 2023 At-the-Market Sales Agreement. No sales were recorded under the August 2023 Sales Agreement during the six months ended June 30, 2026, prior to its expiration.
+
+Critical Accounting Policies and Use of Estimates
+The discussion and analysis of our financial condition and results of operations are based upon our accompanying unaudited financial statements and the unaudited accompanying notes, which have been prepared in accordance with generally accepted accounting principles in the United States.
+The preparation of our consolidated financial statements requires us to make estimates, assumptions, and judgments that affect the reported amounts of assets, liabilities, and equity and disclosure of contingent assets and liabilities at the date of the financial statements and the reported amounts of revenue and expenses during the reporting period. Our critical accounting policies and estimates are included under Item 7 of our Annual Report on Form 10-K for the fiscal year ended December 31, 2025, as filed with the SEC.
+Recent Accounting Pronouncements Not Yet Adopted
+See “Note 2―Summary of Significant Accounting Policies” included in our unaudited consolidated financial statements (under the caption “Recent Accounting Pronouncements”).
+
+Results of Operations
+The following is a discussion of the historical financial condition and results of our operations that should be read in conjunction with our unaudited consolidated financial statements and notes set forth in this Quarterly Report. Our historical results are not necessarily indicative of the results for any periods in the future.
+Three Months Ended June 30, 2026 and 2025
+Revenue
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Revenue (in thousands):
+Product sales | $18,854 | $10,724 | $8,130
+Licensing, royalties, and other | 37,844 | 228,516 | (190,672)
+Total revenue | $56,698 | $239,240 | $(182,542)
+
+30
+
+Revenue for the three months ended June 30, 2026 was $56.7 million as compared to $239.2 million for the same period in 2025, a decrease of $182.5 million. Revenue for the three months ended June 30, 2026 was primarily comprised of revenue from transition services and technology transfer under the Sanofi CLA, revenue from supply of adjuvant and other materials, and royalty revenue with Sanofi and Serum. Revenue for the three months ended June 30, 2025 was primarily comprised of licensing revenue from the achievement of milestones and transition services and technology transfer under the Sanofi CLA and licensing and royalty revenue with Takeda Pharmaceutical Company Limited (“Takeda”).
+Product sales
+Product sales for the three months ended June 30, 2026 were $18.9 million as compared to $10.7 million for the same period in 2025, an increase of $8.1 million. Our Product sales related to revenue from NuvaxovidTM sales, which commenced in 2022, commercial supply sales of COVID-19 Vaccine, and revenue from supply of adjuvant and other materials. We have transitioned the commercial lead for sales and distribution to Sanofi resulting in a decrease in NuvaxovidTM sales and an increase in supply sales.
+The categories of Product sales were as follows:
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Product sales (in thousands)
+
+NuvaxovidTM sales(1)
+$— | $(2,093) | $2,093
+Supply sales(2)
+18,854 | 12,817 | 6,037
+Total Product sales
+$18,854 | $10,724 | $8,130
+
+(1)NuvaxovidTM sales are sales of our COVID-19 Vaccine associated with APAs with governments and commercial markets, where we are the commercial lead for sales and distribution, made through pharmaceutical wholesale distributors.
+(2)Supply sales include commercial sales of COVID-19 Vaccine, adjuvant sales, and other material sales to our partners.
+Licensing, royalties, and other
+Licensing, royalties, and other revenue during the three months ended June 30, 2026 was $37.8 million as compared to $228.5 million during the same period in 2025, a decrease of $190.7 million. The decrease was primarily due to a decrease in licensing revenue under the Sanofi CLA and the collaboration and exclusive license agreement, as amended with Takeda (“Amended Takeda CLA”).
+Licensing, royalties, and other revenue were comprised of the following:
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Licensing, royalties, and other (in thousands)
+Sanofi | $35,768 | $199,412 | $(163,644)
+Takeda | 215 | 27,212 | (26,997)
+Serum | 1,823 | 1,892 | (69)
+Other partners(1)
+38 | $— | 38
+Total licensing, royalties, and other revenue | $37,844 | $228,516 | $(190,672)
+
+(1)Other partners revenue includes royalties, license fees, and other revenue associated with agreements with other partners such as SK bioscience, Co., Ltd.
+Sanofi licensing, royalties, and other revenue were comprised of the following:
+
+31
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Sanofi licensing, royalties, and other revenue (in thousands)
+
+Licensing:
+Milestones | $— | $175,000 | $(175,000)
+Royalties | 676 | — | 676
+Transition services and technology transfer:
+
+Upfront fee amortization(1)
+8,728 | 12,268 | (3,540)
+Milestones amortization(1)
+3,762 | 5,665 | (1,903)
+Cost reimbursements
+22,602 | 6,479 | 16,123
+Total Sanofi licensing, royalties, and other revenue
+$35,768 | $199,412 | $(163,644)
+
+(1)Upfront fee amortization and Milestones amortization represent revenue recognized during the period related to a portion of the $500 million upfront payment and the $50 million milestone for database lock of an existing Phase 2/3 clinical trial in 2024 that were deferred upon achievement and are recognized in revenue over time. During the three months ended June 30, 2026, we recognized a change in estimate to cumulative revenue recognized for the Sanofi Transition Services performance obligation of $10.8 million as a result of changes in total expected costs and changes to estimates of variable consideration from expected cost reimbursements.
+Takeda licensing, royalties, and other revenue were comprised of the following (in thousands):
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Takeda licensing, royalties, and other revenue
+Licensing:
+Upfront fee(1)
+$— | $18,500 | $(18,500)
+Milestones | — | 3,434 | (3,434)
+Royalties
+(50) | 5,000 | (5,050)
+Support services | 265 | 278 | (13)
+Total Total Takeda licensing, royalties, and other revenue
+$215 | $27,212 | $(26,997)
+
+(1)Upfront fee includes $14.5 million of nonrefundable upfront payments associated with the Amended Takeda CLA and $4.0 million of previously unrecognized consideration from the Original Takeda CLA.
+Expenses
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Expenses (in thousands):
+Cost of sales | $14,246 | $15,325 | $(1,079)
+Research and development | 70,693 | 79,233 | (8,540)
+Selling, general, and administrative | 26,665 | 43,612 | (16,947)
+Total expenses | $111,604 | $138,170 | $(26,566)
+
+Cost of Sales
+Cost of sales was $14.2 million for the three months ended June 30, 2026, including $2.3 million right of use asset impairment charges for CMO manufacturing capacity of excess quantities; $1.8 million related to unutilized manufacturing capacity; and $1.6 million related to excess, obsolete, or expired inventory. Cost of sales was $15.3 million for the three months ended June 30, 2025, including expenses of $1.1 million related to excess, obsolete, or expired inventory and losses on firm purchase commitments and $1.7 million related to unutilized manufacturing capacity. The decrease in cost of sales of $1.1 million was mainly driven by cost containment measures to reduce our operating spend, partially offset by higher impairment
+
+32
+
+charges. The cost of sales as a percentage of Product sales may fluctuate in the future as a result of changes to our customer pricing mix or standard costs.
+Research and Development Expenses
+Research and development expenses were $70.7 million for the three months ended June 30, 2026 as compared to $79.2 million for the three months ended June 30, 2025, a decrease of $8.5 million. The decrease was primarily due to cost containment measures to reduce our operating spend, as summarized in the table below:
+
+Three Months Ended June 30,
+
+2026 | 2025
+Research and Development Expenses (in thousands):
+COVID-19 Vaccine | $20,073 | $13,077
+CIC and influenza vaccines | 703 | 7,117
+Other vaccine development programs
+3,129 | 842
+Total direct external research and development expense | 23,905 | 21,036
+Employee expenses | 28,191 | 32,648
+Stock-based compensation expense | 2,629 | 3,501
+Facility expenses | 9,749 | 12,665
+Other expenses | 6,219 | 9,383
+Total research and development expenses | $70,693 | $79,233
+
+Selling, General, and Administrative Expenses
+Selling, general, and administrative expenses were $26.7 million for the three months ended June 30, 2026 as compared to $43.6 million for the same period in 2025, a decrease of $16.9 million. The decrease in selling, general, and administrative expenses is primarily due to certain cost containment measures to reduce our operating spend, including a reduction in our global commercial footprint and administrative infrastructure.
+Other Income, Net
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Other income, net (in thousands):
+Interest expense | $(5,689) | $(5,518) | $(171)
+
+Other income, net | 8,919 | 11,902 | (2,983)
+Total other income, net | $3,230 | $6,384 | $(3,154)
+
+Total other income, net was $3.2 million for the three months ended June 30, 2026 as compared to $6.4 million for the same period in 2025. The decrease in other income, net is primarily due to unfavorable impact in 2026 as compared to 2025 of exchange rates on foreign currency denominated balances and by an increase in interest expense from higher Long-term debt balance.
+Income Tax Expense
+During the three months ended June 30, 2026, we recognized income tax expense of $1.7 million related to foreign income taxes and foreign withholding tax expense. During the three months ended June 30, 2025, we recognized income tax expense of $0.9 million related to federal, state, and foreign income taxes, and foreign withholding taxes.
+
+33
+
+Net Income (Loss)
+
+Three Months Ended June 30,
+
+2026 | 2025 | Change
+Net Income (Loss) (in thousands, except per share information):
+Net income (loss) | $(53,387) | $106,508 | $(159,895)
+Net income (loss) per share, basic | $(0.32) | $0.66 | $(0.98)
+Net income (loss) per share, diluted | $(0.32) | $0.62 | $(0.94)
+Weighted average shares outstanding, basic | 164,574 | 162,019 | 2,555
+Weighted average shares outstanding, diluted | 164,574 | 177,215 | (12,641)
+
+Net loss for the three months ended June 30, 2026 was $53.4 million, or $0.32 per share, basic and diluted, as compared to net income of $106.5 million, or $0.66 per share, basic and $0.62 per share, diluted, for the same period in 2025. The decrease in net income (loss) during the three months ended June 30, 2026, was primarily due to a decrease in total revenue.
+The increase in weighted average shares outstanding for the three months ended June 30, 2026, was primarily a result of common stock issued under our incentive programs.
+
+Six Months Ended June 30, 2026 and 2025
+Revenue
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Revenue (in thousands):
+Product sales | $61,054 | $632,402 | $(571,348)
+Licensing, royalties, and other | 135,158 | 273,493 | (138,335)
+Total revenue | $196,212 | $905,895 | $(709,683)
+
+Revenue for the six months ended June 30, 2026 was $196.2 million as compared to $905.9 million for the same period in 2025, a decrease of $709.7 million. Revenue for the six months ended June 30, 2026 was primarily comprised of commercial product sales of COVID-19 Vaccine and adjuvant sales, licensing revenue under the Pfizer License Agreement, revenue from transition services and technology transfer under the Sanofi CLA, and royalty revenue with Sanofi and Serum. Revenue for the six months ended June 30, 2025 was primarily comprised of revenue from the termination of our APAs with Canada (“Canada APA”) and New Zealand (“New Zealand APA”) of $575.7 million and $27.3 million, respectively, licensing revenue from the achievement of milestones under the Sanofi CLA, the recognition of previously deferred upfront payments and revenue from transition services and technology transfer under the Sanofi CLA, and licensing and royalty revenue with Takeda. The decrease in revenue is primarily due to nonrecurring Product sales from the termination of our Canada and New Zealand APAs and by a decrease in Licensing, royalties, and other revenue from the Sanofi CLA and the Amended Takeda CLA, partially offset by revenue under the Pfizer License Agreement.
+Product sales
+Product sales for the six months ended June 30, 2026 were $61.1 million as compared to $632.4 million for the same period in 2025, a decrease of $571.3 million. Our Product sales related to revenue from Nuvaxovid™ sales, which commenced
+
+34
+
+in 2022, commercial supply sales of COVID-19 Vaccine, revenue from supply of adjuvant and other products, and the termination of our Canada and New Zealand APAs.
+The categories of Product sales were as follows:
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Product sales (in thousands)
+
+Nuvaxovid™ sales(1)
+$9,558 | $605,931 | $(596,373)
+Supply sales(2)
+51,496 | 26,471 | 25,025
+Total Product sales
+$61,054 | $632,402 | $(571,348)
+
+(1) Nuvaxovid™ sales are sales of our COVID-19 Vaccine associated with APAs with various governments globally and commercial markets, where we are the commercial lead for sales and distribution, made through pharmaceutical wholesale distributors.
+(2) Supply sales include commercial sales of COVID-19 Vaccine, adjuvant sales, and sale of other materials to our partners.
+
+Licensing, royalties, and other
+Licensing, royalties, and other revenue during the six months ended June 30, 2026 was $135.2 million as compared to $273.5 million during the same period in 2024, a decrease of $138.3 million. The decrease was primarily due to a decrease in revenue under the Sanofi CLA, offset by an increase in revenue from other partners, including under the Amended Takeda CLA.
+Licensing, royalties, and other revenue were comprised of the following:
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Licensing, royalties, and other (in thousands)
+Sanofi | $84,666 | $239,733 | $(155,067)
+Pfizer | 30,000 | — | 30,000
+Takeda | 950 | 27,212 | (26,262)
+Serum | 9,189 | 6,548 | 2,641
+Other partners(1)
+10,353 | — | 10,353
+Total licensing, royalties, and other revenue | $135,158 | $273,493 | $(138,335)
+
+(1)Other partners revenue includes royalties and license fees associated with agreements with other partners such as SK bioscience, Co., Ltd.
+Sanofi licensing, royalties, and other revenue were comprised of the following:
+35
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Sanofi licensing, royalties, and other revenue (in thousands)
+
+Licensing:
+Milestones | $— | $175,000 | $(175,000)
+Royalties
+4,195 | — | 4,195
+Transition services and technology transfer:
+
+Upfront fee amortization(1)
+20,834 | 32,180 | (11,346)
+Milestones amortization(1)
+9,313 | 14,808 | (5,495)
+Cost reimbursements
+50,324 | 17,745 | 32,579
+Total Sanofi licensing, royalties, and other revenue
+$84,666 | $239,733 | $(155,067)
+
+(1)Upfront fee amortization and Milestones amortization represent revenue recognized during the period related to a portion of the $500 million upfront payment and the $50 million milestone for database lock of an existing Phase 2/3 clinical trial in 2024 that were deferred upon achievement and are recognized in revenue over time.
+Takeda licensing, royalties, and other revenue were comprised of the following (in thousands):
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Takeda licensing, royalties, and other revenue
+Licensing:
+Upfront fee(1)
+$— | $18,500 | $(18,500)
+Milestones | — | 3,434 | (3,434)
+Royalties
+611 | 5,000 | (4,389)
+Support services | 339 | 278 | 61
+Tota Total Takeda licensing, royalties, and other revenue | $950 | $27,212 | $(26,262)
+
+(1)Upfront fee includes $14.5 million of nonrefundable upfront payments associated with the Amended Takeda CLA and $4.0 million of previously unrecognized consideration from the Original Takeda CLA.
+Expenses
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Expenses (in thousands):
+Cost of sales | $44,941 | $29,439 | $15,502
+Research and development | 166,165 | 168,170 | (2,005)
+Selling, general, and administrative | 55,442 | 91,702 | (36,260)
+Total expenses | $266,548 | $289,311 | $(22,763)
+
+Cost of Sales
+Cost of sales was $44.9 million for the six months ended June 30, 2026, including expenses of $4.2 million related to losses on firm purchase commitments; $3.2 million related to unutilized manufacturing capacity; $2.3 million right of use asset impairment charges for CMO manufacturing capacity of excess quantities; and $1.6 million related to excess, obsolete, or expired inventory. Cost of sales was $29.4 million for the six months ended June 30, 2025, including expenses of $1.4 million related to excess, obsolete, or expired inventory and $3.5 million related to unutilized manufacturing capacity. The increase in cost of sales of $15.5 million was mainly driven by an increase in supply sales of COVID-19 Vaccine, adjuvant sales, and other material sales to our partners. The cost of sales as a percentage of Product sales may fluctuate in the future as a result of changes to our customer pricing mix or standard costs.
+36
+
+Research and Development Expenses
+Research and development expenses decreased to $166.2 million for the six months ended June 30, 2026 from $168.2 million for the same period in 2025, a decrease of $2.0 million. The decrease was primarily due to cost containment measures to reduce our operating spend, as summarized in the table below (in thousands):
+
+Six Months Ended June 30,
+
+2026 | 2025
+Coronavirus vaccines | $54,328 | $28,824
+CIC and influenza vaccines | 3,556 | 19,621
+Other vaccine development programs | 5,393 | 997
+Total direct external research and development expense | 63,277 | 49,442
+Employee expenses | 63,313 | 68,270
+Stock-based compensation expense | 5,562 | 7,790
+Facility expenses | 19,690 | 25,812
+Other expenses | 14,323 | 16,856
+Total research and development expenses | $166,165 | $168,170
+
+Selling, General, and Administrative Expenses
+Selling, general, and administrative expenses decreased to $55.4 million for the six months ended June 30, 2026 from $91.7 million for the same period in 2025, a decrease of $36.3 million. The decrease in selling, general, and administrative expenses is primarily due to certain cost containment measures to reduce our operating spend, including a reduction in our global commercial footprint and administrative infrastructure.
+
+Other Income (Expense)
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Other income (expense), net (in thousands):
+
+Interest expense | $(10,590) | $(11,241) | $651
+
+Other income | 20,744 | 21,957 | (1,213)
+Total other income (expense), net | $10,154 | $10,716 | $(562)
+
+Total other income (expense), net for the six months ended June 30, 2026 was $10.2 million of income as compared to $10.7 million of income for the same period in 2025, a decrease of $0.6 million. The decrease in other income (expense) is primarily due to 2025 nonrecurring other income items of $4.8 million from the derivative action settlement proceeds and $3.6 million of state incentives, partially offset by the favorable impact in 2026 as compared to 2025 of exchange rates on foreign currency denominated balances.
+Income Tax Expense
+During the six months ended June 30, 2026, we recognized an income tax expense of $2.7 million related to foreign income taxes and foreign withholding taxes. During the six months ended June 30, 2025, we recognized an income tax expense of $2.1 million related to federal, state, and foreign income taxes and foreign withholding taxes.
+37
+
+Net Income (Loss)
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Net Income (Loss) (in thousands, except per share information):
+Net income (loss) | $(62,878) | $625,154 | $(688,032)
+Net income (loss) per share, basic | $(0.38) | $3.87 | $(4.25)
+Net income (loss) per share, diluted | $(0.38) | $3.55 | $(3.93)
+Weighted average shares outstanding, basic | 163,929 | 161,536 | 2,393
+Weighted average shares outstanding, diluted | 163,929 | 177,410 | (13,481)
+
+Net income (loss) for the six months ended June 30, 2026 was net loss of $62.9 million, or $0.38 per share, basic and diluted, as compared to net income of $625.2 million, or $3.87 per share, basic and $3.55 per share, diluted, for the same period in 2025. The decrease in net income (loss) during the six months ended June 30, 2026, was primarily due to a decrease in total revenue.
+The increase in weighted average shares outstanding for the six months ended June 30, 2026 is primarily a result of common stock issued under our incentive programs.
+
+Liquidity Matters and Capital Resources
+Our future capital requirements depend on numerous factors including, but not limited to, revenue from our Product sales, milestone payments, royalties, and reimbursements under licensing arrangements with our strategic partners; our projected activities related to the development and commercial support of our COVID-19 Vaccine and our CIC and stand-alone influenza vaccine candidates, including significant commitments under various contract research organization, contract manufacturing organization and contract development and manufacturing organization agreements; the progress of preclinical studies and clinical trials; the time and costs involved in obtaining and maintaining regulatory approvals; the costs of filing, prosecuting, defending, and enforcing patent claims and other intellectual property rights; and other manufacturing, sales, and distribution costs. We plan to continue developing other vaccines and product candidates, such as our potential combination vaccine candidates, which are in various stages of development. Our ability to generate revenue from Product sales is subject to uncertainty specifically as it relates to our ability to successfully develop, manufacture, distribute, and market our updated vaccine and to successfully execute on our licensing arrangements with our strategic partners and our APAs, as discussed below. Additionally, our plans include our ongoing restructuring and cost reduction measures as a part of our Restructuring Plan and may also include raising additional capital through a combination of additional equity and debt financing, collaborations, strategic alliances, asset sales, and marketing, distribution, or licensing arrangements. New financings may not be available to us on commercially acceptable terms, or at all. If we are unable to obtain additional capital, we will assess our capital resources and may be required to delay, reduce the scope of, or eliminate some or all of our operations, or further downsize our organization, any of which may have a material adverse effect on our business, financial condition, and results of operations.
+Sanofi Collaboration and License Agreement
+In May 2024, we entered into the Sanofi CLA pursuant to which we received a non-refundable upfront payment of $500 million. As of June 30, 2026, we are eligible to receive additional development, technology transfer, launch, and sales milestone payments totaling up to $425 million and royalty payments on Sanofi’s sales of such licensed products. In addition, we are eligible to receive development, launch, and sales milestone payments of up to $200 million for each of the first four Adjuvant Products and $210 million for each Adjuvant Product thereafter, and royalty payments on Sanofi’s sales of all such licensed products.
+As of June 30, 2026, remaining Sanofi milestone payments of $425 million include $75 million related to COVID-19 Vaccine products receivable upon the completion of the technology transfer of our manufacturing process for the COVID-19 Vaccine products to Sanofi. We are eligible to receive milestone payments totaling up to $350 million in the aggregate with respect to the CIC Products and this total amount is outstanding. We are eligible to receive a $125 million milestone payment upon achievement of initiation of a Sanofi CIC Product Phase 3 trial and a $225 million CIC Product-related launch milestone. We are eligible to receive royalty payments in the high teens to low twenties percent on Sanofi’s sales of such licensed products.
+38
+
+Beginning in 2025 and continuing during the term of the Sanofi CLA, we and Sanofi began to commercialize the COVID-19 Vaccine products worldwide in accordance with a commercialization plan agreed by us and Sanofi, under which we will continue to supply our existing APA customers and strategic partners, including Takeda and SII. Upon completion of the existing APAs, we and Sanofi will jointly agree on commercialization activities of each party in each jurisdiction.
+Takeda Amended and Restated Collaboration and License Agreement
+In April 2025, we entered into the Amended Takeda CLA which amends and supersedes the Original Takeda CLA.
+Under the Amended Takeda CLA, on an annual basis, we will receive $2.0 million to compensate us for services provided by us under the Amended Takeda CLA. If Takeda receives marketing approval of the COVID-19 Vaccine in that year or such approval is not necessary for such year, we will receive an additional $8.0 million annual milestone payment, of which $5.0 million is creditable against royalties owed by Takeda in its fiscal year 2025 or thereafter. We are eligible to receive a tiered royalty as a percentage of Takeda’s, its affiliates’, and sublicensees’ total net sales in the mid to high-teen percentages (subject to certain capped royalty reductions), commencing on April 1, 2024 and will continue until the later of (a) twenty years after April 29, 2025, (b) all our know-how licensed under the Amended Takeda CLA has become publicly available through no fault of Takeda, and (c) the expiration of the last valid claim in the intellectual property rights licensed by us to Takeda under the Amended Takeda CLA covering COVID-19 Vaccine in Japan.
+Pfizer License Agreement
+In January 2026, we entered into the Pfizer License Agreement for use of our Matrix-M® adjuvant. Under the terms of the agreement, Pfizer will obtain a non-exclusive license for Matrix-M® adjuvant for use with Pfizer's products in up to two disease areas. The agreement provides for an upfront payment of $30 million and we have the potential to receive up to $500 million in development and sales milestone payments. In addition to milestone payments, we are eligible to receive tiered high mid-single digit percentage royalty payments on sales of any product by Pfizer that includes Matrix-M® adjuvant.
+
+Supply Agreements
+As of June 30, 2026, we have $207.2 million of remaining obligations under APAs with certain countries globally, excluding the Vaccine Alliance (“Gavi”). These obligations include $133.9 million related to an APA with the Commonwealth of Australia (“Australia”) for the purchase of doses of COVID-19 Vaccine (the “Australia APA”) and $73.3 million related to various other countries. With respect to the Australia APA, as of June 30, 2026, $48.4 million was classified as current Deferred revenue and $85.4 million was classified as non-current Deferred revenue in our consolidated balance sheet. In December 2024, we entered into an amendment to the Australia APA pursuant to which, among other things, we acknowledged the cancellation by Australia of the delivery of certain doses of our COVID-19 Vaccine scheduled for delivery between the fourth quarter of 2023 and the fourth quarter of 2025 and we agreed to credit approximately $31 million of the advanced payment paid by Australia to us against outstanding invoices and invoices for the future delivery of approximately three million doses of COVID-19 Vaccine without requiring additional cash payments. In addition, the amendment provides for certain remedies for Australia, including return of unused credit, cancellation of doses, or termination of the Australia APA, in the event we are unable to gain regulatory approval of a variant COVID-19 vaccine or supply doses per the terms of the agreement. If we are unable to provide doses per the supply schedule as amended, after six months, Australia may seek to terminate the APA. The amendment also provides Australia with the right to cancel doses if we fail to timely notify Australia of changes to our commercialization plans. In the event that we do not, on or before the relevant contractual deadlines, receive regulatory approval for, and deliver, the seasonally updated COVID-19 Vaccine, up to $92.5 million of deferred revenue may become refundable. Under the terms of the Australia APA, regulatory approval, which we can be achieved through multiple regulatory pathways, is required on or before certain deadlines. We believe such requirements can be satisfied by either (i) TGA approval of Nuvaxovid, or (ii) by TGA approval of a special access importation into the Australian market. We have been pursuing a special access importation from the TGA to help ensure our supply is available for Australia. We are awaiting a final decision on the outcome of its application for special importation. In light of these developments, if we are unable to receive regulatory approval by either means, we may seek alternatives to continued performance under the agreement. With respect to other obligations under APAs of $73.3 million, as of June 30, 2026, $38.1 million was classified as current Deferred revenue and
+39
+
+$35.2 million was classified as non-current Deferred revenue in our consolidated balance sheet. Recognition of these amounts are dependent on delivery of doses or expiry of optional dose order quantities.
+
+In November 2024, we entered into a settlement agreement with the Secretary of State for Business, Energy and Industrial Strategy (as assigned to the UK Health Security Agency), acting on behalf of the government of the United Kingdom of Great Britain and Northern Ireland (the “Authority”), pursuant to which we and the Authority agreed to terminate the Amended and Restated Supply Agreement with the Authority and to fully settle the outstanding amount under dispute related to upfront payments of $112.5 million. We agreed to pay a refund of $123.8 million, including interest of $11.3 million to the Authority, in equal quarterly installments of $10.3 million over a three year period, ending in June 2027. As of June 30, 2026, pursuant to our settlement agreement with the UK, the remaining upfront payment previously received from the authority is classified as $39.8 million of other current liabilities on our consolidated balance sheet.
+In February 2024, we and Gavi entered into a Termination and Settlement Agreement (the “Gavi Settlement Agreement”) terminating our APA with Gavi (the “Gavi APA”). In total, the Gavi settlement agreement is comprised of $700 million of potential consideration, consisting of $75 million initial settlement payment, deferred payments of up to $400 million that may be reduced through annual vaccine credits, and an additional credit of up to $225 million that may be applied against certain qualifying sales. As of June 30, 2026, the remaining amounts included on our consolidated balance sheet are classified as $225.0 million in non-current Deferred revenue for the additional credit that may be applied against future qualifying sales, $80.0 million in Other current liabilities, and $145.0 million in Other non-current liabilities. In addition, we and Gavi entered into a security agreement pursuant to which we granted Gavi a security interest in accounts receivable from SII under the SII R21 Agreement (see Note 6 to our accompanying unaudited consolidated financial statements), which will continue for the deferred payment term of the Gavi Settlement Agreement. On February 22, 2024, the claims and counterclaims were dismissed with prejudice.
+2031 Convertible Notes
+In August 2025, we issued $225.0 million aggregate principal amount of our 4.625% Convertible Senior Notes due 2031 (the “2031 Notes”) consisting of (a) $175.3 million principal amount of 2031 Notes issued in exchange for $148.8 million principal amount of our 5.00% Convertible Senior Notes due 2027, and (b) approximately $49.7 million principal amount of 2031 Notes issued for cash, in each case, pursuant to exemptions from registration under the Securities Act and the rules and regulations thereunder. The 2031 Notes were issued pursuant to, and are governed by, an indenture, dated as of August 27, 2025, between the Company and The Bank of New York Mellon Trust Company, N.A. as trustee. For additional information on the 2031 Notes, see Note 11 to our accompanying unaudited consolidated financial statements.
+Credit Agreement
+In February 2026, we entered into the Credit Agreement with MidCap Financial Trust, as administrative agent. The Credit Agreement provides for a senior secured term loan facility of up to $330 million, available in four tranches. The first tranche of $130 million, of which $50 million was funded at closing, is available to be drawn, subject to customary conditions, through February 2028. Borrowings under the Credit Agreement bear interest, payable monthly in arrears, at a rate per annum equal to the one-month Secured Overnight Financing Rate (“Term SOFR”) plus 5.00%, subject to a Term SOFR floor of 2.00%. The term loans mature in March 2031, at which time all outstanding principal and accrued interest are due and payable in full.
+Cash Flows
+As of June 30, 2026, we had $723.9 million in cash and cash equivalents, restricted cash and marketable securities as compared to $750.5 million as of December 31, 2025.
+We funded our operations for the six months ended June 30, 2026, primarily with cash and cash equivalents, proceeds from the 2031 Notes and the Credit Agreement, milestone payments under the Sanofi CLA, and revenue from Product sales. In accordance with our ongoing Restructuring Plan, we continue to restructure our global footprint including further reductions in our global workforce. We anticipate our future operations to be funded primarily by milestone payments, royalties, transition services and technology transfer and cost reimbursements under our Sanofi CLA, revenue from Product sales, our cash and cash equivalents and investments in marketable securities, and other potential funding sources including equity financings, which may include at the market offerings, debt financings, collaborations, strategic alliances, asset sales, and marketing, distribution or licensing arrangements.
+40
+
+The following table summarizes cash flows for the six months ended June 30, 2026 and 2025 (in thousands):
+
+Six Months Ended June 30,
+2026 | 2025 | Change
+Net cash provided by (used in):
+Operating activities | $(105,230) | $(312,964) | $207,734
+Investing activities | 6,536 | 37,779 | (31,243)
+Financing activities | 38,876 | (8,101) | 46,977
+Effect on exchange rate on cash, cash equivalents, and restricted cash | (194) | 6,976 | (7,170)
+Net increase (decrease) in cash, cash equivalents, and restricted cash
+(60,012) | (276,310) | 216,298
+Cash, cash equivalents, and restricted cash at beginning of period | 256,052 | 545,292 | (289,240)
+Cash, cash equivalents, and restricted cash at end of period | $196,040 | $268,982 | $(72,942)
+
+Net cash used in operating activities was $105.2 million for the six months ended June 30, 2026, as compared to $313.0 million of cash used in operating activities for the same period in 2025. The decrease in cash used in operating activities is primarily due to certain cost containment measures to reduce our operating spend, including a reduction in our global commercial footprint and administrative infrastructure.
+
+Net cash provided by investing activities was $6.5 million for the six months ended June 30, 2026, as compared to $37.8 million of cash provided for the same period in 2025. The decrease in cash used in investing activities is primarily due to the completion of the sale of held for sale assets in 2026.
+Net cash provided by financing activities was $38.9 million for the six months ended June 30, 2026, as compared to net cash used in financing activities of $8.1 million for the same period in 2025. The increase in cash provided by financing activities is primarily due to net proceeds from our Credit Agreement.
+Going Concern
+We believe that our cash, cash equivalents, and marketable securities as of June 30, 2026, together with cash expected to be generated from product sales and licensing, royalties and other revenue, will be sufficient to enable us to fund our projected operations and capital expenditures through at least the next 12 months from the issuance of the financial statements included in this Quarterly Report on Form 10-Q.
+
+Item 3. Quantitative and Qualitative Disclosures about Market Risk
+We are subject to certain risks that may affect our results of operations, cash flows, and fair values of assets and liabilities, including volatility in foreign currency exchange rates and interest rate movements.
+Foreign Currency Exchange Risk
+Although we are headquartered in the U.S. our results of operations, including our foreign subsidiaries’ operations, are subject to foreign currency exchange rate fluctuations, primarily the U.S. dollar against the Euro and Swedish Krona. This exchange exposure may have a material effect on our cash and cash equivalents, cash flows, and results of operations, particularly in cases of revenue generated under APAs that include provisions that impact our and our counterparty’s currency exchange exposure. To date, we have not entered into any foreign currency hedging contracts, although we may do so in the future.
+We also face foreign currency exchange exposure that arises from translating the results of our global operations to the U.S. dollar at exchange rates that have fluctuated from the beginning of the period. While the financial results of our global activities are reported in U.S. dollars, the functional currency for our foreign subsidiaries is generally their respective local currency. Fluctuations in the foreign currency exchange rates of the countries in which we do business will affect our operating results, often in ways that are difficult to predict. A 10% decline in the foreign exchange rates (primarily against the U.S. dollar) relating to our foreign subsidiaries would result in an increase in stockholders’ deficit of approximately $10 million as of June 30, 2026.
+41
+
+Market and Interest Rate Risk
+The primary objective of our investment activities is preservation of capital, with the secondary objective of maximizing income.
+Our exposure to interest rate risk is primarily confined to our investment portfolio. We do not believe that a change in the market rates of interest would have any significant impact on the realizable value of our investment portfolio. Changes in interest rates may affect the investment income we earn on our marketable securities when they mature and the proceeds are reinvested into new marketable securities and, therefore, could impact our cash flows and results of operations.
+Interest and dividend income is recorded when earned and included in investment income. Premiums and discounts, if any, on marketable securities are amortized or accreted to maturity and included in investment income. The specific identification method is used in computing realized gains and losses on the sale of our securities.
+Our convertible senior notes have a fixed interest rate. Borrowings under the Credit Agreement bear interest at a variable rate based on a floating benchmark rate plus a margin, which exposes us to interest rate volatility that could increase our use of cash to pay interest. We currently do not engage in any interest rate hedging activity, and we have no intention to do so in the foreseeable future. As of June 30, 2026, a hypothetical 10% change in interest rates would not have resulted in a material impact on our consolidated financial statements. As such, we do not believe that we are exposed to any material interest rate risk as a result of our borrowing activities.
+
+Item 4. Controls and Procedures
+Evaluation of Disclosure Controls and Procedures
+Our management, with the assistance of our chief executive officer and chief financial officer, has reviewed and evaluated the effectiveness of our disclosure controls and procedures (as defined in Rules 13a-15(e) and 15d-15(e) under the Exchange Act) as of June 30, 2026. Management recognizes that any controls and procedures, no matter how well designed and operated, can provide only reasonable assurance of achieving their objectives and management necessarily applies its judgment in evaluating the cost-benefit relationship of possible controls and procedures. Our disclosure controls and procedures are designed to provide reasonable assurance of achieving such control objectives. Based on the evaluation of our disclosure controls and procedures as of June 30, 2026, our chief executive officer and chief financial officer concluded that, as of such date, our disclosure controls and procedures were effective at the reasonable assurance level.
+Changes in Internal Control over Financial Reporting
+Our management, including our chief executive officer and chief financial officer, has evaluated any changes in our internal control over financial reporting that occurred during the quarter ended June 30, 2026 and has concluded that there was no change that occurred that materially affected, or is reasonably likely to materially affect, our internal control over financial reporting.
+
+PART II. OTHER INFORMATION
+
+Item 1. Legal Proceedings
+We currently have no material pending legal proceedings.
+
+Item 1A. Risk Factors
+Information regarding risk and uncertainties related to our business appears in Part I, Item 1A. “Risk Factors” of our Annual Report on Form 10-K for the fiscal year ended December 31, 2025, which was filed with the SEC on February 26, 2026. There have been no material changes from the risk factors previously disclosed in the Annual Report on Form 10-K for the fiscal year ended December 31, 2025.
+
+Item 5. Other Information
+The information set forth below is included for the purpose of providing disclosure under Item 5.02 – “Departure of Directors or Certain Officers; Election of Directors; Appointment of Certain Officers; Compensatory Arrangements of Certain Officers” of Form 8-K.
+42
+
+At the Company’s Annual Meeting of Stockholders held on June 18, 2026, the Company’s stockholders of record at the close of business on April 23, 2026 approved:
+An amendment and restatement of the Company’s Amended and Restated 2015 Stock Incentive Plan, as amended (such amendment and restatement, the “Amended 2015 Stock Plan”), to increase the number of shares of Common Stock available for issuance thereunder (including pursuant to the exercise of incentive stock options) by 9,400,000 shares of Common Stock to a maximum of 36,870,000 shares; and
+An amendment and restatement of the Company’s 2013 Employee Stock Purchase Plan, as amended (such amendment and restatement, the “Amended ESPP”), to increase the number of shares of Common Stock available for issuance thereunder by 1,000,000 shares, such that the number of shares available for issuance is the lesser of (a) 3,375,888 shares of Common Stock increased on January 1 of each year by 5% of the share pool and (b) 4,820,564 shares of Common Stock.
+The Amended 2015 Stock Plan and Amended ESPP were each adopted by the Company’s board of directors on April 22, 2026, and became effective upon stockholder approval at such Annual Meeting.
+Descriptions of the Amended 2015 Stock Plan and Amended ESPP were included in the Company’s Definitive Proxy Statement on Schedule 14A filed with the SEC on April 27, 2026 and are incorporated herein by reference. These descriptions do not purport to be complete and are qualified in their entirety by reference to the full text of the Amended 2015 Stock Plan and Amended ESPP, as applicable, copies of which are filed as Exhibit 10.1 and Exhibit 10.2, respectively, to this Quarterly Report and incorporated herein by reference.
+Insider Trading Arrangements
+
+During the three months ended June 30, 2026, no director or “officer” (as defined in Rule 16a-1(f) under the Exchange Act) adopted or terminated a “Rule 10b5 trading arrangement” or “non-Rule 10b5-1 trading arrangement” as each term is defined in Item 408(a) of Regulation S-K.
+43
+
+Item 6. Exhibits
+
+3.1
+Second Amended and Restated Certificate of Incorporation of the Company (Incorporated by reference to Exhibit 3.1 to the Company’s Quarterly Report on Form 10-Q for the quarter ended June 30, 2015, filed on August 10, 2015 (File No. 000-26770))
+
+3.2
+Certificate of Amendment to the Second Amended and Restated Certificate of Incorporation of the Company (Incorporated by reference to Exhibit 3.1 to the Company’s Current Report on Form 8-K filed on May 9, 2019 (File No. 000-26770))
+
+3.3
+Amended and Restated By-Laws of the Company (Incorporated by reference to Exhibit 3.1 to the Company’s Current Report on Form 8-K filed on April 22, 2024 (File No. 000-26770))
+
+3.4
+Certificate of Designation of Series A Convertible Preferred Stock of the Company (Incorporated by reference to Exhibit 3.1 to the Company’s Current Report on Form 8-K filed June 19, 2020 (File No. 000- 26770))
+
+4.3
+Form of Exchange and Subscription Agreement (Incorporated by reference to Exhibit 10.1 to the Company’s Current Report on Form 8-K filed August 21, 2025 (File No. 000- 26770))
+
+10.1
+Amended and Restated Novavax, Inc. 2015 Stock Incentive Plan (Incorporated by reference to Appendix A of the Company’s Definitive Proxy Statement filed on April 27, 2026 in connection with the Annual Meeting held on June 18, 2026 (File No. 000-26770))
+
+10.2
+Amended and Restated Novavax, Inc. 2015 Stock Incentive Plan (Incorporated by reference to Appendix A of the Company’s Definitive Proxy Statement filed on April 27, 2026 in connection with the Annual Meeting held on June 18, 2026 (File No. 000-26770))
+
+31.1*
+Certification of Chief Executive Officer pursuant to Rule 13a-14(a) or 15d-14(e) of the Securities Exchange Act
+
+31.2*
+Certification of Chief Financial Officer pursuant to Rule 13a-14(a) or 15d-14(e) of the Securities Exchange Act
+
+32.1**
+Certification of Chief Executive Officer pursuant to 18 U.S.C. Section 1350, as adopted pursuant to Section 906 of the Sarbanes-Oxley Act of 2002
+
+32.2**
+Certification of Chief Financial Officer pursuant to 18 U.S.C. Section 1350, as adopted pursuant to Section 906 of the Sarbanes-Oxley Act of 2002
+
+101 | The following financial information from our Quarterly Report on Form 10-Q for the quarter ended June 30, 2026, formatted in Inline Extensible Business Reporting Language (Inline XBRL): (i) the Consolidated Statements of Operations for the three and six-month ended June 30, 2026 and 2025, (ii) the Consolidated Statements of Comprehensive Income (Loss) for the three and six-month periods ended June 30, 2026 and 2025, (iii) the Consolidated Balance Sheets as of June 30, 2026 and December 31, 2025, (iv) the Consolidated Statements of Changes in Stockholders’ Equity (Deficit) for the three and six-month ended June 30, 2026 and 2025, (v) the Consolidated Statements of Cash Flows for the six-month ended June 30, 2026 and 2025, and (vi) the Notes to the Consolidated Financial Statements.
+
+104 | Cover Page Interactive Data File (formatted as Inline XBRL and contained in Exhibit 101).
+
+_______________________________
+*Filed herewith.
+** Furnished herewith.
+
+44
+
+SIGNATURES
+Pursuant to the requirements of Section 13 or 15(d) of the Securities Exchange Act of 1934, the registrant has duly caused this report to be signed on its behalf by the undersigned, thereunto duly authorized.
+
+NOVAVAX, INC.
+
+Date: August 6, 2026 | By: | /s/ John C. Jacobs
+John C. Jacobs President and Chief Executive Officer (Principal Executive Officer)
+
+Date: August 6, 2026 | By: | /s/ James P. Kelly
+James P. Kelly Executive Vice President, Chief Financial Officer and Treasurer (Principal Financial and Accounting Officer)
+
+45
+

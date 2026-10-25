@@ -1,8 +1,9 @@
 # `fcff.ocf_plus_after_tax_interest_minus_capex_minus_sbc.v2` — the reported cash-flow basis
 
-Code: src/feature_engineer/valuation/basis.py @ sha256:1ff3668ddd5fd207
+Code: src/feature_engineer/valuation/basis.py @ sha256:8442136b89e268c8
 *(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
 *✏ Re-pinned 2026-10-21 after re-reading: F10 `D12` (`DX-176`, `DX-177`) added `_with_year_end_balance` — where net debt and the diluted count are READ after a 10-K. The FCFF formula this entry states is unchanged.*
+*✏ Re-pinned 2026-10-23 after re-reading: F10 `D12` ✏ (`DX-189`, AC-F10.25) judges the year-end balance items per FACT (`_own_tags`) — again only where net debt is READ. The FCFF formula this entry states is unchanged.*
 
 ## Statement
 

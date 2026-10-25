@@ -42,10 +42,10 @@ from src.fundamental.claims.verify import x01_verify_extraction  # noqa: E402
 from src.fundamental.filings.models import ExtractionResult  # noqa: E402
 from src.fundamental.filings.subject import assert_subject_is_not_registrant  # noqa: E402
 from tools.run_extraction_once import (  # noqa: E402
-    SUBJECT_NAMES,
     build_bundle,
     parse_items,
     sector_bundle,
+    subject_name,
 )
 
 RUNS = REPO / ".state/runs"
@@ -81,6 +81,8 @@ def main(argv=None) -> int:
     ap.add_argument("--sector", default=None, help="the sector file the call read")
     ap.add_argument("--ticker", default="MU")
     ap.add_argument("--out", default=None, help="new run id (default: <run_id>-replay)")
+    ap.add_argument("--because", default="DX-121, DX-122",
+                    help="which verification fix this replay rests on (recorded, ④)")
     args = ap.parse_args(argv)
 
     call, payload = recorded_call(args.run_id)
@@ -98,7 +100,7 @@ def main(argv=None) -> int:
     result = ExtractionResult(block_id, bundle.bundle_hash, tuple(items))
     report = x01_verify_extraction(bundle, items)                       # ③ — raises on failure
     assert_subject_is_not_registrant([result], bundle,
-                                     subject=SUBJECT_NAMES[args.ticker] if args.sector else None)
+                                     subject=subject_name(args.ticker) if args.sector else None)
 
     run_id = args.out or f"{args.run_id}-replay"
     root = RUNS / run_id
@@ -110,7 +112,7 @@ def main(argv=None) -> int:
     replayed = {**call, "run_id": run_id,
                 # ★ ④ — the provenance IS the point: this run made no call of its own.
                 "replayed_from": args.run_id,
-                "replayed_because": "verification code was fixed (DX-121, DX-122); the "
+                "replayed_because": f"verification code was fixed ({args.because}); the "
                                     "recorded call completed and is unchanged",
                 "original_status": [r.get("status") for r in original
                                     if r.get("type") == "__run_closed__"],

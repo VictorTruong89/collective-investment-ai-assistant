@@ -18,9 +18,9 @@ from src.fundamental.scorecard.availability import (
 from src.fundamental.scorecard.rubrics.b43_v2 import EARNINGS_QUALITY_V2
 from src.fundamental.scorecard.rubrics.b43_v3 import (
     EARNINGS_QUALITY_V3,
-    PUBLISHED_RUBRICS,
     V3_SEARCHED,
 )
+from src.fundamental.scorecard.rubrics.b43_v4 import PUBLISHED_RUBRICS  # ✏ DX-188: every version
 
 #: MU, E-01 + E-04 + a completed E-09 that found no policy change: the shape
 #: measured 2026-09-12 for E-04, with E-09 as a successful run would return it.

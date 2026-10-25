@@ -16,6 +16,22 @@
    "period_end": "2026-09-03",
    "filed": "2026-10-09",
    "path": "tests_src/fixtures/filings/MU_FY2026_10K.txt"
+  },
+  {
+   "ticker": "SNDK",
+   "form": "10-K",
+   "accession": "0001628280-26-057406",
+   "period_end": "2026-07-03",
+   "filed": "2026-08-17",
+   "path": "tests_src/fixtures/filings/SNDK_FY2026_10K.txt"
+  },
+  {
+   "ticker": "MRNA",
+   "form": "10-Q",
+   "accession": "0001682852-26-000150",
+   "period_end": "2026-06-30",
+   "filed": "2026-07-31",
+   "path": "tests_src/fixtures/filings/MRNA_FY2026Q2_10Q.txt"
   }
  ]
 }

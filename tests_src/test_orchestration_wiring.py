@@ -75,7 +75,7 @@ def test_every_job_in_the_graph_has_an_adapter():
     assert {j.job_id for j in DAILY_INFERENCE.jobs} == set(ADAPTERS)
 
 
-def test_the_graph_runs_all_eleven_jobs_and_produces_a_card():
+def test_the_graph_runs_all_twelve_jobs_and_produces_a_card():
     """★★ **D-07 → D-02 → D-03 → {D-01, D-05} → D-12 → D-09, driven by the
     graph** rather than by a hand-rolled sequence."""
     orc, ctx = orchestrator(), context()
@@ -85,7 +85,8 @@ def test_the_graph_runs_all_eleven_jobs_and_produces_a_card():
     assert artifact_allowed(outcome) is True
     # ✏ 2026-10-05: 13 → 11 — `observe` and `thesis` (the old three-call thesis
     #   path) were removed (L3 §2.1s); `thesis_gate` falls back to the stub.
-    assert [j.status for j in outcome.jobs] == ["SUCCESS"] * 11
+    # ✏ 2026-10-21: 11 → 12 — the `flags` job (OR-63, RK-40).
+    assert [j.status for j in outcome.jobs] == ["SUCCESS"] * 12
     assert set(ctx.outputs) == set(ADAPTERS)
 
     card = ctx.outputs["render"]

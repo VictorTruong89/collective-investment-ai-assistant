@@ -1,0 +1,74 @@
+[
+{
+"symbol": "SNDK",
+"date": "2026-10-29",
+"epsActual": null,
+"epsEstimated": 46.2,
+"revenueActual": null,
+"revenueEstimated": 10649890000,
+"lastUpdated": "2026-10-23"
+},
+{
+"symbol": "SNDK",
+"date": "2026-08-05",
+"epsActual": 39.25,
+"epsEstimated": 34.96,
+"revenueActual": 8965000000,
+"revenueEstimated": 8478520000,
+"lastUpdated": "2026-10-23"
+},
+{
+"symbol": "SNDK",
+"date": "2026-04-30",
+"epsActual": 23.41,
+"epsEstimated": 14.62,
+"revenueActual": 5950000000,
+"revenueEstimated": 4719867000,
+"lastUpdated": "2026-08-06"
+},
+{
+"symbol": "SNDK",
+"date": "2026-01-29",
+"epsActual": 6.2,
+"epsEstimated": 3.62,
+"revenueActual": 3025000000,
+"revenueEstimated": 2687583000,
+"lastUpdated": "2026-08-06"
+},
+{
+"symbol": "SNDK",
+"date": "2025-11-06",
+"epsActual": 1.22,
+"epsEstimated": 0.883,
+"revenueActual": 2308000000,
+"revenueEstimated": 2152063000,
+"lastUpdated": "2026-08-06"
+},
+{
+"symbol": "SNDK",
+"date": "2025-08-14",
+"epsActual": 0.29,
+"epsEstimated": 0.04661,
+"revenueActual": 1901000000,
+"revenueEstimated": 1823902000,
+"lastUpdated": "2026-08-06"
+},
+{
+"symbol": "SNDK",
+"date": "2025-05-07",
+"epsActual": -0.3,
+"epsEstimated": -0.39,
+"revenueActual": 1695000000,
+"revenueEstimated": 1621939000,
+"lastUpdated": "2026-08-06"
+},
+{
+"symbol": "SNDK",
+"date": "2025-03-07",
+"epsActual": 1.23,
+"epsEstimated": 1.22,
+"revenueActual": 1876000000,
+"revenueEstimated": 1876000000,
+"lastUpdated": "2026-08-06"
+}
+]

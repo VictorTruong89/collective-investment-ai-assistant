@@ -1031,3 +1031,53 @@ def test_ac_f10_24_the_service_values_a_10k_quarter_end_to_end(assumptions):
     out = json.loads(_value(FakeEngine(_after_a_10k(with_shares=False)), assumptions).to_json())
     assert out["net_debt"]["value"] == usd(8000 + 1000 - 5000 - 600).to_json_obj()
     assert out["diluted_shares"] == 1_010
+
+
+# ── AC-F10.25 — the filing is judged per FACT (DX-189, 2026-10-23) ──────────
+
+def _facts_for(frame, *, retagged=()):
+    """The newest knowable ledger fact per (tag, date), as D-07 `get_facts` serves it: the
+    annual row's balance facts came from the 10-K (`acc-<end>`) unless `retagged`."""
+    end = QUARTERS[-1][1]
+    out = []
+    for item in ("cash", "long_term_debt", "current_debt", "marketable_securities_current",
+                 "diluted_shares"):
+        out.append({"tag": TAGS[item], "period_end": pd.Timestamp(end), "period_type": "annual",
+                    "accession_id": "acc-a-later-10-K-A" if item in retagged
+                    else f"acc-{end.isoformat()}"})
+    out.append({"tag": "NetIncomeLoss", "period_end": pd.Timestamp(end), "period_type": "annual",
+                "accession_id": "acc-a-later-proxy"})
+    return pd.DataFrame(out)
+
+
+def test_ac_f10_25_a_later_filing_that_tagged_no_balance_item_leaves_the_10k_usable():
+    """⛔ Measured: SNDK's 2026-10-06 filing tagged one `NetIncomeLoss` and relabelled the row."""
+    from src.feature_engineer.valuation.basis import balance
+
+    frame = _after_a_10k(accession="acc-a-later-proxy")
+    net_debt, comps, shares = balance(frame, as_of=AS_OF, ticker="XYZ",
+                                      facts=lambda: _facts_for(frame))
+    assert net_debt == usd(8000 + 1000 - 5000 - 600) and shares == 1_000
+    end = QUARTERS[-1][1]
+    assert all(c["accession_id"] == f"acc-{end.isoformat()}" for c in comps)
+
+
+def test_ac_f10_25_an_item_a_later_filing_retagged_still_refuses():
+    """`D12`'s guard, per fact: an amendment's cash is another filing's figure."""
+    from src.feature_engineer.errors import ValuationUnavailable
+    from src.feature_engineer.valuation.basis import balance
+
+    frame = _after_a_10k(accession="acc-a-later-10-K-A")
+    with pytest.raises(ValuationUnavailable, match="cash"):
+        balance(frame, as_of=AS_OF, ticker="XYZ",
+                facts=lambda: _facts_for(frame, retagged=("cash",)))
+
+
+def test_ac_f10_25_facts_are_read_only_when_the_label_differs():
+    """The common path never touches the ledger view (the row's own accession matches)."""
+    from src.feature_engineer.valuation.basis import balance
+
+    def boom():
+        raise AssertionError("facts read on the matching path")
+
+    balance(_after_a_10k(), as_of=AS_OF, ticker="XYZ", facts=boom)

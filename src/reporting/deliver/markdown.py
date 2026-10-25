@@ -44,6 +44,8 @@ def render_markdown(card) -> str:
 
     # RP-47 — the risk channel says whether anybody looked.
     lines += ["## Risk", "", f"- status: {card.alerts_status}", ""]
+    # ★ RP-57 — the flag pass, under its own label, never merged into the status.
+    lines += [f"- {ln}" for ln in card.flag_lines] + ([""] if card.flag_lines else [])
 
     if card.stubs:
         lines += ["## Stubs in this run", ""]

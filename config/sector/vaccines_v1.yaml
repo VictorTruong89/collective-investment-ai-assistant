@@ -1,0 +1,37 @@
+# ★★ The VACCINES industry source list — `RA-98`, `CT-1.7`. Version it; never edit in place.
+#
+# ⚠⚠ THIS FILE IS THE ARTIFACT THAT GETS REVIEWED, not the sector file it produces.
+#   *"Selection of evidence is itself a conclusion"* — so WHERE we look is fixed here, in
+#   advance, and the ingest visits every entry and logs an `Omission` for any that yields
+#   nothing. A source added because its content was liked is the defect `RA-98` names.
+#
+# ★ Peer set decided by Victor Truong, 2026-10-22 (F13 `D15`): **Pfizer · Novavax** against
+#   Moderna — the respiratory-vaccine makers that report quarters on 10-Q, so `--fetch-inputs`
+#   fetches them free from EDGAR.
+
+source_list_version: "vaccines.v1"
+industry: "vaccines"
+
+sources:
+  - source_id: pfe-edgar
+    name: "Pfizer Inc. — SEC filings (EDGAR CIK 0000078003)"
+    kind: edgar_filer
+    cadence: quarterly
+  - source_id: nvax-edgar
+    name: "Novavax, Inc. — SEC filings (EDGAR CIK 0001000694)"
+    kind: edgar_filer
+    cadence: quarterly
+
+# ⚠ EXCLUDED, with the reason — so the next reader sees a decision, not an oversight.
+#   ★ Adding any of these is a source_list_version BUMP, never an edit (`RA-98`).
+excluded:
+  - subject: "BioNTech SE, GSK plc, Sanofi"
+    reason: >-
+      Victor Truong, 2026-10-22 — deferred, not rejected. They report their quarters on
+      Form 6-K, which `--fetch-inputs` does not fetch (10-Q/10-K only), so they would be saved
+      by hand. ⚠ BioNTech is Pfizer's partner on the mRNA COVID vaccine; Pfizer's filings
+      report that product, so the partnership is seen, through one side only.
+
+# ⚠ E-13 reads competitor CAPACITY announcements, written for a capacity-cycle industry. A
+#   vaccine maker's filings report pipelines, approvals and contracts more than capacity, so a
+#   thin E-13 over this list is expected, not a defect (F13 D15).

@@ -264,7 +264,7 @@ def annual_basis(row, *, ticker: str, as_of: date) -> AnnualBasis:
                        tax_rate=rate, inputs=inputs, tax_rule=rule)
 
 
-def _with_year_end_balance(rows: pd.DataFrame, latest, *, as_of: date):
+def _with_year_end_balance(rows: pd.DataFrame, latest, *, as_of: date, facts=None):
     """`D12` (`DX-176`) — a Q4 derived from a 10-K, with the 10-K's year-end balance sheet.
 
     ⚠ A 10-K reports no fourth quarter: D-07 differences Q4's FLOWS from the year, and an
@@ -279,22 +279,38 @@ def _with_year_end_balance(rows: pd.DataFrame, latest, *, as_of: date):
     if "period_type" not in rows.columns or all(
             _found(latest, item) is not None for item in CASH_ITEMS + DEBT_ITEMS + (SHARES_ITEM,)):
         return latest
-    same = rows[(rows["period_type"] == "annual")
-                & (rows["period_end"].map(_day) == latest["q_end"])
-                & (rows["accession_id"] == latest.get("accession_id"))
-                & (rows["filing_date"].map(_day) <= as_of)]
+    dated = rows[(rows["period_type"] == "annual")
+                 & (rows["period_end"].map(_day) == latest["q_end"])
+                 & (rows["filing_date"].map(_day) <= as_of)]
+    same = dated[dated["accession_id"] == latest.get("accession_id")]
+    own = None                                    # None: the whole row is the filing's own
     if not len(same):
-        return latest
+        # ✏ `DX-189` (`AC-F10.25`) — D-07 labels a row with the newest filing that tagged ANY
+        #   fact for the date, so a proxy's one `NetIncomeLoss` relabelled SNDK's year-end
+        #   row. ★ Judged per FACT: a tag counts only if its newest knowable fact is THIS
+        #   filing's; an amendment that re-tagged it is still another filing's figure.
+        if not len(dated) or facts is None:
+            return latest
+        same, own = dated, _own_tags(facts(), latest)
     annual, merged = same.iloc[-1], latest.copy()
     for item in balance_items:
         hit = _found(annual, item)
+        if hit is not None and own is not None and hit[0] not in own:
+            continue
         if _found(merged, item) is None and hit is not None:
             merged[f"{hit[0]}_minor"] = hit[1]
             merged[f"{hit[0]}_currency"] = annual[f"{hit[0]}_currency"]
     return merged
 
 
-def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
+def _own_tags(facts: pd.DataFrame, latest) -> set[str]:
+    """The annual tags at the latest quarter's end whose NEWEST knowable fact is its filing."""
+    at = facts[(facts["period_type"] == "annual")
+               & (facts["period_end"].map(_day) == latest["q_end"])]
+    return set(at.loc[at["accession_id"] == latest.get("accession_id"), "tag"])
+
+
+def balance(rows: pd.DataFrame, *, as_of: date, ticker: str, facts=None):
     """Net debt and diluted shares from the latest trailing quarter (`CT-F10.2`, `D8`).
 
     `net debt = debt + finance leases not inside a debt tag − cash − marketable securities`.
@@ -304,7 +320,7 @@ def balance(rows: pd.DataFrame, *, as_of: date, ticker: str):
     cash flow already pays them, so the liability would count them twice.
     """
     q = trailing_quarters(rows, as_of=as_of, ticker=ticker)
-    latest = _with_year_end_balance(rows, q.iloc[-1], as_of=as_of)
+    latest = _with_year_end_balance(rows, q.iloc[-1], as_of=as_of, facts=facts)
     missing, parts = [], {}
     for item in CASH_ITEMS + DEBT_ITEMS:
         value = _money(latest, item)

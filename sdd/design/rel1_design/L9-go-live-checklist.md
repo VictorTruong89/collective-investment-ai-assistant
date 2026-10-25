@@ -254,6 +254,10 @@ separately, never by a blended status.
 built, tested and uncalled. Options kept for the revisit: ⓐ amend `RK-30` so the behavioural-flag pass is complete on its
 own beside an `UNCHECKED` exposure · ⓑ wire them into the full pass only (they render only if R1 is ever lifted).
 
+✅ **Revisited — Victor, 2026-10-21: option ⓐ.** `RK-40` amends `RK-30`; built 2026-10-22 (OR-63, DN-43, RP-57 — L3 §2.1).
+The card shows a count per kind and the last 30 days of flags in full. ✏ **R4**: the exports were refreshed 2026-10-06 and run to
+2026-10-02 — no longer six weeks stale.
+
 ## 7. ★ D-06 — portfolio strategy / position sizing (`src/portfolio/`) — added 2026-10-06
 
 > Measured 2026-10-06 against `sdd/design/rel6_design/L1-portfolio-strategy.md`. Recorded only; nothing run.

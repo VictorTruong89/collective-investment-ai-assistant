@@ -40,3 +40,43 @@ def assert_declared_value(evidence_id: str, value: str) -> None:
         raise ValueNotInSpanError(
             evidence_id, str(value),
             f"a classification item's value must be one of {allowed} (MP-5, DX-122)")
+
+
+# ✏ 2026-10-22 — RA-155 / AC-1.3c. ⛔ Measured: the first SNDK `E-13` aborted on
+#   `cx.competitor` = "Micron" cited against Micron's own 10-K, which says "we". A name that is
+#   the DOCUMENT'S issuer is its provenance; the sector record declares it (`DX-102`).
+#: evidence_id → items whose value names the issuer of the sector record they cite.
+ATTRIBUTION_ITEMS = frozenset({"cx.competitor"})
+
+
+def is_attribution(evidence_id: str) -> bool:
+    return evidence_id in ATTRIBUTION_ITEMS
+
+
+def assert_attributed(bundle, item) -> None:
+    """X-01 ② for an attribution item: in the quote (as before), or the leading words of the
+    declared `subject` of the ONE sector record holding the quote. ⚠ ① has already run."""
+    import re
+
+    from src.fundamental.bundle.assemble import record_subject
+    from src.fundamental.claims.models import sector_citation
+    from src.fundamental.errors import ValueNotInSpanError
+
+    value = str(item.value)
+    if value in item.quote:
+        return
+    span = item.span
+    part = next((p for p in bundle.of_kind("sector_file")
+                 if span.accession_id == sector_citation(p.pins)), None)
+    if part is None:
+        raise ValueNotInSpanError(item.evidence_id, value, item.quote)
+    subject = record_subject(part, span.start, span.end)
+    if subject is None:
+        raise ValueNotInSpanError(
+            item.evidence_id, value,
+            "its quote is not inside one record — a name must belong to one record (RA-155)")
+    words, declared = (re.findall(r"\w+", t.casefold()) for t in (value, subject))
+    if not words or declared[:len(words)] != words:
+        raise ValueNotInSpanError(
+            item.evidence_id, value,
+            f"the record it cites declares {subject!r}; the name must be its leading words (RA-155)")
