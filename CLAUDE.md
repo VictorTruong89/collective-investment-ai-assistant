@@ -37,21 +37,34 @@ a restructuring (`PG-8`).
 `L0` §1.5 numbers five. Never carry a seat number between the two repos without saying
 which model it belongs to.
 
-**Current state (2026-10-20):** **15 specs 🟢 approved — 199/199 ACs green, plus `F12` quant core
-at 35/38 (3 vacuous)**, with 19 governed path groups in `ownership.yaml`. The pipeline is absorbed: `src/` is one tree of 15 domains (~370
-modules), and the suite stands at 2,785 pass with 1 deliberate red (`J-07`). ★ **D-04 is CLOSED as *functionally
-complete, skill unproven*** (Victor, 2026-10-11 — F12 `D16`, MT-68): the gates stay measurements, no threshold moves;
-fit 4 (`sha256:8200ada7…`, walk-forward t 2.51) is refused and **designated** to rank the card, labelled (MT-67); the
-shadow trial runs frozen on it (next `record`/`score` on or after 2026-11-06); no more fits on 2016–2026 unless Victor
-asks. Operator's page: `src/models/README.md`. ✅ **The card ran live with the model on 2026-10-20** (`…-c04583`: 508 names, #1 MRNA, not actionable) after four defects found by that run were fixed (`DX-170`…`DX-173`); PSKY and WBD left the universe (delisted). **D-01 in progress — `F13` 🟢 built 2026-10-20 (18/18; ✏ 2026-10-21 `D13`: the daily card READS the nominee's thesis, or says "no thesis — no peer set"):**
-`python tools/thesis_for.py TICKER --as-of DATE [--dry-run|--fetch-inputs]` chains extraction → Stage A → B–D → checks, run ids as
-arguments, resumable (`.state/thesis_for/`); MU only. The $0 replay of 2025-06-26 passed; ★ **MU as of 2026-10-20 → SELL · Medium** (2026-10-22, `run-2026-10-22T004557-mu-thesis`, 4 falsifiers NO_DATA until Q1 FY2027) — but it cost ≈4.1M input tokens and two subscription session-limit stops (`DX-181`…`DX-183`). **Next (hand-over `_TEMP_handover_2026-10-21.md`): ① cut a thesis's cost · ② D-05 risk on the card (blocked on Victor: R3/`RK-30`, fresh BMO exports) · ③ more peer sets.** The analysis layer has 32/35
-prompt blocks declared, every one run live and verified (`E-14` `J-18` `J-19` deferred by decision), and four
-MU theses produced (k=1 each; SELL → HOLD → SELL → SELL, all falsified or on course to be). ⊘ AMD thesis
-skipped; falsifier improvement waits for real runs. Go-live prepared in `sdd/design/rel1_design/L9-go-live-checklist.md` — Victor 2026-10-05: **card only, theses on demand by his manual command; paid Anthropic API stays OFF; no budget yet** (the old 3-call daily `thesis` path was removed 2026-10-05, `DX-153` — restore patch in `sdd/archive/`). ⊘ **The golden-case programme is CLOSED**
-(`L8` §9, 2026-10-01): 53 live cases kept and maintained, **no new golden cases**. Judgement quality is
-measured by falsifiers and rule checks. **Live progress is `sdd/design/rel1_design/L3-build-sequence.md`
-§2.1**; the golden-case programme is `L8-golden-case-retrospective.md`.
+**Current state (2026-10-25):** **16 specs 🟢 approved** (`F14` 19/19, `F13` 22/22, `F10` 25/25, `F12` quant core 35/38
+with 3 vacuous; 261 traceability rows), 20 governed path groups in `ownership.yaml`. `src/` is one tree of 15 domains (the
+pipeline is absorbed); suite **2,954 pass, 1 deliberate red (`J-07`)**. Live progress: `sdd/design/rel1_design/L3-build-sequence.md`
+§2.1; go-live state per domain: `L9-go-live-checklist.md`.
+- ★ **D-04 (ranker) CLOSED — *functionally complete, skill unproven*** (F12 `D16`, MT-68): fit 4 (`sha256:8200ada7…`) is
+  refused but **designated** to rank the card, labelled; the shadow trial runs frozen on it — next `record`/`score` on or
+  after **2026-11-06** (Victor's); no retrain or new fit unless Victor asks. Operator's page: `src/models/README.md`.
+- ★ **D-01 (thesis) CLOSED for now — *functionally complete, accuracy & reliability unproven*** (F13 `D16`, Victor
+  2026-10-25). `python tools/thesis_for.py TICKER --as-of DATE [--dry-run|--fetch-inputs]` runs the whole chain
+  (8 extractions → 9 Stage-A → 13 B–D → checks), resumable, on the subscription only. Subjects: MU (`memory_v1`), SNDK
+  (`memory_v2`), MRNA (`vaccines_v1`, ⛔ blocked — `DX-190`: no path for a pre-profit / single-segment / debt-free
+  company). Theses: MU ×5, **SNDK 2026-10-20 → SELL · Medium-High** (≈ $33.9 notional, against MU's ≈ $58.5 before the
+  cache fix). All `k = 1`, so no card is actionable on one. The revisit list is in F13 `D16`.
+- **The daily card** (D-08 → D-09) is run by hand (no timer, O1); it ran live 2026-10-20. It reads the nominee's thesis
+  or says "no thesis — no peer set / not yet written", and shows D-05's behavioural flags (`RK-40`) beside an exposure
+  pass that stays `UNCHECKED` (R1: CAD/CDR positions cannot be priced on the FMP plan). Paid Anthropic API **OFF**; no budget.
+- ⊘ **Golden-case programme CLOSED** (`L8` §9): 53 cases kept, no new ones; judgement quality is measured by falsifiers
+  and rule checks.
+- ★ **D-11 reads BMO's holdings export** (`L1-recording` §8a, RC-70…RC-78, 2026-10-25): `Holdings_<ACCOUNT>.csv` in
+  `.state/broker/bmo_investorline/` gives BMO's reported price, market value, cash and balance — self-checked, reconciled
+  against the transaction history (RC-76). ⚠ Line 1 is the REAL account number: never kept (RC-78). Valued: `RESP_1`
+  13,703.62 CAD, `TFSA_2` 76,805.55 CAD (as of 2026-10-25). `TFSA_1`/`RRSP_1` have no export for 1–2 months → refused by
+  name, and the book-wide figure stays `UNCHECKED` (RC-77). Not wired into the daily card's `load_books` yet.
+- ★ **D-06 sizing on demand** (`F14`, 2026-10-25): `python tools/size_for.py TICKER --account ACCT --entry P [--stop S]
+  [--currency CAD|USD] [--held-stop SYM=P …] [--sigma X] [--dry-run|--json]`. Capital = the reported balance; budget =
+  `r_ceiling` (E·C·P·D `unmeasured`); k 1.5 labelled; σ from FMP for US listings only. ⚠ `config/portfolio_policy.yaml`
+  is EMPTY: every real sizing refuses until Victor states `r_total`, `r_ceiling` and `target_positions` per account (PS-43).
+  One sizing path: `src/portfolio/sizing/trade.py::size_trade` (`DX-191` fixed, F14 `D12`). Theory: `docs/lectures/L9-position-sizing-and-risk.html`.
 
 ⚠ `PG-1`, which blocked all implementation, was **retired 2026-09-02**: verification moved to the
 fund manager, done manually against real run outcomes. **Implementation is gated by spec

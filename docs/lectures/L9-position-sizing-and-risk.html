@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Position Sizing and Risk</title>
+<meta name="description" content="Lecture 9 — position sizing given a stop, the account risk budget, the dynamic risk budget, risk estimation on a reported book, the policy file, and the falsifiers — taught from this project's F14, D-06, D-05 and D-11 as built on 2026-10-25.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EEF1F5; --code-bg:#EDF0F4;
+  --ink:#141A24; --ink-soft:#57616F; --ink-faint:#828C9A;
+  --accent:#1F4E8C; --accent-soft:#E3EBF6;
+  --verd:#0E7C6B; --verd-soft:#DEEFEB;
+  --oxide:#A33A1E; --oxide-soft:#F7E4DE;
+  --amber:#8A5A00; --amber-soft:#F6ECD6;
+  --rule:#DCE1E8; --rule-soft:#E9ECF1;
+  --fs-xs:.76rem; --fs-sm:.875rem; --fs-base:1.0625rem;
+  --fs-lg:1.22rem; --fs-xl:1.55rem; --fs-2xl:2.05rem; --fs-3xl:2.75rem;
+  --measure:70ch;
+  --display:"Zilla Slab",Georgia,serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+    --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+    --accent:#77ADEB; --accent-soft:#17293F;
+    --verd:#3ECBB2; --verd-soft:#0F2C29;
+    --oxide:#E58A6D; --oxide-soft:#331E17;
+    --amber:#E0B25A; --amber-soft:#2E2412;
+    --rule:#26313F; --rule-soft:#1D2531;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1218; --surface:#151B23; --surface-2:#1B222C; --code-bg:#111821;
+  --ink:#E4E9F0; --ink-soft:#9AA5B4; --ink-faint:#75808F;
+  --accent:#77ADEB; --accent-soft:#17293F;
+  --verd:#3ECBB2; --verd-soft:#0F2C29;
+  --oxide:#E58A6D; --oxide-soft:#331E17;
+  --amber:#E0B25A; --amber-soft:#2E2412;
+  --rule:#26313F; --rule-soft:#1D2531;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);
+  font-size:var(--fs-base);line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface)}
+.masthead .wrap{padding-top:clamp(2.5rem,7vw,4.5rem);padding-bottom:clamp(2rem,5vw,3rem)}
+.eyebrow{font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 1.1rem}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.1rem,5.5vw,var(--fs-3xl));line-height:1.08;letter-spacing:-.015em;margin:0 0 1rem;text-wrap:balance}
+.standfirst{font-size:var(--fs-lg);color:var(--ink-soft);margin:0;max-width:62ch;text-wrap:pretty}
+.meta{display:flex;flex-wrap:wrap;gap:.5rem 1.6rem;margin-top:1.8rem;font-family:var(--mono);font-size:var(--fs-xs);color:var(--ink-faint);letter-spacing:.04em}
+.tocbar{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--rule)}
+.tocbar .wrap{display:flex;gap:.3rem;overflow-x:auto;padding-top:.5rem;padding-bottom:.5rem}
+.tocbar a{flex:0 0 auto;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;color:var(--ink-soft);padding:.45rem .65rem;border-radius:3px;white-space:nowrap}
+.tocbar a:hover{background:var(--surface-2);color:var(--ink)}
+.tocbar a b{color:var(--accent)}
+section.part{padding:clamp(2.5rem,7vw,5rem) 0 clamp(1.5rem,4vw,3rem);border-bottom:1px solid var(--rule)}
+.parthead{display:flex;gap:clamp(1rem,3vw,2rem);align-items:flex-start;margin-bottom:2rem}
+.partnum{flex:0 0 auto;font-family:var(--mono);font-weight:700;font-size:var(--fs-sm);letter-spacing:.1em;padding:.35rem .6rem;border-radius:3px;line-height:1.2;background:var(--accent-soft);color:var(--accent)}
+.parthead h2{font-family:var(--display);font-weight:700;font-size:clamp(1.6rem,4vw,var(--fs-2xl));line-height:1.15;letter-spacing:-.01em;margin:0 0 .5rem;text-wrap:balance}
+.parthead p{margin:0;color:var(--ink-soft);max-width:60ch}
+h3{font-family:var(--display);font-weight:600;font-size:var(--fs-xl);line-height:1.25;margin:2.8rem 0 1rem;text-wrap:balance;padding-top:1.1rem;border-top:1px solid var(--rule-soft)}
+h3 .sn{font-family:var(--mono);font-size:var(--fs-sm);color:var(--ink-faint);margin-right:.6rem;font-weight:500}
+h4{font-family:var(--display);font-weight:600;font-size:var(--fs-lg);margin:1.8rem 0 .5rem;line-height:1.3}
+p{margin:0 0 1.1rem;max-width:var(--measure);text-wrap:pretty}
+ul,ol{margin:0 0 1.2rem;padding-left:1.3rem;max-width:var(--measure)}
+li{margin-bottom:.45rem}
+li::marker{color:var(--ink-faint)}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.84em;background:var(--code-bg);padding:.1em .35em;border-radius:3px;color:var(--ink);overflow-wrap:anywhere}
+pre{font-family:var(--mono);font-size:var(--fs-sm);line-height:1.6;background:var(--code-bg);border:1px solid var(--rule);border-radius:5px;padding:1rem 1.2rem;overflow-x:auto;margin:0 0 1.4rem;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.formula{font-family:var(--mono);font-size:var(--fs-base);background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:.9rem 1.2rem;margin:0 0 1.3rem;max-width:var(--measure);overflow-x:auto;text-align:center}
+.formula small{display:block;font-family:var(--body);font-size:var(--fs-sm);color:var(--ink-soft);margin-top:.4rem;text-align:left}
+.callout{border-left:3px solid var(--accent);background:var(--surface);padding:1rem 1.25rem;margin:0 0 1.5rem;max-width:var(--measure);border-radius:0 4px 4px 0}
+.callout.warn{border-left-color:var(--oxide)}
+.callout.key{border-left-color:var(--verd)}
+.callout.eg{border-left-color:var(--amber)}
+.callout p:last-child,.callout ul:last-child{margin-bottom:0}
+.lbl{display:block;font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.35rem;font-weight:700}
+.warn .lbl{color:var(--oxide)} .key .lbl{color:var(--verd)} .eg .lbl{color:var(--amber)}
+.tablewrap{overflow-x:auto;margin:0 0 1.5rem;max-width:100%}
+table{border-collapse:collapse;font-size:var(--fs-sm);line-height:1.5;min-width:540px;width:100%;max-width:1000px}
+th,td{text-align:left;vertical-align:top;padding:.55rem .7rem;border-bottom:1px solid var(--rule)}
+th{font-family:var(--mono);font-size:var(--fs-xs);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600;background:var(--surface-2)}
+td.num{font-family:var(--mono);white-space:nowrap}
+.pass{color:var(--verd);font-weight:700;font-family:var(--mono)}
+.fail{color:var(--oxide);font-weight:700;font-family:var(--mono)}
+figure{margin:0 0 1.8rem;max-width:900px}
+figure svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--rule);border-radius:5px}
+figcaption{font-size:var(--fs-sm);color:var(--ink-soft);margin-top:.5rem;max-width:var(--measure)}
+svg text{font-family:var(--mono);fill:var(--ink)}
+svg .soft{fill:var(--ink-soft)} svg .faint{fill:var(--ink-faint)}
+svg .ln{stroke:var(--rule);stroke-width:1}
+svg .axis{stroke:var(--ink-faint);stroke-width:1}
+svg .acc{fill:var(--accent)} svg .accs{fill:var(--accent-soft);stroke:var(--accent)}
+svg .ver{fill:var(--verd)} svg .vers{fill:var(--verd-soft);stroke:var(--verd)}
+svg .oxi{fill:var(--oxide)} svg .oxis{fill:var(--oxide-soft);stroke:var(--oxide)}
+svg .amb{fill:var(--amber)} svg .ambs{fill:var(--amber-soft);stroke:var(--amber)}
+svg .box{fill:var(--surface-2);stroke:var(--rule)}
+svg .arrow{stroke:var(--ink-faint);stroke-width:1.5;fill:none}
+svg .dash{stroke-dasharray:5 4}
+.quiz{background:var(--surface);border:1px dashed var(--rule);border-radius:5px;padding:1rem 1.25rem;margin:0 0 1.5rem;max-width:var(--measure)}
+.quiz ol{margin-bottom:.4rem}
+details{margin:.3rem 0 0}
+summary{cursor:pointer;color:var(--accent);font-family:var(--mono);font-size:var(--fs-sm)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;max-width:1000px;margin:0 0 1.5rem}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:5px;padding:1rem 1.15rem}
+.card h4{margin-top:0}
+.card p:last-child{margin-bottom:0}
+.refs li{font-size:var(--fs-sm);margin-bottom:.6rem}
+.tag{font-family:var(--mono);font-size:var(--fs-xs);padding:.05rem .4rem;border-radius:3px;background:var(--surface-2);color:var(--ink-soft);white-space:nowrap}
+footer{padding:2.5rem 0 4rem;color:var(--ink-faint);font-size:var(--fs-sm)}
+@media (max-width:640px){ .parthead{flex-direction:column} }
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Lecture 09 · Portfolio construction &amp; risk · study material — governs nothing</p>
+    <h1>Position Sizing and Risk Estimation, as Built</h1>
+    <p class="standfirst">How this project decides how big a position <em>could</em> be, how it measures what could go wrong, why every number carries its source — and what would prove the method wrong. Taught from the code and specs as they stood on 2026-10-25, with your own accounts as the case study.</p>
+    <div class="meta">
+      <span>Level: undergraduate</span>
+      <span>Written 2026-10-25</span>
+      <span>Specs: <code>F14</code> · <code>L1-portfolio-strategy</code> (PS-n) · <code>L1-recording</code> §8a (RC-70…78) · <code>L1-risk-management</code> (RK-n)</span>
+      <span>Code: <code>src/portfolio/</code> · <code>src/risk/</code> · <code>src/recording/book/holdings.py</code> · <code>tools/size_for.py</code></span>
+    </div>
+  </div>
+</header>
+<nav class="tocbar" aria-label="Sections">
+  <div class="wrap">
+    <a href="#p1"><b>1</b> Where it sits</a>
+    <a href="#p2"><b>2</b> Risk ≠ size</a>
+    <a href="#p3"><b>3</b> The stop</a>
+    <a href="#p4"><b>4</b> Account budget</a>
+    <a href="#p5"><b>5</b> What binds</a>
+    <a href="#p6"><b>6</b> Dynamic budget</a>
+    <a href="#p7"><b>7</b> Risk estimation</a>
+    <a href="#p8"><b>8</b> The policy file</a>
+    <a href="#p9"><b>9</b> Your appetite → code</a>
+    <a href="#p10"><b>10</b> Falsifiers</a>
+    <a href="#p11"><b>11</b> Glossary &amp; refs</a>
+  </div>
+</nav>
+<main class="wrap">
+<div class="callout warn" style="margin-top:2rem">
+  <span class="lbl">Read this first</span>
+  <p><strong>Nothing in this lecture is a recommendation.</strong> Every percentage used in an example below — 1 % per trade, 6 % per account, eight slots — is a <em>placeholder chosen to make the arithmetic visible</em>, not a proposal. Your real values are yours to set in <code>config/portfolio_policy.yaml</code>, which on 2026-10-25 is empty, so the tool refuses every account by name (PS-43). The capital figures (<code>TFSA_2</code> 76,805.55 CAD, <code>RESP_1</code> 13,703.62 CAD, as of 2026-10-25) and DELL's measured volatility are real.</p>
+  <p>⚠ Where this lecture and a spec disagree, <strong>the spec wins</strong> and the lecture is stale (<code>docs/lectures/README.md</code>).</p>
+</div>
+
+<!-- ═════════════════════════════════════════ PART 1 -->
+<section class="part" id="p1">
+  <div class="parthead">
+    <span class="partnum">PART 1</span>
+    <div>
+      <h2>Where sizing and risk sit in the fund</h2>
+      <p>Two seats, two different questions, neither of which is allowed to decide.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">1.1</span>The seats involved</h3>
+  <p>This repo models a fund of nine seats (<code>vision.md</code> §3 — its own numbering, not upstream's five). Four of them touch a position's size:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Seat</th><th>Domain</th><th>Question</th><th>Authority</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1 · PM &amp; Trader</strong></td><td>you — no code</td><td>Do I buy, how many, where is my stop?</td><td><strong>the only decision</strong></td></tr>
+      <tr><td>4 · Risk Management</td><td>D-05 <code>src/risk/</code></td><td>What could go wrong with this book?</td><td>ALERT — sees everything, decides nothing</td></tr>
+      <tr><td><strong>5 · Portfolio Strategy</strong></td><td><strong>D-06 <code>src/portfolio/</code></strong></td><td><strong>Given an entry and a stop, how big could the position be?</strong></td><td>RECOMMEND — <em>arithmetic only, never an allocation</em></td></tr>
+      <tr><td>8 · Back Office</td><td>D-11 <code>src/recording/</code></td><td>What does the book actually hold, and can I prove it?</td><td>AUTONOMOUS — records, never advises</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">1.2</span>Why no AI agent does this</h3>
+  <p>The constitution's <code>PG-3</code> names <em>"position sizing from a stop"</em> as its own example of work an agent has <strong>not</strong> earned: the inputs are known and the computation is definable, so it is written as code. That is also why D-06 imports no LLM gateway and no D-01 output (<code>PS-25</code>, tested as <code>AC-F14.13</code> by scanning every import in the tree). Before this project, the inherited pipeline let an LLM emit <code>position_size_pct</code> inside its JSON — a number generated, not computed (<code>L1-portfolio-strategy</code> §1.4). <code>AC-6.1</code> now proves that field is absent from every schema and prompt.</p>
+
+  <h3><span class="sn">1.3</span>The one rule the domain turns on — PS-8</h3>
+  <div class="callout key">
+    <span class="lbl">PS-8</span>
+    <p><strong>D-06 computes the risk-based size; it does not propose it.</strong> The output is <em>"at a 1 % risk budget and a stop at 410 this is 13 shares"</em> — a consequence of stated assumptions, not an answer to <em>"how much should I buy"</em>.</p>
+  </div>
+  <p>The reason is a collision you will meet in Part 3: risk-based sizing gives high-volatility names small positions, and your mandate (<code>M-2</code>) says concentration in the high-volatility AI/semiconductor theme is a <strong>deliberate bet</strong>. Applied as a recommendation, the textbook rule would quietly push the book away from the posture you chose — <em>one trade at a time, with arithmetic as the alibi</em> (<code>L1-portfolio-strategy</code> §5.3). So the system computes, labels, and reports; you decide. Your own share count is a first-class input (<code>PS-9</code>, <code>implied_risk</code>) and is <strong>never capped</strong> (<code>PS-10</code>).</p>
+
+  <h3><span class="sn">1.4</span>The data path, as built on 2026-10-25</h3>
+  <figure>
+    <svg viewBox="0 0 900 250" role="img" aria-label="Holdings export to BookState to size_trade to the sizing answer to the human">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-faint)"/></marker></defs>
+      <rect class="box" x="10" y="30" width="150" height="70" rx="5"/>
+      <text x="85" y="58" text-anchor="middle" font-size="12">BMO holdings</text>
+      <text x="85" y="76" text-anchor="middle" font-size="10" class="soft">Holdings_&lt;ACCT&gt;.csv</text>
+      <rect class="box" x="10" y="150" width="150" height="70" rx="5"/>
+      <text x="85" y="178" text-anchor="middle" font-size="12">BMO transactions</text>
+      <text x="85" y="196" text-anchor="middle" font-size="10" class="soft">TransactionHistory_…</text>
+      <rect class="vers" x="200" y="80" width="170" height="90" rx="5" stroke-width="2"/>
+      <text x="285" y="108" text-anchor="middle" font-size="12" class="ver" style="font-weight:700">D-11 holdings.py</text>
+      <text x="285" y="126" text-anchor="middle" font-size="10" class="soft">7 self-checks · RC-76</text>
+      <text x="285" y="142" text-anchor="middle" font-size="10" class="soft">reported capital, cash, FX</text>
+      <rect class="box" x="410" y="20" width="150" height="60" rx="5"/>
+      <text x="485" y="46" text-anchor="middle" font-size="12">policy.yaml</text>
+      <text x="485" y="63" text-anchor="middle" font-size="10" class="soft">r_ceiling · r_total · slots</text>
+      <rect class="box" x="410" y="180" width="150" height="60" rx="5"/>
+      <text x="485" y="206" text-anchor="middle" font-size="12">FMP σ (US only)</text>
+      <text x="485" y="223" text-anchor="middle" font-size="10" class="soft">or --sigma stated</text>
+      <rect class="accs" x="410" y="95" width="150" height="70" rx="5" stroke-width="2"/>
+      <text x="485" y="123" text-anchor="middle" font-size="12" class="acc" style="font-weight:700">D-06 size_trade</text>
+      <text x="485" y="141" text-anchor="middle" font-size="10" class="soft">one sizing path</text>
+      <rect class="box" x="600" y="95" width="140" height="70" rx="5"/>
+      <text x="670" y="123" text-anchor="middle" font-size="12">Sizing answer</text>
+      <text x="670" y="141" text-anchor="middle" font-size="10" class="soft">every input labelled</text>
+      <rect class="ambs" x="780" y="95" width="110" height="70" rx="5"/>
+      <text x="835" y="123" text-anchor="middle" font-size="12" class="amb" style="font-weight:700">Seat 1</text>
+      <text x="835" y="141" text-anchor="middle" font-size="10" class="soft">you decide</text>
+      <path class="arrow" d="M160,65 L200,110" marker-end="url(#ah)"/>
+      <path class="arrow" d="M160,185 L200,145" marker-end="url(#ah)"/>
+      <path class="arrow" d="M370,125 L410,128" marker-end="url(#ah)"/>
+      <path class="arrow" d="M485,80 L485,95" marker-end="url(#ah)"/>
+      <path class="arrow" d="M485,180 L485,165" marker-end="url(#ah)"/>
+      <path class="arrow" d="M560,130 L600,130" marker-end="url(#ah)"/>
+      <path class="arrow" d="M740,130 L780,130" marker-end="url(#ah)"/>
+    </svg>
+    <figcaption>The holdings export is the <em>outside figure</em>; the transaction history is checked against it, never the other way round. Policy, prices and σ enter <code>size_trade</code>; the answer goes to you. D-05 (risk) reads the same book in parallel and only alerts. Nothing writes back (<code>PS-26</code>).</figcaption>
+  </figure>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 2 -->
+<section class="part" id="p2">
+  <div class="parthead">
+    <span class="partnum">PART 2</span>
+    <div>
+      <h2>The one idea: risk is what you lose at the stop, not what you deploy</h2>
+      <p>The single most confused idea in position sizing, stated before anything is built on it.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">2.1</span>The arithmetic</h3>
+  <div class="formula">risk_capital = capital × r &nbsp;&nbsp;·&nbsp;&nbsp; d = entry − stop &nbsp;&nbsp;·&nbsp;&nbsp; shares = risk_capital / d &nbsp;&nbsp;·&nbsp;&nbsp; notional = shares × entry
+    <small><code>PS-2</code>: the basis is max-loss-at-stop. Not conviction, not rank score, not fair value — the one quantity a stop makes knowable in advance. A candidate with no stop gets <strong>no size</strong> (<code>PS-5</code>): sizing without a stop is not conservative, it is undefined.</small></div>
+  <p>Notice what connects risk to deployment: <code>notional / risk_capital = entry / d</code>. The <strong>tightness of the stop</strong> is the multiplier, and nothing else is.</p>
+
+  <h3><span class="sn">2.2</span>Same risk, wildly different positions</h3>
+  <p>From <code>L1-portfolio-strategy</code> §5.1a, asserted in <code>test_the_same_risk_budget_gives_wildly_different_positions</code> (risk 2,000, entry 100):</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Stop below entry</th><th>Multiplier entry/d</th><th>Shares</th><th>Position deployed</th></tr></thead>
+    <tbody>
+      <tr><td class="num">−2.2 %</td><td class="num">45×</td><td class="num">909</td><td class="num"><strong>90,909 — 91 % of a 100k account</strong></td></tr>
+      <tr><td class="num">−6.7 %</td><td class="num">15×</td><td class="num">299</td><td class="num">29,850</td></tr>
+      <tr><td class="num">−13.3 %</td><td class="num">7.5×</td><td class="num">150</td><td class="num">15,037</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout warn">
+    <span class="lbl">Consequence</span>
+    <p><em>"I risk 1 % per trade"</em> says <strong>nothing</strong> about how concentrated the book is. A tight stop on a volatile name is a huge position with a small risk budget — and it will be stopped out often. That is why the stop should come from volatility (Part 3): an eyeballed stop is an unstated position-size decision.</p>
+  </div>
+
+  <h3><span class="sn">2.3</span>Case study — DELL in TFSA_2</h3>
+  <p>Take the real <code>TFSA_2</code> balance (76,805.55 CAD, reported by BMO as of 2026-10-25), a <em>placeholder</em> ceiling of 1 %, and a stated entry 450 USD / stop 410 USD. The footer rate in the same export is 1 USD = 1.3999 CAD (<code>RC-72</code>: the <em>current</em> rate, not the per-line purchase rate).</p>
+  <pre><code>risk_capital  = 76,805.55 × 0.01                 =    768.06 CAD
+d (per share) = (450 − 410) × 1.3999            =     56.00 CAD
+shares (risk) = 768.06 / 56.00                  =     13.72
+notional      = 13.72 × 450                     =  6,172.32 USD   (8,640 CAD, 11.2 % of the account)</code></pre>
+  <p>Computed by <code>size_trade</code> itself, not by hand. Now the twist: TFSA_2 holds only <strong>105.24 CAD</strong> of cash (75.18 USD at the footer rate). So the real answer is <strong>0 shares — cash binds</strong> (Part 5). That is the correct answer about your account on that date, and the tool says so instead of returning 13.</p>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 3 -->
+<section class="part" id="p3">
+  <div class="parthead">
+    <span class="partnum">PART 3</span>
+    <div>
+      <h2>Where the stop comes from: volatility</h2>
+      <p>A stop picked by eye is an unstated volatility assumption — and, through entry/d, an unstated size.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">3.1</span>The volatility stop — PS-6</h3>
+  <div class="formula">d = k · σ̂ · √h · entry &nbsp;&nbsp;⇒&nbsp;&nbsp; shares = risk_capital / (k · σ̂ · √h · entry) &nbsp;&nbsp;⇒&nbsp;&nbsp; shares ∝ 1/σ̂
+    <small><code>σ̂</code> = daily volatility (sd of daily log returns) · <code>h</code> = 21 sessions, the one-month holding horizon (HorizonSet v1) · <code>k</code> = how many horizon standard deviations below entry the stop sits. Code: <code>src/portfolio/sizing/stop_distance.py</code>, MethodEntry <code>stop_distance_vol_v1</code>.</small></div>
+  <p>The <code>√h</code> is the square-root-of-time rule: if daily returns are independent with the same variance, the variance of an <code>h</code>-day return is <code>h·σ²</code>. It is an assumption, and a weak one in a crisis, when returns cluster (Andersen, Bollerslev, Diebold &amp; Labys, 2003, on realised volatility and its persistence).</p>
+
+  <h3><span class="sn">3.2</span>What σ the tool uses — realised, labelled (PS-23)</h3>
+  <p>D-04 publishes no volatility <em>forecast</em>, so D-06 uses <strong>realised</strong> volatility — the sample sd of the last 21 daily log returns — and labels it <code>realised</code>, never "forecast" (<code>PS-23</code>, <code>realised_sigma</code>). The difference matters: realised vol is backward-looking and understates exactly when it matters, before an earnings gap. Fewer than 22 closes gives <code>unavailable</code>, never a shorter window (<code>AC-F14.8</code>).</p>
+  <div class="callout eg">
+    <span class="lbl">Measured 2026-10-25</span>
+    <p>DELL, FMP raw closes, 21 sessions to 2026-10-23: <strong>σ̂ = 0.0424</strong> per day (≈ 67 % annualised). With <code>k = 1.5</code>: <code>d = 1.5 × 0.0424 × √21 × 450 = 131.09 USD</code> — a stop at <strong>318.91, 29 % below entry</strong>. At the same 768 CAD of risk that is 4 shares (1,883 USD), not 13. Your stated stop at 410 implies <strong>k = 0.46</strong> — less than half a horizon standard deviation (<code>PS-7</code> reports this on every answer).</p>
+  </div>
+
+  <h3><span class="sn">3.3</span>Why k matters: how often a stop is hit</h3>
+  <p>If the log price is a driftless random walk, the reflection principle gives the probability that it touches <code>−k·σ·√h</code> at some point within <code>h</code> days:</p>
+  <div class="formula">P(stop hit within h) = 2 · (1 − Φ(k))</div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>k</th><th>P(hit within 21 sessions)</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0.46</td><td class="num">≈ 65 %</td><td>your 410 stop on DELL — more likely hit than not, on noise alone</td></tr>
+      <tr><td class="num">1.0</td><td class="num">31.7 %</td><td></td></tr>
+      <tr><td class="num"><strong>1.5</strong></td><td class="num"><strong>13.4 %</strong></td><td>the code default (<code>DEFAULT_K</code>), labelled <code>default (QS-2 open)</code></td></tr>
+      <tr><td class="num">2.0</td><td class="num">4.6 %</td><td></td></tr>
+      <tr><td class="num">3.0</td><td class="num">0.27 %</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>This is a <em>model</em> number — no drift, no fat tails, no gaps — and it is exactly the kind of claim Part 10 says to check against reality. <code>QS-2</code> is still open: <code>k</code> should equal D-03's triple-barrier <code>k</code> (López de Prado, 2018, ch. 3), and that barrier does not exist yet. You chose to keep 1.5, labelled (F14 <code>D5</code>).</p>
+
+  <h3><span class="sn">3.4</span>The collision with your mandate — §5.3</h3>
+  <div class="callout warn">
+    <span class="lbl">shares ∝ 1/σ</span>
+    <p>High-volatility names get small positions. Your AI/semiconductor theme is high-volatility, and <code>M-2</code> says concentration in it is deliberate. A textbook vol-scaled rule (Moreira &amp; Muir, 2017, show volatility-managed portfolios improve Sharpe ratios <em>across</em> factors) is a <strong>diversifying</strong> pressure — the low-volatility tilt <code>QA-45</code> warns about, arriving in a second domain. This is why the answer is a consequence (<code>PS-8</code>), and why your own size is never capped (<code>PS-10</code>).</p>
+  </div>
+
+  <h3><span class="sn">3.5</span>Why a CAD listing or CDR gets no σ</h3>
+  <p><code>RC-53</code> (measured 2026-08-25): asking FMP for the bare ticker <code>BMO</code> returns the <strong>NYSE listing in USD</strong> — the right company, wrong venue and wrong currency, and a plausible number. So the tool never fetches σ for a CAD entry by its ticker (<code>AC-F14.8</code>). For a CDR you ruled out substituting the US underlying's σ (F14 <code>D11</code>): <em>a CDR is a separate stock</em> (<code>RC-58</code>). Give <code>--sigma</code> and it is labelled <code>stated</code>; otherwise implied <code>k</code> is <code>unavailable</code> and a volatility stop is refused (<code>PS-24</code>).</p>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 4 -->
+<section class="part" id="p4">
+  <div class="parthead">
+    <span class="partnum">PART 4</span>
+    <div>
+      <h2>The account risk budget: allowance, committed, remaining, slots</h2>
+      <p>One trade's risk is bounded by a ceiling. The account's total is bounded too — and those are two different numbers.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">4.1</span>Per account, never netted — QS-3, PS-30</h3>
+  <p>You ruled (2026-08-18, <code>QS-3</code>) that the budget is <strong>per account</strong>: TFSA_1, TFSA_2, RRSP_1, RESP_1 hold capital that cannot be moved between them, so a fund-level budget would abstract over something you cannot act on. Every quantity below is per account and never summed across accounts (<code>PS-30</code>).</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Quantity</th><th>Definition</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td><code>allowance</code></td><td><code>capital × r_total</code> — the account's total risk capacity</td><td>§5.1b</td></tr>
+      <tr><td><code>committed</code></td><td>Σ over held lines of <code>max(0, average cost − stop) × shares</code></td><td><code>PS-29</code></td></tr>
+      <tr><td><code>remaining</code></td><td><code>max(0, allowance − committed)</code></td><td></td></tr>
+      <tr><td><code>n_reserve</code></td><td><code>target_positions − lines held</code> — open slots, a <em>stated</em> policy</td><td><code>PS-27</code>, <code>PS-43</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">4.2</span>Why committed risk is measured from the entry, floored at zero — PS-29</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Average cost</th><th>Current stop</th><th>Committed risk (100 shares)</th></tr></thead>
+    <tbody>
+      <tr><td class="num">90</td><td class="num">84</td><td class="num">600</td></tr>
+      <tr><td class="num">90</td><td class="num">90</td><td class="num">0</td></tr>
+      <tr><td class="num">90</td><td class="num">115 (trailed)</td><td class="num">0 — not −2,500</td></tr>
+    </tbody>
+  </table></div>
+  <p>A winner whose stop has trailed above its cost can no longer lose money against cost, so it <strong>releases its whole allocation without being sold</strong>. That is your mandate <code>M-3</code> (<em>sell less and let winners run</em>) implemented in arithmetic: holding a winner frees capacity for the next idea. Marking risk from the current price instead would keep a winner charged forever and quietly penalise holding.</p>
+  <div class="callout warn">
+    <span class="lbl">The gap the data leaves — F14 D4</span>
+    <p>BMO exports no open orders, so the system <strong>does not know your stops</strong>. You chose: pass <code>--held-stop SYM=PRICE</code> for every holding and committed risk is <code>measured</code>; miss any one and it is <code>unmeasured</code> — reported as <code>null</code>, never 0, with the missing names listed — and then only <code>r_ceiling</code> binds. A guessed stop per holding was rejected: it would invent a number you did not set.</p>
+  </div>
+
+  <h3><span class="sn">4.3</span>The "divide by n trades" trap — why slots are a policy</h3>
+  <p>An intuitive proposal: <em>if the remaining cash supports two more tickers, give each half the budget.</em> The intuition (don't spend the whole budget on one trade) is right; the derivation is circular:</p>
+  <pre><code>per-trade risk = R / n
+notional       = (R / n) × (entry / d)
+total over n   = n × (R / n) × (entry / d) = R × entry / d     ← n cancels</code></pre>
+  <p>Total capital deployed is <code>R × entry/d</code> however you split it, so "how many trades the cash supports" cannot determine <code>n</code>. It has to be stated. Hence <code>target_positions</code> is <strong>required per-account configuration with no default</strong>, and a full account (<code>n_reserve ≤ 0</code>) is refused rather than sized against a floor (<code>PS-43</code>). Adding to a ticker you already hold sizes into that ticker's own slot (<code>AC-F14.16</code>).</p>
+
+  <h3><span class="sn">4.4</span>The per-trade risk — the minimum of two terms</h3>
+  <div class="formula">risk_capital = min( capital × r_ceiling × E·C·P·D , (capital × r_total − committed) / n_reserve )
+    <small>The second term is used only when committed risk is measured. Code: <code>src/portfolio/sizing/trade.py::size_trade</code>. Known answers from §5.1b, tested in <code>AC-F14.19</code>.</small></div>
+  <div class="callout eg">
+    <span class="lbl">§5.1b worked</span>
+    <p>Capital 100,000 · <code>r_ceiling</code> 1 % · <code>r_total</code> 6 % · <code>n_reserve</code> 4.</p>
+    <ul>
+      <li>Nothing committed: min(1,000, 6,000 / 4 = 1,500) = <strong>1,000 — the ceiling binds</strong>.</li>
+      <li>3,000 already committed: min(1,000, 3,000 / 4 = 750) = <strong>750 — the reserve binds</strong>. The account is three-quarters spent on open stops, so the next trade is smaller.</li>
+      <li>Committed unknown: <strong>1,000, ceiling only</strong>, and the answer says <em>only r_ceiling binds</em>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 5 -->
+<section class="part" id="p5">
+  <div class="parthead">
+    <span class="partnum">PART 5</span>
+    <div>
+      <h2>Which constraint binds — and the bug that taught it (DX-191)</h2>
+      <p>Three ceilings on the same trade. The answer must name the lowest and show all three.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">5.1</span>Risk, cash, and the 15 % cap</h3>
+  <div class="formula">deploy = min( risk_capital / d × entry , cash , 15 % × capital ) &nbsp;&nbsp;→&nbsp;&nbsp; shares = ⌊deploy / entry⌋</div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Constraint</th><th>Where it comes from</th><th>What it means when it binds</th></tr></thead>
+    <tbody>
+      <tr><td><code>risk</code></td><td>Parts 2–4</td><td>The stop is wide enough that your risk budget, not your money, is the limit</td></tr>
+      <tr><td><code>cash</code></td><td>the holdings export's reported cash, all currencies in CAD at the footer rate (F14 <code>D9</code>: a USD buy assumes BMO's auto-FX)</td><td>You could afford to risk more than you can pay for. <em>"Cash binds: 40,000 deployable against 60,000 of risk capacity"</em> is a different decision from the reverse (<code>PS-28</code>)</td></tr>
+      <tr><td><code>cap_15pct</code></td><td><code>MAX_POSITION_PCT</code> = 15 % of the account, <code>INV-022</code></td><td>The system will not <em>propose</em> more than 15 %. ⚠ It caps only what the system proposes — your own size is reported with its consequences and never capped (<code>PS-10</code>, <code>M-2</code>)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Shares are floored to whole shares (F14 <code>D7</code>): BMO fills whole shares, and flooring keeps realised risk at or under the budget. On your accounts today, cash binds almost everywhere — TFSA_2 holds 105.24 CAD and RESP_1 27.51 CAD.</p>
+
+  <h3><span class="sn">5.2</span>Case study — DX-191, found and fixed 2026-10-25</h3>
+  <p>The library function <code>size_for_stop</code>, written before the <code>PS-28</code> deploy row and <code>r_total</code> existed as separate quantities, had three defects. All three produced a plausible number under a correct-looking label.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Defect</th><th>Design says</th><th>Code returned</th></tr></thead>
+    <tbody>
+      <tr><td>(a) cash binds, shares not reduced</td><td>PS-28: risk capacity 60,000, cash 40,000, entry 90 → <strong>444 shares</strong></td><td class="fail">666 shares, labelled <code>cash</code></td></tr>
+      <tr><td>(b) no <code>r_total</code>; ceiling divided by slots</td><td>§5.1b: min(1,000, 6,000/4) = <strong>1,000</strong></td><td class="fail">1,000 / 4 = 250 — always too small when slots &gt; 1</td></tr>
+      <tr><td>(c) the cap overwrote the uncapped number</td><td>show what risk alone allows beside the cap</td><td class="fail">the uncapped risk notional was lost</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <span class="lbl">The lesson, and the fix (option B, F14 D12)</span>
+    <p>The only test (<code>test_ac_6_9d</code>) asserted the <em>label</em>, so it passed while the number underneath was wrong — the constitution's warning that <em>"an invariant AC given a single example test looks green and proves almost nothing"</em>. Two functions computing one formula had drifted. The fix makes <strong>one pure function, <code>size_trade</code></strong>, the only place the arithmetic lives; <code>size_for_stop</code> and F14's <code>size_on_demand</code> both call it, and <code>AC-F14.19</code> checks them against the <strong>design's own tables</strong> rather than numbers chosen by whoever wrote the code.</p>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 6 -->
+<section class="part" id="p6">
+  <div class="parthead">
+    <span class="partnum">PART 6</span>
+    <div>
+      <h2>The dynamic risk budget — a feature, not a parameter</h2>
+      <p>Your ruling (2026-08-18): <em>"a fixed percentage for risk budget is meaningless in reality."</em> This part is what the design does about it — and why most of it is still switched off.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">6.1</span>Why a fixed percentage is wrong in kind</h3>
+  <p>A constant <code>r</code> is blind to everything that should move it: <strong>edge</strong> (a marginal setup and a strong one get the same stake), <strong>correlation</strong> (five semiconductor names at 1 % each are closer to one 4 % bet than five independent ones), <strong>drawdown state</strong>, <strong>estimation confidence</strong>, and <strong>the opportunity set</strong> (<code>L1-portfolio-strategy</code> §5.1d).</p>
+
+  <h3><span class="sn">6.2</span>The shape — multiplicative, bounded, decomposed</h3>
+  <div class="formula">risk_budget = r_ceiling × E × C × P × D &nbsp;&nbsp;&nbsp; each factor ∈ (0, 1]
+    <small>MethodEntry <code>risk_budget_dynamic_v1</code> (<code>src/portfolio/methods/entries/</code>). Bounding every factor at 1 makes <code>INV-022</code> structural: the product can never exceed <code>r_ceiling</code>, by construction rather than by a clamp bolted on afterwards.</small></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Factor</th><th>Meaning</th><th>Candidate method</th><th>Status 2026-10-25 — why</th></tr></thead>
+    <tbody>
+      <tr><td><code>E</code> edge</td><td>signal strength vs the cross-section</td><td>rank-score spread, applied only if it clears its own MDE (<code>PS-35</code>)</td><td><code>unmeasured</code> — the ranker is refused by its own gate (walk-forward IC 0.0203, t = 1.42); differentiating on noise is worse than a flat budget</td></tr>
+      <tr><td><code>C</code> confidence</td><td>D-01's k-run verdict stability, calibration, coverage</td><td>stability fraction (<code>RM-1</code>)</td><td><code>unmeasured</code> — every thesis is <code>k = 1</code></td></tr>
+      <tr><td><code>P</code> portfolio</td><td>marginal contribution to book risk</td><td>marginal contribution to risk, <code>w(Σw)/σ_p</code></td><td><code>unmeasured</code> — needs D-05 on a valued book; two of four accounts are valued</td></tr>
+      <tr><td><code>D</code> drawdown</td><td>scales down as drawdown deepens</td><td><code>r(t) = r_max(1 − DD_t/DD_max)</code> (Grossman &amp; Zhou, 1993)</td><td><code>unmeasured</code> — needs NAV history, i.e. several holdings exports apart; there is one</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <span class="lbl">PS-34 — unmeasured is 1, and says so</span>
+    <p>A factor that cannot be measured is set to <strong>1.0 with status <code>unmeasured</code></strong> — never estimated, never quietly omitted. So today every answer reads <em>"budget = ceiling, because E, C, P, D are not measured yet"</em> (F14 <code>D3</code>). The framework degrades <em>visibly</em> to the fixed percentage it replaces, rather than to a smaller number that looks like caution. Each factor needs a MethodEntry with a known-answer test before it multiplies a real position (<code>PS-36</code>).</p>
+  </div>
+
+  <h3><span class="sn">6.3</span>Why not Kelly?</h3>
+  <p>The Kelly criterion (Kelly, 1956) maximises long-run log growth; for one asset with expected excess return μ and variance σ², the fraction is <code>f* = μ/σ²</code>. It produces exactly the edge × 1/vol shape wanted — and it is savage under parameter uncertainty (MacLean, Thorp &amp; Ziemba, 2011). At IC ≈ 0.02 the error in μ dwarfs μ itself: the fundamental law (Grinold, 1989) puts the information ratio at about <code>IC · √breadth</code>, so a tiny IC means a tiny, noisy μ. Estimation error is the general problem — DeMiguel, Garlappi &amp; Uppal (2009) show that across fourteen estimated models none consistently beats equal weighting out of sample. A bounded product of separately measured factors, each switched on only when it clears its own error, is the design's answer.</p>
+
+  <h3><span class="sn">6.4</span>Risk parity — reported, never a target (PS-31, PS-32)</h3>
+  <p>You approved reporting the equal-risk weight beside the actual one (<code>QS-5</code>): <em>"equal-risk would be 6 %; you hold 31 %"</em>. It is a disclosure, the honest counterweight to a concentrated book (cf. Maillard, Roncalli &amp; Teiletche, 2010, on equal-risk-contribution portfolios). D-06 must never rank by distance from parity, track drift toward it, or order a slate by it — that would be the target allocation <code>PS-12</code> forbids, and <code>M-2</code> rejects the pressure it would apply. A request for one raises <code>TargetAllocationError</code>.</p>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 7 -->
+<section class="part" id="p7">
+  <div class="parthead">
+    <span class="partnum">PART 7</span>
+    <div>
+      <h2>Risk estimation: D-05, and the book it needs</h2>
+      <p>Seat 4 sees everything and decides nothing. Its numbers are only as true as the book under them.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">7.1</span>What D-05 measures</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Measure</th><th>Notes as built</th></tr></thead>
+    <tbody>
+      <tr><td>Exposure — 5 dimensions</td><td>name, sector, theme, currency, account; ★ a CDR and its US underlying are <strong>one company</strong> and are netted (<code>RK-5</code>): MU as a CDR in one account and as the US share in another is one position in Micron</td></tr>
+      <tr><td>Concentration</td><td>reported against <code>CONCENTRATION_THRESHOLD_PCT</code> 25 %, <code>SECTOR_MAX_PCT</code> 35 %, <code>THEME_REPORT_THRESHOLD_PCT</code> 40 % — every crossing carries <code>effect: reported_only</code> (<code>INV-026</code>: risk reports, never blocks)</td></tr>
+      <tr><td>Drawdown, VaR with caveats, marginal risk</td><td>VaR is printed with its assumptions, not as a guarantee</td></tr>
+      <tr><td>Stress scenarios</td><td>taken from history (<code>QK-6</code>), labelled not-predictions</td></tr>
+      <tr><td>Behavioural flags (<code>RK-40</code>, on the card since 2026-10-22)</td><td><code>M-3</code> pyramiding (buying more at a higher average cost), <code>M-4</code> short-hold round trips — registered accounts, so a CRA <em>carrying on a business</em> exposure; ★ these need trade history only, no prices, which is why they run today</td></tr>
+    </tbody>
+  </table></div>
+  <p>Behavioural finance is why the flags exist: investors realise winners too early and hold losers too long (Odean, 1998), and frequent trading destroys retail returns (Barber &amp; Odean, 2000). <code>M-3</code> and <code>M-4</code> are your mandate's answer to both; the flags make the behaviour visible and never block it.</p>
+
+  <h3><span class="sn">7.2</span>Why the book had no value for two months — R1</h3>
+  <p>Every account holds at least one CAD-listed share or CDR, and FMP's plan returns <code>402</code> for every <code>.TO</code>/<code>.NE</code> symbol. Worse than refusal, a bare ticker returned the <em>wrong venue in the wrong currency</em> (<code>RC-53</code>). A position with no price makes the book <em>unavailable, not smaller</em> (<code>FX-3</code>'s rule one level up), and one unpriceable account withholds all four, because <em>a book-wide figure computed over the rest would be wrong, not partial</em> (<code>RK-5</code>). So D-05's exposure pass stayed <code>UNCHECKED</code> and the card informational.</p>
+
+  <h3><span class="sn">7.3</span>Reconciliation that checks something — RC-51, RC-76</h3>
+  <div class="callout warn">
+    <span class="lbl">RC-51 — a tautology is not a check</span>
+    <p><code>positions + cash == NAV</code> is the book's one check (<code>RC-10</code>). Derive all three from the same transaction rows and it passes <strong>by construction</strong>. A check needs an outside figure.</p>
+  </div>
+  <p>The holdings export (<code>L1-recording</code> §8a, built 2026-10-25) is that figure: BMO's own price and market value for every line, cash per currency, the account balance. It is <strong>self-checked</strong> before anything reads it — Σ cash lines = cash total, Σ market values = securities, cash + securities = balance, the holdings count, the cash total row, every line's <code>qty × price × fx</code>, and the USD cash rate = the footer (<code>RC-73</code>, a cent of tolerance; a USD line allows half the last printed digit of a 4-dp rate). Then derived and reported books are compared line by line (<code>RC-76</code>). On 2026-10-25 both <code>RESP_1</code> and <code>TFSA_2</code> agreed on every quantity and every cash line, to the cent.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Trap in the export</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Two FX rates: the footer (current) and a per-line column (at purchase)</td><td><code>RC-72</code> — value uses the footer; the line rate enters cost only. Mixing them mis-values every US line by the FX move since purchase</td></tr>
+      <tr><td><code>GOOG</code>, <code>MRK</code> are CDRs in CAD; US shares are <code>ARM:US</code>; TSX names are bare</td><td><code>RC-71</code> — identity from description + currency, never the ticker</td></tr>
+      <tr><td>Line 1 is your real account number</td><td><code>RC-78</code> — read, never kept; the file name's id is the only identity</td></tr>
+      <tr><td>The date is the file's, not today's</td><td><code>RC-74</code> — every answer carries it and shows its age in days</td></tr>
+    </tbody>
+  </table></div>
+  <p>⚠ Two accounts are valued; <code>TFSA_1</code> and <code>RRSP_1</code> are not (exports expected in 1–2 months). They are refused by name, and the book-wide figure stays <code>UNCHECKED</code> (<code>RC-77</code>) — two valued accounts are not <em>the book</em>.</p>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 8 -->
+<section class="part" id="p8">
+  <div class="parthead">
+    <span class="partnum">PART 8</span>
+    <div>
+      <h2>The policy file: <code>config/portfolio_policy.yaml</code></h2>
+      <p>Three numbers per account. They are yours because each one divides or caps a position, and a number that does that cannot have an invented default (<code>PS-43</code>).</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">8.1</span>What each parameter means</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Key</th><th>Plain meaning</th><th>Where it enters the code</th><th>Enforced</th></tr></thead>
+    <tbody>
+      <tr><td><code>r_ceiling</code></td><td>The most <strong>one trade</strong> may lose if its stop is hit, as a fraction of the account</td><td>the ceiling term <code>capital × r_ceiling × E·C·P·D</code> — today simply <code>capital × r_ceiling</code></td><td><code>0 &lt; r_ceiling ≤ r_total</code></td></tr>
+      <tr><td><code>r_total</code></td><td>The most the <strong>whole account</strong> may have at risk at once — what you would lose if every open stop were hit together</td><td><code>allowance = capital × r_total</code> → <code>remaining</code> → the reserve term; bites only when committed risk is measured</td><td><code>r_total ≤ 1</code></td></tr>
+      <tr><td><code>target_positions</code></td><td>How many positions you intend the account to hold</td><td><code>n_reserve = target − held</code>, the divisor of the reserve term; ≤ 0 refuses a new name</td><td>integer ≥ 1</td></tr>
+    </tbody>
+  </table></div>
+  <figure>
+    <svg viewBox="0 0 900 200" role="img" aria-label="Where r_ceiling, r_total and target_positions enter the sizing formula">
+      <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink-faint)"/></marker></defs>
+      <rect class="ambs" x="20" y="20" width="150" height="40" rx="5"/><text x="95" y="45" text-anchor="middle" font-size="12" class="amb">r_ceiling</text>
+      <rect class="ambs" x="20" y="80" width="150" height="40" rx="5"/><text x="95" y="105" text-anchor="middle" font-size="12" class="amb">r_total</text>
+      <rect class="ambs" x="20" y="140" width="150" height="40" rx="5"/><text x="95" y="165" text-anchor="middle" font-size="12" class="amb">target_positions</text>
+      <rect class="box" x="230" y="20" width="200" height="40" rx="5"/><text x="330" y="45" text-anchor="middle" font-size="11">capital × r_ceiling × E·C·P·D</text>
+      <rect class="box" x="230" y="80" width="200" height="40" rx="5"/><text x="330" y="105" text-anchor="middle" font-size="11">capital × r_total − committed</text>
+      <rect class="box" x="230" y="140" width="200" height="40" rx="5"/><text x="330" y="165" text-anchor="middle" font-size="11">n_reserve = target − held</text>
+      <rect class="box" x="480" y="110" width="120" height="40" rx="5"/><text x="540" y="135" text-anchor="middle" font-size="12">÷</text>
+      <rect class="accs" x="650" y="55" width="110" height="50" rx="5" stroke-width="2"/><text x="705" y="85" text-anchor="middle" font-size="13" class="acc" style="font-weight:700">min</text>
+      <rect class="vers" x="790" y="55" width="100" height="50" rx="5"/><text x="840" y="78" text-anchor="middle" font-size="11" class="ver">risk_capital</text><text x="840" y="94" text-anchor="middle" font-size="10" class="soft">per trade</text>
+      <path class="arrow" d="M170,40 L230,40" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M170,100 L230,100" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M170,160 L230,160" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M430,100 L480,125" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M430,160 L480,138" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M430,40 L650,70" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M600,130 L650,92" marker-end="url(#ah2)"/>
+      <path class="arrow" d="M760,80 L790,80" marker-end="url(#ah2)"/>
+    </svg>
+    <figcaption>The reserve branch (bottom two) runs only when every holding has a stated <code>--held-stop</code>; otherwise <code>min</code> sees only the ceiling.</figcaption>
+  </figure>
+
+  <h3><span class="sn">8.2</span>How the three fit together</h3>
+  <p>The ratio <code>r_total / r_ceiling</code> is <strong>how many full-ceiling losses the account can carry open at once</strong>. Compare it with <code>target_positions</code>:</p>
+  <ul>
+    <li><code>target_positions ≈ r_total / r_ceiling</code> — every slot can be filled at full ceiling risk, and the account then sits exactly at <code>r_total</code>.</li>
+    <li><code>target_positions &gt; r_total / r_ceiling</code> — later trades get less than the ceiling once committed risk builds up, until trailed stops release it (Part 4.2). The account self-throttles.</li>
+    <li><code>target_positions &lt; r_total / r_ceiling</code> — <code>r_total</code> never binds; the ceiling alone governs.</li>
+  </ul>
+  <p>And mind the slot count against what is already held: <code>TFSA_2</code> holds 7 lines, so <code>target_positions</code> of 7 or less refuses every new name (adding to a held name still works); <code>RESP_1</code> holds 1.</p>
+
+  <h3><span class="sn">8.3</span>What the numbers mean in dollars on your accounts</h3>
+  <p>Placeholders for arithmetic only. Balances as reported 2026-10-25:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th><code>r_ceiling</code></th><th>TFSA_2 (76,805.55) — loss at one stop</th><th>RESP_1 (13,703.62) — loss at one stop</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0.005</td><td class="num">384</td><td class="num">69</td></tr>
+      <tr><td class="num">0.01</td><td class="num">768</td><td class="num">137</td></tr>
+      <tr><td class="num">0.02</td><td class="num">1,536</td><td class="num">274</td></tr>
+    </tbody>
+  </table></div>
+  <p>A losing streak compounds. After <code>n</code> consecutive full-ceiling losses the account is at <code>(1 − r)ⁿ</code>, and getting back needs <code>1/(1 − r)ⁿ − 1</code>:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th><code>r_ceiling</code></th><th>5 losses in a row</th><th>10 losses in a row</th><th>gain needed to recover from 10</th></tr></thead>
+    <tbody>
+      <tr><td class="num">0.005</td><td class="num">−2.5 %</td><td class="num">−4.9 %</td><td class="num">+5.1 %</td></tr>
+      <tr><td class="num">0.01</td><td class="num">−4.9 %</td><td class="num">−9.6 %</td><td class="num">+10.6 %</td></tr>
+      <tr><td class="num">0.02</td><td class="num">−9.6 %</td><td class="num">−18.3 %</td><td class="num">+22.4 %</td></tr>
+    </tbody>
+  </table></div>
+  <p>With a <code>k = 1.5</code> stop the model hit rate is about 13 % per month of noise alone (Part 3.3) — before any real adverse news. Ten in a row is not exotic over years.</p>
+
+  <h3><span class="sn">8.4</span>Your risk appetite — how it should and should not move these numbers</h3>
+  <p>Risk appetite is the amount of loss you can bear without changing your behaviour for the worse. Prospect theory (Kahneman &amp; Tversky, 1979) documents that losses weigh roughly twice as heavily as equal gains, which is why the numbers should be chosen <em>before</em> a loss, when you are calm, and written down — which is exactly what a config file is.</p>
+  <div class="grid2">
+    <div class="card"><h4><code>r_ceiling</code> ← pain per loss</h4><p>Ask: <em>what single stop-out would make me break my own rules next time</em> (move a stop, average down, revenge-trade)? Set the ceiling below that. Note that <code>M-3</code> flags averaging up; nothing flags the emotional response to a loss except you.</p></div>
+    <div class="card"><h4><code>r_total</code> ← the bad day</h4><p>Under <code>M-2</code> the book is deliberately concentrated in one theme, so the open positions are <strong>correlated</strong>: a sector-wide drop can hit several stops in the same week. <code>r_total</code> is close to "the loss on a theme crash". Choose it as that, not as a sum of independent bets.</p></div>
+    <div class="card"><h4><code>target_positions</code> ← concentration preference</h4><p>Fewer slots means larger reserve terms per trade and a more concentrated book — consistent with <code>M-2</code>. More slots means smaller per-trade risk once committed risk builds. This is your breadth decision, and the code refuses to infer it from cash (Part 4.3).</p></div>
+    <div class="card"><h4>Per account, not per person</h4><p>The accounts are separate by law, and their purposes differ. The <strong>RESP</strong> has a beneficiary and its own mandate and is excluded from the fund (<code>RC-4</code>); it may deserve smaller numbers than a TFSA. In a TFSA or RRSP a realised loss also permanently uses up contribution room — there is no capital-loss offset in a registered account (<code>PS-21</code>: no tax event either way).</p></div>
+  </div>
+  <div class="callout warn">
+    <span class="lbl">What appetite must not do</span>
+    <ul>
+      <li>It must not be expressed by tightening stops to fit more shares: that raises the position, not the safety (Part 2.2), and raises the hit rate (Part 3.3).</li>
+      <li>A stop is not a guaranteed price. An overnight gap (earnings) can fill below it, so the realised loss can <strong>exceed</strong> <code>r_ceiling</code>. Choose the ceiling with that in mind; Part 10 says how to measure it.</li>
+      <li>Do not revise the numbers after a loss to make the last trade look acceptable. Change them deliberately, and note why.</li>
+    </ul>
+  </div>
+
+  <h3><span class="sn">8.5</span>Filling it in — step by step</h3>
+  <ol>
+    <li>Open <code>config/portfolio_policy.yaml</code>. Replace <code>accounts: {}</code> with one line per account you want sized:
+<pre><code>accounts:
+  TFSA_2: {r_total: &lt;fraction&gt;, r_ceiling: &lt;fraction&gt;, target_positions: &lt;int&gt;}
+  RESP_1: {r_total: &lt;fraction&gt;, r_ceiling: &lt;fraction&gt;, target_positions: &lt;int&gt;}</code></pre>
+      Fractions, not percentages: <code>0.01</code> is 1 %.</li>
+    <li>Leave <code>TFSA_1</code> and <code>RRSP_1</code> out until their holdings exports exist — they are refused anyway (<code>RC-77</code>).</li>
+    <li>Preview, free and offline: <code>python tools/size_for.py DELL --account TFSA_2 --entry 450 --stop 410 --currency USD --dry-run</code>. The policy line should read ✓; a missing or out-of-range value is named.</li>
+    <li>Run it for real (one FMP call for σ on a US listing; standing-approved). Add <code>--held-stop SYM=PRICE</code> for <strong>every</strong> holding if you want <code>r_total</code> to bite.</li>
+    <li>Read the answer top to bottom: which constraint binds, the three notionals, every input's source and age.</li>
+  </ol>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 9 -->
+<section class="part" id="p9">
+  <div class="parthead">
+    <span class="partnum">PART 9</span>
+    <div>
+      <h2>How your appetite and strategy shaped the design and the code</h2>
+      <p>The policy file holds three numbers. Your strategy is in far more of the system than that.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">9.1</span>Decisions in the code that came from you</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Your stance</th><th>Where it lives</th><th>What the code does because of it</th></tr></thead>
+    <tbody>
+      <tr><td><em>"A fixed percentage for risk budget is meaningless"</em> (2026-08-18)</td><td><code>PS-33…36</code>, <code>risk_budget_dynamic_v1</code></td><td>the budget is a decomposed product of named factors; today they show <code>unmeasured</code> rather than pretending</td></tr>
+      <tr><td><code>M-2</code> deliberate concentration in a theme</td><td><code>PS-8</code>, <code>PS-10</code>, <code>INV-026</code></td><td>sizing is a consequence, never a proposal; thresholds report and never veto; your size is never capped</td></tr>
+      <tr><td><code>M-3</code> sell less, let winners run</td><td><code>PS-29</code>, <code>pyramid_check</code>, <code>RK-40</code></td><td>committed risk floored at entry so a trailed stop frees budget; averaging up is flagged, never blocked</td></tr>
+      <tr><td><code>M-4</code> registered short-hold exposure</td><td><code>RC-25</code>, D-05 flags</td><td>every account is registered, so the flag has no exempt population</td></tr>
+      <tr><td>Accounts are separate (<code>QS-3</code>)</td><td><code>PS-30</code></td><td>all risk quantities are per account and never netted</td></tr>
+      <tr><td>The RESP is not the fund (<code>QC-1</code>)</td><td><code>RC-4</code>, <code>PS-20</code>, F14 <code>D10</code></td><td>sized only when you name it; fund weight shows <code>excluded (RC-4)</code></td></tr>
+      <tr><td>Capital must be checkable (2026-10-25)</td><td>F14 <code>D2</code>, <code>RC-70…78</code></td><td>capital is BMO's reported balance, never a number you type</td></tr>
+      <tr><td>No invented stops (2026-10-25)</td><td>F14 <code>D4</code></td><td>unknown held stops make committed risk <code>unmeasured</code>, not estimated</td></tr>
+      <tr><td>A CDR is a separate stock</td><td><code>RC-58</code>, F14 <code>D11</code></td><td>no σ substituted from the US underlying</td></tr>
+      <tr><td>Commission-free at BMO since 2026-10-05</td><td>F12 <code>D8</code></td><td>no fee term in sizing; the derived commission check (<code>RC-15</code>) tolerates rounding of either sign</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">9.2</span>If your strategy changes, this is what would have to change</h3>
+  <p>Always spec first (constitution §5), then failing tests, then code.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>If you decide…</th><th>What changes</th><th>Size of change</th></tr></thead>
+    <tbody>
+      <tr><td>to risk more or less per trade</td><td><code>config/portfolio_policy.yaml</code> only</td><td>config</td></tr>
+      <tr><td>to diversify away from one theme (drop <code>M-2</code>)</td><td>the mandate; then <code>PS-8</code>'s rationale weakens and a volatility-scaled size could become a proposal; theme thresholds would mean something different</td><td>upstream mandate + D-06/D-05 specs</td></tr>
+      <tr><td>to record your stops</td><td>a stop source (BMO open-orders export, or a stops file); <code>D4</code> becomes "measured by default" and <code>r_total</code> binds routinely</td><td>D-11 spec + F14 amendment</td></tr>
+      <tr><td>to let risk block a trade</td><td><code>INV-026</code> (risk reports, never blocks) — an inherited invariant</td><td>upstream constitution — deliberately hard</td></tr>
+      <tr><td>to size on the daily card</td><td>needs an actionable recommendation (<code>PS-39</code>), the D-12 seam (<code>PS-37…41</code>) and a valued book for all four accounts — blocked by <code>R1</code> today</td><td>new spec (<code>L9</code> option ⓒ)</td></tr>
+      <tr><td>to switch on a factor (e.g. drawdown <code>D</code>)</td><td>a MethodEntry with a known-answer test (<code>PS-36</code>), a data source (NAV history from repeated holdings exports), an F14 amendment</td><td>spec + code</td></tr>
+      <tr><td>to trade derivatives or short</td><td>forbidden by the mandate; also the book treats a negative quantity as a truncated history, not a short (<code>RC-45</code>)</td><td>a different system</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 10 -->
+<section class="part" id="p10">
+  <div class="parthead">
+    <span class="partnum">PART 10</span>
+    <div>
+      <h2>Falsifiers — what would prove the sizing and risk estimates wrong</h2>
+      <p>A method you cannot catch failing is not a method. These are the triggers, sorted by whether anything watches for them yet.</p>
+    </div>
+  </div>
+
+  <h3><span class="sn">10.1</span>Triggers that already fire automatically</h3>
+  <p>Each one <strong>refuses</strong> — it stops the answer rather than printing a plausible one (<code>P5</code>).</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Trigger</th><th>What it falsifies</th><th>Rule / test</th></tr></thead>
+    <tbody>
+      <tr><td>a holdings self-check fails (any of the seven)</td><td>the capital base</td><td><code>RC-73</code>, <code>AC-11.56</code></td></tr>
+      <tr><td>derived and reported books disagree on a quantity or a cent of cash</td><td>either the ingest or the export; neither is adjusted</td><td><code>RC-76</code>, <code>AC-11.60</code></td></tr>
+      <tr><td>a ticker and its currency disagree (<code>:US</code> in CAD)</td><td>the line's identity</td><td><code>RC-71</code></td></tr>
+      <tr><td>no footer rate for a USD line or a USD entry</td><td>any CAD value of USD money</td><td><code>RC-72</code>, <code>FX-3</code></td></tr>
+      <tr><td>an account has no holdings export / a book-wide request over a subset</td><td>"the book"</td><td><code>RC-77</code></td></tr>
+      <tr><td>no stop and no σ; a stop at or above entry</td><td>the size itself (undefined)</td><td><code>PS-5</code></td></tr>
+      <tr><td>policy missing or out of range; account full</td><td>the per-trade budget</td><td><code>PS-43</code></td></tr>
+      <tr><td><code>size_for_stop</code> and <code>size_on_demand</code> disagree, or either misses PS-28 / §5.1b</td><td>the arithmetic</td><td><code>AC-F14.19</code></td></tr>
+      <tr><td>a formula file changes without its MethodEntry</td><td>the documented method</td><td><code>AC-F12.22</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3><span class="sn">10.2</span>Triggers that need tracking — not built yet</h3>
+  <p>⚠ These test the <em>model</em>, not the data, and nothing records them today. They are listed so they can be pre-registered: <code>PG-5.1</code> says to state the result that would cause a change <strong>before</strong> looking. The thresholds are yours to set; the ones shown are examples of the form.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>Observe</th><th>Expected if the method is right</th><th>Falsified when (example form)</th><th>Then</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td>realised loss at each stop-out ÷ planned <code>risk_capital</code></td><td>≈ 1 (whole shares make it ≤ 1)</td><td>any single stop-out above 1.5×, or the mean above 1.1× over ten</td><td>gaps or slippage beat the stop: the max-loss premise (<code>PS-2</code>) fails for that name; lower <code>r_ceiling</code> or avoid holding through earnings</td></tr>
+      <tr><td>F2</td><td>share of <code>k = 1.5</code> stops hit within 21 sessions</td><td>≈ 13 % (Part 3.3)</td><td>a binomial test rejects 13 % at your chosen level over a fixed sample</td><td>σ̂ or the random-walk assumption is wrong for these names; revisit <code>k</code> (<code>QS-2</code>)</td></tr>
+      <tr><td>F3</td><td>realised σ over the 21 sessions <em>after</em> entry ÷ σ̂ at entry</td><td>≈ 1 on average</td><td>persistently above 1 (e.g. 1.5)</td><td>the realised stand-in understates (<code>PS-23</code>'s warning); a forecast (<code>QA-41</code>) earns its place</td></tr>
+      <tr><td>F4</td><td>stops hit in the same week, summed</td><td>below <code>r_total</code></td><td>a cluster exceeds <code>r_total</code></td><td>trades are not independent (theme correlation under <code>M-2</code>); the <code>P</code> factor is needed, and <code>r_total</code> was mis-set</td></tr>
+      <tr><td>F5</td><td>account drawdown between two holdings exports</td><td>within <code>r_total</code> when all stops were stated</td><td>drawdown exceeds <code>r_total</code></td><td>committed risk was incomplete, or positions had no stop</td></tr>
+      <tr><td>F6</td><td>CDR realised tracking error vs the underlying's USD return (<code>RC-27</code>)</td><td>mean ≈ 0 (measured −0.08 pts over 8 trips)</td><td>the mean drifts</td><td>the hedged-CDR assumption (<code>QC-4</code>) is wrong — matters for valuation and for any future CDR σ</td></tr>
+      <tr><td>F7</td><td>age of the holdings export when you act</td><td>days</td><td>beyond the age you are willing to trade on</td><td>the capital and cash are stale; download a fresh export (the answer prints the age)</td></tr>
+      <tr><td>F8</td><td>a cash-bound USD buy fills short of the planned shares</td><td>fills</td><td>repeatedly short</td><td>F14 <code>D9</code>'s auto-FX assumption ignores the conversion spread</td></tr>
+      <tr><td>F9</td><td>once <code>E</code> is measured: the edge spread vs its MDE</td><td>spread clears MDE</td><td>it does not</td><td><code>E</code> stays <code>unapplied</code> (<code>PS-35</code>) — the framework correctly refuses to differentiate</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout key">
+    <span class="lbl">Why F1 and F2 matter most</span>
+    <p>The whole domain rests on one claim: <em>the stop makes the loss knowable in advance.</em> F1 tests whether it does in dollars; F2 tests whether the volatility model knows how often it will be tested. Both need only BMO's transaction history (fills) and the sizing answers you acted on — which is an argument for keeping a note of each answer you trade on, since D-06 itself writes nothing (<code>PS-26</code>).</p>
+  </div>
+</section>
+
+<!-- ═════════════════════════════════════════ PART 11 -->
+<section class="part" id="p11">
+  <div class="parthead">
+    <span class="partnum">PART 11</span>
+    <div>
+      <h2>Glossary, self-check and references</h2>
+    </div>
+  </div>
+  <h3><span class="sn">11.1</span>Glossary</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Term</th><th>Meaning here</th></tr></thead>
+    <tbody>
+      <tr><td>risk capital</td><td>the most one trade may lose at its stop, in CAD</td></tr>
+      <tr><td>stop distance <code>d</code></td><td><code>entry − stop</code> per share</td></tr>
+      <tr><td>implied k</td><td>how many horizon standard deviations your stated stop sits below entry: <code>d / (σ̂√h·entry)</code></td></tr>
+      <tr><td>allowance / committed / remaining</td><td>the account's risk capacity, the part used by open stops, the rest</td></tr>
+      <tr><td><code>n_reserve</code></td><td>open slots, <code>target_positions − held</code></td></tr>
+      <tr><td>binding constraint</td><td>the smallest of risk, cash and the 15 % cap</td></tr>
+      <tr><td>unmeasured / unapplied</td><td>"we could not measure it" vs "we measured it and it did not differentiate" — both set the factor to 1</td></tr>
+      <tr><td>outside figure</td><td>a number from outside the derivation that can disagree with it — here, BMO's holdings export</td></tr>
+      <tr><td>reported only</td><td>a threshold crossing that is shown and never blocks (<code>INV-026</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="quiz">
+    <strong>Self-check</strong>
+    <ol>
+      <li>Same 1 % risk, stop 2 % vs 10 % below entry: which position is larger, and by how much?</li>
+      <li>Why can't "how many trades does my cash support" decide <code>n_reserve</code>?</li>
+      <li>A winner's stop trails from 84 to 115 with cost 90. What happens to committed risk, and which mandate rule does that serve?</li>
+      <li>Why does every answer on TFSA_2 today say <code>cash</code> binds?</li>
+      <li>What was wrong with <code>size_for_stop</code>, and why did its test pass?</li>
+      <li>Your stop implies <code>k = 0.46</code>. Roughly how likely is it to be hit within a month on noise alone?</li>
+    </ol>
+    <details><summary>Answers</summary>
+      <ol>
+        <li>The 2 % stop: five times larger (multiplier entry/d of 50 vs 10).</li>
+        <li>Total deployable notional is <code>R × entry/d</code> for any <code>n</code> — <code>n</code> cancels (Part 4.3).</li>
+        <li>It falls from 600 (per 100 shares) to 0 — the budget is released without selling (<code>PS-29</code>, <code>M-3</code>).</li>
+        <li>The account holds 105.24 CAD of cash; any risk-sized position costs more.</li>
+        <li>It labelled <code>cash</code> but returned risk-sized shares, divided the ceiling by slots, and lost the uncapped number; the test checked only the label (<code>DX-191</code>).</li>
+        <li>About 65 % — <code>2(1 − Φ(0.46))</code> under a driftless random walk.</li>
+      </ol>
+    </details>
+  </div>
+
+  <h3><span class="sn">11.2</span>Where to look in the repo</h3>
+  <ul>
+    <li><code>sdd/specs/F14_sizing_on_demand/spec.md</code> — the command's spec, decisions <code>D1…D12</code>, ACs <code>AC-F14.1…19</code></li>
+    <li><code>sdd/design/rel6_design/L1-portfolio-strategy.md</code> — <code>PS-n</code>, §5 (sizing), §5.1b (account budget), §5.1d (dynamic budget), §15 open questions <code>QS-1</code>, <code>QS-2</code></li>
+    <li><code>sdd/design/rel6_design/L1-recording.md</code> §8a — the holdings export, <code>RC-70…78</code></li>
+    <li><code>sdd/design/rel1_design/L9-go-live-checklist.md</code> §6 (D-05, <code>R1</code>) and §7 (D-06)</li>
+    <li>Code: <code>src/portfolio/sizing/trade.py</code> (the arithmetic) · <code>sizing/stop_distance.py</code> · <code>on_demand/size_for.py</code> · <code>tools/size_for.py</code> · <code>src/recording/book/holdings.py</code></li>
+  </ul>
+
+  <h3><span class="sn">11.3</span>References</h3>
+  <ol class="refs">
+    <li>Andersen, T. G., Bollerslev, T., Diebold, F. X. &amp; Labys, P. (2003). Modeling and forecasting realized volatility. <em>Econometrica</em>, 71(2).</li>
+    <li>Barber, B. M. &amp; Odean, T. (2000). Trading is hazardous to your wealth: the common stock investment performance of individual investors. <em>Journal of Finance</em>, 55(2).</li>
+    <li>DeMiguel, V., Garlappi, L. &amp; Uppal, R. (2009). Optimal versus naive diversification: how inefficient is the 1/N portfolio strategy? <em>Review of Financial Studies</em>, 22(5).</li>
+    <li>Grinold, R. C. (1989). The fundamental law of active management. <em>Journal of Portfolio Management</em>, 15(3). <span class="tag">practitioner journal</span></li>
+    <li>Grossman, S. J. &amp; Zhou, Z. (1993). Optimal investment strategies for controlling drawdowns. <em>Mathematical Finance</em>, 3(3).</li>
+    <li>Kahneman, D. &amp; Tversky, A. (1979). Prospect theory: an analysis of decision under risk. <em>Econometrica</em>, 47(2).</li>
+    <li>Kelly, J. L. (1956). A new interpretation of information rate. <em>Bell System Technical Journal</em>, 35(4).</li>
+    <li>López de Prado, M. (2018). <em>Advances in Financial Machine Learning</em>. Wiley. (Ch. 3, the triple-barrier method.) <span class="tag">book</span></li>
+    <li>MacLean, L. C., Thorp, E. O. &amp; Ziemba, W. T. (eds.) (2011). <em>The Kelly Capital Growth Investment Criterion: Theory and Practice</em>. World Scientific. <span class="tag">book</span></li>
+    <li>Maillard, S., Roncalli, T. &amp; Teiletche, J. (2010). The properties of equally weighted risk contribution portfolios. <em>Journal of Portfolio Management</em>, 36(4). <span class="tag">practitioner journal</span></li>
+    <li>Moreira, A. &amp; Muir, T. (2017). Volatility-managed portfolios. <em>Journal of Finance</em>, 72(4).</li>
+    <li>Odean, T. (1998). Are investors reluctant to realize their losses? <em>Journal of Finance</em>, 53(5).</li>
+  </ol>
+</section>
+</main>
+<footer>
+  <div class="wrap">
+    <p>Lecture 09 · written 2026-10-25 against <code>F14</code> (19/19 ACs), <code>L1-recording</code> v0.13.0 and <code>L1-portfolio-strategy</code>. Every computed number was produced by the project's own code (<code>size_trade</code>, <code>realised_sigma</code>) on that date. Study material — governs nothing; where it disagrees with a spec, the spec wins.</p>
+  </div>
+</footer>
+</body>
+</html>

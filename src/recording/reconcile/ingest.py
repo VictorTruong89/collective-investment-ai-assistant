@@ -106,6 +106,16 @@ CORPORATE_ACTION_ADJUSTMENT = "corporate_action_share_adjustment"
 TRADES = frozenset({BUY, SELL})
 
 
+def is_cdr_description(name: str) -> bool:
+    """RC-36 — ★ the CDR marker lives in the INSTRUMENT name, not the account.
+
+    ★ Shared with the holdings parser (RC-71), so both exports derive the same
+    `instrument_id` and can be reconciled line by line (RC-76).
+    """
+    upper = (name or "").upper()
+    return "CIBC" in upper or " CDR" in upper or "CDN DEP" in upper
+
+
 @dataclass(frozen=True, slots=True)
 class Activity:
     """One export row, canonicalised. ⚠ **RC-12: missing is `None`, never zero.**
@@ -149,8 +159,7 @@ class Activity:
     @property
     def is_cdr(self) -> bool:
         """RC-36 — ★ the CDR marker lives in the INSTRUMENT name, not the account."""
-        upper = self.instrument_name.upper()
-        return "CIBC" in upper or " CDR" in upper or "CDN DEP" in upper
+        return is_cdr_description(self.instrument_name)
 
     @property
     def instrument_id(self) -> str:
@@ -280,7 +289,7 @@ def parse_export(path, *, account_id: str,
         # ★★ RC-48 — where the export carries account columns, a row belonging
         #   to a DIFFERENT account is refused, never absorbed. ⚠ Measured:
         #   `TransactionHistory_TFSA_2.csv` contains one `Joint` row
-        #   (account 23098925) among 146 TFSA rows (23280100). Booking it into
+        #   (account <Joint account no., redacted>) among 146 TFSA rows (<TFSA_2 account no., redacted>). Booking it into
         #   the TFSA would attribute another account's cash to this one — small
         #   here ($0.50), and the principle is RC-1's.
         row_account = (record.get("account_number") or "").strip()

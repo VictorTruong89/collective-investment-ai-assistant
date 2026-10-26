@@ -140,7 +140,7 @@ class ForeignAccountRowError(RecordingError):
     """RC-48 — the export contains a row belonging to a different account.
 
     ⚠ **Measured 2026-08-25:** `TransactionHistory_TFSA_2.csv` carries one
-    `Joint` row (account `23098925`) among 146 TFSA rows (`23280100`).
+    `Joint` row (account `<Joint account no., redacted>`) among 146 TFSA rows (`<TFSA_2 account no., redacted>`).
     ★ Booking it into the TFSA attributes another account's cash to this one —
     **$0.50 here, and the principle is RC-1's**: there is no unattributed
     activity, and there is no *mis*-attributed activity either.
@@ -155,3 +155,53 @@ class ForeignAccountRowError(RecordingError):
             f"{len(rows)} row(s) from another: {detail}. Split the export by "
             f"account, or pass `strict_accounts=False` to skip them "
             f"deliberately (RC-48, RC-1)")
+
+
+class HoldingsSelfCheckError(RecordingError):
+    """RC-73 — the holdings export disagrees with its own totals.
+
+    ★ *The export checks itself before anything reads it, and each check names what
+    failed.* Every failing check is listed, not just the first, so one bad figure does
+    not hide another.
+    """
+
+    code = "REC.HOLDINGS.SELF_CHECK"
+
+    def __init__(self, file_name: str, failures) -> None:
+        self.failures = tuple(failures)
+        super().__init__(
+            f"{file_name}: the holdings export fails its own totals — "
+            + "; ".join(self.failures) + " (RC-73)")
+
+
+class HoldingsUnrecognisedError(RecordingError):
+    """RC-70/RC-71/RC-72/RC-74 — a line, layout, currency or date this parser does not know.
+
+    ⚠ Raised rather than skipped (RC-13's shape): an unread line is a market value
+    missing from a balance that must add up.
+    """
+
+    code = "REC.HOLDINGS.UNRECOGNISED"
+
+    def __init__(self, where: str, detail: str) -> None:
+        super().__init__(f"{where}: {detail}")
+
+
+class HoldingsMissingError(RecordingError):
+    """RC-77 — ★ **no holdings export ⇒ refused by name, never valued from a fallback.**
+
+    ⚠ Not a derived book, not an older export, not vendor prices (P5). A book-wide
+    request with any account missing is refused the same way: two valued accounts are
+    not *the book* (RC-3, RK-5).
+    """
+
+    code = "REC.HOLDINGS.MISSING"
+
+    def __init__(self, accounts, root) -> None:
+        self.accounts = tuple(accounts)
+        names = ", ".join(self.accounts)
+        super().__init__(
+            f"no holdings export for {names} (expected "
+            + ", ".join(f"Holdings_{a}.csv" for a in self.accounts)
+            + f" in {root}) — the account is unvalued, never valued from a "
+            f"derived or older figure (RC-77, P5)")

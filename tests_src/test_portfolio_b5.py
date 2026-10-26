@@ -70,8 +70,11 @@ def test_ac_6_2_shares_are_risk_capital_over_stop_distance_with_no_conviction_te
     with conviction is a conviction bet wearing a risk label.*"""
     answer = size()
     d = answer.arithmetic["stop_distance_per_share"]
-    assert answer.arithmetic["shares"] == pytest.approx(
+    assert answer.binding_constraint["binds"] == "risk"
+    assert answer.arithmetic["shares_exact"] == pytest.approx(
         answer.arithmetic["risk_capital"] / d)
+    # ✏ DX-191 / F14 D12 — whole shares, floored (BMO fills whole shares)
+    assert answer.arithmetic["shares"] == math.floor(answer.arithmetic["shares_exact"])
 
     import inspect
     import src.portfolio.sizing.risk_based as module
@@ -256,9 +259,12 @@ def test_ac_6_9d_every_answer_states_which_constraint_binds_with_both_numbers():
     assert cash_bound.binding_constraint["binds"] == "cash"
     assert cash_bound.binding_constraint["cash_available"] == 1000.0
     assert cash_bound.binding_constraint["risk_capacity_notional"] > 1000.0
+    # ✏ DX-191 — the label was right and the shares were not: they are now reduced to the cash
+    assert cash_bound.arithmetic["notional"] == pytest.approx(1000.0)
+    assert cash_bound.arithmetic["shares"] == 10            # 1,000 / entry 100
 
     risk_bound = size(cash_available=10_000_000.0)
-    assert risk_bound.binding_constraint["binds"] == "risk_capacity"
+    assert risk_bound.binding_constraint["binds"] == "risk"
 
 
 def test_ac_6_9e_the_equal_risk_weight_is_reported_beside_the_actual():

@@ -203,6 +203,13 @@ drop it from `REQUIRED_GATES` (then promotion rests on IC and cost alone — and
 > closed) · **QK-1** D-06 owns position size · **QK-3** D-04 owns the effective-breadth number · **QK-6** stress taken from
 > history.
 
+> ★ **2026-10-25 — R1 PARTLY LIFTED, for two accounts.** BMO's holdings export (`L1-recording` §8a, RC-70…RC-78)
+> carries BMO's own price and market value for every line, CDRs and TSX names included: `RESP_1` (13,703.62 CAD) and
+> `TFSA_2` (76,805.55 CAD) are now valued and reconciled against their transaction histories, as of 2026-10-25.
+> ⚠ `TFSA_1` and `RRSP_1` have no holdings export (Victor: 1–2 months), so the **book** is still unvalued and D-05's
+> book pass stays `UNCHECKED` (RC-77, RK-5). Not wired into the daily `book` → `risk` jobs yet: `load_books` still
+> derives, and would withhold all four accounts anyway.
+
 ### 6.1 Verdict: code-complete against its design, but NOT live — no daily run has ever produced a real risk pass
 
 | | state |
@@ -264,6 +271,14 @@ The card shows a count per kind and the last 30 days of flags in full. ✏ **R4*
 >
 > ✅ **Victor's ruling (2026-10-06): leave D-06 as a library for rel-1** (option ⓐ). No wiring, no sizing tool;
 > `target_positions`, `QS-1` and `QS-2` stay open until sizing is wanted.
+
+> ★★ **2026-10-25 — ⓑ BUILT, superseding ⓐ** (`F14`, 🟢 approved by Victor, 18/18 ACs; `F14` `D1`).
+> `python tools/size_for.py TICKER --account ACCT --entry P [--stop S]` sizes against D-11's reported balance. P2 is solved
+> for `RESP_1`/`TFSA_2` (holdings export); P4 by `F14` `D3` (budget = `r_ceiling`, E·C·P·D `unmeasured`) and `D5`
+> (`k` 1.5 labelled); P5 by realised σ from FMP for US listings (`PS-23`). ⚠ **P3 is still open**:
+> `config/portfolio_policy.yaml` ships empty, so every real sizing refuses until Victor states `r_total`, `r_ceiling` and
+> `target_positions` per account. P1 and P6 are out of scope (the tool sizes what Victor names, never a recommendation).
+> `AC-6.18…6.21` are now cited, as `AC-F14.11…14.14`. `DX-191` found and fixed the same day (one sizing path, `AC-F14.19`).
 
 ### 7.1 Verdict: a tested library that nothing calls — NOT live, and under today's rulings it would size nothing
 

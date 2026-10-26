@@ -204,7 +204,8 @@ of the platform*, not a feature of the investment strategy.
 | **F11** | Reference-class base rates — D-02 `base_rates`, the `J-10` input | C3 | 8 (D-02) | 🟢 **approved 2026-10-02** |
 | **F12** | Quant core — D-03 horizons, evaluation protocol, method register, nomination | C8 | 3 (D-03) | 🟢 **approved 2026-10-05** |
 | **F13** | Thesis on demand — `thesis_for TICKER --as-of DATE`, one command over the existing chain | C7·C8 | 2 (D-01) | 🟢 **approved 2026-10-20** |
-| F14+ | *reserved* | — | — | — |
+| **F14** | Position sizing on demand — `size_for TICKER --account ACCT --entry P`, against D-11's reported balance | — | 4 (D-06) | 🟢 **approved 2026-10-25** |
+| F15+ | *reserved* | — | — | — |
 
 ★ **F1 + F2 + F3 is a coherent release on its own** — and would still interview well if nothing after
 it landed.

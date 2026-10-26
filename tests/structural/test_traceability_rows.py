@@ -38,8 +38,8 @@ def test_dx53_the_check_covers_every_spec_and_every_row():
     #   loses its table must turn this red, and a count that silently grew would too.
     # ✏ 2026-10-05 — `F12` (30 ACs, 🟡 draft) joined.
     # ✏ 2026-10-06 — F12 amended: + AC-F12.31 (D9), AC-F12.32 (D10).
-    assert len(rows) == 242, "148 + F10's 25 + F11's 9 + F12's 38 + F13's 22 ACs, one row each (F12 through D17; F13 🟢 2026-10-20, AC-F13.19 2026-10-21, AC-F13.20 2026-10-22, AC-F13.21–22 D15; AC-F10.25 2026-10-23)"
-    assert len(specs) == 15, "all fifteen specs carry a table (F13 joined 2026-10-20, 🟢)"
+    assert len(rows) == 261, "148 + F10's 25 + F11's 9 + F12's 38 + F13's 22 + F14's 19 ACs, one row each (F12 through D17; F13 🟢 2026-10-20, AC-F13.19 2026-10-21, AC-F13.20 2026-10-22, AC-F13.21–22 D15; AC-F10.25 2026-10-23; F14 🟢 2026-10-25, AC-F14.19 D12)"
+    assert len(specs) == 16, "all sixteen specs carry a table (F13 joined 2026-10-20, F14 2026-10-25, 🟢)"
 
 
 # ── ⓑ basename fallback — the decision that made this shippable ───────────

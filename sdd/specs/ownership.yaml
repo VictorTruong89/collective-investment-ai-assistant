@@ -233,6 +233,17 @@ map:
       thesis steps, run ids as arguments, a resumable chain manifest. Subscription
       transport only (AC-F13.2); refuses an industry with no peer set (AC-F13.5).
 
+  - globs:
+      - "tools/size_for.py"
+      - "src/portfolio/**"
+    spec: sdd/specs/F14_sizing_on_demand/spec.md
+    why: >
+      F14 — position sizing on demand (🟡 draft 2026-10-25). D-06 was ungoverned (L9 §7.1:
+      "ungoverned by any F-spec"); F14 governs the whole tree because the command composes the
+      library and its ACs carry L1-portfolio-strategy's AC-6.18…6.21. Capital is D-11's REPORTED
+      balance (RC-70…RC-77), policy numbers are Victor's with no default (PS-43), no LLM and no
+      write (AC-F14.13, AC-F14.14).
+
   # ⚠ src/data_engine/{symbology,ingest,pit,...}/** stay UNGOVERNED here — inherited
   # D-07 code, changes upstream (vision §2) until the MS-8 absorption.
 

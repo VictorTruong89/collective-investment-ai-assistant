@@ -1,6 +1,6 @@
 # F13 — Thesis on demand (`thesis_for TICKER --as-of DATE`)
 
-> **Spec-ID:** F13 · **Status:** 🟢 **approved 2026-10-20** (Victor: *"approve F13 as recommended"*; `Q1`–`Q4` → `D5`–`D8`) · ✅ **22/22 ACs green 2026-10-22** (✏ AC-F13.19 added 2026-10-21, `DX-183`; AC-F13.20 2026-10-22, `D14`; AC-F13.21–22 2026-10-22, `D15`) · **Drafted:** 2026-10-20
+> **Spec-ID:** F13 · **Status:** 🟢 **approved 2026-10-20** (Victor: *"approve F13 as recommended"*; `Q1`–`Q4` → `D5`–`D8`) · ✅ **22/22 ACs green 2026-10-22** (✏ AC-F13.19 added 2026-10-21, `DX-183`; AC-F13.20 2026-10-22, `D14`; AC-F13.21–22 2026-10-22, `D15`) · ★ **`D16` 2026-10-25: functionally complete, accuracy & reliability unproven** · **Drafted:** 2026-10-20
 > **Source discussion:** `_TEMP_handover_2026-10-11.md` §4.1 · `sdd/design/rel1_design/L9-go-live-checklist.md` §13.2
 > (`T1`…`T4`) · Victor, 2026-10-11: *D-01 next, linked to D-04's nomination* · Victor, 2026-10-20: *"step-1 is the full
 > one-command thesis_for TICKER --as-of DATE … take run IDs as arguments. start with MU."*
@@ -223,6 +223,18 @@ error?}` — and `thesis_run_id` once step 4 is done.
   announcements*; in vaccines that is mostly not what a peer's filing reports, so a thin `E-13` there is expected, not a
   defect. ✗ Rejected: `memory_v1` as it is (the subject as its own peer, no Micron); one list per subject (an industry's
   list would fork with every new subject).
+
+- **`D16` — thesis writing is accepted as FUNCTIONALLY COMPLETE; its accuracy and reliability are UNPROVEN** *(Victor,
+  2026-10-25: "temporary acceptance as long as thesis-writing is functionally working … I'll revisit the accuracy and
+  reliability")*. The shape of F12 `D16` for D-04. ★ Evidence of function: one command runs inputs → 8 extractions →
+  9 Stage-A → 13 B–D → checks, resumable and recorded; a second company end to end (SNDK as of 2026-10-20 → SELL ·
+  Medium-High, `run-2026-10-23T105807-sndk-thesis`, ≈ $33.9 notional against MU's ≈ $58.5); the card reads it; MU's
+  $0 replay still reproduces `ed40721f…`; MRNA refused at every gate rather than given a plausible thesis. ⬜ **Left for
+  the revisit, by decision:** whether verdicts are right (falsifiers resolving over time, `k ≥ 3` stability — every
+  thesis today is `k = 1`, so no card is actionable on one); the five unread E-blocks (E-03 E-05 E-08 E-11 E-15) and
+  the deferred E-14 J-18 J-19; a path for `binary_outcome` / single-segment / debt-free subjects (`DX-190`, MRNA); B–D
+  cost (each call writes its growing commit tail; J-13's five calls unmerged); the paid-API twin of the cache fix
+  (`DX-185`); the nominee as default ticker (hand-over §4.1 step 2). Work moves to D-06.
 
 ## 8. Open questions — Victor (✅ all answered 2026-10-20 → `D5`–`D8`; kept as asked)
 

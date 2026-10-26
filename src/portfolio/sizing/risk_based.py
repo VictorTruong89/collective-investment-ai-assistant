@@ -32,6 +32,7 @@ from src.portfolio.errors import (
     UnavailableInputError,
 )
 from src.portfolio.sizing.stop_distance import implied_k
+from src.portfolio.sizing.trade import CAP, size_trade
 
 FORMULA_ID = "risk_budget_dynamic_v1"
 
@@ -78,7 +79,11 @@ def account_risk(*, account_id: str, as_of: date, capital_base: float,
                  r_ceiling: float, open_positions=(), currency: str = "CAD"
                  ) -> RiskBudgetState:
     """PS-30 — ⚠ **never netted across accounts.** Registered accounts hold
-    capital that cannot be moved between them."""
+    capital that cannot be moved between them.
+
+    ⚠ The rate here is the ACCOUNT's (§5.1b's `r_total`); the keyword keeps its historical name
+    for AC-6.9b. Sizing no longer calls this — it computes through `size_trade` (DX-191).
+    """
     return RiskBudgetState(account_id=account_id, as_of=as_of,
                            allowance=capital_base * r_ceiling,
                            committed=committed_risk(open_positions),
@@ -153,10 +158,16 @@ def size_for_stop(*, ticker: str, account_id: str, as_of: date, entry: float,
                   target_positions: int | None = None, current_positions: int = 0,
                   cash_available: float | None = None, book_weights=None,
                   currency: str = "CAD", fx_rate=None,
-                  quote_currency: str | None = None) -> SizingAnswer:
+                  quote_currency: str | None = None, r_total: float | None = None,
+                  open_positions=None) -> SizingAnswer:
     """PS-2…PS-10 — the size, its assumptions and what it does to the book.
 
     ⚠ **PS-8: this is a CONSEQUENCE of stated assumptions, not a proposal.**
+
+    ★★ `DX-191` / F14 `D12`: the arithmetic is `size_trade`'s — the ONE sizing path, shared with
+    F14's `size_on_demand`. `r_total` (§5.1b) and `open_positions` (PS-29) are optional: without
+    both, committed risk is unmeasured and only the ceiling binds; it is never divided by
+    `n_reserve` on its own, and when cash binds the shares ARE reduced to the cash.
     """
     if stop is None:
         raise NoStopError(ticker)
@@ -168,56 +179,46 @@ def size_for_stop(*, ticker: str, account_id: str, as_of: date, entry: float,
 
     slots = n_reserve(account_id=account_id, target_positions=target_positions,
                       current_positions=current_positions)
-    state = account_risk(account_id=account_id, as_of=as_of,
-                         capital_base=capital_base,
-                         r_ceiling=budget.effective, currency=currency)
-    # PS-27 — the per-trade budget is what remains, spread over the open slots.
-    risk_capital = state.remaining / slots
-
     distance = implied_k(entry=entry, stop=stop, sigma=sigma,
                          sigma_source=sigma_source, sigma_class=sigma_class)
     if distance.per_share <= 0:
         raise NoStopError(ticker, f"stop {stop} is at or above entry {entry}")
 
-    shares = risk_capital / distance.per_share
-    notional = shares * entry
-
-    # ── PS-10 / INV-022: cap what the SYSTEM proposes, and label the cap.
-    capped = False
-    ceiling = capital_base * MAX_POSITION_PCT / 100.0
-    if notional > ceiling:
-        capped = True
-        shares = ceiling / entry
-        notional = ceiling
-
-    # ── PS-28: which constraint binds, with both numbers.
-    risk_capacity_notional = notional
-    if cash_available is not None and cash_available < notional:
-        binds = {"binds": "cash", "risk_capacity_notional": risk_capacity_notional,
-                 "cash_available": cash_available, "currency": currency}
-    else:
-        binds = {"binds": "risk_capacity",
-                 "risk_capacity_notional": risk_capacity_notional,
-                 "cash_available": cash_available, "currency": currency}
+    committed = (committed_risk(open_positions) if open_positions is not None
+                 and r_total is not None else None)
+    trade = size_trade(capital_base=capital_base, ceiling_rate=budget.effective,
+                       r_total=r_total, committed=committed, n_reserve=slots,
+                       entry=entry, stop_per_share=distance.per_share,
+                       cash_available=cash_available)
+    state = {"account_id": account_id, "as_of": as_of.isoformat(),
+             "allowance": trade.allowance, "committed": trade.committed,
+             "remaining": trade.remaining, "currency": currency,
+             "committed_status": "measured" if trade.remaining is not None else "unmeasured",
+             "committed_basis": "max(0, entry-stop) x shares"}
+    binds = {"binds": trade.binding, "risk_capacity_notional": trade.notional_risk,
+             "cash_available": cash_available, "cap_notional": trade.notional_cap,
+             "currency": currency}
 
     consequences, crossings = _consequences(
-        ticker=ticker, notional=notional, capital_base=capital_base,
+        ticker=ticker, notional=trade.deploy, capital_base=capital_base,
         book_weights=book_weights or {})
 
     return SizingAnswer(
         ticker=ticker, account_id=account_id, as_of=as_of,
-        arithmetic={"shares": shares, "notional": notional,
-                    "risk_capital": risk_capital, **distance.to_json_obj()},
+        arithmetic={"shares": trade.shares, "shares_exact": trade.shares_exact,
+                    "notional": trade.deploy, "risk_capital": trade.risk_capital,
+                    **distance.to_json_obj()},
         assumptions={"risk_budget_pct": round(100.0 * budget.effective, 6),
                      "capital_base": capital_base,
                      "capital_base_as_of": as_of.isoformat(),
                      "horizon_days": distance.horizon_days,
                      "fx_rate_used": fx_rate, "n_reserve": slots,
-                     "target_positions": target_positions,
-                     "risk_source": "risk_remaining / n_reserve"},
-        risk_budget=budget, account_risk=state.to_json_obj(),
+                     "target_positions": target_positions, "r_total": r_total,
+                     "risk_source": trade.risk_binds},
+        risk_budget=budget, account_risk=state,
         binding_constraint=binds, consequences=consequences,
-        thresholds_crossed=crossings, capped_by_inv022=capped, source="system")
+        thresholds_crossed=crossings, capped_by_inv022=trade.binding == CAP,
+        source="system")
 
 
 def implied_risk(*, ticker: str, account_id: str, as_of: date, entry: float,

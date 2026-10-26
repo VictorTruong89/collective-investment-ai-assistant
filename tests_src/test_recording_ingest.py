@@ -184,8 +184,8 @@ def test_rc41_both_column_layouts_parse_to_the_same_canonical_fields():
 def test_rc48_a_row_from_another_account_is_refused_never_absorbed():
     """★★ RC-48 — the guard that found a foreign row in a real export.
 
-    ⚠ `TransactionHistory_TFSA_2.csv` was about account `23280100` and carried
-    **one `Joint` row** (`23098925`) — a $0.50 transfer from 2022. Booking it
+    ⚠ `TransactionHistory_TFSA_2.csv` was about account `<TFSA_2 account no., redacted>` and carried
+    **one `Joint` row** (`<Joint account no., redacted>`) — a $0.50 transfer from 2022. Booking it
     into the TFSA attributes another account's cash to this one, **and the
     principle is RC-1's.** Victor removed the row on 2026-08-25, so the real
     exports are clean; the guard is exercised on a synthetic one, because *a
@@ -194,12 +194,12 @@ def test_rc48_a_row_from_another_account_is_refused_never_absorbed():
     import tempfile
 
     lines = export("TFSA_2").read_text(encoding="utf-8-sig").splitlines()
-    lines.append("2022-02-02,2022-02-02,SOMEONE ELSE,Joint,23098925,"
+    lines.append("2022-02-02,2022-02-02,SOMEONE ELSE,Joint,99000001,"
                  "Online banking,TF 2374,,0,0,,0.5,CAD")
     with tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False) as fh:
         fh.write("\n".join(lines))
         path = fh.name
-    with pytest.raises(ForeignAccountRowError, match="23098925"):
+    with pytest.raises(ForeignAccountRowError, match="99000001"):
         parse_export(path, account_id="TFSA_2")
     # ★ Skipping it is possible, and must be deliberate.
     assert len(parse_export(path, account_id="TFSA_2",

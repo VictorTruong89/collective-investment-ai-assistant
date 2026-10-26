@@ -69,3 +69,18 @@ class ReserveUnavailableError(PortfolioError):
             f"{account_id}: {detail}. `target_positions` is a STATED POLICY "
             f"(PS-27, PS-43, QS-7) — supplied per account, never inferred"
         )
+
+
+class PolicyMissingError(PortfolioError):
+    """PS-43 / F14 D6 — an account's sizing policy is not stated, or is out of range.
+
+    ★ `r_total`, `r_ceiling` and `target_positions` divide or cap a position, so none has
+    a default: the account is refused by name until Victor states them.
+    """
+
+    code = "PRT.POLICY.MISSING"
+
+    def __init__(self, account_id: str, path, detail: str) -> None:
+        super().__init__(
+            f"{account_id}: {detail} in {path}. r_total, r_ceiling and target_positions "
+            f"are Victor's stated policy, per account, with no default (PS-43, F14 D6)")

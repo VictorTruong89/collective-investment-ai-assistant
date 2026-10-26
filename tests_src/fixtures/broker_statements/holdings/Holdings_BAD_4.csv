@@ -1,0 +1,21 @@
+Account:,99887766
+as of date:,25-Oct-2026
+
+,Cash, ,Value of securities, ,Account balance, ,
+Total,54.00,CAD,5993.00,CAD,6047.00,CAD,
+
+Cash balances
+Asset class,PROD Type/IND. Sector,Description,Symbol,Quantity,Average cost, ,Total cost, ,Current price, ,Market value, ,Unrealized gain/loss, ,Unrealized gain/loss %,Portfolio%,FX rate,Previous close price, ,Maturity date,Days to maturity,Annualized income, ,Yield,Indicated annual dividend, ,Dividend frequency,Ex-dividend date,Price type,Cost type,
+Cash balances,Cash balances,Canadian $ Cash, ,40.00, , ,40.00,CAD,1.0000,CAD,40.00,CAD, , , ,0.40%
+Cash balances,Cash balances,U.S. $ Cash, ,10.00, , ,10.00,USD,1.4000,CAD,14.00,CAD, , , ,0.10%
+Total cash balances, , , , , , , , , , ,54.00,CAD, , , ,0.50%
+
+
+Asset class,PROD Type/IND. Sector,Description,Symbol,Quantity,Average cost, ,Total cost, ,Current price, ,Market value, ,Unrealized gain/loss, ,Unrealized gain/loss %,Portfolio%,FX rate,Previous close price, ,Maturity date,Days to maturity,Annualized income, ,Yield,Indicated annual dividend, ,Dividend frequency,Ex-dividend date,Price type,Cost type,
+Equities,Information Tech.,FICTIONAL TECH CORP CDR CIBC,FTC,100,20.0995,CAD,2009.95,CAD,21.0000,CAD,2100.00,CAD,0.00,CAD,0.00%,10.00%,,21.0000,CAD,, ,, ,0.00%,0.00,CAD,,,,-,-,,
+Equities,Information Tech.,FICTIONAL CHIP CO COM,FCC:US,10,150.9950,USD,1509.95,USD,160.0000,USD,2240.00,CAD,0.00,CAD,0.00%,10.00%,1.3500,160.0000,USD,, ,, ,0.00%,0.00,USD,,,,-,-,,
+Equities,Financials,FICTIONAL BANK,FBK,30,50.3317,CAD,1509.95,CAD,55.1000,CAD,1653.00,CAD,0.00,CAD,0.00%,10.00%,,55.1000,CAD,, ,, ,0.00%,0.00,CAD,,,,-,-,,
+Total portfolio value  ( 4 holdings ), , , , , , , , , , ,6047.00,CAD,0.00,CAD,0.00%,100.00%,,,,,
+
+Exchange Rate:
+1 USD = 1.4000 CAD

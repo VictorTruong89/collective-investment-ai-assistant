@@ -1,0 +1,16 @@
+# F14 (CT-F14.2) — per-account sizing policy for `tools/size_for.py`. Victor's numbers; none ships.
+#
+# ⚠ PS-43: each of these divides or caps a position, so NONE has a default. An account that
+#   is not listed here is REFUSED BY NAME — never sized against an invented number.
+#
+#   r_total           the most the account may have at risk at once      0 < r_ceiling ≤ r_total ≤ 1
+#   r_ceiling         the most ONE trade may risk (the budget's ceiling)  (fractions, e.g. 0.01 = 1 %)
+#   target_positions  the account's stated number of position slots     integer ≥ 1 (PS-27)
+#
+# Shape (fill in your own values, then uncomment):
+#   accounts:
+#     TFSA_2: {r_total: <fraction>, r_ceiling: <fraction>, target_positions: <int>}
+#     RESP_1: {r_total: <fraction>, r_ceiling: <fraction>, target_positions: <int>}
+#
+# ⓘ Stated 2026-10-25 (F14 D6): Victor chose this file over per-run flags and gave no values yet.
+accounts: {}

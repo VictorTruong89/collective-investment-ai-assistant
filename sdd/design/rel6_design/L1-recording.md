@@ -11,6 +11,7 @@
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
+| 0.13.0 | 2026-10-25 | Victor *(drafted by Claude; ✅ approved by Victor 2026-10-25)* | ★★★ **§8a / RC-70…RC-78 — the HOLDINGS export, the outside figure RC-51 has been missing since 2026-08-25.** BMO's `Holdings_<ACCOUNT>.csv` carries its own price and market value for every line (CDRs and TSX names included — the lines FMP cannot price, RC-58), cash per currency and the account balance. ★ Read for `RESP_1` and `TFSA_2` (2026-10-25) it is **internally consistent to the cent** and **agrees with the derived book** on every quantity and every cash line. Rules: what is read (RC-70), line identity from description + currency, never the ticker (RC-71), ⚠ **two FX rates, one for value and one for cost** (RC-72), six self-checks (RC-73), the as-of date is the file's (RC-74), the reported `BookState` (RC-75), derived-vs-reported reconciliation (RC-76), ⚠ **no export → refused by name, never a derived fallback** (RC-77), ⚠ **the real account number on line 1 is never persisted** (RC-78). AC-11.53…11.61. |
 | 0.12.0 | 2026-08-27 | Victor | ★★★ **RC-62…64 — the run record could not name the model that produced the pick.** ⚠ *Measured on a complete run directory:* `grep` for the promoted model's hash **found nothing**; `manifest.json` carried `inputs: []` and `code.git_sha: ""`. **QA-121** requires the trace and **INV-2** rests on it. D-03's `Nomination` is now folded into `recommendation.json` (**Victor's choice of file**, 2026-08-27) — ★ composed by D-11 at write time so **D-12's contract gains no dependency on D-03's**. **`delivery.json`** added to CT-11.7 and four columns to the index. AC-11.44…11.46. |
 | 0.11.0 | 2026-08-26 | Victor | ★★ **RC-59…61 + CT-11.7 — the run artifact, which RC-33 has required since v0.5.0 and nothing implemented.** ⚠ **`ManifestStore` and `JournalStore` were both built and NEITHER was ever called**: every manifest, recommendation, card and thesis evaporated at process exit. ★ **P6 was unmet**, and *every* measurement in these specs — RM-2/RM-3, DN-17, DN-29 — needs run history that did not exist. **RC-61** stores a thesis under its `bundle_hash` and reuses it ($1.34/run otherwise); ★ this does **not** harm RM-1, whose k runs happen inside one authoring event with `temperature = 0` (GW-8). AC-11.40…11.43. |
 | 0.10.0 | 2026-08-25 | Victor | ✅✅ **RC-57 — ALL FOUR ACCOUNTS RECONCILE TO THE CENT against the balances BMO shows.** The first external check of any number in this system. It took two more defects, both mine: **RC-55** — the column layout **changes within one file** (75 narrow + 74 wide rows interleaved in `TFSA_2`), so each row is mapped by its own width; **RC-56** — **a blank `Activity Description` can carry real cash** (three RESP `GRANT REC` rows at $500), and skipping them silently lost **exactly the $1,500** the account was short. ⏸ **RC-58**: Canadian listings and CDRs are **postponed** at Victor's instruction — positions are still derived and reconciled; only market value waits, because the FMP plan covers US listings only. |
@@ -538,7 +539,7 @@ institutional size, and the reasoning should not be reused there.)*
 | **RC-52** | ★ **A CDR is valued from its CAD cost basis scaled by the UNDERLYING'S USD RETURN — never reconstructed from the ratio.** It is **ratio-agnostic**, and CIBC's ratio is *precisely the number FMP cannot supply* and which CIBC adjusts to pass through hedge costs and dividends. ⚠ It needs an underlying with a USD price, so **`MRV` and `SPCX` cannot be valued this way** |
 | **RC-53** | ★★ **A bare ticker is AMBIGUOUS ACROSS VENUES, and the vendor answers with the US listing.** ⚠ *Measured 2026-08-25:* `MDA` returned **MDA Space Ltd, NYSE, USD** and `BMO` returned **Bank of Montreal, NYSE, USD** — the right companies on the **wrong venue, in the wrong currency**, for positions held on the TSX in CAD. ★★ **This is more dangerous than the 402s**: a plan-gated symbol refuses loudly, while a same-named US listing returns **a plausible number in the wrong currency**, and a CAD book that adds it is wrong by the FX rate — silently. ⚠ The quote's currency must match the venue's, or the position is **unavailable, never converted** (FX-3's shape) |
 | **RC-54** | ⚠ **Where the vendor and this spec disagree about a SECURITY, neither is assumed right.** *Measured:* §5.3 records that **SpaceX is private — no US listing, no CIK, no EDGAR** — and FMP answers `SPCX` with *"Space Exploration Technologies Cor, NASDAQ, USD"*. ★ D-11 does not silently pick the vendor: `SPCX` is **unpriceable until the disagreement is resolved** (F3 §4c, carried in `L5-inherited-defects.md` §5). ⚠ `QUOTE_CONTRADICTS_SPEC` is **a list of open disagreements, not a blocklist of bad tickers** |
-| **RC-48** | ★★ **Where the export carries account columns, a row belonging to ANOTHER account is refused — never absorbed.** ⚠ *Measured 2026-08-25 on the full-history exports:* `TransactionHistory_TFSA_2.csv` is about account `23280100` (146 rows) and contains **one `Joint` row, account `23098925`**. ★ Booking it into the TFSA attributes another account's cash to this one — **$0.50 here, and the principle is RC-1's**: there is no unattributed activity, and there is no *mis*-attributed activity either. ⚠ Skipping such a row must be **deliberate and visible** (`strict_accounts=False`), never the default |
+| **RC-48** | ★★ **Where the export carries account columns, a row belonging to ANOTHER account is refused — never absorbed.** ⚠ *Measured 2026-08-25 on the full-history exports:* `TransactionHistory_TFSA_2.csv` is about account `<TFSA_2 account no., redacted>` (146 rows) and contains **one `Joint` row, account `<Joint account no., redacted>`**. ★ Booking it into the TFSA attributes another account's cash to this one — **$0.50 here, and the principle is RC-1's**: there is no unattributed activity, and there is no *mis*-attributed activity either. ⚠ Skipping such a row must be **deliberate and visible** (`strict_accounts=False`), never the default |
 | **RC-49** | ★★ **`Disbursement` moves SHARES and carries no cash, and its sign is taken from the file — never inferred.** ⚠ *Measured:* `RESP_1 · PLTR CDR · 390 @ 0 · total 0`. **Classifying it as cash-only loses 390 shares while the cash still balances** — RC-45's failure shape from a different cause. ★ BMO signs dispositions negative throughout, so a positive quantity is shares arriving; **the book reconciles on that reading and not the other**, which is evidence rather than a guess |
 | **RC-50** | ★ **Four years of history contained FIVE activity types that eight months did not** — `Harmonized sales tax`, `Admin fee charged`, `Withdrawal`, `Disbursement`, `Online banking`. ⚠ Each one **stopped the run on first parse** (RC-13) instead of vanishing from a book that has to balance. ★ *This is the argument for failing loud made twice over*: the same rule caught `Interest` in the short window and five more in the long one, and **not one of them was predictable from the shorter file** |
 | **RC-45** | ★★ **A position cannot be derived from a PARTIAL activity window, and the export does not say so.** ⚠ *Measured 2026-08-25:* the four exports cover `From=2026-01-01`, and replaying them yields **negative quantities** — `PLTR RESP −520`, `GOOG TFSA_2 −30`, `BBD.B RRSP −26`. ★ **Those are not shorts.** They are positions opened *before* the window whose sells appear and whose buys do not. **RC-9 derives the book from activity, so an activity window that does not reach back to a lot's opening derives the wrong lot** — and the arithmetic looks perfectly healthy while doing it. ⚠ A derived quantity below zero is therefore **evidence of a truncated window**, not a short, and it must **block** rather than book (P5, RC-10) |
@@ -548,6 +549,63 @@ institutional size, and the reasoning should not be reused there.)*
 | **RC-43** | ★★ **The flat commission is `9.95` in BOTH currencies, measured — and a residual that is a MULTIPLE of it means two same-day orders were merged.** ★ Over all **137 orders** in the four exports: `9.95` exactly ×100, `0.00` ×2 (**BMO charges nothing on its own ETFs**, ZCN), and `19.90` ×1 — `SPCX 2026-06-16`, four tranches, **two orders**. ⚠ **The export carries no order id**, so the fee is the *only* evidence the merge happened, and `implied_order_count` reports it rather than hiding it |
 | **RC-44** | ⚠ **USD SELLS carry an extra charge above the flat fee and WE DO NOT KNOW WHAT IT IS.** *Measured:* `MU −23 → 10.13`, `INTC −115 → 10.39`, `ARM −70 → 10.71`, `ENB −220 → 11.30` — every order exceeding `9.95` by more than price-rounding explains is a **USD sell**. ★ A US regulatory transaction fee (SEC Section 31, sells only) is the obvious candidate and **does not fit the magnitudes, so it is not asserted.** ⚠ The excess is carried as **`residual_unexplained`** and never absorbed into a tolerance — *a plausible reason attached to an unexplained residual is strictly worse than the honest gap* (D-01 **RA-79**, applied to fees). **QC-7** |
 | **RC-18** | **Account type is configuration** (H-5), never inferred from a `Contribution` description that may be outside the window. **M-4's flag depends on it** |
+
+---
+
+# 8a. ★★ THE HOLDINGS EXPORT — the outside figure (v0.13.0)
+
+> **Why it exists.** RC-51: a transaction export carries no balance, so a book derived from it
+> reconciles *by construction* and checks nothing. RC-58: FMP Starter has no Canadian market data,
+> so CDR and TSX lines cannot be priced — and every account holds one. ★ **BMO's holdings export
+> answers both**: the broker's own price and market value for every line, cash per currency and the
+> account balance. Downloaded by Victor 2026-10-25 for `RESP_1` and `TFSA_2`; ⏳ `TFSA_1` and
+> `RRSP_1` expected in 1–2 months.
+
+## 8a.1 Layout — measured on the two real files
+
+```text
+Account:,<real account number>                    ← RC-78: read, never kept
+as of date:,25-Oct-2026                           ← dd-Mon-yyyy (RC-74)
+,Cash, ,Value of securities, ,Account balance, ,
+Total,<cash>,CAD,<securities>,CAD,<balance>,CAD,  ← the three outside totals
+Cash balances                                     ← one-cell heading row
+<header: Asset class, PROD Type/IND. Sector, Description, Symbol, Quantity, Average cost, ␣,
+         Total cost, ␣, Current price, ␣, Market value, ␣, Unrealized gain/loss, ␣, …, FX rate, …>
+Cash balances,Cash balances,Canadian $ Cash| U.S. $ Cash, ,<qty>, , ,<qty>,<ccy>,<fx>,CAD,<value CAD>,CAD,…
+Total cash balances, …, <cash total>,CAD, …
+<the same header again>
+Equities,<sector>,<description>,<symbol>,<qty>,<avg cost>,<ccy>,<total cost>,<ccy>,<price>,<ccy>,<market value>,CAD,…
+Total portfolio value  ( n holdings ), …, <balance>,CAD, …
+Exchange Rate:
+1 USD = <rate> CAD                                ← present only when a USD line exists
+```
+
+Every money column is followed by its own currency column (the blank-named `␣` columns).
+**Market value is always in CAD**; price and cost are in the line's trading currency.
+
+## 8a.2 Rules
+
+| ID | Rule |
+|---|---|
+| **RC-70** | ★★ **`Holdings_<ACCOUNT>.csv` is the book's OUTSIDE FIGURE** — the reported balance RC-51 requires and the CDR/TSX prices RC-58 lacks. ★ It is read as **reported fact as of its own date** and is never derived, extrapolated or re-priced. What is read: the as-of date; the three totals (cash, value of securities, account balance — all CAD); each cash line (currency, native amount, its CAD value); each equity line (sector, description, symbol, quantity, average and total cost with currency, price with currency, market value in CAD); the footer `1 USD = r CAD`. The account id is the **file name's** (`Holdings_RESP_1.csv` → `RESP_1`), as RC-18/H-5 already require of transactions. ⚠ Anything the parser does not recognise — an asset class other than `Equities` / `Cash balances`, a cash line in a currency other than CAD/USD, a missing header — **raises** (RC-13's shape) |
+| **RC-71** | ★★ **A line's identity comes from its DESCRIPTION and CURRENCY, never from its ticker** (RC-53, RC-36). ⚠ Measured: `GOOG` and `MRK` are **CDRs in CAD** (`ALPHABET CDR CAD HEDGED CIBC D`, `MERCK & CO CIBC CDN DEPOSITARY`), not the US shares; US listings carry `:US` (`ARM:US`, `DELL:US`); TSX names are bare (`BMO`, `ENB`, `BBD.B`). ★ The wrapper uses **the same classifier the transaction parser uses** (`CIBC` / ` CDR` / `CDN DEP` in the description → `CDR`, else `COMMON`), and the symbol drops `:US` — so the instrument id is the one RC-16/RC-46 already define (`ARM\|COMMON\|USD`, `GOOG\|CDR\|CAD`) and **the two exports can be reconciled line by line**. ⚠ A `:US` suffix on a non-USD line, or a USD line without `:US`, **raises**: the two signals disagree, and neither is assumed right (RC-54's shape) |
+| **RC-72** | ★★ **Two FX rates, one for VALUE and one for COST — never mixed.** Market value uses the footer's **current** rate (`1 USD = 1.3999 CAD`); the per-line `FX rate` column on a USD equity line is the rate **at purchase** (ARM `1.4231`, DELL `1.4245`) and enters only cost and unrealized gain. ⚠ *Using the line rate mis-values every US line by the FX move since purchase, plausibly* — so it is read as `fx_at_cost` and never as `fx_rate_used`. ★ The USD cash line's own `FX rate` column **is** the current rate and must equal the footer (a seventh check, RC-73 g). ⚠ **A USD line or USD cash with no footer rate raises** — no rate, no number (FX-3) |
+| **RC-73** | ★★ **The export checks itself before anything reads it, and each check names what failed.** (a) Σ cash lines (CAD value) = cash total · (b) Σ equity market values = value of securities · (c) cash + securities = account balance · (d) the `Total portfolio value` row = account balance and its `( n holdings )` = the equity line count · (e) the `Total cash balances` row = cash total · (f) **each line**: `quantity × price × (r if USD else 1)` = its market value · (g) the USD cash line's rate = the footer rate. ★ **Tolerance: a cent**, except (f) on a USD line, which allows `0.01 + quantity × price × 0.00005` — **half the last printed digit of a 4-dp rate**, the most a correctly rounded rate can move the product; ⚠ it is derived from the printing precision, not fitted to the data. Measured: both real files pass every check **to the cent** |
+| **RC-74** | ★ **The as-of date is the FILE'S, not today's**, and every answer built on the export carries it. ⚠ *A Sunday date means Friday's close* — the export says nothing more and nothing more is inferred. ★ Staleness is **visible, never silent**: no consumer may present a holdings figure without its as-of date. ⚠ A missing or unparseable date **raises** — an undated balance is not a balance. No staleness threshold is set here; a consumer that needs one states it (it is a policy value) |
+| **RC-75** | ★ **The reported book is a `CT-11.4 BookState` built from REPORTED figures only.** Positions carry the broker's price × quantity **in the trading currency** (`market_value`, `currency`) and the broker's average cost; `cash_by_currency` is the native cash lines; `fx_rate_used = {USD: r}` from the footer; `nav_base` and `capital_base` are the **reported account balance** (CAD). ★ RC-10 still runs on it (`positions + cash == NAV` per currency) — and RC-73 (c) is what makes `nav_base` an outside number rather than a sum. ⚠ The state records its origin — `source = "holdings_export"` — and `reconciled = ok` only when RC-73 passed; a failed self-check raises before a state exists |
+| **RC-76** | ★★ **RC-10 against something that can be wrong: derived (transactions) vs reported (holdings).** Per instrument id, derived quantity = reported quantity; per currency, derived cash = reported cash — **to the cent, every line, both directions** (a line on one side and absent from the other is a break). ★ Measured 2026-10-25: `RESP_1` (transactions to 2026-10-08) and `TFSA_2` (to 2026-10-15) agree on every quantity and every cash line. ⚠ **A break is reported with both windows** — *"transactions end 2026-10-15, holdings as of 2026-10-25"* — because activity in the gap is the commonest honest cause, and **neither side is adjusted to meet the other** |
+| **RC-77** | ★★ **No holdings export for an account ⇒ that account is REFUSED BY NAME, never valued from a fallback.** ⚠ Not a derived book, not an older export, not FMP prices (P5): *"no holdings export for TFSA_1"*. ★ A **book-wide** figure over a subset of accounts is refused the same way (RC-3, RK-5) — two valued accounts are not *the book*, and a total over them is wrong, not partial. Per-account answers for the accounts that **have** an export are unaffected |
+| **RC-78** | ★★ **The real account number on line 1 is NEVER persisted.** It is checked to be present (the line is how a holdings export is recognised) and then discarded: it is in no object, no `to_json_obj`, no `repr`, no error message, no log, no test, no report. ★ The file name's account id is the only identity this system keeps. ⚠ The same rule binds the real files themselves: they live under `.state/` only (RC-66, DX-5); tracked fixtures are synthetic, with an invented number |
+
+## 8a.3 Known answers — the two real files, 2026-10-25
+
+| | RESP_1 | TFSA_2 |
+|---|---|---|
+| cash | CAD 27.51 | CAD 77.35 · USD 19.92 (→ 27.89 CAD) · total 105.24 |
+| securities | 13,676.11 | 76,700.31 |
+| account balance | 13,703.62 | 76,805.55 |
+| USD→CAD | — | 1.3999 |
+| positions | ENB 203 → 13,676.11 | GOOG (CDR) 200 → 10,080.00 · ARM:US 36 @ 210.33 USD → 10,599.87 · BMO 34 → 8,053.58 · BBD.B 53 → 17,307.68 · DELL:US 21 @ 456.57 USD → 13,422.20 · ENB 129 → 8,690.73 · MRK (CDR) 265 → 8,546.25 |
 
 ---
 
@@ -743,6 +801,9 @@ beaten?"* is unanswerable from a directory that records only the winner.
 | `REC.RECONCILE.BREAK` | ERROR | positions + cash ≠ NAV (RC-10, INV-025) |
 | `REC.CAPITAL.NOT_AVAILABLE` | ERROR | capital base requested for a date with no reconciled book (RC-19) |
 | `REC.EXEC.NOT_MEASURABLE` | *(not an error)* | window predates arrival capture — **a value, not a failure** (RC-7) |
+| `REC.HOLDINGS.SELF_CHECK` | ERROR | the holdings export fails one of its own totals — the check is named (RC-73) |
+| `REC.HOLDINGS.UNRECOGNISED` | ERROR | an unknown asset class, currency, layout or a ticker/currency disagreement (RC-70, RC-71) |
+| `REC.HOLDINGS.MISSING` | ERROR | no holdings export for a named account — **never a fallback** (RC-77) |
 
 ---
 
@@ -816,6 +877,39 @@ BOUNDARY
 | **AC-11.52** | ★ **RC-69** — **Given** `.state/runs/` holding a CT-11.7 run beside a thesis trace directory (`trace.jsonl` + a `trace/` folder), **when** a run is recorded and the index rebuilt, **then** both succeed, the index lists only the CT-11.7 run, and no subdirectory is read as a file. → *unit.* |
             still rebuildable from the directories (RC-64, CT-11.7)
 ```
+
+### §8a — the holdings export (v0.13.0, ✅ approved by Victor 2026-10-25)
+
+| AC | Criterion | Tier |
+|---|---|---|
+| **AC-11.53** | ★ **RC-70/RC-74/RC-75** — **Given** a synthetic CAD-only holdings file, **when** it is parsed, **then** the as-of date, the three totals, every cash line and every equity line are read as reported, and the `BookState` carries `nav_base = capital_base =` the account balance, `date =` the file's as-of, and the account id from the file name | unit (known answer) |
+| **AC-11.54** | ★★ **RC-72** — **Given** a mixed file with a USD line whose `FX rate` column differs from the footer, **when** parsed, **then** the line's CAD market value checks against the **footer** rate, the line rate is kept only as `fx_at_cost`, the position's `market_value` is `quantity × price` in USD, and `fx_rate_used = {USD: footer}` | unit |
+| **AC-11.55** | ★★ **RC-71** — a CDR in CAD (description carries `CIBC` / `CDR` / `CDN DEP`) → `SYM\|CDR\|CAD`; an `X:US` USD line → `X\|COMMON\|USD`; a bare CAD line → `X\|COMMON\|CAD`; **and** a `:US` line in CAD, or a USD line with no `:US`, **raises** | unit |
+| **AC-11.56** | ★★ **RC-73** — one broken synthetic file per self-check, each refused **with the check named**: cash Σ (a), securities Σ (b), balance (c), holdings count (d), a line's qty × price × fx (f), a USD line with no footer rate (RC-72), an unrecognised asset class (RC-70) | unit |
+| **AC-11.57** | ★★ **RC-78** — **Given** a synthetic file whose line 1 carries a marker account number, **then** the marker appears in no parsed object, no `to_json_obj`, no `repr`, and **no error message** of any refusal in AC-11.56 | unit (property over the refusal set) |
+| **AC-11.58** | **RC-74** — a missing or unparseable `as of date` raises | unit |
+| **AC-11.59** | ★★ **RC-77** — asking for an account with no `Holdings_<ACCOUNT>.csv` raises naming that account; a book-wide request when any discovered account lacks one raises naming each missing account; the accounts that have one still answer individually | unit |
+| **AC-11.60** | ★★ **RC-76** — matching derived and reported books reconcile `ok`; a quantity off by one share, a cash line off by a cent, and a line present on one side only each produce a **named break** carrying both windows; neither side is adjusted | unit |
+| **AC-11.61** | ★★ **RC-70…RC-76 against EXTERNAL TRUTH** — on the real `.state/` files (**skipped when absent**): every figure in §8a.3, every self-check passing, and RC-76 reconciling `ok` against the matching transaction histories | reality probe (F3 Tier 1) |
+
+**Traceability — §8a** (all ✅ green 2026-10-25; code `src/recording/book/holdings.py`, errors in
+`src/recording/errors.py`, the shared classifier `is_cdr_description` in `src/recording/reconcile/ingest.py`;
+synthetic fixtures `tests_src/fixtures/broker_statements/holdings/`, every value invented)
+
+| AC | Test |
+|---|---|
+| AC-11.53 | `tests_src/test_recording_holdings.py::test_ac_11_53_a_cad_only_export_is_read_as_reported` |
+| AC-11.54 | `…::test_ac_11_54_market_value_uses_the_footer_rate_never_the_purchase_rate` |
+| AC-11.55 | `…::test_ac_11_55_line_identity_comes_from_description_and_currency`, `…::test_ac_11_55_a_ticker_and_currency_that_disagree_raise` (×2) |
+| AC-11.56 | `…::test_ac_11_56_each_self_check_fires_and_names_itself` (×6: a, b, c, d, f, g), `…::test_ac_11_56_a_usd_line_with_no_footer_rate_raises`, `…::test_ac_11_56_an_unrecognised_asset_class_raises` |
+| AC-11.57 | `…::test_ac_11_57_the_account_number_is_in_no_parsed_object`, `…::test_ac_11_57_the_account_number_is_in_no_error_message` (×11, the whole refusal set) |
+| AC-11.58 | `…::test_ac_11_58_a_missing_as_of_date_raises` |
+| AC-11.59 | `…::test_ac_11_59_an_account_with_no_holdings_export_is_refused_by_name`, `…::test_ac_11_59_a_book_wide_request_over_a_partial_set_is_refused`, `…::test_ac_11_59_a_complete_set_answers_book_wide` |
+| AC-11.60 | `…::test_ac_11_60_matching_books_reconcile_ok`, `…::…_a_quantity_off_by_one_share_is_a_named_break_with_both_windows`, `…::…_a_cash_line_off_by_a_cent_is_a_break`, `…::…_a_line_on_one_side_only_is_a_break` |
+| AC-11.61 | `tests_src/test_recording_holdings_real.py` (4 tests; ran green on Victor's files 2026-10-25) |
+
+⚠ Not wired yet, by scope: `load_books` (the daily card's D-05 pass) still derives and still refuses under RC-58;
+the book-wide figure stays `UNCHECKED` until `TFSA_1` and `RRSP_1` have holdings exports (RC-77).
 
 > **Deferred with the priority, not dropped:** performance attribution (F8 is a reserved desk),
 > multi-period P&L attribution, and anything that would only matter at institutional scale.

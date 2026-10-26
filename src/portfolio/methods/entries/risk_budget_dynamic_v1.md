@@ -1,7 +1,8 @@
 # `risk_budget_dynamic_v1` — the dynamic per-trade risk budget
 
-Code: src/portfolio/sizing/risk_based.py @ sha256:b7646abe4e4d3a48
+Code: src/portfolio/sizing/risk_based.py @ sha256:392996a49331ce41
 *(QA-25 / F12 AC-F12.22 — pinned 2026-10-05 as the baseline; re-pin only after re-reading this entry against the changed code.)*
+*✏ Re-pinned 2026-10-25 (`DX-191`, F14 `D12`): `size_for_stop` now delegates its arithmetic to `sizing/trade.py::size_trade`. The budget formula below — `risk_budget()`, its factors and bounds — is unchanged; re-read against the new file, the entry still holds.*
 
 ## Statement
 

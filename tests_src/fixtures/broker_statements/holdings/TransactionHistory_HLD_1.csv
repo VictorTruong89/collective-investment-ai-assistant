@@ -1,0 +1,4 @@
+Transaction Date,Settlement Date,Activity Description,Description,Symbol,Quantity,Price,Price Currency,Total Amount,Total Currency
+2026-05-01,2026-05-01,Contribution,CONTRIBUTION,,0,0,CAD,1570.15,CAD
+2026-05-04,2026-05-06,Buy,FICTIONAL RAIL CO,FRC.B,100,10.00,CAD,-1009.95,CAD
+2026-05-05,2026-05-07,Buy,FICTIONAL TECH CORP CIBC CDR,FTC,50,8.00,CAD,-409.95,CAD

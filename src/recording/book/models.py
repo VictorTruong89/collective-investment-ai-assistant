@@ -121,6 +121,9 @@ class BookState:
     reconciled: str = OK
     breaks: tuple[Break, ...] = ()
     account_type: str = "TFSA"
+    #: RC-75 — where the figures came from: `derived` (transactions, RC-9) or
+    #: `holdings_export` (BMO's reported values, RC-70).
+    source: str = "derived"
 
     def __post_init__(self) -> None:
         if self.reconciled not in RECONCILED:
@@ -158,4 +161,5 @@ class BookState:
             "fx_rate_used": dict(self.fx_rate_used),
             "capital_base": self.capital_base, "reconciled": self.reconciled,
             "breaks": [b.to_json_obj() for b in self.breaks],
+            "source": self.source,
         }
